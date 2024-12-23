@@ -1,10 +1,21 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
-    return view('login');
+    return redirect()->to('/login');
+});
+
+Route::get('/logout', function () {
+    Auth::guard('web')->logout();
+
+    Session::invalidate();
+    Session::regenerateToken();
+
+    return redirect()->to('/login');
 });
 
 Route::get('/dashboard', function () {
@@ -17,4 +28,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
