@@ -71,9 +71,13 @@ class User extends Authenticatable
     {
         return $this->belongsTo(MasterKhusus::class, 'khusus_id');
     }
-    public function pendidikan()
+    public function pendAwal()
     {
         return $this->belongsTo(MasterPendidikan::class, 'pend_awal');
+    }
+    public function pendidikan()
+    {
+        return $this->belongsTo(MasterPendidikan::class, 'pendidikan');
     }
     /**
      * Relasi ke TUmum.

@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MasterPendidikan;
+use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\MasterPendidikan;
 
 class MasterPendidikanController extends Controller
 {
@@ -12,7 +13,9 @@ class MasterPendidikanController extends Controller
      */
     public function index()
     {
-        //
+        // $user = User::find(2);
+        // dd($user->pendAwal->maximGolongan);
+        return view("pendidikan.index");
     }
 
     /**

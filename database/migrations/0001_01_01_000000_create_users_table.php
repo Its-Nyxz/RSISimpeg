@@ -30,9 +30,12 @@ return new class extends Migration
             $table->timestamp('pensiun')->nullable();
             $table->string('tanggal_lahir')->nullable();
             $table->string('alamat')->nullable();
-            $table->integer('pend_awal')->nullable();
-            $table->integer('pend_penyesuaian')->nullable();
-            $table->string('pendidikan')->nullable();
+            // $table->integer('pend_awal')->nullable();
+            $table->foreignId('pend_awal')->nullable()->constrained('master_pendidikan');
+            $table->foreignId('pend_penyesuaian')->nullable()->constrained('master_pendidikan');
+            $table->foreignId('pendidikan')->nullable()->constrained('master_pendidikan');
+            // $table->integer('pend_penyesuaian')->nullable();
+            // $table->string('pendidikan')->nullable();
             $table->dateTime('tgl_penyesuaian')->nullable();
             $table->integer('masa_kerja')->default(value: 0)->nullable();
             $table->integer('status')->nullable();
@@ -43,7 +46,7 @@ return new class extends Migration
             $table->foreign('trans_id')->references('id')->on('master_trans');
             $table->foreign('khusus_id')->references('id')->on('master_khusus');
             // $table->foreign('gol_id')->references('id')->on('master_golongan');
-            $table->foreign('pend_awal')->references('id')->on('master_pendidikan');
+            // $table->foreign('pend_awal')->references('id')->on('master_pendidikan');
             // $table->foreign('pend_penyesuaian')->references('id')->on('master_penyesuaian');
         });
 

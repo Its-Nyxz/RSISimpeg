@@ -15,8 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('nama')->nullable();
             $table->string('deskripsi')->nullable();
-            $table->integer('minim_gol')->nullable();
-            $table->integer('maxim_gol')->nullable();
+            // $table->integer('minim_gol')->nullable();
+            $table->foreignId('minim_gol')->nullable()->constrained('master_golongan');
+            // $table->integer('maxim_gol')->nullable();
+            $table->foreignId('maxim_gol')->nullable()->constrained('master_golongan');
             $table->timestamps(0);
         });
     }

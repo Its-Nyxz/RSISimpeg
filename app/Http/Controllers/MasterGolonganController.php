@@ -12,7 +12,7 @@ class MasterGolonganController extends Controller
      */
     public function index()
     {
-        //
+        return view('golongan.index');
     }
 
     /**

@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MasterJabatan;
 use Illuminate\Http\Request;
 
-class MasterJabatanController extends Controller
+class MasterTunjangan extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return view('jabatan.index');
+        return view("tunjangan.index");
     }
 
     /**
@@ -34,7 +33,7 @@ class MasterJabatanController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(MasterJabatan $masterJabatan)
+    public function show(string $id)
     {
         //
     }
@@ -42,7 +41,7 @@ class MasterJabatanController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(MasterJabatan $masterJabatan)
+    public function edit(string $id)
     {
         //
     }
@@ -50,7 +49,7 @@ class MasterJabatanController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, MasterJabatan $masterJabatan)
+    public function update(Request $request, string $id)
     {
         //
     }
@@ -58,7 +57,7 @@ class MasterJabatanController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(MasterJabatan $masterJabatan)
+    public function destroy(string $id)
     {
         //
     }

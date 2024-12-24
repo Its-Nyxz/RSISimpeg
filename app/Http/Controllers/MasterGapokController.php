@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\master_gapok;
+use App\Models\MasterGapok;
 use Illuminate\Http\Request;
 
 class MasterGapokController extends Controller
@@ -12,7 +12,7 @@ class MasterGapokController extends Controller
      */
     public function index()
     {
-        //
+        return view('gapok.index');
     }
 
     /**
@@ -34,7 +34,7 @@ class MasterGapokController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(master_gapok $master_gapok)
+    public function show(MasterGapok $master_gapok)
     {
         //
     }
@@ -42,7 +42,7 @@ class MasterGapokController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(master_gapok $master_gapok)
+    public function edit(MasterGapok $master_gapok)
     {
         //
     }
@@ -50,7 +50,7 @@ class MasterGapokController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, master_gapok $master_gapok)
+    public function update(Request $request, MasterGapok $master_gapok)
     {
         //
     }
@@ -58,7 +58,7 @@ class MasterGapokController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(master_gapok $master_gapok)
+    public function destroy(MasterGapok $master_gapok)
     {
         //
     }
