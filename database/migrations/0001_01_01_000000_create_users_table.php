@@ -13,15 +13,17 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name')->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
-            $table->unsignedBigInteger('jabatan_id')->nullable();
-            $table->unsignedBigInteger('fungsi_id')->nullable();
-            $table->unsignedBigInteger('trans_id')->nullable();
-            $table->unsignedBigInteger('khusus_id')->nullable();
+            $table->foreignId('jabatan_id')->nullable()->constrained('master_jabatan')->onDelete('cascade');
+            $table->foreignId('fungsi_id')->nullable()->constrained('master_fungsi')->onDelete('cascade');
+            $table->foreignId('umum_id')->nullable()->constrained('master_umum')->onDelete('cascade');
+            $table->foreignId('trans_id')->nullable()->constrained('master_trans')->onDelete('cascade');
+            $table->foreignId('khusus_id')->nullable()->constrained('master_khusus')->onDelete('cascade');
+            // $table->foreignId('gol_id')->nullable()->constrained('master_umum')->onDelete('cascade');
             $table->unsignedBigInteger('gol_id')->nullable();
             $table->string('nip')->nullable();
             $table->string('no_hp')->nullable();
@@ -30,10 +32,12 @@ return new class extends Migration
             $table->timestamp('pensiun')->nullable();
             $table->string('tanggal_lahir')->nullable();
             $table->string('alamat')->nullable();
+            $table->integer('no_rek')->nullable();
             // $table->integer('pend_awal')->nullable();
             $table->foreignId('pend_awal')->nullable()->constrained('master_pendidikan');
             $table->foreignId('pend_penyesuaian')->nullable()->constrained('master_pendidikan');
             $table->foreignId('pendidikan')->nullable()->constrained('master_pendidikan');
+            $table->foreignId('kategori_id')->nullable()->constrained('kategoripphs')->onDelete('cascade');
             // $table->integer('pend_penyesuaian')->nullable();
             // $table->string('pendidikan')->nullable();
             $table->dateTime('tgl_penyesuaian')->nullable();
@@ -41,10 +45,10 @@ return new class extends Migration
             $table->integer('status')->nullable();
             $table->timestamps();
 
-            $table->foreign('jabatan_id')->references('id')->on('master_jabatan');
-            $table->foreign('fungsi_id')->references('id')->on('master_fungsi');
-            $table->foreign('trans_id')->references('id')->on('master_trans');
-            $table->foreign('khusus_id')->references('id')->on('master_khusus');
+            // $table->foreign('jabatan_id')->references('id')->on('master_jabatan');
+            // $table->foreign('fungsi_id')->references('id')->on('master_fungsi');
+            // $table->foreign('trans_id')->references('id')->on('master_trans');
+            // $table->foreign('khusus_id')->references('id')->on('master_khusus');
             // $table->foreign('gol_id')->references('id')->on('master_golongan');
             // $table->foreign('pend_awal')->references('id')->on('master_pendidikan');
             // $table->foreign('pend_penyesuaian')->references('id')->on('master_penyesuaian');

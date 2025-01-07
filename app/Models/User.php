@@ -84,7 +84,7 @@ class User extends Authenticatable
      */
     public function umums()
     {
-        return $this->hasMany(Umum::class, 'user_id');
+        return $this->belongsTo(MasterUmum::class, 'umum_id');
     }
     public function penyesuaians()
     {
@@ -96,5 +96,10 @@ class User extends Authenticatable
     public function gajiBruto()
     {
         return $this->hasMany(GajiBruto::class, 'user_id');
+    }
+
+    public function kategoriPPH()
+    {
+        return $this->belongsTo(Kategoripph::class, 'user_id');
     }
 }

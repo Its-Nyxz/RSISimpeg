@@ -15,13 +15,15 @@ return new class extends Migration
             $table->id();
             // $table->unsignedBigInteger('employee_id');
             // $table->unsignedBigInteger('t_bruto_id')->nullable();
-            $table->unsignedBigInteger('t_pot_id')->nullable();
+            $table->foreignId('t_pot_id')->constrained('potongan')->onDelete('cascade');
             $table->integer('total_netto')->nullable();
             $table->timestamps(0);
+            $table->date('tanggal_transfer')->nullable();
+            $table->enum('status', ['Pending', 'Completed'])->default('Pending');
 
             // $table->foreign('employee_id')->references('id')->on('employees');
             // $table->foreign('t_bruto_id')->references('id')->on('gaji_bruto');
-            $table->foreign('t_pot_id')->references('id')->on('potongan');
+            // $table->foreign('t_pot_id')->references('id')->on('potongan');
         });
     }
 

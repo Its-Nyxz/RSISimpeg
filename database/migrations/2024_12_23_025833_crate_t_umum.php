@@ -17,8 +17,8 @@ return new class extends Migration
             $table->unsignedBigInteger('umum_id');
             $table->timestamps(0);
 
-            $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('umum_id')->references('id')->on('master_umum');
+            // $table->foreign('user_id')->references('id')->on('users');
+            // $table->foreign('umum_id')->references('id')->on('master_umum');
         });
     }
 

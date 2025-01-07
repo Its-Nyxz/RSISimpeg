@@ -13,8 +13,17 @@ class MasterUmum extends Model
     /**
      * Relasi ke TUmum.
      */
-    public function Umums()
+    public function users()
     {
-        return $this->hasMany(Umum::class, 'umum_id');
+        return $this->hasMany(User::class, 'umum_id');
+    }
+    public function parent()
+    {
+        return $this->belongsTo(MasterUmum::class, 'parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(MasterUmum::class, 'parent_id');
     }
 }

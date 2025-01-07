@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('gaji_bruto', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->date('bulan_penggajian');
             $table->integer('nom_jabatan')->nullable();
             $table->integer('nom_fungsi')->nullable();
             $table->integer('nom_umum')->nullable();
@@ -25,7 +26,7 @@ return new class extends Migration
             $table->integer('total_bruto')->nullable();
             $table->timestamps(0);
 
-            $table->foreign('user_id')->references('id')->on('users');
+            // $table->foreign('user_id')->references('id')->on('users');
             // $table->foreign('trans_id')->references('id')->on('master_trans');
         });
     }

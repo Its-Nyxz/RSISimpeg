@@ -31,6 +31,10 @@ class DatabaseSeeder extends Seeder
             MasterPotonganSeeder::class,
             MasterTransSeeder::class,
             MasterUmumSeeder::class,
+            OpsiAbsenSeeder::class,
+            JenisFileSeeder::class,
+            KategoripphSeeder::class,
+            NilaipphSeeder::class,
             UserSeeder::class, // Tambahkan ini
             TabelTest::class,
         ]);

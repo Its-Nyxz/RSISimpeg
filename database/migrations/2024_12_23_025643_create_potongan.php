@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('potongan', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('bruto_id');
+            $table->foreignId('bruto_id')->nullable()->constrained('gaji_bruto')->onDelete('cascade');
             $table->integer('simpanan_wajib')->nullable();
             $table->integer('simpanan_pokok')->nullable();
             $table->integer('ibi')->nullable();
@@ -29,7 +29,7 @@ return new class extends Migration
             $table->integer('bpjs_kes')->nullable();
             $table->timestamps(0);
 
-            $table->foreign('bruto_id')->references('id')->on('gaji_bruto');
+            // $table->foreign('bruto_id')->references('id')->on('gaji_bruto');
         });
     }
 
