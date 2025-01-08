@@ -14,14 +14,12 @@ return new class extends Migration
         Schema::create('absensi', function (Blueprint $table) {
             $table->id();
             $table->foreignId('jadwal_id')->constrained('jadwal_absensis')->onDelete('cascade');
-            $table->foreignId('opsi_id')->constrained('opsi_absens')->onDelete('cascade');
+            $table->foreignId('status_absen_id')->constrained('status_absens')->onDelete('cascade');
             $table->integer('present')->nullable();
             $table->integer('absent')->nullable();
             $table->integer('late')->nullable();
             $table->dateTime('time_in')->nullable();
             $table->dateTime('time_out')->nullable();
-            $table->enum('status_hadir', ['Hadir', 'Tidak Hadir', 'Terlambat'])->default('Hadir');
-            $table->enum('keterangan_absen', ['Cuti', 'Libur', 'Tugas', 'Ijin', 'Sakit'])->nullable();
             $table->text('keterangan')->nullable();
             $table->timestamps(0);
         });

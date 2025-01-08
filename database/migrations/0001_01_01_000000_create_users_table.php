@@ -34,8 +34,6 @@ return new class extends Migration
             $table->string('alamat')->nullable();
             $table->integer('no_rek')->nullable();
             // $table->integer('pend_awal')->nullable();
-            $table->foreignId('pend_awal')->nullable()->constrained('master_pendidikan');
-            $table->foreignId('pend_penyesuaian')->nullable()->constrained('master_pendidikan');
             $table->foreignId('pendidikan')->nullable()->constrained('master_pendidikan');
             $table->foreignId('kategori_id')->nullable()->constrained('kategoripphs')->onDelete('cascade');
             // $table->integer('pend_penyesuaian')->nullable();
