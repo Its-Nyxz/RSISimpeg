@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\StatusAbsen;
+use App\Http\Requests\StoreStatusAbsenRequest;
+use App\Http\Requests\UpdateStatusAbsenRequest;
 
-class MasterTunjangan extends Controller
+class StatusAbsenController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return view("tunjangan.index");
+        //
     }
 
     /**
@@ -25,7 +27,7 @@ class MasterTunjangan extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreStatusAbsenRequest $request)
     {
         //
     }
@@ -33,7 +35,7 @@ class MasterTunjangan extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(StatusAbsen $statusAbsen)
     {
         //
     }
@@ -41,7 +43,7 @@ class MasterTunjangan extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(StatusAbsen $statusAbsen)
     {
         //
     }
@@ -49,7 +51,7 @@ class MasterTunjangan extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateStatusAbsenRequest $request, StatusAbsen $statusAbsen)
     {
         //
     }
@@ -57,7 +59,7 @@ class MasterTunjangan extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(StatusAbsen $statusAbsen)
     {
         //
     }

@@ -14,4 +14,9 @@ class JadwalAbsensi extends Model
     protected $guarded = [
         'id',
     ];
+
+    public function absensi()
+    {
+        return $this->hasMany(Absen::class, 'jadwal_id');
+    }
 }

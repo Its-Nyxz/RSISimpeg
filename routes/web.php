@@ -9,6 +9,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MasterGapokController;
 use App\Http\Controllers\MasterJabatanController;
 use App\Http\Controllers\MasterGolonganController;
+use App\Http\Controllers\MasterTunjanganController;
 use App\Http\Controllers\MasterPendidikanController;
 
 Route::get('/', function () {
@@ -38,6 +39,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::resource('users', UsersController::class);
     Route::resource('jabatan', MasterJabatanController::class);
+    Route::resource('tunjangan', MasterTunjanganController::class);
     Route::resource('gapok', MasterGapokController::class);
     Route::resource('golongan', MasterGolonganController::class);
     Route::resource('pendidikan', MasterPendidikanController::class);
