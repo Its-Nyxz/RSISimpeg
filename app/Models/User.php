@@ -102,4 +102,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Kategoripph::class, 'user_id');
     }
+
+    public function historyPendidikan()
+    {
+        return $this->hasMany(HistoryPendidikan::class, 'user_id');
+    }
 }
