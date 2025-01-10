@@ -47,13 +47,13 @@
                     <livewire:data-tunjangan type="jabatan" />
                 </div>
                 <div x-show="activeTab === 'fungsional'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
-                    {{-- <livewire:asset-details type="fungsional" :aset="$aset" /> --}}
+                    <livewire:data-tunjangan type="fungsional" />
                 </div>
                 <div x-show="activeTab === 'umum'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
                     {{-- <livewire:asset-details type="umum" :aset="$aset" /> --}}
                 </div>
                 <div x-show="activeTab === 'khusus'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
-                    {{-- <livewire:asset-details type="tidak-tetap" :aset="$aset" /> --}}
+                <livewire:data-tunjangan type="khusus"/>
                 </div>
                 <div x-show="activeTab === 'tidak-tetap'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
                     {{-- <livewire:asset-details type="tidak-tetap" :aset="$aset" /> --}}

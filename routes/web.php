@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\MasterFungsiController;
+use App\Models\MasterFungsi;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
@@ -11,6 +13,7 @@ use App\Http\Controllers\MasterJabatanController;
 use App\Http\Controllers\MasterGolonganController;
 use App\Http\Controllers\MasterTunjanganController;
 use App\Http\Controllers\MasterPendidikanController;
+use App\Http\Controllers\MasterKhususController;
 
 Route::get('/', function () {
     return redirect()->to('/login');
@@ -40,6 +43,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('users', UsersController::class);
     Route::resource('jabatan', MasterJabatanController::class);
     Route::resource('tunjangan', MasterTunjanganController::class);
+    Route::resource('fungsional', MasterFungsiController::class);
+    Route::resource('khusus', MasterKhususController::class);
     Route::resource('gapok', MasterGapokController::class);
     Route::resource('golongan', MasterGolonganController::class);
     Route::resource('pendidikan', MasterPendidikanController::class);
