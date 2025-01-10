@@ -20,6 +20,7 @@
                 ['title' => 'Golongan', 'href' => '/golongan'],
                 ['title' => 'Gaji Pokok', 'href' => '/gapok'],
                 ['title' => 'Pendidikan', 'href' => '/pendidikan'],
+                ['title' => 'Absensi', 'href' => '/absensi'],
                 // ['title' => 'Jam', 'href' => '#'],
             ]" />
             <livewire:side-link title="Kepegawaian" icon="fa-solid fa-people-group" :child="[
