@@ -50,12 +50,14 @@
                     {{-- <livewire:asset-details type="fungsional" :aset="$aset" /> --}}
                 </div>
                 <div x-show="activeTab === 'umum'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
+                    <livewire:data-tunjangan type="umum" />
                     {{-- <livewire:asset-details type="umum" :aset="$aset" /> --}}
                 </div>
                 <div x-show="activeTab === 'khusus'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
                     {{-- <livewire:asset-details type="tidak-tetap" :aset="$aset" /> --}}
                 </div>
                 <div x-show="activeTab === 'tidak-tetap'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
+                    <livewire:data-tunjangan type="tidaktetap" />
                     {{-- <livewire:asset-details type="tidak-tetap" :aset="$aset" /> --}}
                 </div>
             </div>

@@ -10,7 +10,7 @@ class MasterJabatan extends Model
     protected $table = "master_jabatan";
     protected $guarded = ['id'];
 
-     /**
+    /**
      * Relasi ke User.
      */
     public function users()
