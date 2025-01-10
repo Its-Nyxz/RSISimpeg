@@ -8,7 +8,9 @@ use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MasterUmumController;
 use App\Http\Controllers\MasterGapokController;
+use App\Http\Controllers\MasterTransController;
 use App\Http\Controllers\MasterJabatanController;
 use App\Http\Controllers\MasterGolonganController;
 use App\Http\Controllers\MasterTunjanganController;
@@ -42,6 +44,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::resource('users', UsersController::class);
     Route::resource('jabatan', MasterJabatanController::class);
+    Route::resource('umum', MasterUmumController::class);
+    Route::resource('trans', MasterUmumController::class);
     Route::resource('tunjangan', MasterTunjanganController::class);
     Route::resource('fungsional', MasterFungsiController::class);
     Route::resource('khusus', MasterKhususController::class);

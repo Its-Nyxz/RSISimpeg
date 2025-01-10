@@ -12,7 +12,7 @@ class MasterTransController extends Controller
      */
     public function index()
     {
-        //
+        return view('trans.index');
     }
 
     /**
