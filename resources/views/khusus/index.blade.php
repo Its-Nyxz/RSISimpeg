@@ -1,3 +1,3 @@
 <x-body>
-   <livewire:data-khusus/>
+    <livewire:data-khusus/>
 </x-body>
