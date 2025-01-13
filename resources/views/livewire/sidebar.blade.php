@@ -21,7 +21,7 @@
                 ['title' => 'Gaji Pokok', 'href' => '/gapok'],
                 ['title' => 'Pendidikan', 'href' => '/pendidikan'],
                 ['title' => 'Absensi', 'href' => '/absensi'],
-                // ['title' => 'Jam', 'href' => '#'],
+                ['title' => 'Kenaikan Berkala & Golongan', 'href' => '/kenaikangol'],
             ]" />
             <livewire:side-link title="Kepegawaian" icon="fa-solid fa-people-group" :child="[
                 ['title' => 'Data Karyawan', 'href' => '#'],

@@ -16,6 +16,7 @@ use App\Http\Controllers\MasterJabatanController;
 use App\Http\Controllers\MasterGolonganController;
 use App\Http\Controllers\MasterTunjanganController;
 use App\Http\Controllers\MasterPendidikanController;
+use App\Http\Controllers\KenaikanBerkalaGolController;
 
 Route::get('/', function () {
     return redirect()->to('/login');
@@ -53,6 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('gapok', MasterGapokController::class);
     Route::resource('golongan', MasterGolonganController::class);
     Route::resource('pendidikan', MasterPendidikanController::class);
+    Route::resource('kenaikangol', KenaikanBerkalaGolController::class);
 });
 
 require __DIR__ . '/auth.php';
