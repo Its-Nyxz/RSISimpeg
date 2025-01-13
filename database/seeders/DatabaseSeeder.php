@@ -35,6 +35,7 @@ class DatabaseSeeder extends Seeder
             JenisFileSeeder::class,
             KategoripphSeeder::class,
             NilaipphSeeder::class,
+            UnitKerjaSeeder::class,
             StatusAbsenSeeder::class,
             UserSeeder::class, // Tambahkan ini
             TabelTest::class,

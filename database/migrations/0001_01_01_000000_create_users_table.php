@@ -14,10 +14,12 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
+            $table->string('username')->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
+            $table->foreignId('unit_id')->nullable()->constrained('unit_kerjas')->onDelete('cascade');
             $table->foreignId('jabatan_id')->nullable()->constrained('master_jabatan')->onDelete('cascade');
             $table->foreignId('fungsi_id')->nullable()->constrained('master_fungsi')->onDelete('cascade');
             $table->foreignId('umum_id')->nullable()->constrained('master_umum')->onDelete('cascade');
@@ -26,6 +28,7 @@ return new class extends Migration
             // $table->foreignId('gol_id')->nullable()->constrained('master_umum')->onDelete('cascade');
             $table->unsignedBigInteger('gol_id')->nullable();
             $table->string('nip')->nullable();
+            $table->string('no_ktp')->nullable();
             $table->string('no_hp')->nullable();
             $table->string('tmt')->nullable();
             $table->string('jk')->nullable();

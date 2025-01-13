@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\UnitKerja;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
@@ -16,120 +17,97 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // Buat Roles jika belum ada
-        $superAdminRole = Role::findOrCreate('Super Admin');
-        $kepegawaianRole = Role::findOrCreate('Kepegawaian');
-        $keuanganRole = Role::findOrCreate('Keuangan');
-        $staffRole = Role::findOrCreate('Staff');
-
-        // Daftar Users
-        $users = [
-            [
-                'name' => 'Super Admin',
-                'email' => 'superadmin@example.com',
-                'password' => Hash::make('password'), // Ganti dengan password yang aman
-                'jabatan_id' => null,
-                'fungsi_id' => null,
-                'trans_id' => null,
-                'khusus_id' => null,
-                'gol_id' => null,
-                'nip' => null,
-                'no_hp' => null,
-                'tmt' => null,
-                'jk' => null,
-                'pensiun' => null,
-                'tanggal_lahir' => null,
-                'alamat' => null,
-                'pendidikan' => null,
-                'kategori_id' => null,
-                'tgl_penyesuaian' => null,
-                'masa_kerja' => null,
-                'status' => null,
-                'role' => $superAdminRole,
-            ],
-            [
-                'name' => 'John Doe',
-                'email' => 'john.doe@example.com',
-                'password' => Hash::make('password'), // Ganti dengan password yang aman
-                'jabatan_id' => 1,
-                'fungsi_id' => 1,
-                'umum_id' => 1,
-                'trans_id' => 1,
-                'khusus_id' => 1,
-                'gol_id' => 8,
-                'nip' => '123456789',
-                'no_hp' => '081234567890',
-                'tmt' => '2020-01-01',
-                'jk' => 'L',
-                'pensiun' => null,
-                'tanggal_lahir' => '1985-05-15',
-                'alamat' => 'Jl. Contoh Alamat No. 1',
-                'no_rek' => null,
-                'pendidikan' => 7,
-                'kategori_id' => 2,
-                'tgl_penyesuaian' => null,
-                'masa_kerja' => '4',
-                'status' => 1,
-                'role' => $kepegawaianRole,
-            ],
-            [
-                'name' => 'Jane Smith',
-                'email' => 'jane.smith@example.com',
-                'password' => Hash::make('password'), // Ganti dengan password yang aman
-                'jabatan_id' => 2,
-                'fungsi_id' => 2,
-                'umum_id' => 2,
-                'trans_id' => 1,
-                'khusus_id' => 2,
-                'gol_id' => 10,
-                'nip' => '987654321',
-                'no_hp' => '089876543210',
-                'tmt' => '2023-01-01',
-                'jk' => 'P',
-                'pensiun' => null,
-                'tanggal_lahir' => '1990-10-20',
-                'alamat' => 'Jl. Contoh Alamat No. 2',
-                'no_rek' => null,
-                'pendidikan' => 11,
-                'kategori_id' => 3,
-                'tgl_penyesuaian' => null,
-                'masa_kerja' => '1',
-                'status' => 1,
-                'role' => $keuanganRole,
-            ],
-            [
-                'name' => 'Michael Johnson',
-                'email' => 'michael.johnson@example.com',
-                'password' => Hash::make('password'), // Ganti dengan password yang aman
-                'jabatan_id' => 3,
-                'fungsi_id' => 3,
-                'umum_id' => 3,
-                'trans_id' => 1,
-                'khusus_id' => 3,
-                'gol_id' => 7,
-                'nip' => '456789123',
-                'no_hp' => '081234512345',
-                'tmt' => '2024-01-01',
-                'jk' => 'L',
-                'pensiun' => null,
-                'tanggal_lahir' => '1988-08-08',
-                'alamat' => 'Jl. Contoh Alamat No. 3',
-                'no_rek' => null,
-                'pendidikan' => 8,
-                'kategori_id' => 6,
-                'tgl_penyesuaian' => null,
-                'masa_kerja' => '0',
-                'status' => 1,
-                'role' => $staffRole,
-            ],
+        $roles = [
+            'Super Admin',
+            'Kepegawaian',
+            'Keuangan',
+            'Kepala Unit',
         ];
 
-        // Buat User dan Assign Roles
-        foreach ($users as $userData) {
-            $role = $userData['role'];
-            unset($userData['role']); // Hapus role sebelum memasukkan ke database
+        foreach ($roles as $roleName) {
+            Role::findOrCreate($roleName);
+        }
 
-            $user = User::create($userData); // Simpan user ke database
-            $user->assignRole($role); // Assign role ke user
+        // Super Admin
+        $superAdmin = User::create([
+            'name' => 'Super Admin',
+            'email' => 'superadmin@gmail.com',
+            'password' => Hash::make('123'), // Password default
+            'unit_id' => null, // Tidak terkait dengan unit
+        ]);
+
+        $superAdmin->assignRole('Super Admin');
+
+        // Data Kepala Unit
+        $users = [
+            ['unit_name' => 'IBS', 'name' => 'Sulis Setiyanto'],
+            ['unit_name' => 'IGD', 'name' => 'Suyatno'],
+            ['unit_name' => 'ICU', 'name' => 'Tri Nurhidayah'],
+            ['unit_name' => 'INST DIALISIS', 'name' => 'Puji Yuliati'],
+            ['unit_name' => 'IRJ', 'name' => 'Desi Norma'],
+            ['unit_name' => 'Ka. IMP', 'name' => 'Tatun Parjiati'],
+            ['unit_name' => 'PERINATOLOGI', 'name' => 'Ariyanti Retno A'],
+            ['unit_name' => 'VK', 'name' => 'Widanti Kusuma'],
+            ['unit_name' => 'ALZAITUN', 'name' => 'Wahyu Puspitasari'],
+            ['unit_name' => 'Ka. Instalasi Ranap', 'name' => 'Agus Widayat'],
+            ['unit_name' => 'AT TAQWA', 'name' => 'Susilo Rudatin'],
+            ['unit_name' => 'ASSALAM', 'name' => 'Indriyana Keliek F'],
+            ['unit_name' => 'AL AMIN', 'name' => 'Siti Markhamah'],
+            ['unit_name' => 'FIRDAUS', 'name' => 'Ika Sari Sholehati'],
+            ['unit_name' => 'HAJI', 'name' => 'Umu Hani'],
+            ['unit_name' => 'ASSYFA', 'name' => 'Ifa Fitria'],
+            ['unit_name' => 'AZIZIAH', 'name' => 'Slamet Supratomo'],
+            ['unit_name' => 'ALMUNAWAROH', 'name' => 'Latifah'],
+            ['unit_name' => 'INST REHAB MEDIK', 'name' => 'Slamet Budi Santosa'],
+            ['unit_name' => 'CASE MANAGER', 'name' => 'Ari Fitria'],
+            ['unit_name' => 'INST REKAM MEDIK', 'name' => 'Wigati'],
+            ['unit_name' => 'INST FARMASI', 'name' => 'Uniek Setyawardani'],
+            ['unit_name' => 'INST RADIOLOGI', 'name' => 'Wisnu Kuncahyo'],
+            ['unit_name' => 'INST LABORATORIUM', 'name' => 'Joko Sugiharto'],
+            ['unit_name' => 'INST SANITASI', 'name' => 'A Imam Mutaqin'],
+            ['unit_name' => 'INST CSSD', 'name' => 'Khamidah'],
+            ['unit_name' => 'INST PEML SARPRAS', 'name' => 'Widodo Pindah Riyanto'],
+            ['unit_name' => 'INST GAS MEDIK & ALKES', 'name' => 'Adityana Juni Saputra'],
+            ['unit_name' => 'UNIT MCU & POSKES', 'name' => 'Ruslan'],
+            ['unit_name' => 'UNIT TRANSPORTASI', 'name' => 'Durul Farid'],
+            ['unit_name' => 'INST GIZI', 'name' => 'Pujiningsih'],
+            ['unit_name' => 'UNIT PJBR', 'name' => 'Toha'],
+            ['unit_name' => 'UNIT PENGELOLAAN LINEN', 'name' => 'Budiono'],
+            ['unit_name' => 'HUMAS & PROG RS', 'name' => 'Ali Muakhor'],
+            ['unit_name' => 'SDM', 'name' => 'Diana Melisawati'],
+            ['unit_name' => 'AKUNTANSI', 'name' => 'Nur Aini Oktaviani'],
+            ['unit_name' => 'KEUANGAN', 'name' => 'Siti Maulidah'],
+            ['unit_name' => 'KASIR', 'name' => 'Khodijah'],
+            ['unit_name' => 'ASURANSI', 'name' => 'Erlita Puspitasari'],
+            ['unit_name' => 'ASET & LOGISTIK', 'name' => 'Ratih Titis P'],
+            ['unit_name' => 'PELAYANAN MEDIK', 'name' => 'Eko Setiono'],
+            ['unit_name' => 'KEPERAWATAN', 'name' => 'Rifki Nafisani'],
+            ['unit_name' => 'PENUNJANG', 'name' => 'Mutia Kanza Salama'],
+            ['unit_name' => 'PENGAMANAN', 'name' => 'Eko Pranoto'],
+            ['unit_name' => 'UNIT PEMASARAN', 'name' => 'Adi Setiadi'],
+            ['unit_name' => 'IT', 'name' => 'Basuki Imam Sampurna'],
+            ['unit_name' => 'IPCN', 'name' => 'Wingit Bayu H'],
+            ['unit_name' => 'KOMITE', 'name' => 'Fajarianto'],
+        ];
+
+        // Buat User untuk setiap unit
+        foreach ($users as $userData) {
+            // Cari unit berdasarkan nama
+            $unit = UnitKerja::where('nama', $userData['unit_name'])->first();
+
+            if ($unit) {
+                // Buat user
+                $user = User::create([
+                    'name' => $userData['name'],
+                    'email' => strtolower(str_replace(' ', '.', $userData['name'])) . '@gmail.com',
+                    'password' => Hash::make('123'), // Password default
+                    'unit_id' => $unit->id, // Hubungkan ke unit kerja
+                ]);
+
+                // Assign role "Kepala Unit" atau "Kepegawaian" (contoh logika, sesuaikan sesuai kebutuhan)
+                $role = $userData['name'] === $unit->nama ? 'Kepala Unit' : 'Kepegawaian';
+                $user->assignRole($role);
+            }
         }
     }
 }
