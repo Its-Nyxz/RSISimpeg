@@ -17,13 +17,13 @@ class MasterUmum extends Model
     {
         return $this->hasMany(User::class, 'umum_id');
     }
-    public function parent()
-    {
-        return $this->belongsTo(MasterUmum::class, 'parent_id');
-    }
+    // public function parent()
+    // {
+    //     return $this->belongsTo(MasterUmum::class, 'parent_id');
+    // }
 
-    public function children()
-    {
-        return $this->hasMany(MasterUmum::class, 'parent_id');
-    }
+    // public function children()
+    // {
+    //     return $this->hasMany(MasterUmum::class, 'parent_id');
+    // }
 }

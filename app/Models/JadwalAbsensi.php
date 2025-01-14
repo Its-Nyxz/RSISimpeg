@@ -25,8 +25,9 @@ class JadwalAbsensi extends Model
         return $this->hasMany(Absen::class, 'jadwal_id');
     }
 
+
     public function shift()
     {
         return $this->belongsTo(Shift::class, 'shift_id');
-    }
+
 }

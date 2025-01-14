@@ -12,7 +12,7 @@ class MasterFungsiController extends Controller
      */
     public function index()
     {
-        //
+        return view('fungsional.index');
     }
 
     /**
