@@ -5,15 +5,20 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Absen;
 use App\Models\User;
+use App\Models\JadwalAbsensi;
+use App\Models\OpsiAbsen;
+use App\Models\Shift;
+use App\Models\StatusAbsen;
 
 class DataAbsen extends Component
 {
-    public $totalHadir = 0;   // Menyimpan jumlah karyawan hadir
-    public $totalPulang = 0;   // Menyimpan jumlah karyawan pulang
-    public $totalKaryawan = 0; // Menyimpan jumlah total karyawan
+    public $totalHadir = 0;  
+    public $totalPulang = 0;   
+    public $totalKaryawan = 0; 
 
-    public function mount()
+    public function mount($type)
     {
+        $this->type = $type;
         $this->loadData(); // Memuat data kehadiran saat komponen dimuat
     }
 
@@ -21,7 +26,6 @@ class DataAbsen extends Component
     {
         $this->totalHadir = Absen::where('status_absen_id', 1)->count();
         $this->totalPulang = Absen::where('status_absen_id', 2)->count();
-
         $this->totalKaryawan = User::count();
     }
 

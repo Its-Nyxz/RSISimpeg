@@ -20,16 +20,20 @@
                 ['title' => 'Golongan', 'href' => '/golongan'],
                 ['title' => 'Gaji Pokok', 'href' => '/gapok'],
                 ['title' => 'Pendidikan', 'href' => '/pendidikan'],
-                // ['title' => 'Jam', 'href' => '#'],
+                ['title' => 'Absensi', 'href' => '/absensi'],
+                ['title' => 'Kenaikan Berkala dan Golongan', 'href' => '/kenaikan'],
             ]" />
             <livewire:side-link title="Kepegawaian" icon="fa-solid fa-people-group" :child="[
                 ['title' => 'Data Karyawan', 'href' => '#'],
                 ['title' => 'Tunjangan', 'href' => '#'],
                 ['title' => 'Approval Cuti', 'href' => '#'],
                 ['title' => 'Import Gaji', 'href' => '#'],
+                ['title' => 'Poin Penilaian Pekerja', 'href' => '/penilaian'],
             ]" />
             <livewire:side-link href="#" title="Keuangan" icon="fa-solid fa-money-bills" />
-            <livewire:side-link href="#" title="Pengaturan" icon="fa-solid fa-gear" />
+            <livewire:side-link href="#" title="Pengaturan" icon="fa-solid fa-gear" :child="[
+                ['title' => 'Jabatan & Perizinan', 'href' => '/jabatanperizinan'],
+            ]" />
         </ul>
     </div>
 </aside>

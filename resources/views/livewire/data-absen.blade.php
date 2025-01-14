@@ -1,6 +1,6 @@
 <div>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <x-card title="Total Karyawan" class="mb-2 text-center">
+        <x-card-tanpa-title class="mb-2 text-center">
             <div class="flex flex-col items-left" style="margin-left: 30px;">
                 <div class="flex items-left gap-6 mb-4">
                     <div class="flex items-center justify-center w-12 h-12 rounded-full" style="background-color: #3C986A;">
@@ -31,7 +31,7 @@
             </div>
         </x-card>
 
-        <x-card title="Karyawan Hadir" class="mb-2">
+        <x-card-tanpa-title class="mb-2">
             <div class="flex flex-col items-left" style="margin-left: 30px;">
                 <div class="flex items-center gap-6 mb-4">
                     <div class="flex items-center justify-center w-12 h-12 rounded-full" style="background-color: #3C986A;">
@@ -53,7 +53,7 @@
             </div>
         </x-card>
 
-        <x-card title="Karyawan Pulang" class="mb-2">
+        <x-card-tanpa-title class="mb-2">
             <div class="flex flex-col items-left" style="margin-left: 30px;">
                 <div class="flex items-center gap-6 mb-4">
                     <div class="flex items-center justify-center w-12 h-12 rounded-full" style="background-color: #3C986A;">

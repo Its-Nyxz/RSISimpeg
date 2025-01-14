@@ -1,3 +1,3 @@
 <x-body>
-   <livewire:data-fungsi/>
+    <livewire:data-fungsi/>
 </x-body>

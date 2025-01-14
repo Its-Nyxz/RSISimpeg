@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\MasterFungsiController;
+use App\Http\Controllers\JadwalAbsensiController;
+use App\Http\Controllers\StatusAbsenController;
 use App\Models\MasterFungsi;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -16,6 +18,11 @@ use App\Http\Controllers\MasterGolonganController;
 use App\Http\Controllers\MasterTunjanganController;
 use App\Http\Controllers\MasterPendidikanController;
 use App\Http\Controllers\MasterKhususController;
+use App\Http\Controllers\MasterAbsensiController;
+use App\Http\Controllers\KenaikanGolonganController;
+use App\Http\Controllers\PenilaianPekerjaController;
+use App\Http\Controllers\PerizinanJabatanController;
+use App\Http\Controllers\DetailJabatanController;
 
 Route::get('/', function () {
     return redirect()->to('/login');
@@ -52,6 +59,13 @@ Route::middleware('auth')->group(function () {
     Route::resource('gapok', MasterGapokController::class);
     Route::resource('golongan', MasterGolonganController::class);
     Route::resource('pendidikan', MasterPendidikanController::class);
+    Route::resource('absensi', MasterAbsensiController::class);
+    Route::resource('jadwal', JadwalAbsensiController::class);
+    Route::resource('status', StatusAbsenController::class);
+    Route::resource('kenaikan', KenaikanGolonganController::class);
+    Route::resource('penilaian', PenilaianPekerjaController::class);
+    Route::resource('jabatanperizinan', PerizinanJabatanController::class);
+    Route::resource('detail', DetailJabatanController::class);
 });
 
 require __DIR__ . '/auth.php';
