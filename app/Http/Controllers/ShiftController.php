@@ -13,7 +13,7 @@ class ShiftController extends Controller
      */
     public function index()
     {
-        //
+        return view('shift.index');
     }
 
     /**

@@ -4,8 +4,10 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\GajiBruto;
+use App\Models\Gapok;
 use App\Models\MasterTrans;
 use App\Models\Penyesuaian;
+use App\Models\JadwalAbsensi;
 use App\Models\MasterFungsi;
 use App\Models\MasterKhusus;
 use App\Models\MasterJabatan;
@@ -106,5 +108,15 @@ class User extends Authenticatable
     public function historyPendidikan()
     {
         return $this->hasMany(HistoryPendidikan::class, 'user_id');
+    }
+
+    public function gapok()
+    {
+        return $this->hasMany(Gapok::class, 'user_id');
+    }
+
+    public function jadwalabsensi()
+    {
+        return $this->hasMany(JadwalAbsensi::class, 'user_id');
     }
 }

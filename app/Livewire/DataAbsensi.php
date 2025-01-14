@@ -59,3 +59,4 @@ class DataAbsensi extends Component
     }
 
 }
+

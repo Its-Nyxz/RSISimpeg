@@ -28,6 +28,8 @@
                 ['title' => 'Tunjangan', 'href' => '#'],
                 ['title' => 'Approval Cuti', 'href' => '#'],
                 ['title' => 'Import Gaji', 'href' => '#'],
+
+                ['title' => 'Poin Peran Fungsional', 'href' => '/peranfungsional'],
                 ['title' => 'Poin Penilaian Pekerja', 'href' => '/penilaian'],
             ]" />
             <livewire:side-link href="#" title="Keuangan" icon="fa-solid fa-money-bills" />

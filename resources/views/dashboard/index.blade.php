@@ -1,7 +1,9 @@
 <x-body>
     <p style="font-family: 'Gilroy-Bold', sans-serif; font-size: 28px; margin-bottom: 20px; font-weight: bold;">Dashboard</p>
         <livewire:data-absen type="absen" />
+
         <x-card-tanpa-title class="max-w-md">
+
         <div class="flex flex-col" style="margin-left: 30px;">
             <div class="mb-4">
                 <h2 class="text-2xl font-semibold" style="color: #3C986A;">Approval Cuti</h2>
