@@ -28,6 +28,7 @@
                 ['title' => 'Tunjangan', 'href' => '#'],
                 ['title' => 'Approval Cuti', 'href' => '#'],
                 ['title' => 'Import Gaji', 'href' => '#'],
+                ['title' => 'Poin Peran Fungsional', 'href' => '/peranfungsional'],
             ]" />
             <livewire:side-link href="#" title="Keuangan" icon="fa-solid fa-money-bills" />
             <livewire:side-link href="#" title="Pengaturan" icon="fa-solid fa-gear" />

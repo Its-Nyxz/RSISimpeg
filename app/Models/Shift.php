@@ -14,4 +14,9 @@ class Shift extends Model
     protected $guarded = [
         'id',
     ];
+
+    public function jadwalabsensi()
+    {
+        return $this->hasMany(JadwalAbsensi::class, 'shift_id');
+    }
 }

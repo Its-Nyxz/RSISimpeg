@@ -15,8 +15,18 @@ class JadwalAbsensi extends Model
         'id',
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     public function absensi()
     {
         return $this->hasMany(Absen::class, 'jadwal_id');
+    }
+
+    public function shift()
+    {
+        return $this->belongsTo(Shift::class, 'shift_id');
     }
 }
