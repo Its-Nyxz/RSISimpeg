@@ -35,6 +35,7 @@ class DatabaseSeeder extends Seeder
             JenisFileSeeder::class,
             KategoripphSeeder::class,
             NilaipphSeeder::class,
+            JenisKaryawanSeeder::class,
             UnitKerjaSeeder::class,
             LevelPointSeeder::class,
             LevelUnitSeeder::class,

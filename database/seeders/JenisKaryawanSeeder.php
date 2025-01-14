@@ -1,0 +1,27 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\JenisKaryawan;
+use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+class JenisKaryawanSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        $jenisdata = [
+            ['nama' => 'Karyawan Tetap'],
+            ['nama' => 'Karyawan Part Time'],
+            ['nama' => 'Karyawan Kontral'],
+            ['nama' => 'Magang'],
+        ];
+
+        foreach ($jenisdata as $data) {
+            JenisKaryawan::create($data);
+        }
+    }
+}

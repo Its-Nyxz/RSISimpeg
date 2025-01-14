@@ -29,5 +29,5 @@ class JadwalAbsensi extends Model
     public function shift()
     {
         return $this->belongsTo(Shift::class, 'shift_id');
-
+    }
 }
