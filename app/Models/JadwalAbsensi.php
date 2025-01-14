@@ -19,4 +19,9 @@ class JadwalAbsensi extends Model
     {
         return $this->hasMany(Absen::class, 'jadwal_id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id'); // Menghubungkan dengan kolom user_id
+    }
 }

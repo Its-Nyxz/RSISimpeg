@@ -17,6 +17,8 @@ use App\Http\Controllers\MasterTunjanganController;
 use App\Http\Controllers\MasterPendidikanController;
 use App\Http\Controllers\MasterKhususController;
 use App\Http\Controllers\MasterAbsensiController;
+use App\Http\Controllers\KenaikanGolonganController;
+use App\Http\Controllers\PenilaianPekerjaController;
 
 Route::get('/', function () {
     return redirect()->to('/login');
@@ -54,6 +56,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('absensi', MasterAbsensiController::class);
     Route::resource('jadwal', JadwalAbsensiController::class);
     Route::resource('status', StatusAbsenController::class);
+    Route::resource('kenaikan', KenaikanGolonganController::class);
+    Route::resource('penilaian', PenilaianPekerjaController::class);
 });
 
 require __DIR__ . '/auth.php';
