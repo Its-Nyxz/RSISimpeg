@@ -23,4 +23,6 @@ class CardTanpaTitle extends Component
     {
         return view('components.layout.card-tanpa-title');
     }
+
 }
+

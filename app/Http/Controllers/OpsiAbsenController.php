@@ -13,7 +13,7 @@ class OpsiAbsenController extends Controller
      */
     public function index()
     {
-        //
+        return view('opsiabsen.index');
     }
 
     /**

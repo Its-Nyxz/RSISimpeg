@@ -34,6 +34,7 @@
                 </li>
             </ul>
             <div id="defaultTabContent">
+
                 <div x-show="activeTab === 'jadwalabsen'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
                     <livewire:data-absensi type="jadwalabsen"/>
                 </div>
@@ -45,6 +46,7 @@
                 </div>
                 <div x-show="activeTab === 'status'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
                     <livewire:data-absensi type="status"/>
+
                 </div>
             </div>
         </div>

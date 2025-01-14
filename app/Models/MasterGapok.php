@@ -20,9 +20,9 @@ class MasterGapok extends Model
     }
 
     /**
-     * Relasi ke TGapok.
+     * Relasi ke Gapok.
      */
-    public function tgapoks()
+    public function gapoks()
     {
         return $this->hasMany(Gapok::class, 'gapok_id');
     }

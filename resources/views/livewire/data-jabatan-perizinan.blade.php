@@ -1,21 +1,26 @@
 <div>
 
+
     <x-card title="Jabatan & Perizinan">
         <div class="flex justify-between items-center gap-4 mb-3">
             <p>Pengaturan untuk Jabatan dan Perizinan yang dapat diakses.</p>
+
             <a href="#"
                 class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                 + Buat Jabatan
             </a>
         </div>
+
         <div class="flex-1" style="margin-bottom: 20px;">
             <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Jabatan..."
                 class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
         </div>
+
         @forelse ($jabatanperizinan as $item)
         <x-card-tanpa-title>
             <div class="flex justify-between items-center gap-4 mb-3">
                 <p>{{ $item['nama'] }}</p>
+
                 <div class="flex justify-between items-center gap-4 mb-3">
                     <button 
                         type="button" 
@@ -30,6 +35,7 @@
                     <a href="{{ route('detail.show', ['detail' => $item['id']]) }}" class="btn btn-outline-success">
                     <i class="fa-solid fa-eye" style="color: #000000;"></i>
                 </a>
+
                 </div>
             </div>
         </x-card-tanpa-title>
@@ -83,5 +89,6 @@
         </form>
 
     </x-modal>
+
 
 </div>

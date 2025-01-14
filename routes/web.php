@@ -8,19 +8,30 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\AbsensiController;
+use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\OpsiAbsenController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MasterUmumController;
 use App\Http\Controllers\MasterGapokController;
+use App\Http\Controllers\MasterTransController;
 use App\Http\Controllers\MasterJabatanController;
 use App\Http\Controllers\MasterGolonganController;
 use App\Http\Controllers\MasterTunjanganController;
 use App\Http\Controllers\MasterPendidikanController;
+
+use App\Http\Controllers\KenaikanBerkalaGolController;
+use App\Http\Controllers\PeranFungsionalController;
+use App\Http\Controllers\PerizinanJabatanController;
+
 use App\Http\Controllers\MasterKhususController;
 use App\Http\Controllers\MasterAbsensiController;
 use App\Http\Controllers\KenaikanGolonganController;
 use App\Http\Controllers\PenilaianPekerjaController;
 use App\Http\Controllers\PerizinanJabatanController;
 use App\Http\Controllers\DetailJabatanController;
+
 
 Route::get('/', function () {
     return redirect()->to('/login');
@@ -48,13 +59,23 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::resource('users', UsersController::class);
+    Route::resource('absensi', AbsensiController::class);
+    Route::resource('shift', ShiftController::class);
+    Route::resource('opsi', OpsiAbsenController::class);
     Route::resource('jabatan', MasterJabatanController::class);
+    Route::resource('umum', MasterUmumController::class);
+    Route::resource('trans', MasterUmumController::class);
     Route::resource('tunjangan', MasterTunjanganController::class);
     Route::resource('fungsional', MasterFungsiController::class);
     Route::resource('khusus', MasterKhususController::class);
     Route::resource('gapok', MasterGapokController::class);
     Route::resource('golongan', MasterGolonganController::class);
     Route::resource('pendidikan', MasterPendidikanController::class);
+
+    Route::resource('kenaikangol', KenaikanBerkalaGolController::class);
+    Route::resource('peranfungsional', PeranFungsionalController::class);
+    Route::resource('jabatanperizinan', PerizinanJabatanController::class);
+
     Route::resource('absensi', MasterAbsensiController::class);
     Route::resource('jadwal', JadwalAbsensiController::class);
     Route::resource('status', StatusAbsenController::class);
@@ -62,6 +83,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('penilaian', PenilaianPekerjaController::class);
     Route::resource('jabatanperizinan', PerizinanJabatanController::class);
     Route::resource('detail', DetailJabatanController::class);
+
 });
 
 require __DIR__ . '/auth.php';
