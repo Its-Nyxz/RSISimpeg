@@ -29,7 +29,6 @@ use App\Http\Controllers\MasterKhususController;
 use App\Http\Controllers\MasterAbsensiController;
 use App\Http\Controllers\KenaikanGolonganController;
 use App\Http\Controllers\PenilaianPekerjaController;
-use App\Http\Controllers\PerizinanJabatanController;
 use App\Http\Controllers\DetailJabatanController;
 
 
@@ -83,7 +82,6 @@ Route::middleware('auth')->group(function () {
     Route::resource('penilaian', PenilaianPekerjaController::class);
     Route::resource('jabatanperizinan', PerizinanJabatanController::class);
     Route::resource('detail', DetailJabatanController::class);
-
 });
 
 require __DIR__ . '/auth.php';
