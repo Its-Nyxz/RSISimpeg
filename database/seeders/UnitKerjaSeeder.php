@@ -79,6 +79,8 @@ class UnitKerjaSeeder extends Seeder
             ['name' => 'IT', 'kode' => 'IT', 'keterangan' => 'Teknologi Informasi'],
             ['name' => 'IPCN', 'kode' => 'IPCN', 'keterangan' => 'Infection Prevention Control Nurse'],
             ['name' => 'KOMITE', 'kode' => 'KOMITE', 'keterangan' => 'Komite'],
+            ['name' => 'SPI', 'kode' => 'SPI', 'keterangan' => 'Satuan Pengawas Internal'],
+            ['name' => 'SUPERVISOR', 'kode' => 'SPV', 'keterangan' => 'Supervisor'],
         ];
 
         // Menambahkan unit dengan sub-unit

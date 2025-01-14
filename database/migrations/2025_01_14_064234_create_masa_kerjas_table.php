@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('level_units', function (Blueprint $table) {
+        Schema::create('masa_kerjas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('unit_id')->constrained('unit_kerjas')->onDelete('cascade');
-            $table->foreignId('level_id')->constrained('level_points')->onDelete('cascade');
+            $table->string('nama'); // Nama kategori masa kerja
+            $table->integer('point'); // Poin untuk kategori
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('level_units');
+        Schema::dropIfExists('masa_kerjas');
     }
 };

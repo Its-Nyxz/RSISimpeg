@@ -41,6 +41,7 @@ return new class extends Migration
             $table->foreignId('kategori_id')->nullable()->constrained('kategoripphs')->onDelete('cascade');
             // $table->integer('pend_penyesuaian')->nullable();
             // $table->string('pendidikan')->nullable();
+            $table->date('tanggal_mulai_kerja')->nullable();
             $table->dateTime('tgl_penyesuaian')->nullable();
             $table->integer('masa_kerja')->default(value: 0)->nullable();
             $table->integer('status')->nullable();

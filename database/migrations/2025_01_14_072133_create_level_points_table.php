@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('level_units', function (Blueprint $table) {
+        Schema::create('level_points', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('unit_id')->constrained('unit_kerjas')->onDelete('cascade');
-            $table->foreignId('level_id')->constrained('level_points')->onDelete('cascade');
+            $table->string('nama');
+            $table->decimal('point', 5, 2)->nullable(); // Poin unit kerja
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('level_units');
+        Schema::dropIfExists('level_points');
     }
 };
