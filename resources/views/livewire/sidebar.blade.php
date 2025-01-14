@@ -31,7 +31,9 @@
                 ['title' => 'Poin Peran Fungsional', 'href' => '/peranfungsional'],
             ]" />
             <livewire:side-link href="#" title="Keuangan" icon="fa-solid fa-money-bills" />
-            <livewire:side-link href="#" title="Pengaturan" icon="fa-solid fa-gear" />
+            <livewire:side-link href="#" title="Pengaturan" icon="fa-solid fa-gear" :child="[
+                ['title' => 'Jabatan & Perizinan', 'href' => '/jabatanperizinan'],
+            ]" />
         </ul>
     </div>
 </aside>

@@ -28,6 +28,7 @@ class DataKenaikanBerkalaGolongan extends Component
             $historyPendidikan = $gapok->user->historyPendidikan->first();
             return [
                 'nama' => $gapok->user->name ?? 'Belum ada data',
+                'tmt' => $gapok->user->tmt ?? 'Belum ada data',
                 'pendidikan' => $historyPendidikan ? $historyPendidikan->keterangan : 'Belum ada data', // Cek jika ada data
                 'gaji_sekarang' => 'Rp. ' . number_format($gapok->gapoks->nominal_gapok ?? 0, 0, ',', '.'),
             ];

@@ -45,7 +45,7 @@
                                     {{ $item['nama'] }}
                                 </td>
                                 <td class="px-6 py-4">{{ $item['pendidikan'] }}</td>
-                                <td class="px-6 py-4">-</td>
+                                <td class="px-6 py-4">{{ $item['tmt'] }}</td>
                                 <td class="px-6 py-4">-</td>
                                 <td class="px-6 py-4">-</td>
                                 <td class="px-6 py-4">{{ $item['gaji_sekarang'] }}</td>
