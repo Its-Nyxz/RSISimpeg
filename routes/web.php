@@ -31,6 +31,9 @@ use App\Http\Controllers\KenaikanGolonganController;
 use App\Http\Controllers\PenilaianPekerjaController;
 use App\Http\Controllers\DetailJabatanController;
 
+use App\Http\Controllers\DataKaryawanController;
+use App\Http\Controllers\DetailKaryawanController;
+
 
 Route::get('/', function () {
     return redirect()->to('/login');
@@ -82,6 +85,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('penilaian', PenilaianPekerjaController::class);
     Route::resource('jabatanperizinan', PerizinanJabatanController::class);
     Route::resource('detail', DetailJabatanController::class);
+
+    Route::resource('datakaryawan', DataKaryawanController::class);
+    Route::resource('detailkaryawan', DetailKaryawanController::class);
 });
 
 require __DIR__ . '/auth.php';
