@@ -25,11 +25,10 @@
                 ['title' => 'Tunjangan Kinerja', 'href' => '/tukin'],
             ]" />
             <livewire:side-link title="Kepegawaian" icon="fa-solid fa-people-group" :child="[
-                ['title' => 'Data Karyawan', 'href' => '#'],
+                ['title' => 'Data Karyawan', 'href' => '/datakaryawan'],
                 ['title' => 'Tunjangan', 'href' => '#'],
                 ['title' => 'Approval Cuti', 'href' => '#'],
                 ['title' => 'Import Gaji', 'href' => '#'],
-
                 ['title' => 'Poin Peran Fungsional', 'href' => '/peranfungsional'],
                 ['title' => 'Poin Penilaian Pekerja', 'href' => '/penilaian'],
             ]" />
