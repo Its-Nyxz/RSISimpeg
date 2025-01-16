@@ -4,10 +4,10 @@
             <h1 class="text-2xl font-bold text-success-900">Master Jabatan</h1>
             <div class="flex justify-between items-center gap-4 mb-3">
                 <!-- Input Pencarian -->
-                <div class="flex-1">
+                {{-- <div class="flex-1">
                     <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Jabatan..."
                         class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
-                </div>
+                </div> --}}
 
                 <!-- Tombol Tambah Merk -->
                 <a href="{{ route('jabatan.create') }}"
@@ -63,10 +63,11 @@
             <h1 class="text-2xl font-bold text-success-900">Master Tunjangan Umum</h1>
             <div class="flex justify-between items-center gap-4 mb-3">
                 <!-- Input Pencarian -->
-                <div class="flex-1">
-                    <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Tunjangan Umum..."
+                {{-- <div class="flex-1">
+                    <input type="text" wire:keyup="updateSearch($event.target.value)"
+                        placeholder="Cari Tunjangan Umum..."
                         class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
-                </div>
+                </div> --}}
 
                 <!-- Tombol Tambah Merk -->
                 <a href="{{ route('umum.create') }}"
@@ -120,10 +121,11 @@
             <h1 class="text-2xl font-bold text-success-900">Master Tunjangan Tidak tetap</h1>
             <div class="flex justify-between items-center gap-4 mb-3">
                 <!-- Input Pencarian -->
-                <div class="flex-1">
-                    <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Tunjangan Tidak Tetap..."
+                {{-- <div class="flex-1">
+                    <input type="text" wire:keyup="updateSearch($event.target.value)"
+                        placeholder="Cari Tunjangan Tidak Tetap..."
                         class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
-                </div>
+                </div> --}}
 
                 <!-- Tombol Tambah Merk -->
                 <a href="{{ route('trans.create') }}"
@@ -166,7 +168,8 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center px-6 py-4">Tidak ada data Tunjangan Tidak Tetap.</td>
+                            <td colspan="5" class="text-center px-6 py-4">Tidak ada data Tunjangan Tidak Tetap.
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -175,13 +178,14 @@
     @endif
 
     @if ($type === 'fungsional')
-    <div class="flex justify-between py-2 mb-3">
+        <div class="flex justify-between py-2 mb-3">
             <h1 class="text-2xl font-bold text-success-900">Master Fungsional</h1>
             <div class="flex justify-between items-center gap-4 mb-3">
-                <div class="flex-1">
-                    <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Fungsional..."
+                {{-- <div class="flex-1">
+                    <input type="text" wire:keyup="updateSearch($event.target.value)"
+                        placeholder="Cari Fungsional..."
                         class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
-                </div>
+                </div> --}}
                 <a href="{{ route('fungsional.create') }}"
                     class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                     + Tambah Jabatan
@@ -231,13 +235,14 @@
     @endif
 
     @if ($type === 'khusus')
-    <div class="flex justify-between py-2 mb-3">
+        <div class="flex justify-between py-2 mb-3">
             <h1 class="text-2xl font-bold text-success-900">Master Khusus</h1>
             <div class="flex justify-between items-center gap-4 mb-3">
-                <div class="flex-1">
-                    <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Tunjangan..."
+                {{-- <div class="flex-1">
+                    <input type="text" wire:keyup="updateSearch($event.target.value)"
+                        placeholder="Cari Tunjangan..."
                         class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
-                </div>
+                </div> --}}
                 <a href="#"
                     class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                     + Tambah Tunjangan

@@ -17,6 +17,11 @@ class MasterUmum extends Model
     {
         return $this->hasMany(User::class, 'umum_id');
     }
+
+    public function points()
+    {
+        return $this->morphMany(PointJabatan::class, 'pointable');
+    }
     // public function parent()
     // {
     //     return $this->belongsTo(MasterUmum::class, 'parent_id');

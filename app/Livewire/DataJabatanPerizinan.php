@@ -4,10 +4,11 @@ namespace App\Livewire;
 
 use App\Models\MasterJabatan;
 use Livewire\Component;
+use Spatie\Permission\Models\Role;
 
 class DataJabatanPerizinan extends Component
 {
-    
+
     public $jabatanperizinan;
     public $search = '';
 
@@ -18,8 +19,8 @@ class DataJabatanPerizinan extends Component
 
     public function loadData()
     {
-        $this->jabatanperizinan = MasterJabatan::when( $this->search, function($query){
-            $query->where('nama', 'like', '%' . $this->search . '%');
+        $this->jabatanperizinan = Role::where('id', '>', '1')->when($this->search, function ($query) {
+            $query->where('name', 'like', '%' . $this->search . '%');
         })
             ->get()
             ->toArray();

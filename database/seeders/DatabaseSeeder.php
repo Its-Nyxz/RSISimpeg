@@ -41,6 +41,7 @@ class DatabaseSeeder extends Seeder
             LevelUnitSeeder::class,
             StatusAbsenSeeder::class,
             MasaKerjaSeeder::class,
+            PointJabatanSeeder::class,
             UserSeeder::class, // Tambahkan ini
             TabelTest::class,
         ]);

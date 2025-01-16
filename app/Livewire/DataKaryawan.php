@@ -12,23 +12,23 @@ class DataKaryawan extends Component
 
     public $search = ''; // Properti untuk menyimpan nilai input pencarian
 
-    public function updatingSearch()
+    public function updateSearch($value)
     {
-        // Reset halaman ke halaman pertama jika pencarian diperbarui
-        $this->resetPage();
+        $this->search = $value;
+        $this->render();
     }
 
     public function render()
     {
-        $users = User::with(['jabatan', 'unitKerja']) // Eager load jabatan dan unitKerja
-        ->when($this->search, function ($query) {
-            $query->where('name', 'like', '%' . $this->search . '%')
-                ->orWhere('no_ktp', 'like', '%' . $this->search . '%')
-                ->orWhere('alamat', 'like', '%' . $this->search . '%');
-        })->paginate(15);
+        $users = User::with(['jabatan', 'unitKerja'])->where('id', '>', '1') // Eager load jabatan dan unitKerja
+            ->when($this->search, function ($query) {
+                $query->where('name', 'like', '%' . $this->search . '%')
+                    ->orWhere('no_ktp', 'like', '%' . $this->search . '%')
+                    ->orWhere('alamat', 'like', '%' . $this->search . '%');
+            })->paginate(15);
 
-    return view('livewire.data-karyawan', [
-        'users' => $users,
-    ]);
+        return view('livewire.data-karyawan', [
+            'users' => $users,
+        ]);
     }
 }

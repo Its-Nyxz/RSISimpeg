@@ -26,4 +26,9 @@ class MasterFungsi extends Model
     {
         return $this->hasMany(MasterPotongan::class, 'fungsi_id');
     }
+
+    public function points()
+    {
+        return $this->morphMany(PointJabatan::class, 'pointable');
+    }
 }

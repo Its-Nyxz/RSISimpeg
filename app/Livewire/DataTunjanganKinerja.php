@@ -3,7 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\LevelUnit;
-use App\Models\MasaKerja    ;
+use App\Models\MasaKerja;
 use Livewire\Component;
 
 class DataTunjanganKinerja extends Component
@@ -22,7 +22,7 @@ class DataTunjanganKinerja extends Component
     public function loadData()
     {
         $this->items = match ($this->type) {
-            'masakerja' => LevelUnit::with(['unitKerja', 'levelPoint'])
+            'levelunit' => LevelUnit::with(['unitKerja', 'levelPoint'])
                 ->when($this->search, function ($query) {
                     $query->whereHas('unitKerja', function ($subQuery) {
                         $subQuery->where('nama', 'like', '%' . $this->search . '%');
@@ -41,7 +41,7 @@ class DataTunjanganKinerja extends Component
                     ->orWhere('point', 'like', '%' . $this->search . '%');
             })->get()->toArray(),
             default => collect()->toArray(),
-        };        
+        };
     }
 
     public function render()

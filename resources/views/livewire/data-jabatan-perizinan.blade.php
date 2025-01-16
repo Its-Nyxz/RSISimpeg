@@ -17,35 +17,30 @@
         </div>
 
         @forelse ($jabatanperizinan as $item)
-        <x-card-tanpa-title>
-            <div class="flex justify-between items-center gap-4 mb-3">
-                <p>{{ $item['nama'] }}</p>
-
+            <x-card-tanpa-title>
                 <div class="flex justify-between items-center gap-4 mb-3">
-                    <button 
-                        type="button" 
-                        class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
+                    <p>{{ $item['name'] }}</p>
 
-                        data-tooltip-target="tooltip-item-{{ $item['id'] }}"
+                    <div class="flex justify-between items-center gap-4 mb-3">
+                        <button type="button" class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
+                            data-tooltip-target="tooltip-item-{{ $item['id'] }}"
+                            @click="$dispatch('open-modal', 'edit-modal', '{{ $item['id'] }}')">
 
-                        @click="$dispatch('open-modal', 'edit-modal', '{{ $item['id'] }}')">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <a href="{{ route('detail.show', ['detail' => $item['id']]) }}" class="btn btn-outline-success">
+                            <i class="fa-solid fa-eye" style="color: #000000;"></i>
+                        </a>
 
-                        <i class="fa-solid fa-pen"></i>
-                    </button>
-                    <a href="{{ route('detail.show', ['detail' => $item['id']]) }}" class="btn btn-outline-success">
-                    <i class="fa-solid fa-eye" style="color: #000000;"></i>
-                </a>
-
+                    </div>
                 </div>
-            </div>
-        </x-card-tanpa-title>
+            </x-card-tanpa-title>
         @empty
             <tr>
 
                 <td colspan="3" class="text-center px-6 py-4">Tidak ada data Jabatan.</td>
 
             </tr>
-
         @endforelse
 
     </x-card>
@@ -64,23 +59,16 @@
 
                 <label for="jabatan_nama" class="block text-sm font-medium text-gray-700">Nama Jabatan</label>
 
-                <input 
-
-                    type="text" 
-
-                    id="jabatan_nama" 
-
-                    name="jabatan_nama" 
-
+                <input type="text" id="jabatan_nama" name="jabatan_nama"
                     class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600"
-
                     placeholder="Nama Jabatan">
 
             </div>
 
             <div class="flex justify-end space-x-4">
 
-                <button type="button" x-on:click="$dispatch('close-modal', 'edit-modal')" class="px-4 py-2 bg-gray-200 rounded-lg">Batal</button>
+                <button type="button" x-on:click="$dispatch('close-modal', 'edit-modal')"
+                    class="px-4 py-2 bg-gray-200 rounded-lg">Batal</button>
 
                 <button type="submit" class="px-4 py-2 bg-success-600 text-white rounded-lg">Simpan</button>
 

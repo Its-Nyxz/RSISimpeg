@@ -23,6 +23,9 @@ class UserSeeder extends Seeder
             'Keuangan',
             'Kepala Unit',
             'Kepala Sub Unit',
+            'Penanggung Jawab',
+            'Koordinator',
+            'Administrator',
             'Staf',
         ];
 
