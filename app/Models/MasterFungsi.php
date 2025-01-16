@@ -31,4 +31,9 @@ class MasterFungsi extends Model
     {
         return $this->morphMany(PointJabatan::class, 'pointable');
     }
+
+    public function proposionalitasPoints()
+    {
+        return $this->morphMany(ProposionalitasPoint::class, 'proposable');
+    }
 }

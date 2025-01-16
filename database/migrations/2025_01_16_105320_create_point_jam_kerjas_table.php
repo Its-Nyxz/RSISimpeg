@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('point_jabatans', function (Blueprint $table) {
+        Schema::create('point_jam_kerjas', function (Blueprint $table) {
             $table->id();
-            $table->morphs('pointable'); // Menyimpan ID dan tipe model (umum atau fungsional)
-            $table->decimal('point'); // Menyimpan point
+            $table->string('nama');
+            $table->decimal('batas_bawah');
+            $table->decimal('batas_atas');
+            $table->decimal('point');
             $table->timestamps();
         });
     }
@@ -24,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('point_jabatans');
+        Schema::dropIfExists('point_jam_kerjas');
     }
 };

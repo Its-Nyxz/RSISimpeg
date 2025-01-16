@@ -22,6 +22,11 @@ class MasterUmum extends Model
     {
         return $this->morphMany(PointJabatan::class, 'pointable');
     }
+
+    public function proposionalitasPoints()
+    {
+        return $this->morphMany(ProposionalitasPoint::class, 'proposable');
+    }
     // public function parent()
     // {
     //     return $this->belongsTo(MasterUmum::class, 'parent_id');

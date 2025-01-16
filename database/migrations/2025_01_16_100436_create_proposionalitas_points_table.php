@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('point_jabatans', function (Blueprint $table) {
+        Schema::create('proposionalitas_points', function (Blueprint $table) {
             $table->id();
-            $table->morphs('pointable'); // Menyimpan ID dan tipe model (umum atau fungsional)
-            $table->decimal('point'); // Menyimpan point
+            $table->morphs('proposable'); // polymorphic relationship
+            $table->decimal('point');
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('point_jabatans');
+        Schema::dropIfExists('proposionalitas_points');
     }
 };
