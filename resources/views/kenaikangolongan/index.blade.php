@@ -1,3 +1,3 @@
 <x-body>
-    <livewire:kenaikan-golongan/>
+    <livewire:kenaikan-golongan />
 </x-body>

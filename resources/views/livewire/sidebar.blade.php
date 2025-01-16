@@ -22,6 +22,7 @@
                 ['title' => 'Pendidikan', 'href' => '/pendidikan'],
                 ['title' => 'Absensi', 'href' => '/absensi'],
                 ['title' => 'Kenaikan Berkala dan Golongan', 'href' => '/kenaikan'],
+                ['title' => 'Tunjangan Kinerja', 'href' => '/tukin'],
             ]" />
             <livewire:side-link title="Kepegawaian" icon="fa-solid fa-people-group" :child="[
                 ['title' => 'Data Karyawan', 'href' => '/datakaryawan'],

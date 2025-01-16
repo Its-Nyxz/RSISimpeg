@@ -13,7 +13,7 @@ class MasaKerjaController extends Controller
      */
     public function index()
     {
-        //
+        return view(view: "masakerja.index");
     }
 
     /**

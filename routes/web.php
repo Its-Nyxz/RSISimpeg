@@ -11,6 +11,9 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\OpsiAbsenController;
+use App\Http\Controllers\TunjanganKinerjaController;
+use App\Http\Controllers\MasaKerjaController;
+use App\Http\Controllers\LevelUnitController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MasterUmumController;
@@ -86,8 +89,14 @@ Route::middleware('auth')->group(function () {
     Route::resource('jabatanperizinan', PerizinanJabatanController::class);
     Route::resource('detail', DetailJabatanController::class);
 
+
     Route::resource('datakaryawan', DataKaryawanController::class);
     Route::resource('detailkaryawan', DetailKaryawanController::class);
+
+    Route::resource('tukin', TunjanganKinerjaController::class);
+    Route::resource('masakerja', MasaKerjaController::class);
+    Route::resource('levelunit', LevelUnitController::class);
+
 });
 
 require __DIR__ . '/auth.php';
