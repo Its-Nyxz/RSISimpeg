@@ -12,9 +12,10 @@ use App\Models\StatusAbsen;
 
 class DataAbsen extends Component
 {
-    public $totalHadir = 0;  
-    public $totalPulang = 0;   
-    public $totalKaryawan = 0; 
+    public $type;
+    public $totalHadir = 0;
+    public $totalPulang = 0;
+    public $totalKaryawan = 0;
 
     public function mount($type)
     {
