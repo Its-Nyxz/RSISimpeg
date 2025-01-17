@@ -34,6 +34,7 @@ class ProposionalitasPointSeeder extends Seeder
             ['name' => 'Pekarya Kesehatan IBS', 'point' => 1],
             ['name' => 'Staf Anggota SPI', 'point' => 1],
             ['name' => 'Staf Unit Pemasaran', 'point' => 1],
+            ['name' => 'Staf Unit Pengamanan', 'point' => 1],
             ['name' => 'Staf Penunjang', 'point' => 1],
             ['name' => 'Staf Instalasi Rekam Medik', 'point' => 1],
             ['name' => 'Staf Instalasi Teknologi Informasi', 'point' => 1.5],

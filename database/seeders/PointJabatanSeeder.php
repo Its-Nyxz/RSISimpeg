@@ -39,6 +39,8 @@ class PointJabatanSeeder extends Seeder
         // Data untuk tabel Umum
         $umum = [
             ['name' => 'Ka. Unit Ambulance', 'point' => 21],
+            ['name' => 'Ka. Instalasi Pemeliharaan Sarpras', 'point' => 21],
+            ['name' => 'Ka. Instalasi CSSD', 'point' => 21],
             ['name' => 'Ka. Unit PJBR', 'point' => 21],
             ['name' => 'Ka. Unit Pengelolaan Linen', 'point' => 21],
             ['name' => 'Ka. Unit Gudang', 'point' => 21],
@@ -74,11 +76,29 @@ class PointJabatanSeeder extends Seeder
             ['name' => 'Staf Unit Pengamanan', 'point' => 2],
             ['name' => 'Staf Unit Transportasi', 'point' => 5],
             ['name' => 'Staf Instalasi Teknologi Informasi', 'point' => 2],
+            ['name' => 'Staf Administrasi IBS', 'point' => 3],
+            ['name' => 'Staf Administrasi Inst Laboratorium', 'point' => 3],
         ];
 
         // Data untuk tabel Unit
         $unit = [
             ['name' => 'CASE MANAGER', 'point' => 15],
+            ['name' => 'INST DIALISIS', 'point' => 3],
+            ['name' => 'IPCN', 'point' => 21],
+            ['name' => 'PJBR', 'point' => 5],
+            ['name' => 'INST SANITASI', 'point' => 2],
+            ['name' => 'INST CSSD', 'point' => 2],
+            ['name' => 'INST PEML SARPRAS', 'point' => 2],
+            ['name' => 'MCU & POSKES', 'point' => 2],
+            ['name' => 'PENGELOLAAN LINEN', 'point' => 2],
+            ['name' => 'PENUNJANG', 'point' => 2],
+            ['name' => 'PENGAMANAN', 'point' => 2],
+            ['name' => 'PEMASARAN', 'point' => 2],
+            ['name' => 'KASIR', 'point' => 2],
+            ['name' => 'ASET & LOGISTIK', 'point' => 2],
+            ['name' => 'INST REHAB MEDIK', 'point' => 2],
+            ['name' => 'INST REKAM MEDIK', 'point' => 2],
+            ['name' => 'KEPERAWATAN', 'point' => 2],
         ];
 
         // Menyimpan data fungsional

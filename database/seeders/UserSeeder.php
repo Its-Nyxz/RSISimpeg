@@ -23,6 +23,7 @@ class UserSeeder extends Seeder
             'Keuangan',
             'Kepala Unit',
             'Kepala Sub Unit',
+            'Kepala Ruang',
             'Penanggung Jawab',
             'Koordinator',
             'Administrator',
@@ -300,7 +301,7 @@ class UserSeeder extends Seeder
 
         // Data untuk unit Perinatologi
         $perinatologiMembers = [
-            ['name' => 'Ariyanti Retno A', 'role' => 'Kepala Sub Unit'],
+            ['name' => 'Ariyanti Retno A', 'role' => 'Kepala Ruang'],
             ['name' => 'Murni Nurdiyanti'],
             ['name' => 'Laila Oktavia'],
             ['name' => 'Lina Ernawati'],
@@ -339,7 +340,7 @@ class UserSeeder extends Seeder
 
         // Data untuk unit VK
         $vkMembers = [
-            ['name' => 'Widanti Kusuma', 'role' => 'Kepala Sub Unit'],
+            ['name' => 'Widanti Kusuma', 'role' => 'Kepala Ruang'],
             ['name' => 'Uswatun Khasanah'],
             ['name' => 'Elga Wulandari'],
             ['name' => 'Angelia Resthy Ratnawati'],
@@ -386,7 +387,7 @@ class UserSeeder extends Seeder
 
         // Data untuk unit ALZAITUN
         $alzaitunMembers = [
-            ['name' => 'Wahyu Puspitasari', 'role' => 'Kepala Sub Unit'],
+            ['name' => 'Wahyu Puspitasari', 'role' => 'Kepala Ruang'],
             ['name' => 'Lili Alimah'],
             ['name' => 'Rinta Ermawati'],
             ['name' => 'Tri Herlina'],
@@ -427,7 +428,7 @@ class UserSeeder extends Seeder
 
         // Data untuk unit AT TAQWA
         $atTaqwaMembers = [
-            ['name' => 'Susilo Rudatin', 'role' => 'Kepala Sub Unit'],
+            ['name' => 'Susilo Rudatin', 'role' => 'Kepala Ruang'],
             ['name' => 'Imam Waizun'],
             ['name' => 'Yuyun Purwanti'],
             ['name' => 'Ahmad Sukro'],
@@ -514,7 +515,7 @@ class UserSeeder extends Seeder
 
         // Data untuk unit AL AMIN
         $alAminMembers = [
-            ['name' => 'Siti Markhamah', 'role' => 'Kepala Sub Unit'],
+            ['name' => 'Siti Markhamah', 'role' => 'Kepala Ruang'],
             ['name' => 'Deni Amrulloh'],
             ['name' => 'Buyung Pambudi'],
             ['name' => 'Ina Karunia'],
@@ -553,7 +554,7 @@ class UserSeeder extends Seeder
 
         // Data untuk unit FIRDAUS
         $firdausMembers = [
-            ['name' => 'Ika Sari Sholehati', 'role' => 'Kepala Sub Unit'],
+            ['name' => 'Ika Sari Sholehati', 'role' => 'Kepala Ruang'],
             ['name' => 'Syafira Diaz Maisyaroh'],
             ['name' => 'Sinta Puspita'],
             ['name' => 'Nony Marlina'],
@@ -592,7 +593,7 @@ class UserSeeder extends Seeder
 
         // Data untuk unit HAJI
         $hajiMembers = [
-            ['name' => 'Umu Hani', 'role' => 'Kepala Sub Unit'],
+            ['name' => 'Umu Hani', 'role' => 'Kepala Ruang'],
             ['name' => 'Windu Kusuma W'],
             ['name' => 'Etha Setyana'],
             ['name' => 'Neneng Susmas Netty'],
@@ -638,7 +639,7 @@ class UserSeeder extends Seeder
 
         // Data untuk unit ASSYFA
         $assyfaMembers = [
-            ['name' => 'Ifa Fitria', 'role' => 'Kepala Sub Unit'],
+            ['name' => 'Ifa Fitria', 'role' => 'Kepala Ruang'],
             ['name' => 'Fuandraeni F'],
             ['name' => 'Titi Yulia A'],
             ['name' => 'Ferawati Trianasari'],
@@ -683,7 +684,7 @@ class UserSeeder extends Seeder
 
         // Data untuk unit AZIZIAH
         $aziziahMembers = [
-            ['name' => 'Slamet Supratomo', 'role' => 'Kepala Sub Unit'],
+            ['name' => 'Slamet Supratomo', 'role' => 'Kepala Ruang'],
             ['name' => 'Ediy Santosa'],
             ['name' => 'Agus Suprihanto'],
             ['name' => 'Yanuar Puthut Wijonarko'],
@@ -723,7 +724,7 @@ class UserSeeder extends Seeder
 
         // Data untuk unit ALMUNAWAROH
         $almunawarohMembers = [
-            ['name' => 'Latifah', 'role' => 'Kepala Sub Unit'],
+            ['name' => 'Latifah', 'role' => 'Kepala Ruang'],
             ['name' => 'Eka Nur Fitri'],
             ['name' => 'Catur Noviantiko'],
             ['name' => 'Zuhri Nikmatuloh Zulfikar'],

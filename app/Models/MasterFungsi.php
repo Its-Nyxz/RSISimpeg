@@ -36,4 +36,8 @@ class MasterFungsi extends Model
     {
         return $this->morphMany(ProposionalitasPoint::class, 'proposable');
     }
+    public function peranPoints()
+    {
+        return $this->morphMany(PointPeran::class, 'peransable');
+    }
 }
