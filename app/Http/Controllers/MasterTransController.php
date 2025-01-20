@@ -42,17 +42,30 @@ class MasterTransController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(MasterTrans $masterTrans)
+    public function edit($id)
     {
-        //
+        $trans = MasterTrans::findOrFail($id);
+        return view('trans.edit', compact('trans'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, MasterTrans $masterTrans)
+    public function update(Request $request, MasterTrans $master_trans)
     {
-        //
+        $validatedData = $request->validate([
+            'nama' => 'required',
+            'nom_makan' => 'required',
+            'nom_transport' => 'required',
+        ]);
+
+        $master_trans->update([
+            'nama' => $validatedData['nama'],
+            'nom_makan' => $validatedData['nom_makan'],
+            'nom_transport' => $validatedData['nom_transport'],
+        ]);
+
+        return redirect()->route('tunjangan.index')->with('success', 'Trans berhasil diperbarui!');
     }
 
     /**

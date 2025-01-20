@@ -2,8 +2,13 @@
 
 namespace App\Livewire;
 
+<<<<<<< pkl-2
 use Livewire\Component;
 use App\Models\MasterKhusus;
+=======
+use App\Models\MasterKhusus;
+use Livewire\Component;
+>>>>>>> main
 
 class CreateKhusus extends Component
 {
@@ -37,7 +42,8 @@ class CreateKhusus extends Component
         $this->reset('deskripsi');
 
         // Redirect dengan membawa pesan sukses
-        return redirect()->route('khusus.index')->with('success', 'Data Tunjangan Khusus baru berhasil ditambahkan.');
+
+        return redirect()->route('tunjangan.index')->with('success', 'Data Tunjangan Khusus baru berhasil ditambahkan.');
     }
 
     public function render()

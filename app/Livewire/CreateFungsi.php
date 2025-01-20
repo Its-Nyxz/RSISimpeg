@@ -37,7 +37,7 @@ class CreateFungsi extends Component
         $this->reset('deskripsi');
 
         // Redirect dengan membawa pesan sukses
-        return redirect()->route('fungsional.index')->with('success', 'Data Tunjangan Fungsional baru berhasil ditambahkan.');
+        return redirect()->route('tunjangan.index')->with('success', 'Data Tunjangan Fungsional baru berhasil ditambahkan.');
     }
 
     public function render()

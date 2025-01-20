@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\LevelUnit;
 
 class UnitKerja extends Model
 {
@@ -21,5 +22,20 @@ class UnitKerja extends Model
     public function children()
     {
         return $this->hasMany(UnitKerja::class, 'parent_id');
+    }
+
+    public function levelunit()
+    {
+        return $this->hasMany(LevelUnit::class, 'unit_id');
+    }
+
+    public function points()
+    {
+        return $this->morphMany(PointJabatan::class, 'pointable');
+    }
+
+    public function proposionalitasPoints()
+    {
+        return $this->morphMany(ProposionalitasPoint::class, 'proposable');
     }
 }

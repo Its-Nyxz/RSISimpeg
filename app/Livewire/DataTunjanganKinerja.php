@@ -3,7 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\LevelUnit;
-use App\Models\MasaKerja    ;
+use App\Models\MasaKerja;
 use Livewire\Component;
 
 class DataTunjanganKinerja extends Component
@@ -49,4 +49,6 @@ class DataTunjanganKinerja extends Component
     {
         return view('livewire.data-tunjangan-kinerja');
     }
+
 }
+

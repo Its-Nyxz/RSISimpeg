@@ -42,17 +42,33 @@ class MasterJabatanController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(MasterJabatan $masterJabatan)
+    public function edit($id)
     {
-        //
+        $jabatan = MasterJabatan::findOrFail($id);
+
+        return view('jabatan.edit', compact('jabatan'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, MasterJabatan $masterJabatan)
+    public function update(Request $request, MasterJabatan $master_jabatan)
     {
-        //
+        $validatedData = $request->validate([
+            'nama' => 'required',
+            'kualifikasi' => 'required',
+            'nominal' => 'required',
+            'deskripsi' => 'required',
+        ]);
+
+        $master_jabatan->update([
+            'nama' => $validatedData['nama'],
+            'kualifikasi' => $validatedData['kualifikasi'],
+            'nominal' => $validatedData['nominal'],
+            'deskripsi' => $validatedData['deskripsi'],
+        ]);
+
+        return redirect()->route('tunjangan.index')->with('success', 'Jabatan berhasil diperbarui!');
     }
 
     /**

@@ -32,7 +32,7 @@
                         </td>
                         <td class="px-6 py-4">{{ rupiah($gapok['nominal_gapok']) }}</td>
                         <td class="px-6 py-4">
-                            <a href="/gapok/edit/{{ $gapok['id'] }}"
+                            <a href="{{route('gapok.edit', $gapok['id']) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                 data-tooltip-target="tooltip-gapok-{{ $gapok['id'] }}">
                                 <i class="fa-solid fa-pen"></i>

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\MasterUmum;
+use App\Models\PointPeran;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -40,7 +41,17 @@ class DatabaseSeeder extends Seeder
             LevelPointSeeder::class,
             LevelUnitSeeder::class,
             StatusAbsenSeeder::class,
+            TerlibatPointSeeder::class,
+            PosisiPointSeeder::class,
+            ShiftPointSeeder::class,
+            PkPointSeeder::class,
+            PointPelatihanSeeder::class,
+            PointPeranSeeder::class,
             MasaKerjaSeeder::class,
+            PointJabatanSeeder::class,
+            ProposionalitasPointSeeder::class,
+            PointKinerjaSeeder::class,
+            PointJamKerjaSeeder::class,
             UserSeeder::class, // Tambahkan ini
             TabelTest::class,
         ]);

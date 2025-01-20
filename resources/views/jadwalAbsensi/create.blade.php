@@ -1,3 +1,3 @@
 <x-body>
-    <livewire:create-jadwal-absensi />
+    <livewire:create-jadwal />
 </x-body>

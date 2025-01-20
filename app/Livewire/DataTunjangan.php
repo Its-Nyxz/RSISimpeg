@@ -50,7 +50,7 @@ class DataTunjangan extends Component
                 $query->where('nama', 'like', '%' . $this->search . '%')
                     ->orWhere('nominal', 'like', '%' . $this->search . '%');
             })->get()->toArray(),
-            default => collect()->toArray(),
+            // default => collect()->toArray(),
         };
     }
 

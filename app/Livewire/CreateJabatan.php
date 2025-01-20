@@ -44,7 +44,7 @@ class CreateJabatan extends Component
         $this->reset('deskripsi');
 
         // Redirect dengan membawa pesan sukses
-        return redirect()->route('jabatan.index')->with('success', 'Data Tunjangan Jabatan baru berhasil ditambahkan.');
+        return redirect()->route('tunjangan.index')->with('success', 'Data Tunjangan Jabatan baru berhasil ditambahkan.');
     }
 
     public function render()

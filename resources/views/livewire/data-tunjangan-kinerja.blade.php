@@ -62,7 +62,8 @@
             <div class="flex justify-between items-center gap-4 mb-3">
                 <!-- Input Pencarian -->
                 <div class="flex-1">
-                    <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Level Kerja..."
+                    <input type="text" wire:keyup="updateSearch($event.target.value)"
+                        placeholder="Cari Level Kerja..."
                         class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
                 </div>
 
@@ -92,7 +93,7 @@
                             <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
                                 {{ $item['nama_unit'] }}
                             </td>
-                            <td class="px-6 py-4">{{ $item['nama_level'] }}</td>
+                            <td class="px-6 py-4">{{ $item['nama_level'] ?? '-' }}</td>
                             <td class="px-6 py-4">{{ $item['poin'] }}</td>
                             <td class="px-6 py-4">
                                 <a href="{{route('levelunit.edit', $item['id']) }}"
@@ -116,4 +117,6 @@
             </table>
         </div>
     @endif
+
 </div>
+

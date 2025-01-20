@@ -12,6 +12,7 @@ use App\Models\MasterFungsi;
 use App\Models\MasterKhusus;
 use App\Models\MasterJabatan;
 use App\Models\MasterPendidikan;
+use App\Models\UnitKerja;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -81,6 +82,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(MasterPendidikan::class, 'pendidikan');
     }
+    public function jenis()
+    {
+        return $this->belongsTo(JenisKaryawan::class, 'jenis_id');
+    }
     /**
      * Relasi ke TUmum.
      */
@@ -118,5 +123,9 @@ class User extends Authenticatable
     public function jadwalabsensi()
     {
         return $this->hasMany(JadwalAbsensi::class, 'user_id');
+    }
+    public function unitKerja()
+    {
+        return $this->belongsTo(UnitKerja::class, 'unit_id');
     }
 }

@@ -42,17 +42,30 @@ class MasterKhususController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(MasterKhusus $masterKhusus)
+    public function edit($id)
     {
-        //
+        $khusus = MasterKhusus::findOrFail($id);
+        return view('khusus.edit', compact('khusus'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, MasterKhusus $masterKhusus)
+    public function update(Request $request, MasterKhusus $master_khusus)
     {
-        //
+        $validatedData = $request->validate([
+            'nama' => 'required',
+            'nominal' => 'required',
+            'deskripsi' => 'required',
+        ]);
+
+        $master_khusus->update([
+            'nama' => $validatedData['nama'],
+            'nominal' => $validatedData['nominal'],
+            'deskripsi' => $validatedData['deskripsi'],
+        ]);
+
+        return redirect()->route('tunjangan.index')->with('success', 'Khusus berhasil diperbarui!');
     }
 
     /**

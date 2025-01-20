@@ -34,7 +34,8 @@
                         </td>
                         <td class="px-6 py-4">{{ $masakerja['point'] }}</td>
                         <td class="px-6 py-4">
-                            <a href="{{ route('masakerja.edit', $masakerja['id'])}}"
+
+                            <a href="/masakerja/edit/{{ $masakerja['id'] }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                 data-tooltip-target="tooltip-masakerja-{{ $masakerja['id'] }}">
                                 <i class="fa-solid fa-pen"></i>

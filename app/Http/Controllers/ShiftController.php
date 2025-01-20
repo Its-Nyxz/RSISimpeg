@@ -43,9 +43,10 @@ class ShiftController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Shift $shift)
+    public function edit($id)
     {
-        //
+        $shift = Shift::findOrFail($id);
+        return view('shift.edit', compact('shift'));
     }
 
     /**
@@ -53,7 +54,21 @@ class ShiftController extends Controller
      */
     public function update(UpdateShiftRequest $request, Shift $shift)
     {
-        //
+        $validatedData = $request->validated([
+            'nama_shift' => 'required|string|max:255',
+            'jam_masuk' => 'required|date_format:H:i',
+            'jam_keluar' => 'required|date_format:H:i',
+            'keterangan' => 'nullable|string',
+        ]);
+
+        $shift->update([
+            'nama_shift' => $validatedData['nama_shift'],
+            'jam_masuk' => $validatedData['jam_masuk'],
+            'jam_keluar' => $validatedData['jam_keluar'],
+            'keterangan' => $validatedData['keterangan'],
+        ]);
+
+        return redirect()->route('absensi.index')->with('success', 'Shift berhasil diperbarui!');
     }
 
     /**

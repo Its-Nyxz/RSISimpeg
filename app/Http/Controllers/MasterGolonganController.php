@@ -42,22 +42,28 @@ class MasterGolonganController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(MasterGolongan $masterGolongan)
+    public function edit($id)
     {
-        // Mencari golongan berdasarkan ID
-        $golongan = MasterGolongan::findOrFail($golonganId);
 
-        // Mengembalikan halaman edit dengan data golongan
+        $golongan = MasterGolongan::findOrFail($id);
+
         return view('golongan.edit', compact('golongan'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, MasterGolongan $masterGolongan)
+    public function update(Request $request, MasterGolongan $master_golongan)
     {
-        //
+        $validatedData = $request->validate([
+            'nama' => 'required',
+        ]);
 
+        $master_golongan->update([
+            'nama' => $validatedData['nama'],
+        ]);
+
+        return redirect()->route('golongan.index')->with('success', 'Golongan berhasil diperbarui!');
     }
 
     /**

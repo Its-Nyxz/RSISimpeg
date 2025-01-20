@@ -21,7 +21,7 @@ class OpsiAbsenController extends Controller
      */
     public function create()
     {
-        //
+        return view('opsiabsen.create');
     }
 
     /**
@@ -43,17 +43,27 @@ class OpsiAbsenController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(OpsiAbsen $opsiAbsen)
+    public function edit($id)
     {
-        //
+        $opsi = OpsiAbsen::findOrFail($id);
+
+        return view('opsiabsen.edit', compact('opsi'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateOpsiAbsenRequest $request, OpsiAbsen $opsiAbsen)
+    public function update(UpdateOpsiAbsenRequest $request, OpsiAbsen $opsi_absen)
     {
-        //
+        $validatedData = $request->validate([
+            'name' => 'required',
+        ]);
+
+        $opsi_absen->update([
+            'name' => $validatedData['name'],
+        ]);
+
+        return redirect()->route('absensi.index')->with('success', 'Opsi berhasil diperbarui!');
     }
 
     /**

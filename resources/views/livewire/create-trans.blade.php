@@ -11,17 +11,21 @@
             </div>
 
             <div class="form-group col-span-2">
-                <label for="nominal" class="block text-sm font-medium text-green-900">Nominal</label>
-                <input type="text" id="nominal" wire:model="nominal" class="form-control @error('nominal') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" />
-                @error('nominal')
+
+                <label for="nom_makan" class="block text-sm font-medium text-green-900">Nominal Makan</label>
+                <input type="text" id="nom_makan" wire:model="nom_makan" class="form-control @error('nom_makan') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" />
+                @error('nom_makan')
+
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>
 
             <div class="form-group col-span-2">
-                <label for="deskripsi" class="block text-sm font-medium text-green-900">Deskripsi</label>
-                <input type="text" id="deskripsi" wire:model="deskripsi" class="form-control @error('deskripsi') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" />
-                @error('deskripsi')
+
+                <label for="nom_transport" class="block text-sm font-medium text-green-900">Nominal Transport</label>
+                <input type="text" id="nom_transport" wire:model="nom_transport" class="form-control @error('nom_transport') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" />
+                @error('nom_transport')
+
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>

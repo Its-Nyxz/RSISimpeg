@@ -36,7 +36,7 @@
                         <td class="px-6 py-4">{{ $pendidikan->maximGolongan->nama }}</td>
                         <td class="px-6 py-4">{{ $pendidikan->deskripsi }}</td>
                         <td class="px-6 py-4">
-                            <a href="/pendidikan/edit/{{ $pendidikan->id }}"
+                            <a href="{{route('pendidikan.edit', $pendidikan->id) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                 data-tooltip-target="tooltip-pendidikan-{{ $pendidikan->id }}">
                                 <i class="fa-solid fa-pen"></i>

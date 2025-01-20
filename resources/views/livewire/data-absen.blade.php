@@ -40,7 +40,7 @@
                 <div class="flex items-center gap-6 mb-4">
                     <div class="flex items-center justify-center w-12 h-12 rounded-full" style="background-color: #3C986A;">
                         <i class="fa-regular fa-user" style="color: white; font-size: 24px;"></i>
-                    </div>
+                    </div
                     <h2 class="text-2xl font-semibold" style="color: #3C986A;">Karyawan Hadir</h2>
                 </div>
                 <div class="flex items-baseline space-x-1">
