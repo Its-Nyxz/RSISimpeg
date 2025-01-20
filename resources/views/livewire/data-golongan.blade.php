@@ -30,7 +30,7 @@
                             {{ $golongan['nama'] }}
                         </td>
                         <td class="px-6 py-4 text-right">
-                            <a href="/golongan/edit/{{ $golongan['id'] }}"
+                            <a href="{{ route('golongan.edit',$golongan['id']) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                 data-tooltip-target="tooltip-golongan-{{ $golongan['id'] }}">
                                 <i class="fa-solid fa-pen"></i>

@@ -90,13 +90,12 @@
                             class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
                             <td class="px-6 py-4">{{ $loop->iteration }}</td>
                             <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
-                                {{ $item['nama'] }}
+                                {{ $item['nama_unit'] }}
                             </td>
-                            <td class="px-6 py-4">{{ $item['unit_kerja'] }}</td>
-                            <td class="px-6 py-4">{{ $item['level_unit_kerja'] }}</td>
-                            <td class="px-6 py-4">{{ $item['point_unit'] }}</td>
+                            <td class="px-6 py-4">{{ $item['nama_level'] ?? '-' }}</td>
+                            <td class="px-6 py-4">{{ $item['poin'] }}</td>
                             <td class="px-6 py-4">
-                                <a href="/item/edit/{{ $item['id'] }}"
+                                <a href="{{route('levelunit.edit', $item['id']) }}"
                                     class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                     data-tooltip-target="tooltip-item-{{ $item['id'] }}">
                                     <i class="fa-solid fa-pen"></i>
