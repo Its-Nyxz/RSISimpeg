@@ -33,7 +33,7 @@
                         <td class="px-6 py-4">{{ rupiah($fungsional['nominal']) }}</td>
                         <td class="px-6 py-4">{{ $fungsional['deskripsi'] }}</td>
                         <td class="px-6 py-4">
-                            <a href="/fungsional/edit/{{ $fungsional['id'] }}"
+                            <a href="{{ route('fungsional.edit', $fungsional['id']) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                 data-tooltip-target="tooltip-fungsional-{{ $fungsional['id'] }}">
                                 <i class="fa-solid fa-pen"></i>

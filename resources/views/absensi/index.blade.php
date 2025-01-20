@@ -34,19 +34,17 @@
                 </li>
             </ul>
             <div id="defaultTabContent">
-
                 <div x-show="activeTab === 'jadwalabsen'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
                     <livewire:data-absensi type="jadwalabsen"/>
                 </div>
                 <div x-show="activeTab === 'shift'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
-                    {{-- <livewire:asset-details type="umum" :aset="$aset" /> --}}
+                    <livewire:data-absensi type="shift"/>
                 </div>
                 <div x-show="activeTab === 'opsi'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
-                    {{-- <livewire:asset-details type="umum" :aset="$aset" /> --}}
+                    <livewire:data-absensi type="opsi"/>
                 </div>
                 <div x-show="activeTab === 'status'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
                     <livewire:data-absensi type="status"/>
-
                 </div>
             </div>
         </div>

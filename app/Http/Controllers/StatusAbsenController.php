@@ -13,7 +13,7 @@ class StatusAbsenController extends Controller
      */
     public function index()
     {
-        //
+        return view('status.index');
     }
 
     /**
@@ -21,7 +21,7 @@ class StatusAbsenController extends Controller
      */
     public function create()
     {
-        //
+        return view('status.create');
     }
 
     /**
@@ -43,17 +43,27 @@ class StatusAbsenController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(StatusAbsen $statusAbsen)
+    public function edit($id)
     {
-        //
+        $status = StatusAbsen::findOrFail($id);
+
+        return view('status.edit', compact('status'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateStatusAbsenRequest $request, StatusAbsen $statusAbsen)
+    public function update(UpdateStatusAbsenRequest $request, StatusAbsen $status_absen)
     {
-        //
+        $validatedData = $request->validate([
+            'nama' => 'required',
+        ]);
+
+        $status_absen->update([
+            'nama' => $validatedData['nama'],
+        ]);
+
+        return redirect()->route('absensi.index')->with('success', 'Status berhasil diperbarui!');
     }
 
     /**
