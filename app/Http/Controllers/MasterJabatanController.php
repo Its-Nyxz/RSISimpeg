@@ -20,7 +20,7 @@ class MasterJabatanController extends Controller
      */
     public function create()
     {
-        //
+        return view('jabatan.create');
     }
 
     /**

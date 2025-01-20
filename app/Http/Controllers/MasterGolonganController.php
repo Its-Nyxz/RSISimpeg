@@ -20,7 +20,7 @@ class MasterGolonganController extends Controller
      */
     public function create()
     {
-        //
+        return view('golongan.create');
     }
 
     /**
@@ -44,7 +44,11 @@ class MasterGolonganController extends Controller
      */
     public function edit(MasterGolongan $masterGolongan)
     {
-        //
+        // Mencari golongan berdasarkan ID
+        $golongan = MasterGolongan::findOrFail($golonganId);
+
+        // Mengembalikan halaman edit dengan data golongan
+        return view('golongan.edit', compact('golongan'));
     }
 
     /**
@@ -53,6 +57,7 @@ class MasterGolonganController extends Controller
     public function update(Request $request, MasterGolongan $masterGolongan)
     {
         //
+
     }
 
     /**

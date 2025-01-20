@@ -20,7 +20,7 @@ class MasterUmumController extends Controller
      */
     public function create()
     {
-        //
+        return view('umum.create');
     }
 
     /**

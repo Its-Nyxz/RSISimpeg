@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\LevelUnit;
 use App\Http\Requests\StoreLevelUnitRequest;
 use App\Http\Requests\UpdateLevelUnitRequest;
+use App\Models\UnitKerja;
+use App\Models\LevelPoint;
 
 class LevelUnitController extends Controller
 {
@@ -21,7 +23,7 @@ class LevelUnitController extends Controller
      */
     public function create()
     {
-        //
+        return view(view: "levelunit.create");
     }
 
     /**
@@ -43,9 +45,14 @@ class LevelUnitController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(LevelUnit $levelUnit)
+    public function edit($id)
     {
-        //
+        $levelunit = LevelUnit::findOrFail($id);
+        $unit = UnitKerja::all();
+        $level = LevelPoint::all();
+
+        return view('levelunit.edit', compact('levelunit', 'unit', 'level'));
+
     }
 
     /**
@@ -53,7 +60,17 @@ class LevelUnitController extends Controller
      */
     public function update(UpdateLevelUnitRequest $request, LevelUnit $levelUnit)
     {
-        //
+        $validatedData = $request->validate([
+            'unit_id' => 'required|exists:unit_kerjas,id',
+            'level_id' => 'required|exists:level_points,id',
+        ]);
+
+        $levelUnit->update([
+            'unit_id' => $validatedData['unit_id'],
+            'level_id' => $validatedData['level_id'],
+        ]);
+
+        return redirect()->route('tukin.index')->with('success', 'Level Unit berhasil diperbarui!');
     }
 
     /**

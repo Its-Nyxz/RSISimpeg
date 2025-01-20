@@ -21,7 +21,7 @@ class ShiftController extends Controller
      */
     public function create()
     {
-        //
+        return view('shift.create');
     }
 
     /**

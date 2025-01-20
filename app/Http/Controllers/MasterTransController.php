@@ -20,7 +20,7 @@ class MasterTransController extends Controller
      */
     public function create()
     {
-        //
+        return view('trans.create');
     }
 
     /**

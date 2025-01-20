@@ -1,26 +1,20 @@
 <?php
-
 namespace App\Livewire;
-
 use App\Models\OpsiAbsen;
 use App\Models\Shift;
 use App\Models\JadwalAbsensi;
 use App\Models\StatusAbsen;
 use Livewire\Component;
-
 class DataAbsensi extends Component
 {
     public $type; // Type: jabatan, fungsional, umum, tidak tetap
     public $search = ''; // Properti untuk menyimpan nilai input pencarian
     public $items = [];
-
     public function mount($type)
     {
         $this->type = $type;
-
         $this->loadData();
     }
-
     public function loadData()
     {
         // Load data sesuai dengan tipe dan tambahkan pencarian
@@ -57,6 +51,4 @@ class DataAbsensi extends Component
             'items' => $this->items,
         ]);
     }
-
 }
-

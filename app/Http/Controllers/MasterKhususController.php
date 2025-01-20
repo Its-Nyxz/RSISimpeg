@@ -20,7 +20,7 @@ class MasterKhususController extends Controller
      */
     public function create()
     {
-        //
+        return view('khusus.create');
     }
 
     /**

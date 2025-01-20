@@ -13,7 +13,7 @@ class JadwalAbsensiController extends Controller
      */
     public function index()
     {
-        //
+        return view('jadwalAbsensi.index');
     }
 
     /**
@@ -21,7 +21,7 @@ class JadwalAbsensiController extends Controller
      */
     public function create()
     {
-        //
+        return view('jadwalAbsensi.create');
     }
 
     /**

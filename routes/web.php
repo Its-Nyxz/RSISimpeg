@@ -63,7 +63,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('opsi', OpsiAbsenController::class);
     Route::resource('jabatan', MasterJabatanController::class);
     Route::resource('umum', MasterUmumController::class);
-    Route::resource('trans', MasterUmumController::class);
+    Route::resource('trans', MasterTransController::class);
     Route::resource('tunjangan', MasterTunjanganController::class);
     Route::resource('fungsional', MasterFungsiController::class);
     Route::resource('khusus', MasterKhususController::class);

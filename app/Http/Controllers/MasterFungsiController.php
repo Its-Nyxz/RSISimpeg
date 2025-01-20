@@ -20,7 +20,7 @@ class MasterFungsiController extends Controller
      */
     public function create()
     {
-        //
+        return view('fungsional.create');
     }
 
     /**
