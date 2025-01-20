@@ -10,4 +10,8 @@ class DataKaryawanController extends Controller
     {
         return view('datakaryawan.index');
     }
+    public function create()
+    {
+        return view('datakaryawan.create');
+    }
 }

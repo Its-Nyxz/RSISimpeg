@@ -12,4 +12,9 @@ class JenisKaryawan extends Model
 
     protected $table = "jenis_karyawans";
     protected $guarded = ['id'];
+
+    public function users()
+    {
+        return $this->hasMany(User::class, 'jenis_id');
+    }
 }

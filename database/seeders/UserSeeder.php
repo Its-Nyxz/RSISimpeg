@@ -23,6 +23,7 @@ class UserSeeder extends Seeder
             'Keuangan',
             'Kepala Unit',
             'Kepala Sub Unit',
+            'Kepala Instalasi',
             'Kepala Ruang',
             'Penanggung Jawab',
             'Koordinator',
@@ -1152,10 +1153,10 @@ class UserSeeder extends Seeder
         ];
 
         // Cari unit UNIT MCU & POSKES
-        $mcuPoskesUnit = UnitKerja::where('nama', 'UNIT MCU & POSKES')->first();
+        $mcuPoskesUnit = UnitKerja::where('nama', 'MCU & POSKES')->first();
 
         if (!$mcuPoskesUnit) {
-            $this->command->error('Unit UNIT MCU & POSKES tidak ditemukan!');
+            $this->command->error('Unit MCU & POSKES tidak ditemukan!');
             return;
         }
 
@@ -1189,10 +1190,10 @@ class UserSeeder extends Seeder
         ];
 
         // Cari unit UNIT TRANSPORTASI
-        $transportasiUnit = UnitKerja::where('nama', 'UNIT TRANSPORTASI')->first();
+        $transportasiUnit = UnitKerja::where('nama', 'TRANSPORTASI')->first();
 
         if (!$transportasiUnit) {
-            $this->command->error('Unit UNIT TRANSPORTASI tidak ditemukan!');
+            $this->command->error('Unit TRANSPORTASI tidak ditemukan!');
             return;
         }
 
@@ -1266,10 +1267,10 @@ class UserSeeder extends Seeder
         ];
 
         // Cari unit UNIT PJBR
-        $pjbrUnit = UnitKerja::where('nama', 'UNIT PJBR')->first();
+        $pjbrUnit = UnitKerja::where('nama', 'PJBR')->first();
 
         if (!$pjbrUnit) {
-            $this->command->error('Unit UNIT PJBR tidak ditemukan!');
+            $this->command->error('Unit PJBR tidak ditemukan!');
             return;
         }
 
@@ -1300,10 +1301,10 @@ class UserSeeder extends Seeder
         ];
 
         // Cari unit UNIT PENGELOLAAN LINEN
-        $linenUnit = UnitKerja::where('nama', 'UNIT PENGELOLAAN LINEN')->first();
+        $linenUnit = UnitKerja::where('nama', 'PENGELOLAAN LINEN')->first();
 
         if (!$linenUnit) {
-            $this->command->error('Unit UNIT PENGELOLAAN LINEN tidak ditemukan!');
+            $this->command->error('Unit PENGELOLAAN LINEN tidak ditemukan!');
             return;
         }
 
@@ -1696,7 +1697,7 @@ class UserSeeder extends Seeder
         ];
 
         // Cari unit UNIT PEMASARAN
-        $pemasaranUnit = UnitKerja::where('nama', 'UNIT PEMASARAN')->first();
+        $pemasaranUnit = UnitKerja::where('nama', 'PEMASARAN')->first();
 
         if (!$pemasaranUnit) {
             $this->command->error('Unit UNIT PEMASARAN tidak ditemukan!');

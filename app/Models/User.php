@@ -82,6 +82,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(MasterPendidikan::class, 'pendidikan');
     }
+    public function jenis()
+    {
+        return $this->belongsTo(JenisKaryawan::class, 'jenis_id');
+    }
     /**
      * Relasi ke TUmum.
      */
