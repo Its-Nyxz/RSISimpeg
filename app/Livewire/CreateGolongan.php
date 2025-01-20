@@ -36,4 +36,6 @@ class CreateGolongan extends Component
     {
         return view('livewire.create-golongan');
     }
+
 }
+

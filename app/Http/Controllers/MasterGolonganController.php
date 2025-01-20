@@ -44,6 +44,7 @@ class MasterGolonganController extends Controller
      */
     public function edit($id)
     {
+
         $golongan = MasterGolongan::findOrFail($id);
 
         return view('golongan.edit', compact('golongan'));

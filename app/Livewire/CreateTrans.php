@@ -15,6 +15,7 @@ class CreateTrans extends Component
         'nama' => 'required|string|max:255',
         'nom_makan' => 'required|numeric|min:0',
         'nom_transport' => 'required|numeric|min:0',
+
     ];
 
     public function save()

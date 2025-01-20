@@ -1,23 +1,18 @@
 <?php
-
 namespace App\Livewire;
-
-use App\Models\Opsi;
+use App\Models\OpsiAbsen;
 use Livewire\Component;
-
 class DataOpsi extends Component
 {
     public $search = ''; // Properti untuk menyimpan nilai input pencarian
     public $jadwals = [];
-
     public function mount()
     {
         $this->loadData();
     }
-
     public function loadData()
     {
-        $this->opsis = Opsi::when( $this->search, function($query){
+        $this->opsis = OpsiAbsen::when( $this->search, function($query){
             $query->where('name', 'like', '%' . $this->search . '%');
         })
             ->get()

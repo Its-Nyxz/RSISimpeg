@@ -12,6 +12,7 @@ class CreateShift extends Component
     public $jam_keluar;
     public $keterangan;
 
+
     // Method to store the shift
     public function store()
     {
@@ -23,8 +24,6 @@ class CreateShift extends Component
             'keterangan' => 'nullable|string',
         ]);
 
-        // Create a new shift record in the database
-        Shift::create([
             'nama_shift' => $this->nama_shift,
             'jam_masuk' => $this->jam_masuk,
             'jam_keluar' => $this->jam_keluar,
@@ -36,6 +35,7 @@ class CreateShift extends Component
     }
 
     // Method to render the component view
+
     public function render()
     {
         return view('livewire.create-shift');

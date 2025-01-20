@@ -21,7 +21,7 @@ class MasaKerjaController extends Controller
      */
     public function create()
     {
-        //
+        return view(view: "masakerja.create");
     }
 
     /**
@@ -43,9 +43,10 @@ class MasaKerjaController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(MasaKerja $masaKerja)
+    public function edit($id)
     {
-        //
+        $masakerja = MasaKerja::findOrFail($id);
+        return view('masakerja.edit', compact('masakerja'));
     }
 
     /**
@@ -53,7 +54,17 @@ class MasaKerjaController extends Controller
      */
     public function update(UpdateMasaKerjaRequest $request, MasaKerja $masaKerja)
     {
-        //
+        $validatedData = $request->validate([
+            'nama' => 'required',
+            'point' => 'required',
+        ]);
+
+        $masaKerja->update([
+            'nama' => $validatedData['nama'],
+            'point' => $validatedData['point'],
+        ]);
+
+        return redirect()->route('masakerja.index')->with('success', 'Masa Kerja berhasil diperbarui!');
     }
 
     /**
