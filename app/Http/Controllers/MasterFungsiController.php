@@ -20,7 +20,7 @@ class MasterFungsiController extends Controller
      */
     public function create()
     {
-        //
+        return view('fungsional.create');
     }
 
     /**
@@ -42,17 +42,31 @@ class MasterFungsiController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(MasterFungsi $masterFungsi)
+    public function edit($id)
     {
-        //
+        $fungsi = MasterFungsi::findOrFail($id);
+
+        return view('fungsional.edit', compact('fungsi'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, MasterFungsi $masterFungsi)
+    public function update(Request $request, MasterFungsi $master_fungsi)
     {
-        //
+        $validatedData = $request->validate([
+            'nama' => 'required',
+            'nominal' => 'required',
+            'deskripsi' => 'required',
+        ]);
+
+        $master_fungsi->update([
+            'nama' => $validatedData['nama'],
+            'nominal' => $validatedData['nominal'],
+            'deskripsi' => $validatedData['deskripsi'],
+        ]);
+
+        return redirect()->route('tunjangan.index')->with('success', 'Fungsional berhasil diperbarui!');
     }
 
     /**

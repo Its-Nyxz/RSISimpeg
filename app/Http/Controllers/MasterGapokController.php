@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MasterGapok;
+use App\Models\MasterGolongan;
 use Illuminate\Http\Request;
 
 class MasterGapokController extends Controller
@@ -20,7 +21,7 @@ class MasterGapokController extends Controller
      */
     public function create()
     {
-        //
+        return view('gapok.create');
     }
 
     /**
@@ -42,18 +43,33 @@ class MasterGapokController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(MasterGapok $master_gapok)
-    {
-        //
-    }
+// MasterGapokController.php
+public function edit($id)
+{
+    $gapok = MasterGapok::findOrFail($id);
+    $golongan = MasterGolongan::all(); // Ambil semua golongan untuk dropdown
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, MasterGapok $master_gapok)
-    {
-        //
-    }
+    return view('gapok.edit', compact('gapok', 'golongan'));
+}
+
+public function update(Request $request, MasterGapok $master_gapok)
+{
+    // Validasi input form
+    $validatedData = $request->validate([
+        'gol_id' => 'required|exists:master_golongan,id', 
+        'nominal_gapok' => 'required|numeric|min:0',
+    ]);
+
+    // Update data Gapok
+    $master_gapok->update([
+        'gol_id' => $validatedData['golongan_id'], 
+        'nominal_gapok' => $validatedData['nominal_gapok'],
+    ]);
+
+    return redirect()->route('gapok.index')->with('success', 'Gaji Pokok berhasil diperbarui!');
+}
+
+    
 
     /**
      * Remove the specified resource from storage.

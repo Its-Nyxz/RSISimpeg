@@ -38,7 +38,7 @@
                             <td class="px-6 py-4">{{ rupiah($item['nominal']) }}</td>
                             <td class="px-6 py-4">{{ $item['deskripsi'] }}</td>
                             <td class="px-6 py-4">
-                                <a href="/item/edit/{{ $item['id'] }}"
+                                <a href="{{ route('jabatan.edit', $item['id'])}}"
                                     class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                     data-tooltip-target="tooltip-item-{{ $item['id'] }}">
                                     <i class="fa-solid fa-pen"></i>
@@ -96,7 +96,7 @@
                             <td class="px-6 py-4">{{ rupiah($item['nominal']) }}</td>
                             <td class="px-6 py-4">{{ $item['deskripsi'] }}</td>
                             <td class="px-6 py-4">
-                                <a href="/item/edit/{{ $item['id'] }}"
+                                <a href="{{ route('umum.edit', $item['id'])}}"
                                     class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                     data-tooltip-target="tooltip-item-{{ $item['id'] }}">
                                     <i class="fa-solid fa-pen"></i>
@@ -154,7 +154,7 @@
                             <td class="px-6 py-4">{{ rupiah($item['nom_makan']) }}</td>
                             <td class="px-6 py-4">{{ rupiah($item['nom_transport']) }}</td>
                             <td class="px-6 py-4">
-                                <a href="/item/edit/{{ $item['id'] }}"
+                                <a href="{{ route('trans.edit', $item['id'] )}}"
                                     class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                     data-tooltip-target="tooltip-item-{{ $item['id'] }}">
                                     <i class="fa-solid fa-pen"></i>
@@ -188,7 +188,7 @@
                 </div> --}}
                 <a href="{{ route('fungsional.create') }}"
                     class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                    + Tambah Jabatan
+                    + Tambah Fungsional
                 </a>
             </div>
         </div>
@@ -212,7 +212,7 @@
                             <td class="px-6 py-4">{{ rupiah($item['nominal']) }}</td>
                             <td class="px-6 py-4">{{ $item['deskripsi'] }}</td>
                             <td class="px-6 py-4">
-                                <a href="/item/edit/{{ $item['id'] }}"
+                                <a href="{{ route('fungsional.edit', $item['id'])}}"
                                     class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                     data-tooltip-target="tooltip-item-{{ $item['id'] }}">
                                     <i class="fa-solid fa-pen"></i>
@@ -242,8 +242,10 @@
                     <input type="text" wire:keyup="updateSearch($event.target.value)"
                         placeholder="Cari Tunjangan..."
                         class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
-                </div> --}}
-                <a href="#"
+
+                </div>
+                <a href="{{ route('khusus.create') }}"
+
                     class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                     + Tambah Tunjangan
                 </a>
@@ -269,7 +271,7 @@
                             <td class="px-6 py-4">{{ rupiah($item['nominal']) }}</td>
                             <td class="px-6 py-4">{{ $item['deskripsi'] }}</td>
                             <td class="px-6 py-4">
-                                <a href="/item/edit/{{ $item['id'] }}"
+                                <a href="{{ route('khusus.edit', $item['id'])}}"
                                     class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                     data-tooltip-target="tooltip-item-{{ $item['id'] }}">
                                     <i class="fa-solid fa-pen"></i>

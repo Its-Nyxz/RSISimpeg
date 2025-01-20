@@ -1,26 +1,20 @@
 <?php
-
 namespace App\Livewire;
-
 use App\Models\OpsiAbsen;
 use App\Models\Shift;
 use App\Models\JadwalAbsensi;
 use App\Models\StatusAbsen;
 use Livewire\Component;
-
 class DataAbsensi extends Component
 {
     public $type; // Type: jabatan, fungsional, umum, tidak tetap
     public $search = ''; // Properti untuk menyimpan nilai input pencarian
     public $items = [];
-
     public function mount($type)
     {
         $this->type = $type;
-
         $this->loadData();
     }
-
     public function loadData()
     {
         // Load data sesuai dengan tipe dan tambahkan pencarian
@@ -34,29 +28,28 @@ class DataAbsensi extends Component
                     ->orWhereHas('shift', function ($q) {
                         $q->where('nama_shift', 'like', '%' . $this->search . '%'); // Mencari berdasarkan nama shift
                     })
-                    ->orWhereHas('opsi_absens', function ($q) {
-                        $q->where('nama_opsi', 'like', '%' . $this->search . '%'); // Mencari berdasarkan nama opsi absensi
+                    ->orWhereHas('opsi', function ($q) {
+                        $q->where('name', 'like', '%' . $this->search . '%'); // Mencari berdasarkan nama opsi absensi
                     });
-            })->get()->toArray(),
+            })->get(),
             'shift' => Shift::when($this->search, function ($query) {
                 $query->where('nama_shift', 'like', '%' . $this->search . '%')
                     ->orWhere('keterangan', 'like', '%' . $this->search . '%');
-            })->get()->toArray(),
+            })->get(),
             'opsi' => OpsiAbsen::when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%');
-            })->get()->toArray(),
+            })->get(),
             'status' => StatusAbsen::when($this->search, function ($query) {
                 $query->where('nama', 'like', '%' . $this->search . '%')
                     ->orWhere('keterangan', 'like', '%' . $this->search . '%');
-            })->get()->toArray(),
-        };        
+            })->get(),
+        };
     }
+    
     public function render()
     {
         return view('livewire.data-absensi',[
             'items' => $this->items,
         ]);
     }
-
 }
-

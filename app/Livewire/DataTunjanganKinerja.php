@@ -31,9 +31,10 @@ class DataTunjanganKinerja extends Component
                     })->orWhere('level_unit', 'like', '%' . $this->search . '%');
                 })->get()->map(function ($item) {
                     return [
+                        'id' => $item->id,
                         'nama_unit' => $item->unitKerja->nama ?? null,
-                        'level_unit' => $item->level_unit,
-                        'point' => $item->levelPoint->point ?? null,
+                        'nama_level' => $item->levelpoint->nama ?? null,
+                        'poin' => $item->levelPoint->point ?? null,
                     ];
                 })->toArray(),
             'masakerja' => MasaKerja::when($this->search, function ($query) {
@@ -43,7 +44,7 @@ class DataTunjanganKinerja extends Component
             default => collect()->toArray(),
         };
     }
-
+    
     public function render()
     {
         return view('livewire.data-tunjangan-kinerja');

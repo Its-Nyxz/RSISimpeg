@@ -27,19 +27,16 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse ($data as $level) <!-- Gunakan indeks array -->
+                @forelse ($data as $levelunit) <!-- Gunakan indeks array -->
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
                         <td class="px-6 py-4">{{ $loop->iteration }}</td>
                         <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
-                            {{ $level['nama_unit'] }}
+                            {{ $levelunit['nama_unit'] }}
                         </td>
-                        <td class="px-6 py-4">{{ $level['nama_level'] }}</td>
-                        <td class="px-6 py-4">{{ $level['poin'] }}</td>
-                        {{-- <td>{{ $level['nama_unit'] ?? 'Belum ada data' }}</td>
-                        <td>{{ $level['nama_level'] ?? 'Belum ada data' }}</td>
-                        <td>{{ $level['poin'] ?? 'Belum ada data' }}</td> --}}
+                        <td class="px-6 py-4">{{ $levelunit['nama_level'] }}</td>
+                        <td class="px-6 py-4">{{ $levelunit['poin'] }}</td>
                         <td class="px-6 py-4">
-                            <a href="/levelunit/edit/{{ $level['id'] ?? '' }}"
+                            <a href="{{ route('levelunit.edit', $levelunit['id']) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                 data-tooltip-target="tooltip-levelunit-{{ $loop->iteration }}">
                                 <i class="fa-solid fa-pen"></i>

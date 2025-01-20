@@ -8,7 +8,6 @@
                     class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
             </div>
 
-            <!-- Tombol Tambah Status -->
             <a href="#"
                 class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                 + Tambah Status
@@ -35,7 +34,7 @@
                             {{ $status['keterangan'] ?? '-' }}
                         </td>
                         <td class="px-6 py-4">
-                            <a href="/status/edit/{{ $status['id'] }}"
+                            <a href="{{ route('status.edit', $status['id']) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                 data-tooltip-target="tooltip-status-{{ $status['id'] }}">
                                 <i class="fa-solid fa-pen"></i>

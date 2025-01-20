@@ -24,7 +24,7 @@
                     <livewire:data-masa-kerja type="masakerja"/>
                 </div>
                 <div x-show="activeTab === 'levelunit'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
-                    <livewire:data-level-unit type="levelunit"/>
+                    <livewire:data-tunjangan-kinerja type="levelunit"/>
                 </div>
             </div>
         </div>

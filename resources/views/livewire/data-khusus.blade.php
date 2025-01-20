@@ -33,7 +33,7 @@
                         <td class="px-6 py-4">{{ rupiah($khusus['nominal']) }}</td>
                         <td class="px-6 py-4">{{ $khusus['deskripsi'] }}</td>
                         <td class="px-6 py-4">
-                            <a href="/khusus/edit/{{ $khusus['id'] }}"
+                            <a href="{{ route('khusus.edit', $khusus['id'])}}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                 data-tooltip-target="tooltip-khusus-{{ $khusus['id'] }}">
                                 <i class="fa-solid fa-pen"></i>
