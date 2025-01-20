@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('masa_kerjas', function (Blueprint $table) {
             $table->id();
-            $table->string('nama'); // Nama kategori masa kerja
-            $table->integer('point'); // Poin untuk kategori
+            $table->string('nama');
+            $table->decimal('batas_bawah')->nullable();
+            $table->decimal('batas_atas')->nullable();
+            $table->decimal('point');
             $table->timestamps();
         });
     }

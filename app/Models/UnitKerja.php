@@ -28,4 +28,14 @@ class UnitKerja extends Model
     {
         return $this->hasMany(LevelUnit::class, 'unit_id');
     }
+
+    public function points()
+    {
+        return $this->morphMany(PointJabatan::class, 'pointable');
+    }
+
+    public function proposionalitasPoints()
+    {
+        return $this->morphMany(ProposionalitasPoint::class, 'proposable');
+    }
 }

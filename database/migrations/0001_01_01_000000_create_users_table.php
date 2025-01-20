@@ -25,6 +25,7 @@ return new class extends Migration
             $table->foreignId('umum_id')->nullable()->constrained('master_umum')->onDelete('cascade');
             $table->foreignId('trans_id')->nullable()->constrained('master_trans')->onDelete('cascade');
             $table->foreignId('khusus_id')->nullable()->constrained('master_khusus')->onDelete('cascade');
+            $table->foreignId('jenis_id')->nullable()->constrained('jenis_karyawans')->onDelete('cascade');
             // $table->foreignId('gol_id')->nullable()->constrained('master_umum')->onDelete('cascade');
             $table->unsignedBigInteger('gol_id')->nullable();
             $table->string('nip')->nullable();
@@ -32,8 +33,9 @@ return new class extends Migration
             $table->string('no_hp')->nullable();
             $table->string('tmt')->nullable();
             $table->string('jk')->nullable();
-            $table->timestamp('pensiun')->nullable();
-            $table->string('tanggal_lahir')->nullable();
+            $table->dateTime('pensiun')->nullable();
+            $table->string('tempat')->nullable();
+            $table->dateTime('tanggal_lahir')->nullable();
             $table->string('alamat')->nullable();
             $table->integer('no_rek')->nullable();
             // $table->integer('pend_awal')->nullable();
@@ -41,7 +43,6 @@ return new class extends Migration
             $table->foreignId('kategori_id')->nullable()->constrained('kategoripphs')->onDelete('cascade');
             // $table->integer('pend_penyesuaian')->nullable();
             // $table->string('pendidikan')->nullable();
-            $table->date('tanggal_mulai_kerja')->nullable();
             $table->dateTime('tgl_penyesuaian')->nullable();
             $table->integer('masa_kerja')->default(value: 0)->nullable();
             $table->integer('status')->nullable();
