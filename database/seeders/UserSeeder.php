@@ -45,28 +45,48 @@ class UserSeeder extends Seeder
 
         $superAdmin->assignRole('Super Admin');
 
-        // Data Kepala Unit
-        $users = [
-            ['unit_name' => 'Ka. IMP', 'name' => 'Tatun Parjiati'],
-            ['unit_name' => 'Ka. Instalasi Ranap', 'name' => 'Agus Widayat'],
-            ['unit_name' => 'IPCN', 'name' => 'Wingit Bayu H'],
+        // Data Kepala Instalasi
+        $kepalaInstalasi = [
+            ['unit_name' => 'Ka. IMP', 'name' => 'Agus Widayat'],
+            ['unit_name' => 'Ka. Instalasi Ranap', 'name' => 'Wingit Bayu H'],
         ];
 
-        foreach ($users as $userData) {
-            $unit = UnitKerja::where('nama', $userData['unit_name'])->first();
+        foreach ($kepalaInstalasi as $data) {
+            $unit = UnitKerja::where('nama', $data['unit_name'])->first();
 
             if ($unit) {
                 $user = User::firstOrCreate(
-                    ['email' => strtolower(str_replace(' ', '.', $userData['name'])) . '@gmail.com'],
+                    ['email' => strtolower(str_replace(' ', '.', $data['name'])) . '@gmail.com'],
                     [
-                        'name' => $userData['name'],
+                        'name' => $data['name'],
                         'password' => Hash::make('123'),
                         'unit_id' => $unit->id,
                     ]
                 );
 
-                $role = $userData['name'] === $unit->nama ? 'Kepala Unit' : 'Staf';
-                $user->assignRole($role);
+                $user->assignRole('Kepala Instalasi');
+            }
+        }
+
+        // Data Kepala Unit
+        $kepalaUnit = [
+            ['unit_name' => 'IPCN', 'name' => 'Tatun Parjiati'],
+        ];
+
+        foreach ($kepalaUnit as $data) {
+            $unit = UnitKerja::where('nama', $data['unit_name'])->first();
+
+            if ($unit) {
+                $user = User::firstOrCreate(
+                    ['email' => strtolower(str_replace(' ', '.', $data['name'])) . '@gmail.com'],
+                    [
+                        'name' => $data['name'],
+                        'password' => Hash::make('123'),
+                        'unit_id' => $unit->id,
+                    ]
+                );
+
+                $user->assignRole('Kepala Unit');
             }
         }
 
