@@ -19,18 +19,23 @@ class CreateShift extends Component
         // Validation
         $this->validate([
             'nama_shift' => 'required|string|max:255',
-            'jam_masuk' => 'required|date_format:H:i',
-            'jam_keluar' => 'required|date_format:H:i',
+            'jam_masuk' => 'required|date_format:H:i:s',
+            'jam_keluar' => 'required|date_format:H:i:s',
             'keterangan' => 'nullable|string',
         ]);
 
+        Shift::create([
             'nama_shift' => $this->nama_shift,
             'jam_masuk' => $this->jam_masuk,
             'jam_keluar' => $this->jam_keluar,
             'keterangan' => $this->keterangan,
         ]);
 
-        // Provide a success message
+        // Reset input setelah simpan
+        $this->reset('nama_shift');
+        $this->reset('jam_masuk');
+        $this->reset('jam_keluar');
+        $this->reset('keterangan');
         return redirect()->route('absensi.index')->with('success', 'Data Shift baru berhasil ditambahkan.');
     }
 

@@ -38,7 +38,7 @@
                             <td class="px-6 py-4">{{ rupiah($item['nominal']) }}</td>
                             <td class="px-6 py-4">{{ $item['deskripsi'] }}</td>
                             <td class="px-6 py-4">
-                                <a href="{{ route('jabatan.edit', $item['id'])}}"
+                                <a href="{{ route('jabatan.edit', $item['id']) }}"
                                     class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                     data-tooltip-target="tooltip-item-{{ $item['id'] }}">
                                     <i class="fa-solid fa-pen"></i>
@@ -96,7 +96,7 @@
                             <td class="px-6 py-4">{{ rupiah($item['nominal']) }}</td>
                             <td class="px-6 py-4">{{ $item['deskripsi'] }}</td>
                             <td class="px-6 py-4">
-                                <a href="{{ route('umum.edit', $item['id'])}}"
+                                <a href="{{ route('umum.edit', $item['id']) }}"
                                     class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                     data-tooltip-target="tooltip-item-{{ $item['id'] }}">
                                     <i class="fa-solid fa-pen"></i>
@@ -154,7 +154,7 @@
                             <td class="px-6 py-4">{{ rupiah($item['nom_makan']) }}</td>
                             <td class="px-6 py-4">{{ rupiah($item['nom_transport']) }}</td>
                             <td class="px-6 py-4">
-                                <a href="{{ route('trans.edit', $item['id'] )}}"
+                                <a href="{{ route('trans.edit', $item['id']) }}"
                                     class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                     data-tooltip-target="tooltip-item-{{ $item['id'] }}">
                                     <i class="fa-solid fa-pen"></i>
@@ -212,7 +212,7 @@
                             <td class="px-6 py-4">{{ rupiah($item['nominal']) }}</td>
                             <td class="px-6 py-4">{{ $item['deskripsi'] }}</td>
                             <td class="px-6 py-4">
-                                <a href="{{ route('fungsional.edit', $item['id'])}}"
+                                <a href="{{ route('fungsional.edit', $item['id']) }}"
                                     class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                     data-tooltip-target="tooltip-item-{{ $item['id'] }}">
                                     <i class="fa-solid fa-pen"></i>
@@ -238,7 +238,7 @@
         <div class="flex justify-between py-2 mb-3">
             <h1 class="text-2xl font-bold text-success-900">Master Khusus</h1>
             <div class="flex justify-between items-center gap-4 mb-3">
-                {{-- <div class="flex-1">
+                <div class="flex-1">
                     <input type="text" wire:keyup="updateSearch($event.target.value)"
                         placeholder="Cari Tunjangan..."
                         class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
@@ -270,7 +270,7 @@
                             <td class="px-6 py-4">{{ rupiah($item['nominal']) }}</td>
                             <td class="px-6 py-4">{{ $item['deskripsi'] }}</td>
                             <td class="px-6 py-4">
-                                <a href="{{ route('khusus.edit', $item['id'])}}"
+                                <a href="{{ route('khusus.edit', $item['id']) }}"
                                     class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                     data-tooltip-target="tooltip-item-{{ $item['id'] }}">
                                     <i class="fa-solid fa-pen"></i>

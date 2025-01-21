@@ -2,14 +2,8 @@
 
 namespace App\Livewire;
 
-<<<<<<< pkl-2
-use Livewire\Component;
-use App\Models\MasterKhusus;
-=======
 use App\Models\MasterKhusus;
 use Livewire\Component;
->>>>>>> main
-
 class CreateKhusus extends Component
 {
     public $nama;
