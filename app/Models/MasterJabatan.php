@@ -17,4 +17,5 @@ class MasterJabatan extends Model
     {
         return $this->hasMany(User::class, 'jabatan_id');
     }
+    
 }
