@@ -4,6 +4,8 @@ namespace App\Livewire;
 
 use App\Models\LevelUnit;
 use App\Models\MasaKerja;
+use App\Models\ProposionalitasPoint;
+use App\Models\PointPeran;
 use Livewire\Component;
 
 class DataTunjanganKinerja extends Component
@@ -41,6 +43,42 @@ class DataTunjanganKinerja extends Component
                 $query->where('nama', 'like', '%' . $this->search . '%')
                     ->orWhere('point', 'like', '%' . $this->search . '%');
             })->get()->toArray(),
+            'proposionalitas' => ProposionalitasPoint::with('proposable')
+                ->when($this->search, function ($query) {
+                    $query->whereHasMorph(
+                        'proposable',
+                        ['App\Models\MasterFungsi', 'App\Models\MasterUmum'],
+                        function ($q) {
+                            $q->where('nama', 'like', '%' . $this->search . '%');
+                        }
+                    );
+                })
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'nama' => $item->proposable->nama ?? '-',
+                        'poin' => $item->point,
+                    ];
+                }),
+            'pointperan' => PointPeran::with('peransable')
+                ->when($this->search, function ($query) {
+                    $query->whereHasMorph(
+                        'peransable',
+                        ['App\Models\MasterFungsi', 'App\Models\MasterUmum'],
+                        function ($q) {
+                            $q->where('nama', 'like', '%' . $this->search . '%');
+                        }
+                    );
+                })
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'nama' => $item->peransable->nama ?? '-',
+                        'poin' => $item->point,
+                    ];
+                }),
             default => collect()->toArray(),
         };
     }

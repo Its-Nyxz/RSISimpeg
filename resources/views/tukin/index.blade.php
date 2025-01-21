@@ -18,6 +18,20 @@
                         Level Unit
                     </button>
                 </li>
+                <li class="me-2">
+                    <button @click="activeTab = 'proposionalitas'" :aria-selected="activeTab === 'proposionalitas'"
+                        class="inline-block p-4 transition duration-200 focus:outline-none"
+                        :class="activeTab === 'proposionalitas' ? 'bg-green-500 text-white' : 'hover:text-white hover:bg-success-300'">
+                        Proposionalitas
+                    </button>
+                </li>
+                <li class="me-2">
+                    <button @click="activeTab = 'pointperan'" :aria-selected="activeTab === 'pointperan'"
+                        class="inline-block p-4 transition duration-200 focus:outline-none"
+                        :class="activeTab === 'pointperan' ? 'bg-green-500 text-white' : 'hover:text-white hover:bg-success-300'">
+                        Point Peran fungsionalitas
+                    </button>
+                </li>
             </ul>
             <div id="defaultTabContent">
                 <div x-show="activeTab === 'masakerja'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
@@ -25,6 +39,12 @@
                 </div>
                 <div x-show="activeTab === 'levelunit'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
                     <livewire:data-tunjangan-kinerja type="levelunit"/>
+                </div>
+                <div x-show="activeTab === 'proposionalitas'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
+                    <livewire:data-proposionalitas-point type="proposionalitas"/>
+                </div>
+                <div x-show="activeTab === 'pointperan'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
+                    <livewire:tukin-peran-fungsional type="pointperan"/>
                 </div>
             </div>
         </div>
