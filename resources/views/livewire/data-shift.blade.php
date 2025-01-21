@@ -9,7 +9,7 @@
                     </div>
     
                     <!-- Tombol Tambah Shift -->
-                    <a href="#"
+                    <a href="{{ route('shift.create') }}"
                         class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                         + Tambah Shift
                     </a>

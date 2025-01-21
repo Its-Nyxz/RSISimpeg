@@ -49,4 +49,6 @@ class DataTunjanganKinerja extends Component
     {
         return view('livewire.data-tunjangan-kinerja');
     }
+
 }
+

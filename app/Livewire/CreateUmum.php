@@ -37,7 +37,9 @@ class CreateUmum extends Component
         $this->reset('deskripsi');
 
         // Redirect dengan membawa pesan sukses
+
         return redirect()->route('tunjangan.index')->with('success', 'Data Tunjangan Umum baru berhasil ditambahkan.');
+
     }
 
     public function render()
