@@ -28,7 +28,7 @@
             </ul>
             <div id="defaultTabContent">
                 <div x-show="activeTab === 'masakerja'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
-                    <livewire:data-masa-kerja type="masakerja"/>
+                    <livewire:data-tunjangan-kinerja type="masakerja"/>
                 </div>
                 <div x-show="activeTab === 'levelunit'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
                     <livewire:data-tunjangan-kinerja type="levelunit"/>
