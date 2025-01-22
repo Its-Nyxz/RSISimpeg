@@ -44,7 +44,7 @@
                     <livewire:data-tunjangan-kinerja type="proposionalitas"/>
                 </div>
                 <div x-show="activeTab === 'pointperan'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
-                    <livewire:tukin-tunjangan-kinerja type="pointperan"/>
+                    <livewire:data-tunjangan-kinerja type="pointperan"/>
                 </div>
             </div>
         </div>

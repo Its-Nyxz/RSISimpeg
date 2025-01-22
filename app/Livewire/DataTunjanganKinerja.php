@@ -35,14 +35,20 @@ class DataTunjanganKinerja extends Component
                     return [
                         'id' => $item->id,
                         'nama_unit' => $item->unitKerja->nama ?? null,
-                        'nama_level' => $item->levelpoint->nama ?? null,
+                        'nama_level' => $item->levelPoint->nama ?? null,
                         'poin' => $item->levelPoint->point ?? null,
                     ];
                 })->toArray(),
-            'masakerja' => MasaKerja::when($this->search, function ($query) {
-                $query->where('nama', 'like', '%' . $this->search . '%')
-                    ->orWhere('point', 'like', '%' . $this->search . '%');
-            })->get()->toArray(),
+            'masakerja' => MasaKerja::query()
+                ->when($this->search, function ($query) {
+                    $query->where('nama', 'like', '%' . $this->search . '%');
+                })->get()->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'nama' => $item->nama,
+                        'point' => $item->point,
+                    ];
+                }),
             'proposionalitas' => ProposionalitasPoint::with('proposable')
                 ->when($this->search, function ($query) {
                     $query->whereHasMorph(

@@ -33,7 +33,7 @@
                                 </td>
                                 <td class="px-6 py-4">{{ $item['poin'] }}</td>
                                 <td class="px-6 py-4">
-                                    <a href="/poposionalitas/edit/{{ $item['id'] }}"
+                                    <a href="#"
                                         class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                         data-tooltip-target="tooltip-jadwal-{{ $item['id'] }}">
                                         <i class="fa-solid fa-pen"></i>

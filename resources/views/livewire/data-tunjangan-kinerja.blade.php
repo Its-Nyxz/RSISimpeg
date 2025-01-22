@@ -34,7 +34,7 @@
                             <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
                                 {{ $item['nama'] }}
                             </td>
-                            <td class="px-6 py-4">{{ $item['poin'] }}</td>
+                            <td class="px-6 py-4">{{ $item['point'] }}</td>
                             <td class="px-6 py-4">
                                 <a href="{{ route('masakerja.edit',$item['id']) }}"
                                     class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
@@ -128,7 +128,7 @@
                 </div>
 
                 <!-- Tombol Tambah Merk -->
-                <a href="{{ route('proposionalitas.create') }}"
+                <a href="#"
                     class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                     + Tambah Proposionalitas Point
                 </a>
@@ -154,7 +154,7 @@
                             </td>
                             <td class="px-6 py-4">{{ $item['poin'] }}</td>
                             <td class="px-6 py-4">
-                                <a href="{{route('proposionalitas.edit', $item['id']) }}"
+                                <a href="#"
                                     cxlass="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                     data-tooltip-target="tooltip-item-{{ $item['id'] }}">
                                     <i class="fa-solid fa-pen"></i>
@@ -212,7 +212,7 @@
                             </td>
                             <td class="px-6 py-4">{{ $item['poin'] }}</td>
                             <td class="px-6 py-4">
-                                <a href="{{route('pointperan.edit', e$item['id']) }}"
+                                <a href="#"
                                     cxlass="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                     data-tooltip-target="tooltip-item-{{ $item['id'] }}">
                                     <i class="fa-solid fa-pen"></i>
