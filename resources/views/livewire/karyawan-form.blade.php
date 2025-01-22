@@ -338,7 +338,6 @@
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
                             </td>
-                            @dump($tmt)
                         </tr>
                         <tr>
                             <td>
@@ -432,7 +431,27 @@
             <div>
                 <x-card title="Lain-Lain" class="mb-3">
                     <table class="w-full border-separate border-spacing-y-4">
-
+                        <tr>
+                            <td>
+                                <label for="khusus" class="block mb-2 text-sm font-medium text-gray-900">
+                                    Tunjangan Khusus *</label>
+                            </td>
+                            <td>
+                                <select id="khusus" wire:model.live="khusus"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                                    required>
+                                    <option value="">Pilih Tunjangan Khusus</option>
+                                    @foreach ($filteredKhusus as $khus)
+                                        <option value="{{ $khus->id }}">
+                                            {{ $khus->nama }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('khusus')
+                                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                @enderror
+                            </td>
+                        </tr>
                         <tr>
                             <td style="width: 40%">
                                 <label for="pph" class="block mb-2 text-sm font-medium text-gray-900">

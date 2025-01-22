@@ -220,7 +220,7 @@ class KaryawanForm extends Component
                 'tempat' => $this->tempat,
                 'tanggal_lahir' => $this->tanggal_lahir,
                 'pendidikan_id' => $this->selectedPendidikan,
-                'golongan_id' => $this->filteredGolongans,
+                'golongan_id' => $this->selectedGolongan,
                 'jenis_id' => $this->jeniskaryawan,
                 'jabatan_id' => $jabatanId,
                 'fungsi_id' => $fungsiId,
@@ -236,8 +236,6 @@ class KaryawanForm extends Component
         if ($this->selectedRoles) {
             $user->syncRoles($this->selectedRoles);
         }
-
-        dd($user);
     }
 
 
