@@ -36,7 +36,7 @@ class DataTunjanganKinerja extends Component
                         'id' => $item->id,
                         'nama_unit' => $item->unitKerja->nama ?? null,
                         'nama_level' => $item->levelPoint->nama ?? null,
-                        'poin' => $item->poin ?? 0,
+                        'poin' => $item->levelpoint->point ?? 0,
                     ];
                 }),
 
@@ -47,7 +47,7 @@ class DataTunjanganKinerja extends Component
                     return [
                         'id' => $item->id,
                         'nama' => $item->nama,
-                        'poin' => $item->poin,
+                        'point' => $item->point,
                     ];
                 }),
             'tukinjabatan' => PointJabatan::with('pointable')
