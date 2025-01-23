@@ -1,8 +1,6 @@
 <div>
     <form wire:submit.prevent="updateTrans">
-        <!-- Form Input -->
         <div class="grid grid-cols-2 gap-4 bg-green-100 border border-green-200 rounded-lg shadow-lg p-6">
-            <!-- Nama -->
             <div class="form-group col-span-2">
                 <label for="nama" class="block text-sm font-medium text-green-900">Nama</label>
                 <input type="text" id="nama" wire:model="nama"
@@ -12,7 +10,6 @@
                 @enderror
             </div>
 
-            <!-- Nominal Makan -->
             <div class="form-group col-span-2">
                 <label for="nom_makan" class="block text-sm font-medium text-green-900">Nominal Makan</label>
                 <input type="number" id="nom_makan" wire:model="nom_makan"

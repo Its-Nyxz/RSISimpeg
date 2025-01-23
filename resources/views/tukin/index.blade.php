@@ -18,13 +18,23 @@
                         Level Unit
                     </button>
                 </li>
+                <li class="me-2">
+                    <button @click="activeTab = 'tukinjabatan'" :aria-selected="activeTab === 'tukinjabatan'"
+                        class="inline-block p-4 transition duration-200 focus:outline-none"
+                        :class="activeTab === 'tukinjabatan' ? 'bg-green-500 text-white' : 'hover:text-white hover:bg-success-300'">
+                        Jabatan
+                    </button>
+                </li>
             </ul>
             <div id="defaultTabContent">
                 <div x-show="activeTab === 'masakerja'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
-                    <livewire:data-masa-kerja type="masakerja"/>
+                    <livewire:data-tunjangan-kinerja type="masakerja"/>
                 </div>
                 <div x-show="activeTab === 'levelunit'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
                     <livewire:data-tunjangan-kinerja type="levelunit"/>
+                </div>
+                <div x-show="activeTab === 'tukinjabatan'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
+                    <livewire:data-tunjangan-kinerja type="tukinjabatan"/>
                 </div>
             </div>
         </div>

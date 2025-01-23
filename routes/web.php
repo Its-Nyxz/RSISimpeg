@@ -23,6 +23,7 @@ use App\Http\Controllers\MasterJabatanController;
 use App\Http\Controllers\MasterGolonganController;
 use App\Http\Controllers\MasterTunjanganController;
 use App\Http\Controllers\MasterPendidikanController;
+use App\Http\Controllers\MasterPotonganController;
 
 use App\Http\Controllers\KenaikanBerkalaGolController;
 use App\Http\Controllers\PeranFungsionalController;
@@ -36,6 +37,8 @@ use App\Http\Controllers\DetailJabatanController;
 
 use App\Http\Controllers\DataKaryawanController;
 use App\Http\Controllers\DetailKaryawanController;
+
+use App\Http\Controllers\UserProfileController;
 
 
 Route::get('/', function () {
@@ -76,6 +79,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('gapok', MasterGapokController::class);
     Route::resource('golongan', MasterGolonganController::class);
     Route::resource('pendidikan', MasterPendidikanController::class);
+    Route::resource('potongan', MasterPotonganController::class);
 
     Route::resource('kenaikangol', KenaikanBerkalaGolController::class);
     Route::resource('peranfungsional', PeranFungsionalController::class);
@@ -96,6 +100,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('tukin', TunjanganKinerjaController::class);
     Route::resource('masakerja', MasaKerjaController::class);
     Route::resource('levelunit', LevelUnitController::class);
+
+    Route::resource('userprofile', UserProfileController::class);
 
 });
 

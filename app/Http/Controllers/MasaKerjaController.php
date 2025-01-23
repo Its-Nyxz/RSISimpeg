@@ -64,7 +64,7 @@ class MasaKerjaController extends Controller
             'point' => $validatedData['point'],
         ]);
 
-        return redirect()->route('masakerja.index')->with('success', 'Masa Kerja berhasil diperbarui!');
+        return redirect()->route('tukin.index')->with('success', 'Masa Kerja berhasil diperbarui!');
     }
 
     /**

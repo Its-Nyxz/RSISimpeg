@@ -4,6 +4,8 @@ namespace App\Livewire;
 
 use App\Models\LevelUnit;
 use App\Models\MasaKerja;
+use App\Models\Jabatan; // Pastikan model Jabatan sudah diimpor
+use App\Models\PointJabatan;
 use Livewire\Component;
 
 class DataTunjanganKinerja extends Component
@@ -33,22 +35,47 @@ class DataTunjanganKinerja extends Component
                     return [
                         'id' => $item->id,
                         'nama_unit' => $item->unitKerja->nama ?? null,
-                        'nama_level' => $item->levelpoint->nama ?? null,
-                        'poin' => $item->levelPoint->point ?? null,
+                        'nama_level' => $item->levelPoint->nama ?? null,
+                        'poin' => $item->levelpoint->point ?? 0,
                     ];
-                })->toArray(),
-            'masakerja' => MasaKerja::when($this->search, function ($query) {
-                $query->where('nama', 'like', '%' . $this->search . '%')
-                    ->orWhere('point', 'like', '%' . $this->search . '%');
-            })->get()->toArray(),
-            default => collect()->toArray(),
+                }),
+
+            'masakerja' => MasaKerja::query()
+                ->when($this->search, function ($query) {
+                    $query->where('nama', 'like', '%' . $this->search . '%');
+                })->get()->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'nama' => $item->nama,
+                        'point' => $item->point,
+                    ];
+                }),
+            'tukinjabatan' => PointJabatan::with('pointable')
+                ->when($this->search, function ($query) {
+                    $query->whereHasMorph('pointable', ['App\Models\MasterFungsi', 'App\Models\MasterUmum'], function ($q) {
+                        $q->where('nama', 'like', '%' . $this->search . '%');
+                    });
+                })
+                ->get()->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'nama' => $item->pointable->nama ?? '-',
+                        'poin' => $item->point,
+                    ];
+                }),
+
+            default => [],
         };
     }
-    
+
+    public function updateSearch($value)
+    {
+        $this->search = $value;
+        $this->loadData();
+    }
+
     public function render()
     {
         return view('livewire.data-tunjangan-kinerja');
     }
-
 }
-
