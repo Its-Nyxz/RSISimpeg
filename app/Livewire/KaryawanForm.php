@@ -21,6 +21,8 @@ class KaryawanForm extends Component
     public $karyawan;
     public $id;
     public $nama;
+    public $namapendidikan;
+    public $institusi;
     public $username;
     public $nip;
     public $no_ktp;
