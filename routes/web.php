@@ -38,6 +38,7 @@ use App\Http\Controllers\DetailJabatanController;
 use App\Http\Controllers\DataKaryawanController;
 use App\Http\Controllers\DetailKaryawanController;
 
+use App\Http\Controllers\UserProfileController;
 
 
 Route::get('/', function () {
@@ -99,6 +100,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('tukin', TunjanganKinerjaController::class);
     Route::resource('masakerja', MasaKerjaController::class);
     Route::resource('levelunit', LevelUnitController::class);
+
+    Route::resource('userprofile', UserProfileController::class);
 
 });
 
