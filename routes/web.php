@@ -38,6 +38,7 @@ use App\Http\Controllers\DataKaryawanController;
 use App\Http\Controllers\DetailKaryawanController;
 
 use App\Http\Controllers\UnitKerjaController;
+use App\Http\Controllers\UserProfileController;
 
 
 Route::get('/', function () {
@@ -100,6 +101,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('levelunit', LevelUnitController::class);
 
     Route::resource('unitkerja', UnitKerjaController::class);
+    // Route::resource('userprofile', UserProfileController::class);
+    Route::get('/userprofile', [UserProfileController::class, 'index'])->name('userprofile');
 
 });
 
