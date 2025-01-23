@@ -13,7 +13,7 @@ class ProposionalitasPointController extends Controller
      */
     public function index()
     {
-        //
+        return view('proposionalitas.index');
     }
 
     /**

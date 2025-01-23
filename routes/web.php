@@ -38,6 +38,7 @@ use App\Http\Controllers\DetailJabatanController;
 use App\Http\Controllers\DataKaryawanController;
 use App\Http\Controllers\DetailKaryawanController;
 
+use App\Http\Controllers\UnitKerjaController;
 use App\Http\Controllers\UserProfileController;
 
 
@@ -101,7 +102,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('masakerja', MasaKerjaController::class);
     Route::resource('levelunit', LevelUnitController::class);
 
+    Route::resource('unitkerja', UnitKerjaController::class);
     Route::resource('userprofile', UserProfileController::class);
+
 
 });
 
