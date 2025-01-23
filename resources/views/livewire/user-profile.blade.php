@@ -45,6 +45,10 @@
 
         <div style="
             background-color: #5FB88B;
+
+        <!-- Kotak No. KTP -->
+        <div style="
+            background-color: #28a745;
             color: white;
             font-family: 'Gilroy-Bold', sans-serif;
             font-size: 14px;
@@ -52,7 +56,11 @@
             padding: 10px 20px;
             border-radius: 5px;
         ">
+
             {{ $user->id ?? '-' }}
+        </div>
+    </div>
+            {{ $userprofile->no_ktp ?? '-' }}
         </div>
     </div>
 
@@ -62,6 +70,7 @@
                 <div style="font-family: 'Gilroy-Regular', sans-serif; font-size: 14px;">
                     <div style="display: grid; grid-template-columns: auto 1fr; row-gap: 10px; column-gap: 50px;">
                         <div><strong>Nama</strong></div>
+
                         <div>: {{ $user->name }}</div>
                         
                         <div><strong>Jabatan</strong></div>
@@ -84,6 +93,28 @@
                         
                         <div><strong>Informasi Pensiun</strong></div>
                         <div>: {{ $user->pensiun ?? '-' }}</div>
+                        <div>: {{ $userprofile->name }}</div>
+                        
+                        <div><strong>Jabatan</strong></div>
+                        <div>: {{ $userprofile->jabatan->nama ?? '-' }}</div>
+                        
+                        <div><strong>Tempat Tanggal Lahir</strong></div>
+                        <div>: {{ $userprofile->tempat }} - {{ $userprofile->tanggal_lahir }}</div>
+                        
+                        <div><strong>Tanggal Tetap</strong></div>
+                        <div>: {{ $userprofile->tanggal_tetap ?? '-' }}</div>
+                        
+                        <div><strong>Pendidikan Awal</strong></div>
+                        <div>: {{ $userprofile->pendidikan_awal ?? '-' }}</div>
+                        
+                        <div><strong>Pendidikan Penyesuaian</strong></div>
+                        <div>: {{ $userprofile->pendidikan_penyesuaian ?? '-' }}</div>
+                        
+                        <div><strong>Tanggal Penyesuaian</strong></div>
+                        <div>: {{ $userprofile->tgl_penyesuaian ?? '-' }}</div>
+                        
+                        <div><strong>Informasi Pensiun</strong></div>
+                        <div>: {{ $userprofile->pensiun ?? '-' }}</div>
                     </div>
                 </div>
                 <!-- Tombol Edit Profile -->
@@ -142,3 +173,4 @@
         </p>
     </x-card>
 </div>
+

@@ -19,6 +19,7 @@ class UserProfile extends Component
             ->first(); // Ambil satu record karena hanya ada satu user login
         
         //    dd($this->user);
+
     }
 
     public function render()

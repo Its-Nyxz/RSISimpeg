@@ -34,7 +34,7 @@
                         ['title' => 'Kenaikan Berkala dan Golongan', 'href' => '/kenaikan'],
                         ['title' => 'Tunjangan Kinerja', 'href' => '/tukin'],
                         ['title' => 'Unit Kerja', 'href' => '/unitkerja'],
-                        ['title' => 'Potongan', 'href' => '#'],
+                        ['title' => 'Potongan', 'href' => '/potongan'],
                     ]" />
                     <livewire:side-link title="Kepegawaian" icon="fa-solid fa-people-group" :child="[
                         ['title' => 'Data Karyawan', 'href' => '/datakaryawan'],

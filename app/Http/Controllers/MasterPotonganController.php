@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MasterPotongan;
+use App\Models\MasterFungsi;
 use Illuminate\Http\Request;
 
 class MasterPotonganController extends Controller
@@ -12,7 +13,7 @@ class MasterPotonganController extends Controller
      */
     public function index()
     {
-        //
+        return view('potongan.index');
     }
 
     /**
@@ -20,7 +21,7 @@ class MasterPotonganController extends Controller
      */
     public function create()
     {
-        //
+        return view('potongan.create');
     }
 
     /**
@@ -42,9 +43,12 @@ class MasterPotonganController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(MasterPotongan $masterPotongan)
+    public function edit($id)
     {
-        //
+        $potongan = MasterPotongan::findOrFail($id);
+        $fungsi = MasterFungsi::all();
+
+        return view('potongan.edit', compact('potongan', 'fungsi'));
     }
 
     /**
@@ -52,7 +56,21 @@ class MasterPotonganController extends Controller
      */
     public function update(Request $request, MasterPotongan $masterPotongan)
     {
-        //
+        $validatedData = $request->validate([
+            'fungsi_id' => 'required|exists:master_fungsi,id',
+            'nama' => 'required',
+            'nominal' => 'required',
+            'deskripsi' => 'required',
+        ]);
+
+        $masterPotongan->update([
+            'fungsi_id' => $validatedData['fungsi_id'],
+            'nama' => $validatedData['nama'],
+            'nominal' => $validatedData['nominal'],
+            'deskripsi' => $validatedData['deskripsi'],
+        ]);
+
+        return redirect()->route('potongan.index')->with('success', 'Potongan berhasil diperbarui!');
     }
 
     /**
