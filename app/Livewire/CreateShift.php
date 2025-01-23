@@ -19,8 +19,8 @@ class CreateShift extends Component
         // Validation
         $this->validate([
             'nama_shift' => 'required|string|max:255',
-            'jam_masuk' => 'required|date_format:H:i:s',
-            'jam_keluar' => 'required|date_format:H:i:s',
+            'jam_masuk' => 'required|date_format:H:i',
+            'jam_keluar' => 'required|date_format:H:i',
             'keterangan' => 'nullable|string',
         ]);
 

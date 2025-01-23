@@ -1,8 +1,10 @@
 <div>
-    <form wire:submit.prevent="updateTrans">
+    <form wire:submit.prevent="updateUnitKerja">
+        <!-- Form Input -->
         <div class="grid grid-cols-2 gap-4 bg-green-100 border border-green-200 rounded-lg shadow-lg p-6">
+            <!-- Nama -->
             <div class="form-group col-span-2">
-                <label for="nama" class="block text-sm font-medium text-green-900">Nama</label>
+                <label for="nama" class="block text-sm font-medium text-green-900">Nama Unit Kerja</label>
                 <input type="text" id="nama" wire:model="nama"
                     class="form-control @error('nama') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
                 @error('nama')
@@ -11,20 +13,19 @@
             </div>
 
             <div class="form-group col-span-2">
-                <label for="nom_makan" class="block text-sm font-medium text-green-900">Nominal Makan</label>
-                <input type="number" id="nom_makan" wire:model="nom_makan"
-                    class="form-control @error('nom_makan') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
-                @error('nom_makan')
+                <label for="kode" class="block text-sm font-medium text-green-900">Kode Unit Kerja</label>
+                <input type="text" id="kode" wire:model="kode"
+                    class="form-control @error('kode') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
+                @error('kode')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>
 
-            <!-- Nominal Transport -->
             <div class="form-group col-span-2">
-                <label for="nom_transport" class="block text-sm font-medium text-green-900">Nominal Transport</label>
-                <input type="number" id="nom_transport" wire:model="nom_transport"
-                    class="form-control @error('nom_transport') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
-                @error('nom_transport')
+                <label for="keterangan" class="block text-sm font-medium text-green-900">Keterangan</label>
+                <textarea id="keterangan" wire:model="keterangan"
+                    class="form-control @error('keterangan') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"></textarea>
+                @error('keterangan')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>
