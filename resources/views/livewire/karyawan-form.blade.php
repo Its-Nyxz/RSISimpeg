@@ -96,6 +96,7 @@
                             </td>
                             <td>
                                 <select id="pendidikans" wire:model.live="selectedPendidikan"
+                                    wire:input='selectGolongan'
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
                                     required>
                                     <option value="">Pilih Pendidikan</option>
@@ -304,28 +305,6 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>
-                                <label for="golongan" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Golongan *</label>
-                            </td>
-                            <td>
-                                <select id="golongans" wire:model.live="selectedGolongan"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
-                                    {{ empty($selectedPendidikan) ? 'disabled' : '' }}>
-                                    required>
-                                    <option value="">Pilih Golongan</option>
-                                    @foreach ($filteredGolongans as $golongan)
-                                        <option value="{{ $golongan->id }}">
-                                            {{ $golongan->nama }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('selectedGolongan')
-                                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                                @enderror
-                            </td>
-                        </tr>
-                        <tr>
                             <td style="width: 40%">
                                 <label for="jenis" class="block mb-2 text-sm font-medium text-gray-900">
                                     Jenis *</label>
@@ -377,6 +356,23 @@
                                 @enderror
                             </td>
                         </tr>
+                        <tr>
+                            <td>
+                                <label for="golongan" class="block mb-2 text-sm font-medium text-gray-900">
+                                    Golongan *</label>
+                            </td>
+                            <td>
+                                {{-- <input type="text" id="golongan" wire:model.live="selectedGolonganNama"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                                    placeholder="Golongan akan terisi otomatis" readonly />
+                                @error('selectedGolonganNama')
+                                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                @enderror --}}
+                                <span for="golongan"
+                                    class="block mb-2 text-sm font-semibold text-gray-900 uppercase ">
+                                    {{ $selectedGolonganNama ?? '-' }} </span>
+                            </td>
+                        </tr>
                         @push('scripts')
                             <!-- Flatpickr CSS -->
                             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -396,7 +392,6 @@
                                         maxDate: "today", // Restrict future dates
                                         defaultDate: "today", // Set default date to today
                                         onChange: function(selectedDates, dateStr, instance) {
-                                            // Calculate Masa Kerja
                                             if (selectedDates.length > 0) {
                                                 const selectedDate = new Date(selectedDates[0]);
                                                 const today = new Date();
@@ -404,28 +399,22 @@
                                                 let years = today.getFullYear() - selectedDate.getFullYear();
                                                 const monthDiff = today.getMonth() - selectedDate.getMonth();
 
-                                                // Adjust if the current month is before the selected date's month
                                                 if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < selectedDate
                                                         .getDate())) {
                                                     years--;
                                                 }
 
-                                                // Update the masa kerja input
+                                                // Update masa kerja input
                                                 const masaKerjaInput = document.querySelector("#masakerja");
                                                 masaKerjaInput.value = years;
 
-                                                // Trigger input event for Livewire binding
-                                                const event = new Event('input', {
+                                                // Trigger Livewire updates
+                                                masaKerjaInput.dispatchEvent(new Event('input', {
                                                     bubbles: true
-                                                });
-                                                masaKerjaInput.dispatchEvent(event);
-                                            }
+                                                }));
 
-                                            // Notify Livewire about the TMT change
-                                            const event = new Event('input', {
-                                                bubbles: true
-                                            });
-                                            dateInput.dispatchEvent(event);
+                                                @this.call('selectGolongan')
+                                            }
                                         }
                                     });
 
@@ -452,7 +441,7 @@
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
                                     required>
                                     <option value="">Pilih Tunjangan Khusus</option>
-                                    @foreach ($khusus as $khus)
+                                    @foreach ($filteredKhusus as $khus)
                                         <option value="{{ $khus->id }}">
                                             {{ $khus->nama }}
                                         </option>

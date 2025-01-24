@@ -23,6 +23,7 @@ use App\Http\Controllers\MasterJabatanController;
 use App\Http\Controllers\MasterGolonganController;
 use App\Http\Controllers\MasterTunjanganController;
 use App\Http\Controllers\MasterPendidikanController;
+use App\Http\Controllers\MasterPotonganController;
 
 use App\Http\Controllers\KenaikanBerkalaGolController;
 use App\Http\Controllers\PeranFungsionalController;
@@ -80,6 +81,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('gapok', MasterGapokController::class);
     Route::resource('golongan', MasterGolonganController::class);
     Route::resource('pendidikan', MasterPendidikanController::class);
+    Route::resource('potongan', MasterPotonganController::class);
 
     Route::resource('kenaikangol', KenaikanBerkalaGolController::class);
     Route::resource('peranfungsional', PeranFungsionalController::class);
@@ -102,9 +104,14 @@ Route::middleware('auth')->group(function () {
     Route::resource('levelunit', LevelUnitController::class);
 
     Route::resource('unitkerja', UnitKerjaController::class);
+<<<<<<< HEAD
     // Route::resource('userprofile', UserProfileController::class);
     Route::get('/userprofile', [UserProfileController::class, 'index'])->name('userprofile');
     Route::resource('keuangan', KeuanganController::class);
+=======
+    Route::resource('userprofile', UserProfileController::class);
+
+>>>>>>> 3f5a48fc99c04ec943bb2a48a7c4e1a982ac8c57
 
 });
 

@@ -30,6 +30,10 @@
                         class="inline-block p-4 transition duration-200 focus:outline-none"
                         :class="activeTab === 'pointperan' ? 'bg-green-500 text-white' : 'hover:text-white hover:bg-success-300'">
                         Point Peran fungsionalitas
+                    <button @click="activeTab = 'tukinjabatan'" :aria-selected="activeTab === 'tukinjabatan'"
+                        class="inline-block p-4 transition duration-200 focus:outline-none"
+                        :class="activeTab === 'tukinjabatan' ? 'bg-green-500 text-white' : 'hover:text-white hover:bg-success-300'">
+                        Jabatan
                     </button>
                 </li>
             </ul>
@@ -45,6 +49,8 @@
                 </div>
                 <div x-show="activeTab === 'pointperan'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
                     <livewire:data-tunjangan-kinerja type="pointperan"/>
+                <div x-show="activeTab === 'tukinjabatan'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
+                    <livewire:data-tunjangan-kinerja type="tukinjabatan"/>
                 </div>
             </div>
         </div>
