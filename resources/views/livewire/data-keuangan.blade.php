@@ -1,56 +1,53 @@
 <div>
     <div class="flex justify-between py-2 mb-3">
-        <h1 class="text-2xl font-bold text-success-900">Data Unit Kerja</h1>
-        <div class="flex justify-between items-center gap-4 mb-3">
-            <!-- Input Pencarian -->
-            <div class="flex-1">
-                <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari unit Kerja..."
+        <div class="mb-4">
+            <!-- Tulisan Keuangan -->
+            <div class="flex items-center gap-4">
+                <h1 class="text-2xl font-bold text-success-900">Keuangan</h1>
+                <p class="text-base text-success-900 flex items-center">
+                    <i class="fa-solid fa-caret-right mr-2"></i> Keuangan
+                </p>
+            </div>
+        
+            <!-- Kotak Pencarian -->
+            <div class="mt-3">
+                <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Karyawan..."
                     class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
             </div>
-
-            <!-- Tombol Tambah Unit Kerja -->
-            <a href="{{ route('unitkerja.create') }}"
-                class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                + Tambah Unit Kerja
-            </a>
-        </div>
+        </div>        
     </div>
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-        <table class="w-full text-sm text-left text-gray-700">
+        <table class="w-full text-sm text-center text-gray-700">
             <thead class="text-sm uppercase bg-success-400 text-success-900">
                 <tr>
-                    <th scope="col" class="px-6 py-3">No</th>
-                    <th scope="col" class="px-6 py-3">Nama Unit Kerja</th>
-                    <th scope="col" class="px-6 py-3">Kode Unit Kerja</th>
-                    <th scope="col" class="px-6 py-3">Keterangan</th>
-                    <th scope="col" class="px-6 py-3">Action</th>
+                    <th scope="col" class="px-6 py-3">Nama</th>
+                    <th scope="col" class="px-6 py-3">NIK</th>
+                    <th scope="col" class="px-6 py-3">Alamat</th>
+                    <th scope="col" class="px-6 py-3">Jabatan</th>
+                    <th scope="col" class="px-6 py-3">Divisi / Unit Kerja</th>
+                    <th scope="col" class="px-6 py-3">Detail</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse ($unitkerja as $item)
+                @forelse ($users as $user)
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
-                        <td class="px-6 py-4">{{ $loop->iteration }}</td>
                         <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
-                            {{ $item['nama'] }}
+                            {{ $user->name }}
                         </td>
-                        <td class="px-6 py-4">{{ $item['kode'] }}</td>
-                        <td class="px-6 py-4">{{ $item['keterangan'] }}</td>
-                        <td class="px-6 py-4">
-                            <a href="{{ route('unitkerja.edit', $item['id']) }}"
-                                class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
-                                data-tooltip-target="tooltip-umum-{{ $item['id'] }}">
-                                <i class="fa-solid fa-pen"></i>
-                            </a>
-                            <div id="tooltip-jabatan-{{ $item['id'] }}" role="tooltip"
-                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
-                                Ubah Unit Kerja
-                                <div class="tooltip-arrow" data-popper-arrow></div>
-                            </div>
-                        </td>
+                        <td class="px-6 py-4">{{ $user->nik ?? '-' }}</td>
+                        <td class="px-6 py-4">{{ $user->alamat ?? '-' }}</td>
+                        {{-- <td class="px-6 py-4">{{ $user->roles->pluck('name')->implode(', ') ?? '-' }}</td> --}}
+                        <td class="px-6 py-4">{{ $user->jabatan->nama ?? '-' }}</td>
+                        <td class="px-6 py-4">{{ $user->unitKerja->nama ?? '-' }}</td>
+                        <td class="px-6 py-4 text-center">
+                  788888          <button class="flex items-center justify-center w-10 h-10 rounded bg-[#006633]" style="margin-left: 40px; border-radius: 20%;">
+                                <i class="fa-solid fa-magnifying-glass text-lg" style="color: #ffffff;"></i>
+                            </button>                            
+                        </td>                                                
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="text-center px-6 py-4">Tidak ada data Unit Kerja.</td>
+                        <td colspan="7" class="text-center px-6 py-4">Tidak ada data Keuangan.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -58,7 +55,7 @@
     </div>
     <div class="mt-4 flex gap-2 justify-center items-center">
         {{-- Previous Page Link --}}
-        @if (!$unitkerja->onFirstPage())
+        @if (!$users->onFirstPage())
             <button wire:click="previousPage" wire:loading.attr="disabled"
                 class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
                 &laquo; Sebelumnya
@@ -67,8 +64,8 @@
 
         {{-- Pagination Numbers --}}
         @php
-            $totalPages = $unitkerja->lastPage();
-            $currentPage = $unitkerja->currentPage();
+            $totalPages = $users->lastPage();
+            $currentPage = $users->currentPage();
             $range = 3; // Range around current page
         @endphp
 
@@ -107,7 +104,7 @@
         @endif
 
         {{-- Next Page Link --}}
-        @if ($unitkerja->hasMorePages())
+        @if ($users->hasMorePages())
             <button wire:click="nextPage" wire:loading.attr="disabled"
                 class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
                 Selanjutnya &raquo;

@@ -2,17 +2,15 @@
 
 namespace App\Livewire;
 
-use App\Models\User;
 use Livewire\Component;
-// use Livewire\WithoutUrlPagination;
+use App\Models\User;
 use Livewire\WithPagination;
 
-class DataKaryawan extends Component
+class DataKeuangan extends Component
 {
     use WithPagination;
 
-    public $search = ''; // Properti untuk menyimpan nilai input pencarian
-    public $roles;
+    public $search = '';
 
     public function mount()
     {
@@ -27,7 +25,7 @@ class DataKaryawan extends Component
 
     public function loadData()
     {
-        return User::with(['jabatan', 'unitKerja', 'roles'])->where('id', '>', '1') // Eager load jabatan dan unitKerja
+        return User::with(['jabatan', 'unitKerja', 'roles'])->where('id', '>', '1')
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%')
                     ->orWhere('no_ktp', 'like', '%' . $this->search . '%')
@@ -38,8 +36,8 @@ class DataKaryawan extends Component
     public function render()
     {
         $users = $this->loadData();
-        return view('livewire.data-karyawan', [
-            'users' => $users,
+        return view('livewire.data-keuangan', [
+            'users' => $users
         ]);
     }
 }
