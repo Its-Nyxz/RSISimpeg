@@ -44,7 +44,7 @@
                         ['title' => 'Poin Peran Fungsional', 'href' => '/peranfungsional'],
                         ['title' => 'Poin Penilaian Pekerja', 'href' => '/penilaian'],
                     ]" />
-                    <livewire:side-link href="#" title="Keuangan" icon="fa-solid fa-money-bills" />
+                    <livewire:side-link href="/keuangan" title="Keuangan" icon="fa-solid fa-money-bills" />
                     <livewire:side-link href="#" title="Pengaturan" icon="fa-solid fa-gear" :child="[
                         ['title' => 'Jabatan & Perizinan', 'href' => '/jabatanperizinan'],
                         ['title' => 'User', 'href' => '/userprofile'],
