@@ -13,7 +13,7 @@ class UnitKerjaController extends Controller
      */
     public function index()
     {
-        //
+        return view("unitkerja.index");
     }
 
     /**
@@ -21,7 +21,7 @@ class UnitKerjaController extends Controller
      */
     public function create()
     {
-        //
+        return view("unitkerja.create");
     }
 
     /**
@@ -43,9 +43,11 @@ class UnitKerjaController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(UnitKerja $unitKerja)
+    public function edit($id)
     {
-        //
+        $unitkerja = UnitKerja::findOrFail($id);
+
+        return view('unitkerja.edit', compact('unitkerja'));
     }
 
     /**
@@ -53,7 +55,19 @@ class UnitKerjaController extends Controller
      */
     public function update(UpdateUnitKerjaRequest $request, UnitKerja $unitKerja)
     {
-        //
+        $validatedData = $request->validate([
+            'nama' => 'required',
+            'kode' => 'nullable',
+            'keterangan' => 'nullable',
+        ]);
+
+        $unitKerja->update([
+            'nama' => $validatedData['nama'],
+            'kode' => $validatedData['kode'],
+            'keterangan' => $validatedData['keterangan'],
+        ]);
+
+        return redirect()->route('unitkerja.index')->with('success', 'Ddata Unit Kerja berhasil diperbarui!');
     }
 
     /**

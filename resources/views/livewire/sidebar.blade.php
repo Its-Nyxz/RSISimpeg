@@ -31,14 +31,13 @@
                         ['title' => 'Gaji Pokok', 'href' => '/gapok'],
                         ['title' => 'Pendidikan', 'href' => '/pendidikan'],
                         ['title' => 'Absensi', 'href' => '/absensi'],
-                        ['title' => 'Kenaikan Berkala dan Golongan', 'href' => '/kenaikan'],
                         ['title' => 'Tunjangan Kinerja', 'href' => '/tukin'],
-                        ['title' => 'Unit Kerja', 'href' => '#'],
+                        ['title' => 'Unit Kerja', 'href' => '/unitkerja'],
                         ['title' => 'Potongan', 'href' => '/potongan'],
                     ]" />
                     <livewire:side-link title="Kepegawaian" icon="fa-solid fa-people-group" :child="[
                         ['title' => 'Data Karyawan', 'href' => '/datakaryawan'],
-                        ['title' => 'Tunjangan', 'href' => '#'],
+                        ['title' => 'Kenaikan Berkala dan Golongan', 'href' => '/kenaikan'],
                         ['title' => 'Approval Cuti', 'href' => '#'],
                         ['title' => 'Import Gaji', 'href' => '#'],
                         ['title' => 'Poin Peran Fungsional', 'href' => '/peranfungsional'],

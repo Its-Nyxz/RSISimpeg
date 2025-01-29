@@ -8,7 +8,8 @@
             </p>
         </div>
         <!-- Kotak No. KTP -->
-        <div style="
+        <div
+            style="
             background-color: #28a745;
             color: white;
             font-family: 'Gilroy-Bold', sans-serif;
@@ -17,7 +18,7 @@
             padding: 10px 20px;
             border-radius: 5px;
         ">
-            {{ $userprofile->id ?? '-' }}
+            {{ $userprofile->nip ?? '-' }}
         </div>
     </div>
     <div class="flex space-x-6">
@@ -27,32 +28,33 @@
                     <div style="display: grid; grid-template-columns: auto 1fr; row-gap: 10px; column-gap: 50px;">
                         <div><strong>Nama</strong></div>
                         <div>: {{ $userprofile->name }}</div>
-                        
+
                         <div><strong>Jabatan</strong></div>
                         <div>: {{ $userprofile->jabatan->nama ?? '-' }}</div>
-                        
+
                         <div><strong>Tempat Tanggal Lahir</strong></div>
                         <div>: {{ $userprofile->tempat }} - {{ $userprofile->tanggal_lahir }}</div>
-                        
+
                         <div><strong>Tanggal Tetap</strong></div>
                         <div>: {{ $userprofile->tanggal_tetap ?? '-' }}</div>
-                        
+
                         <div><strong>Pendidikan Awal</strong></div>
                         <div>: {{ $userprofile->pendidikan_awal ?? '-' }}</div>
-                        
+
                         <div><strong>Pendidikan Penyesuaian</strong></div>
                         <div>: {{ $userprofile->pendidikan_penyesuaian ?? '-' }}</div>
-                        
+
                         <div><strong>Tanggal Penyesuaian</strong></div>
                         <div>: {{ $userprofile->tgl_penyesuaian ?? '-' }}</div>
-                        
+
                         <div><strong>Informasi Pensiun</strong></div>
                         <div>: {{ $userprofile->pensiun ?? '-' }}</div>
                     </div>
                 </div>
                 <!-- Tombol Edit Profile -->
                 <div style="margin-top: 20px;">
-                    <a href="{{ route('profile.edit') }}" class="btn btn-success" style="
+                    <a href="{{ route('profile.edit') }}" class="btn btn-success"
+                        style="
                         font-family: 'Gilroy-Bold', sans-serif;
                         font-size: 14px;
                         font-weight: bold;
@@ -68,4 +70,41 @@
             </x-card>
         </div>
     </div>
+
+    <x-card :title="'Login dan Keamanan'" class="max-w-md">
+        <p>
+            <strong>NIP:</strong> {{ $userprofile->nip ?? '-' }}
+        </p>
+        <p>
+            <strong>No. WhatsApp:</strong>
+            @empty($userprofile->no_hp)
+                -
+            @else
+                {{ $userprofile->no_hp }}
+            @endempty
+            <span class="icon">
+                <i class="fa-solid fa-pen" style="color: #006633;"></i>
+                <span class="tooltip">Ganti No WhatsApp</span>
+            </span>
+        </p>
+        <p>
+            <strong>Email:</strong>
+            @empty($userprofile->email)
+                -
+            @else
+                {{ $userprofile->email }}
+            @endempty
+            <span class="icon">
+                <i class="fa-solid fa-pen" style="color: #006633;"></i>
+                <span class="tooltip">Ganti Email</span>
+            </span>
+        </p>
+        <p>
+            <strong>Password:</strong> ************
+            <span class="icon">
+                <i class="fa-solid fa-pen" style="color: #006633;"></i>
+                <span class="tooltip">Ganti Password</span>
+            </span>
+        </p>
+    </x-card>
 </div>
