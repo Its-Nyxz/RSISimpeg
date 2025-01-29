@@ -52,6 +52,7 @@ class DataTunjangan extends Component
             })->get()->toArray(),
             // default => collect()->toArray(),
         };
+        
     }
 
     public function updateSearch($value)

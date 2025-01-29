@@ -24,7 +24,7 @@ use App\Http\Controllers\MasterGolonganController;
 use App\Http\Controllers\MasterTunjanganController;
 use App\Http\Controllers\MasterPendidikanController;
 use App\Http\Controllers\MasterPotonganController;
-
+use App\Http\Controllers\KeuanganController;
 use App\Http\Controllers\KenaikanBerkalaGolController;
 use App\Http\Controllers\PeranFungsionalController;
 use App\Http\Controllers\PerizinanJabatanController;
@@ -37,6 +37,7 @@ use App\Http\Controllers\DetailJabatanController;
 
 use App\Http\Controllers\DataKaryawanController;
 use App\Http\Controllers\DetailKaryawanController;
+use App\Http\Controllers\DetailKeuanganController;
 
 use App\Http\Controllers\UnitKerjaController;
 use App\Http\Controllers\UserProfileController;
@@ -95,24 +96,19 @@ Route::middleware('auth')->group(function () {
     Route::resource('jabatanperizinan', PerizinanJabatanController::class);
     Route::resource('detail', DetailJabatanController::class);
 
-
     Route::resource('datakaryawan', DataKaryawanController::class);
     Route::resource('detailkaryawan', DetailKaryawanController::class);
+    Route::resource('detailkeuangan', DetailKeuanganController::class);
 
     Route::resource('tukin', TunjanganKinerjaController::class);
     Route::resource('masakerja', MasaKerjaController::class);
     Route::resource('levelunit', LevelUnitController::class);
 
     Route::resource('unitkerja', UnitKerjaController::class);
-<<<<<<< HEAD
     // Route::resource('userprofile', UserProfileController::class);
     Route::get('/userprofile', [UserProfileController::class, 'index'])->name('userprofile');
     Route::resource('keuangan', KeuanganController::class);
-=======
     Route::resource('userprofile', UserProfileController::class);
-
->>>>>>> 3f5a48fc99c04ec943bb2a48a7c4e1a982ac8c57
-
 });
 
 require __DIR__ . '/auth.php';

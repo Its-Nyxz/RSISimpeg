@@ -92,7 +92,7 @@
                         <tr>
                             <td>
                                 <label for="pendidikan" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Pendidikan *</label>
+                                    Kategori Pendidikan *</label>
                             </td>
                             <td>
                                 <select id="pendidikans" wire:model.live="selectedPendidikan"
@@ -107,6 +107,34 @@
                                     @endforeach
                                 </select>
                                 @error('selectedPendidikan')
+                                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                @enderror
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 40%">
+                                <label for="namapendidkan" class="block mb-2 text-sm font-medium text-gray-900">
+                                    Pendidikan *</label>
+                            </td>
+                            <td>
+                                <input type="text" id="namapendidkan" wire:model.live="namapendidkan"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                                    placeholder="Pendidikan Pegawai" required />
+                                @error('namapendidkan')
+                                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                @enderror
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 40%">
+                                <label for="intitusi" class="block mb-2 text-sm font-medium text-gray-900">
+                                    Institusi *</label>
+                            </td>
+                            <td>
+                                <input type="text" id="intitusi" wire:model.live="intitusi"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                                    placeholder="Institusi Pegawai" required />
+                                @error('intitusi')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
                             </td>

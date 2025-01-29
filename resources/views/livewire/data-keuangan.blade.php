@@ -40,9 +40,9 @@
                         <td class="px-6 py-4">{{ $user->jabatan->nama ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $user->unitKerja->nama ?? '-' }}</td>
                         <td class="px-6 py-4 text-center">
-                  788888          <button class="flex items-center justify-center w-10 h-10 rounded bg-[#006633]" style="margin-left: 40px; border-radius: 20%;">
+                            <a href="{{route('detailkeuangan.show', ['detailkeuangan' => $user->id])}}"class="flex items-center justify-center w-10 h-10 rounded bg-[#006633]" style="margin-left: 40px; border-radius: 20%;">
                                 <i class="fa-solid fa-magnifying-glass text-lg" style="color: #ffffff;"></i>
-                            </button>                            
+                            </a>                            
                         </td>                                                
                     </tr>
                 @empty
