@@ -14,7 +14,7 @@ class UserProfile extends Component
         // Ambil data user yang sedang login
         $this->userprofile = User::with('jabatan')
             ->where('id', Auth::id()) // Filter berdasarkan ID user yang login
-            ->first(); // Ambil satu record karena hanya ada satu user login
+            ->first(); 
     }
     public function render()
     {

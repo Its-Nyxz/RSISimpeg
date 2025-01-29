@@ -4,11 +4,10 @@
             <h1 class="text-2xl font-bold text-success-900">Master Jabatan</h1>
             <div class="flex justify-between items-center gap-4 mb-3">
                 <!-- Input Pencarian -->
-                {{-- <div class="flex-1">
+                <div class="flex-1">
                     <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Jabatan..."
                         class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
-                </div> --}}
-
+                </div>
                 <!-- Tombol Tambah Merk -->
                 <a href="{{ route('jabatan.create') }}"
                     class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
@@ -180,11 +179,11 @@
         <div class="flex justify-between py-2 mb-3">
             <h1 class="text-2xl font-bold text-success-900">Master Fungsional</h1>
             <div class="flex justify-between items-center gap-4 mb-3">
-                {{-- <div class="flex-1">
+                <div class="flex-1">
                     <input type="text" wire:keyup="updateSearch($event.target.value)"
                         placeholder="Cari Fungsional..."
                         class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
-                </div> --}}
+                </div>
                 <a href="{{ route('fungsional.create') }}"
                     class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                     + Tambah Fungsional
