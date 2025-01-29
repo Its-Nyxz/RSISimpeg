@@ -12,3 +12,4 @@ class KeuanganController extends Controller
         return view("keuangan.index");
     }
 }
+

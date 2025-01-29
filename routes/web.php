@@ -41,6 +41,7 @@ use App\Http\Controllers\DetailKeuanganController;
 
 use App\Http\Controllers\UnitKerjaController;
 use App\Http\Controllers\UserProfileController;
+use App\Http\Controllers\KeuanganController;
 
 
 Route::get('/', function () {
@@ -104,8 +105,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('levelunit', LevelUnitController::class);
 
     Route::resource('unitkerja', UnitKerjaController::class);
-    Route::resource('userprofile', UserProfileController::class);
+    // Route::resource('userprofile', UserProfileController::class);
+    Route::get('/userprofile', [UserProfileController::class, 'index'])->name('userprofile');
     Route::resource('keuangan', KeuanganController::class);
+    Route::resource('userprofile', UserProfileController::class);
 });
 
 require __DIR__ . '/auth.php';

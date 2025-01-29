@@ -45,64 +45,68 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="text-center px-6 py-4">Tidak ada data Karyawan.</td>
+                        <td colspan="7" class="text-center px-6 py-4">Tidak ada data Karyawan.</td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
-        <div class="mt-4 flex justify-center items-center">
-            <nav class="inline-flex shadow rounded-md" aria-label="Pagination">
-                <!-- Tombol "Sebelumnya" -->
-                @if ($users->onFirstPage())
-                    <span class="px-3 py-2 border rounded-l-md bg-gray-300 text-gray-500 cursor-not-allowed">
-                        <i class="fas fa-chevron-left"></i>
-                    </span>
-                @else
-                    <button wire:click="previousPage"
-                        class="px-3 py-2 border rounded-l-md bg-success-600 text-white hover:bg-success-700">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                @endif
-
-                <!-- Nomor Halaman -->
-                @foreach ($users->links()->elements as $element)
-                    @if (is_array($element))
-                        @foreach ($element as $page => $url)
-                            @if (
-                                $page == $users->currentPage() ||
-                                    $page == 1 ||
-                                    $page == $users->lastPage() ||
-                                    abs($page - $users->currentPage()) <= 1)
-                                @if ($page == $users->currentPage())
-                                    <span class="px-3 py-2 border bg-success-600 text-white">{{ $page }}</span>
-                                @else
-                                    <button wire:click="gotoPage({{ $page }})"
-                                        class="px-3 py-2 border bg-white text-success-600 hover:bg-success-200">
-                                        {{ $page }}
-                                    </button>
-                                @endif
-                            @elseif ($page == 2 && $users->currentPage() > 3)
-                                <span class="px-3 py-2 border bg-white text-success-600">...</span>
-                            @elseif ($page == $users->lastPage() - 1 && $users->currentPage() < $users->lastPage() - 2)
-                                <span class="px-3 py-2 border bg-white text-success-600">...</span>
-                            @endif
-                        @endforeach
-                    @endif
-                @endforeach
-
-                <!-- Tombol "Selanjutnya" -->
-                @if ($users->hasMorePages())
-                    <button wire:click="nextPage"
-                        class="px-3 py-2 border rounded-r-md bg-success-600 text-white hover:bg-success-700">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                @else
-                    <span class="px-3 py-2 border rounded-r-md bg-gray-300 text-gray-500 cursor-not-allowed">
-                        <i class="fas fa-chevron-right"></i>
-                    </span>
-                @endif
-            </nav>
-        </div>
     </div>
+    <div class="mt-4 flex gap-2 justify-center items-center">
+        {{-- Previous Page Link --}}
+        @if (!$users->onFirstPage())
+            <button wire:click="previousPage" wire:loading.attr="disabled"
+                class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
+                &laquo; Sebelumnya
+            </button>
+        @endif
 
+        {{-- Pagination Numbers --}}
+        @php
+            $totalPages = $users->lastPage();
+            $currentPage = $users->currentPage();
+            $range = 3; // Range around current page
+        @endphp
+
+        {{-- First Page --}}
+        @if ($currentPage > $range + 1)
+            <button wire:click="gotoPage(1)"
+                class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
+                1
+            </button>
+            @if ($currentPage > $range + 2)
+                <span class="px-2 py-1 text-gray-500">...</span>
+            @endif
+        @endif
+
+        {{-- Pages Around Current Page --}}
+        @for ($page = max($currentPage - $range, 1); $page <= min($currentPage + $range, $totalPages); $page++)
+            @if ($page == $currentPage)
+                <span class="px-2 py-1 bg-success-600 text-white rounded-md text-sm">{{ $page }}</span>
+            @else
+                <button wire:click="gotoPage({{ $page }})"
+                    class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
+                    {{ $page }}
+                </button>
+            @endif
+        @endfor
+
+        {{-- Last Page --}}
+        @if ($currentPage < $totalPages - $range)
+            @if ($currentPage < $totalPages - $range - 1)
+                <span class="px-2 py-1 text-gray-500">...</span>
+            @endif
+            <button wire:click="gotoPage({{ $totalPages }})"
+                class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
+                {{ $totalPages }}
+            </button>
+        @endif
+
+        {{-- Next Page Link --}}
+        @if ($users->hasMorePages())
+            <button wire:click="nextPage" wire:loading.attr="disabled"
+                class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
+                Selanjutnya &raquo;
+            </button>
+        @endif
+    </div>
 </div>
