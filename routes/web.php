@@ -41,7 +41,6 @@ use App\Http\Controllers\DetailKeuanganController;
 
 use App\Http\Controllers\UnitKerjaController;
 use App\Http\Controllers\UserProfileController;
-use App\Http\Controllers\KeuanganController;
 
 
 Route::get('/', function () {

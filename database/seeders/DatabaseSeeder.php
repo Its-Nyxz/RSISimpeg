@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             MasterGolonganSeeder::class, // Tambahkan ini
             MasterPendidikanSeeder::class,
+            KategoriJabatanSeeder::class,
             MasterFungsiSeeder::class,
             MasterGapokSeeder::class,
             MasterJabatanSeeder::class,
