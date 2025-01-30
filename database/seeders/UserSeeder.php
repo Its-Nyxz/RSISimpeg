@@ -1599,22 +1599,6 @@ class UserSeeder extends Seeder
             return;
         }
 
-        foreach ($asetLogistikMembers as $member) {
-            $user = User::firstOrCreate(
-                ['email' => strtolower(str_replace([' ', ',', '.', '/', '\'', '-'], '.', $member['name'])) . '@gmail.com'],
-                [
-                    'name' => $member['name'],
-                    'password' => Hash::make('123'), // Password default
-                    'unit_id' => $asetLogistikUnit->id,
-                ]
-            );
-
-            $role = $member['role'] ?? 'Staf';
-            $user->assignRole($role);
-        }
-
-        $this->command->info('Seeder user ASET & LOGISTIK berhasil dijalankan.');
-
         // Data untuk unit GUDANG
         $Gudang = [
             ['name' => 'Ratih Titis Pamungkas', 'role' => 'Kepala Unit'],
