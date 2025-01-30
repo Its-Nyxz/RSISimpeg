@@ -19,7 +19,7 @@ class DataTunjanganKinerja extends Component
     public function mount($type)
     {
         $this->type = $type;
-
+        $this->search = '';
         $this->loadData();
     }
 
@@ -42,7 +42,7 @@ class DataTunjanganKinerja extends Component
                         'poin' => $item->levelPoint->point ?? null,
                     ];
                 })->toArray(),
-          
+
             'masakerja' => MasaKerja::query()
                 ->when($this->search, function ($query) {
                     $query->where('nama', 'like', '%' . $this->search . '%');
@@ -52,7 +52,7 @@ class DataTunjanganKinerja extends Component
                         'nama' => $item->nama,
                         'point' => $item->point,
                     ];
-                }),
+                })->toArray(),
 
         
             'proposionalitas' => ProposionalitasPoint::with('proposable')
@@ -72,7 +72,7 @@ class DataTunjanganKinerja extends Component
                         'nama' => $item->proposable->nama ?? '-',
                         'poin' => $item->point,
                     ];
-                }),
+                })->toArray(),
             'pointperan' => PointPeran::with('peransable')
                 ->when($this->search, function ($query) {
                     $query->whereHasMorph(
@@ -90,9 +90,7 @@ class DataTunjanganKinerja extends Component
                         'nama' => $item->peransable->nama ?? '-',
                         'poin' => $item->point,
                     ];
-                }),
-            default => collect()->toArray(),
-          
+                })->toArray(),
             'tukinjabatan' => PointJabatan::with('pointable')
                 ->when($this->search, function ($query) {
                     $query->whereHasMorph('pointable', ['App\Models\MasterFungsi', 'App\Models\MasterUmum'], function ($q) {
@@ -105,9 +103,7 @@ class DataTunjanganKinerja extends Component
                         'nama' => $item->pointable->nama ?? '-',
                         'poin' => $item->point,
                     ];
-                }),
-
-            default => [],
+                })->toArray(),
         };
     }
 
@@ -119,6 +115,9 @@ class DataTunjanganKinerja extends Component
 
     public function render()
     {
+        // \Log::debug('Search query:', ['search' => $this->search]);
+        // dd($this->search);
+    
         return view('livewire.data-tunjangan-kinerja');
     }
 }

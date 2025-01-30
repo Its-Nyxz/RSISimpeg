@@ -1,3 +1,36 @@
+<style>
+    .icon {
+        margin-left: 8px; /* Tambahkan jarak antara teks dan ikon */
+        cursor: pointer;
+        position: relative;
+    }
+    .icon:hover .tooltip {
+        display: block; /* Tampilkan tooltip saat hover */
+    }
+    .tooltip {
+        display: none;
+        position: absolute;
+        top: -30px; /* Posisi tooltip di atas ikon */
+        left: 0;
+        background-color: #006633;
+        color: white;
+        font-size: 12px;
+        padding: 5px 10px;
+        border-radius: 4px;
+        white-space: nowrap;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .tooltip:after {
+        content: "";
+        position: absolute;
+        bottom: -5px;
+        left: 10px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #006633 transparent transparent transparent; /* Segitiga tooltip */
+    }
+</style>
+
 <div>
     <!-- Header -->
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -33,7 +66,7 @@
                         <div>: {{ $userprofile->jabatan->nama ?? '-' }}</div>
 
                         <div><strong>Tempat Tanggal Lahir</strong></div>
-                        <div>: {{ $userprofile->tempat }} - {{ $userprofile->tanggal_lahir }}</div>
+                        <div>: {{ $userprofile->tempat }}, {{ $userprofile->tanggal_lahir }}</div>
 
                         <div><strong>Tanggal Tetap</strong></div>
                         <div>: {{ $userprofile->tanggal_tetap ?? '-' }}</div>
@@ -53,12 +86,12 @@
                 </div>
                 <!-- Tombol Edit Profile -->
                 <div style="margin-top: 20px;">
-                    <a href="{{ route('profile.edit') }}" class="btn btn-success"
+                    <a href="{{ route('userprofile.editprofile') }}" class="btn btn-success"
                         style="
                         font-family: 'Gilroy-Bold', sans-serif;
                         font-size: 14px;
                         font-weight: bold;
-                        background-color: #28a745;
+                        background-color: #006633;
                         color: white;
                         padding: 10px 20px;
                         border-radius: 5px;
@@ -82,8 +115,11 @@
             @else
                 {{ $userprofile->no_hp }}
             @endempty
+            
             <span class="icon">
-                <i class="fa-solid fa-pen" style="color: #006633;"></i>
+                <a href="{{ route('userprofile.editnomor') }}" class="icon" style="text-decoration: none;">
+                    <i class="fa-solid fa-pen" style="color: #006633;"></i>
+                </a>
                 <span class="tooltip">Ganti No WhatsApp</span>
             </span>
         </p>
@@ -95,14 +131,18 @@
                 {{ $userprofile->email }}
             @endempty
             <span class="icon">
-                <i class="fa-solid fa-pen" style="color: #006633;"></i>
+                <a href="{{ route('userprofile.editemail') }}" class="icon" style="text-decoration: none;">
+                    <i class="fa-solid fa-pen" style="color: #006633;"></i>
+                </a>
                 <span class="tooltip">Ganti Email</span>
             </span>
         </p>
         <p>
             <strong>Password:</strong> ************
             <span class="icon">
-                <i class="fa-solid fa-pen" style="color: #006633;"></i>
+                <a href="{{ route('userprofile.editpassword') }}" class="icon" style="text-decoration: none;">
+                    <i class="fa-solid fa-pen" style="color: #006633;"></i>
+                </a>
                 <span class="tooltip">Ganti Password</span>
             </span>
         </p>

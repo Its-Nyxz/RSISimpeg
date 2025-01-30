@@ -27,9 +27,9 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse ($data as $levelunit) <!-- Gunakan indeks array -->
+                @forelse ($data as $index => $levelunit)
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
-                        <td class="px-6 py-4">{{ $loop->iteration }}</td>
+                        <td class="px-6 py-4">{{ ($data->currentPage() - 1) * $data->perPage() + $loop->iteration }}</td>
                         <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
                             {{ $levelunit['nama_unit'] }}
                         </td>
@@ -37,15 +37,9 @@
                         <td class="px-6 py-4">{{ $levelunit['poin'] }}</td>
                         <td class="px-6 py-4">
                             <a href="{{ route('levelunit.edit', $levelunit['id']) }}"
-                                class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
-                                data-tooltip-target="tooltip-levelunit-{{ $loop->iteration }}">
+                                class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300">
                                 <i class="fa-solid fa-pen"></i>
                             </a>
-                            <div id="tooltip-level-{{ $loop->iteration }}" role="tooltip"
-                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
-                                Ubah Level Unit
-                                <div class="tooltip-arrow" data-popper-arrow></div>
-                            </div>
                         </td>
                     </tr>
                 @empty
@@ -55,5 +49,31 @@
                 @endforelse
             </tbody>            
         </table>
+    </div>
+    <div class="mt-4 flex gap-2 justify-center items-center">
+        @if (!$data->onFirstPage())
+            <button wire:click="previousPage" wire:loading.attr="disabled"
+                class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
+                &laquo; Sebelumnya
+            </button>
+        @endif
+
+        @for ($page = max($data->currentPage() - 3, 1); $page <= min($data->currentPage() + 3, $data->lastPage()); $page++)
+            @if ($page == $data->currentPage())
+                <span class="px-2 py-1 bg-success-600 text-white rounded-md text-sm">{{ $page }}</span>
+            @else
+                <button wire:click="gotoPage({{ $page }})"
+                    class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
+                    {{ $page }}
+                </button>
+            @endif
+        @endfor
+
+        @if ($data->hasMorePages())
+            <button wire:click="nextPage" wire:loading.attr="disabled"
+                class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
+                Selanjutnya &raquo;
+            </button>
+        @endif
     </div>
 </div>

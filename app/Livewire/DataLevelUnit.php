@@ -4,64 +4,39 @@ namespace App\Livewire;
 
 use App\Models\LevelUnit;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class DataLevelUnit extends Component
 {
-    public $data;
+    use WithPagination;
 
-    public function mount()
-    {
-        $this->loadData();
-    }
-
-    public function loadData()
-    {
-        $this->data = LevelUnit::with(['unitkerja', 'levelpoint'])
-            ->get()
-            ->map(function ($levelunit) {
-                return [
-                    'nama_unit' => $levelunit->unitkerja->nama ?? 'Belum ada data',
-                    'nama_level' => $levelunit->levelpoint->nama ?? 'Belum ada data',
-                    'poin' => $levelunit->levelpoint->point ?? 'Belum ada data',
-                ];
-            });
-        
-        // dd($this->data);
-    }
-
-    // public function loadData()
-    // {
-    //     $this->data = LevelUnit::with(['unitKerja', 'levelPoint'])->get();
-        
-    //     foreach ($this->data as $item) {
-    //         dump([
-    //             'unitKerja' => $item->unitKerja,
-    //             'levelPoint' => $item->levelPoint,
-    //         ]);
-    //     }
-    // }
+    public $search = '';
 
     public function updateSearch($value)
     {
         $this->search = $value;
-        $this->loadData();
+        $this->resetPage();
     }
 
-    // public $data;
-
-    // public function mount()
-    // {
-    //     $this->loadData();
-    // }
-
-    // public function loadData()
-    // {
-    //     $this->data = LevelUnit::with(['unitkerja', 'levelpoint'])->get();
-    //     dd($this->data);
-    // }
+    public function loadData()
+    {
+        return LevelUnit::with(['unitkerja', 'levelpoint'])
+            ->when($this->search, function ($query) {
+                $query->whereHas('unitkerja', function ($q) {
+                    $q->where('nama', 'like', '%' . $this->search . '%');
+                })->orWhereHas('levelpoint', function ($q) {
+                    $q->where('nama', 'like', '%' . $this->search . '%')
+                        ->orWhere('point', 'like', '%' . $this->search . '%');
+                });
+            })
+            ->paginate(15);
+    }
 
     public function render()
     {
-        return view('livewire.data-level-unit');
+        $levelunit = $this->loadData();
+        return view('livewire.data-level-unit', [
+            'levelunit' => $levelunit
+        ]);
     }
 }

@@ -68,7 +68,7 @@ class MasterJabatanController extends Controller
             'deskripsi' => $validatedData['deskripsi'],
         ]);
 
-        return redirect()->route('tunjangan.index')->with('success', 'Jabatan berhasil diperbarui!');
+        return redirect()->route('jabatan.index')->with('success', 'Jabatan berhasil diperbarui!');
     }
 
     /**

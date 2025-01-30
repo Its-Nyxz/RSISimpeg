@@ -65,7 +65,7 @@ class MasterKhususController extends Controller
             'deskripsi' => $validatedData['deskripsi'],
         ]);
 
-        return redirect()->route('tunjangan.index')->with('success', 'Khusus berhasil diperbarui!');
+        return redirect()->route('khusus.index')->with('success', 'Khusus berhasil diperbarui!');
     }
 
     /**

@@ -38,7 +38,7 @@ class EditJabatan extends Component
         ]);
 
         session()->flash('success', 'Jabatan berhasil diperbarui!');
-        return redirect()->route('tunjangan.index');
+        return redirect()->route('jabatan.index');
     }
     public function render()
     {

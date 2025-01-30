@@ -65,7 +65,7 @@ class MasterTransController extends Controller
             'nom_transport' => $validatedData['nom_transport'],
         ]);
 
-        return redirect()->route('tunjangan.index')->with('success', 'Trans berhasil diperbarui!');
+        return redirect()->route('trans.index')->with('success', 'Trans berhasil diperbarui!');
     }
 
     /**

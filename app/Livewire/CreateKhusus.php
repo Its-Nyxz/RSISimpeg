@@ -37,7 +37,7 @@ class CreateKhusus extends Component
 
         // Redirect dengan membawa pesan sukses
 
-        return redirect()->route('tunjangan.index')->with('success', 'Data Tunjangan Khusus baru berhasil ditambahkan.');
+        return redirect()->route('khusus.index')->with('success', 'Data Tunjangan Khusus baru berhasil ditambahkan.');
     }
 
     public function render()

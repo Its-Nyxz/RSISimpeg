@@ -66,7 +66,7 @@ class MasterFungsiController extends Controller
             'deskripsi' => $validatedData['deskripsi'],
         ]);
 
-        return redirect()->route('tunjangan.index')->with('success', 'Fungsional berhasil diperbarui!');
+        return redirect()->route('fungsional.index')->with('success', 'Fungsional berhasil diperbarui!');
     }
 
     /**
