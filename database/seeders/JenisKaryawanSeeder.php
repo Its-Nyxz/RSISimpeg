@@ -14,9 +14,9 @@ class JenisKaryawanSeeder extends Seeder
     public function run(): void
     {
         $jenisdata = [
-            ['nama' => 'Karyawan Tetap'],
-            ['nama' => 'Karyawan Part Time'],
-            ['nama' => 'Karyawan Kontrak'],
+            ['nama' => 'Tetap'],
+            ['nama' => 'Part Time'],
+            ['nama' => 'Kontrak'],
             ['nama' => 'Magang'],
         ];
 

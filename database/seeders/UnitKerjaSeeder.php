@@ -16,9 +16,9 @@ class UnitKerjaSeeder extends Seeder
         // Unit dengan sub-unit
         $unitsWithSubUnits = [
             [
-                'name' => 'Ka. IMP',
+                'name' => 'IMP',
                 'kode' => 'IMP',
-                'keterangan' => 'Kepala Instalasi Maternal Perinatal',
+                'keterangan' => 'Instalasi Maternal Perinatal',
                 'sub_units' => [
                     ['name' => 'PERINATOLOGI', 'kode' => 'PER', 'keterangan' => 'Perinatologi'],
                     ['name' => 'VK', 'kode' => 'VK', 'keterangan' => 'Ruang VK'],
@@ -26,9 +26,9 @@ class UnitKerjaSeeder extends Seeder
                 ],
             ],
             [
-                'name' => 'Ka. Instalasi Ranap',
+                'name' => 'INST RANAP',
                 'kode' => 'RANAP',
-                'keterangan' => 'Kepala Instalasi Rawat Inap',
+                'keterangan' => 'Instalasi Rawat Inap',
                 'sub_units' => [
                     ['name' => 'AT TAQWA', 'kode' => 'TQ', 'keterangan' => 'Ruang AT TAQWA'],
                     ['name' => 'ASSALAM', 'kode' => 'AS', 'keterangan' => 'Ruang ASSALAM'],
@@ -60,9 +60,9 @@ class UnitKerjaSeeder extends Seeder
             ['name' => 'INST PEML SARPRAS', 'kode' => 'SARPRAS', 'keterangan' => 'Pemeliharaan Sarpras'],
             ['name' => 'INST GAS MEDIK & ALKES', 'kode' => 'GASMED', 'keterangan' => 'Gas Medik dan Alkes'],
             ['name' => 'MCU & POSKES', 'kode' => 'MCU', 'keterangan' => 'MCU dan Poskes'],
-            ['name' => 'TRANSPORTASI', 'kode' => 'TRANSP', 'keterangan' => 'Unit Transportasi'],
+            ['name' => 'TRANSPORTASI', 'kode' => 'TRANSP', 'keterangan' => 'Unit Ambulance dan Transportasi'],
             ['name' => 'INST GIZI', 'kode' => 'GIZI', 'keterangan' => 'Instalasi Gizi'],
-            ['name' => 'PJBR', 'kode' => 'PJBR', 'keterangan' => 'Penunjang Jaminan Berbasis Rumah'],
+            ['name' => 'PJBR', 'kode' => 'PJBR', 'keterangan' => 'Unit Pemulasaran Jenazah dan Bina Rohani'],
             ['name' => 'PENGELOLAAN LINEN', 'kode' => 'LINEN', 'keterangan' => 'Pengelolaan Linen'],
             ['name' => 'HUMAS & PROG RS', 'kode' => 'HUMAS', 'keterangan' => 'Humas dan Program RS'],
             ['name' => 'SDM', 'kode' => 'SDM', 'keterangan' => 'Sumber Daya Manusia'],
@@ -74,13 +74,19 @@ class UnitKerjaSeeder extends Seeder
             ['name' => 'PELAYANAN MEDIK', 'kode' => 'MEDIK', 'keterangan' => 'Pelayanan Medik'],
             ['name' => 'KEPERAWATAN', 'kode' => 'KEP', 'keterangan' => 'Keperawatan'],
             ['name' => 'PENUNJANG', 'kode' => 'PENUNJ', 'keterangan' => 'Penunjang'],
-            ['name' => 'PENGAMANAN', 'kode' => 'PENGAM', 'keterangan' => 'Pengamanan'],
+            ['name' => 'PENGAMANAN', 'kode' => 'PENGAM', 'keterangan' => 'Pengamanan dan Peduli Lingkungan'],
             ['name' => 'PEMASARAN', 'kode' => 'PEMASAR', 'keterangan' => 'Unit Pemasaran'],
-            ['name' => 'IT', 'kode' => 'IT', 'keterangan' => 'Teknologi Informasi'],
+            ['name' => 'ITI', 'kode' => 'ITI', 'keterangan' => 'Instalasi Teknologi Informasi'],
             ['name' => 'IPCN', 'kode' => 'IPCN', 'keterangan' => 'Infection Prevention Control Nurse'],
-            ['name' => 'KOMITE', 'kode' => 'KOMITE', 'keterangan' => 'Komite'],
-            ['name' => 'SPI', 'kode' => 'SPI', 'keterangan' => 'Satuan Pengawas Internal'],
+            ['name' => 'KOMITE KEPERAWATAN', 'kode' => 'KP', 'keterangan' => 'Komite Keperawatan'],
+            ['name' => 'KOMITE MUTU', 'kode' => 'KM', 'keterangan' => 'Komite Mutu'],
             ['name' => 'SUPERVISOR', 'kode' => 'SPV', 'keterangan' => 'Supervisor'],
+            ['name' => 'DOKTER SPESIALIS PART TIME', 'kode' => 'DSP', 'keterangan' => 'Dokter Spesialis Part Time'],
+            ['name' => 'PPA LAIN PART TIME', 'kode' => 'PPA', 'keterangan' => 'PPA LAIN Part Time'],
+            ['name' => 'DOKTER UMUM FULL TIME', 'kode' => 'DUF', 'keterangan' => 'Dokter Umum Full Time'],
+            ['name' => 'IAPI', 'kode' => 'IAPI', 'keterangan' => 'Ikatan Ahli Pengadaan Indonesia'],
+            ['name' => 'SPI', 'kode' => 'SPI', 'keterangan' => ' Satuan Pengawas Internal '],
+            ['name' => 'GUDANG', 'kode' => 'GUDANG', 'keterangan' => ' Unit Gudang '],
         ];
 
         // Menambahkan unit dengan sub-unit

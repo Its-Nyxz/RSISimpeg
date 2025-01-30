@@ -31,7 +31,14 @@
                         ['title' => 'Gaji Pokok', 'href' => '/gapok'],
                         ['title' => 'Pendidikan', 'href' => '/pendidikan'],
                         ['title' => 'Absensi', 'href' => '/absensi'],
-                        ['title' => 'Tunjangan Kinerja', 'href' => '/tukin'],
+                        [
+                            'title' => 'Tunjangan Kinerja',
+                            'href' => '/tukin',
+                            'child' => [
+                                ['title' => 'Masa Kerja', 'href' => '/masakerja'],
+                                ['title' => 'Level Unit', 'href' => '/levelunit'],
+                            ],
+                        ],
                         ['title' => 'Unit Kerja', 'href' => '/unitkerja'],
                         ['title' => 'Potongan', 'href' => '/potongan'],
                     ]" />

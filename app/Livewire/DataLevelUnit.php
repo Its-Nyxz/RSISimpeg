@@ -9,6 +9,8 @@ class DataLevelUnit extends Component
 {
     public $data;
 
+    public $search = '';
+
     public function mount()
     {
         $this->loadData();
@@ -17,48 +19,26 @@ class DataLevelUnit extends Component
     public function loadData()
     {
         $this->data = LevelUnit::with(['unitkerja', 'levelpoint'])
-            ->get()
-            ->map(function ($levelunit) {
-                return [
-                    'nama_unit' => $levelunit->unitkerja->nama ?? 'Belum ada data',
-                    'nama_level' => $levelunit->levelpoint->nama ?? 'Belum ada data',
-                    'poin' => $levelunit->levelpoint->point ?? 'Belum ada data',
-                ];
-            });
-        
+            ->when($this->search, function ($query) {
+                $query->whereHas('unitkerja', function ($q) {
+                    $q->where('nama', 'like', '%' . $this->search . '%');
+                })->orWhereHas('levelpoint', function ($q) {
+                    $q->where('nama', 'like', '%' . $this->search . '%');
+                })->orWhereHas('levelpoint', function ($q) {
+                    $q->where('point', 'like', '%' . $this->search . '%');
+                });
+            })
+            ->get();
         // dd($this->data);
     }
 
-    // public function loadData()
-    // {
-    //     $this->data = LevelUnit::with(['unitKerja', 'levelPoint'])->get();
-        
-    //     foreach ($this->data as $item) {
-    //         dump([
-    //             'unitKerja' => $item->unitKerja,
-    //             'levelPoint' => $item->levelPoint,
-    //         ]);
-    //     }
-    // }
+
 
     public function updateSearch($value)
     {
         $this->search = $value;
         $this->loadData();
     }
-
-    // public $data;
-
-    // public function mount()
-    // {
-    //     $this->loadData();
-    // }
-
-    // public function loadData()
-    // {
-    //     $this->data = LevelUnit::with(['unitkerja', 'levelpoint'])->get();
-    //     dd($this->data);
-    // }
 
     public function render()
     {

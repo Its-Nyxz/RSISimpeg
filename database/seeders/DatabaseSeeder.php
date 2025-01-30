@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
             MasterTransSeeder::class,
             MasterUmumSeeder::class,
             OpsiAbsenSeeder::class,
-            JenisFileSeeder::class,
+            JenisFileSeeder::class,  
             KategoripphSeeder::class,
             NilaipphSeeder::class,
             JenisKaryawanSeeder::class,

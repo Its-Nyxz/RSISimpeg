@@ -4,9 +4,13 @@
             <h1 class="text-2xl font-bold text-success-900">Masa Kerja</h1>
             <div class="flex justify-between items-center gap-4 mb-3">
                 <!-- Input Pencarian -->
-                <div class="flex-1">
-                    <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Masa Kerja..."
+                <div class="flex-1 flex gap-2">
+                    <input type="text" wire:model.defer="search" wire:ignore placeholder="Cari..."
                         class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
+                    <button wire:click="updateSearch(search)"
+                        class="bg-success-600 text-white px-4 py-2 rounded-lg hover:bg-success-700 transition">
+                        Go
+                    </button>
                 </div>
                 @dump($search)
 

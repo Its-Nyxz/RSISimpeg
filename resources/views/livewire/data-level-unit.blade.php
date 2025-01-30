@@ -27,14 +27,15 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse ($data as $levelunit) <!-- Gunakan indeks array -->
+                @forelse ($data as $levelunit)
+                    <!-- Gunakan indeks array -->
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
                         <td class="px-6 py-4">{{ $loop->iteration }}</td>
                         <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
-                            {{ $levelunit['nama_unit'] }}
+                            {{ $levelunit->unitkerja->nama }}
                         </td>
-                        <td class="px-6 py-4">{{ $levelunit['nama_level'] }}</td>
-                        <td class="px-6 py-4">{{ $levelunit['poin'] }}</td>
+                        <td class="px-6 py-4">{{ $levelunit->levelpoint->nama }}</td>
+                        <td class="px-6 py-4">{{ $levelunit->levelpoint->point }}</td>
                         <td class="px-6 py-4">
                             <a href="{{ route('levelunit.edit', $levelunit['id']) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
@@ -53,7 +54,7 @@
                         <td colspan="5" class="text-center px-6 py-4">Tidak ada data Level Unit.</td>
                     </tr>
                 @endforelse
-            </tbody>            
+            </tbody>
         </table>
     </div>
 </div>

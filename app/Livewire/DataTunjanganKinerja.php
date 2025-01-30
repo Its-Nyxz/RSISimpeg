@@ -23,14 +23,14 @@ class DataTunjanganKinerja extends Component
         $this->loadData();
     }
 
-    public function updateSearch($value)
+    public function updatedSearch()
     {
-        $this->search = $value;
         $this->loadData();
     }
 
-    public function updatedSearch()
+    public function updateSearch($value = null)
     {
+        $this->search = $value ?? $this->search;
         $this->loadData();
     }
 
@@ -55,7 +55,7 @@ class DataTunjanganKinerja extends Component
                 ->when(
                     $this->search,
                     fn($query) =>
-                    $query->where('nama', 'like', '%' . $this->search . '%')
+                    $query->where('nama', 'like', '%Kontrak%')
                 )->get()->map(fn($item) => [
                     'id' => $item->id,
                     'nama' => $item->nama,
