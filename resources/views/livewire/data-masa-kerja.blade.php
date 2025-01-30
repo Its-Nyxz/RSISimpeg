@@ -7,6 +7,7 @@
                 <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Masa Kerja..."
                     class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
             </div>
+            @dump($search)
 
             <!-- Tombol Tambah Merk -->
             <a href="{{ route('masakerja.create') }}"
@@ -35,7 +36,8 @@
                         <td class="px-6 py-4">{{ $masakerja['point'] }}</td>
                         <td class="px-6 py-4">
 
-                            <a href="{{ route('masakerja.edit',$masakerja['id']) }}"
+
+                            <a href="{{ route('masakerja.edit', $masakerja['id']) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                 data-tooltip-target="tooltip-masakerja-{{ $masakerja['id'] }}">
                                 <i class="fa-solid fa-pen"></i>

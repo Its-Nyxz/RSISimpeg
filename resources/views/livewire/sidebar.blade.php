@@ -29,12 +29,14 @@
                         ['title' => 'Golongan', 'href' => '/golongan'],
                         ['title' => 'Gaji Pokok', 'href' => '/gapok'],
                         ['title' => 'Pendidikan', 'href' => '/pendidikan'],
+
                         ['title' => 'Absensi', 'href' => '/#', 'child' => [
                             ['title' => 'Jadwal Absensi', 'href' => '/jadwal'],
                             ['title' => 'Shift', 'href' => '/shift'],
                             ['title' => 'Opsi', 'href' => '/opsi'],
                             ['title' => 'Status', 'href' => '/status'],
                             ]
+
                         ],
                         ['title' => 'Unit Kerja', 'href' => '/unitkerja'],
                         ['title' => 'Potongan', 'href' => '/potongan'],

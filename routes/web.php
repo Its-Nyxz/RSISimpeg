@@ -114,6 +114,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('proposionalitas', ProposionalitasPointController::class);
     Route::resource('poinperan', PointPeranController::class);
     Route::resource('tukinjabatan', TukinJabatanController::class);
+
 });
 
 require __DIR__ . '/auth.php';

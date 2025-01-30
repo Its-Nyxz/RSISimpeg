@@ -10,12 +10,15 @@ class DataLevelUnit extends Component
     public $search = '';
     public $levelunit = [];
 
+    public $search = '';
+
     public function mount()
     {
         $this->loadData();
     }
 
     public function loadData()
+
 {
     $this->levelunit = LevelUnit::with(['unitKerja', 'levelPoint'])
         ->when($this->search, function ($query) {
@@ -38,36 +41,14 @@ class DataLevelUnit extends Component
 }    
     
 
-    // public function loadData()
-    // {
-    //     $this->data = LevelUnit::with(['unitKerja', 'levelPoint'])->get();
-        
-    //     foreach ($this->data as $item) {
-    //         dump([
-    //             'unitKerja' => $item->unitKerja,
-    //             'levelPoint' => $item->levelPoint,
-    //         ]);
-    //     }
-    // }
+
+
 
     public function updateSearch($value)
     {
         $this->search = $value;
         $this->loadData();
     }
-
-    // public $data;
-
-    // public function mount()
-    // {
-    //     $this->loadData();
-    // }
-
-    // public function loadData()
-    // {
-    //     $this->data = LevelUnit::with(['unitkerja', 'levelpoint'])->get();
-    //     dd($this->data);
-    // }
 
     public function render()
     {
