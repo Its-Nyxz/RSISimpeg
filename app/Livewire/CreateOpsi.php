@@ -29,7 +29,7 @@ class CreateOpsi extends Component
         $this->reset('name');
 
         // Redirect dengan membawa pesan sukses
-        return redirect()->route('absensi.index')->with('success', 'Data Opsi baru berhasil ditambahkan.');
+        return redirect()->route('opsi.index')->with('success', 'Data Opsi baru berhasil ditambahkan.');
     }
 
     public function render()

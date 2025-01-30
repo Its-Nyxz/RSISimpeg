@@ -7,7 +7,8 @@ use Livewire\Component;
 
 class DataLevelUnit extends Component
 {
-    public $data;
+    public $search = '';
+    public $levelunit = [];
 
     public function mount()
     {
@@ -15,19 +16,27 @@ class DataLevelUnit extends Component
     }
 
     public function loadData()
-    {
-        $this->data = LevelUnit::with(['unitkerja', 'levelpoint'])
-            ->get()
-            ->map(function ($levelunit) {
-                return [
-                    'nama_unit' => $levelunit->unitkerja->nama ?? 'Belum ada data',
-                    'nama_level' => $levelunit->levelpoint->nama ?? 'Belum ada data',
-                    'poin' => $levelunit->levelpoint->point ?? 'Belum ada data',
-                ];
-            });
-        
-        // dd($this->data);
-    }
+{
+    $this->levelunit = LevelUnit::with(['unitKerja', 'levelPoint'])
+        ->when($this->search, function ($query) {
+            $query->whereHas('unitKerja', function ($subQuery) {
+                $subQuery->where('nama', 'like', '%' . $this->search . '%');
+            })->orWhereHas('levelPoint', function ($subQuery) {
+                $subQuery->where('point', 'like', '%' . $this->search . '%');
+            })->orWhere('level_unit', 'like', '%' . $this->search . '%');
+        })
+        ->get()
+        ->map(function ($levelunit) {
+            return [
+                'id' => $levelunit->id,
+                'nama_unit' => $levelunit->unitKerja->nama ?? 'Belum ada data',
+                'nama_level' => $levelunit->levelPoint->nama ?? 'Belum ada data',
+                'poin' => $levelunit->levelPoint->point ?? 'Belum ada data',
+            ];
+        })
+        ->toArray();
+}    
+    
 
     // public function loadData()
     // {

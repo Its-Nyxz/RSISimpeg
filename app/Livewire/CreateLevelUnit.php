@@ -42,7 +42,7 @@ class CreateLevelUnit extends Component
         $this->reset('level_id');
 
         session()->flash('success', 'Level Unit berhasil ditambah!');
-        return redirect()->route('tukin.index');
+        return redirect()->route('levelunit.index');
     }
 
     public function render()

@@ -42,7 +42,7 @@ class EditLevelUnit extends Component
         ]);
 
         session()->flash('success', 'Level Unit berhasil diperbarui!');
-        return redirect()->route('tukin.index');
+        return redirect()->route('levelunit.index');
     }
 
     public function render()

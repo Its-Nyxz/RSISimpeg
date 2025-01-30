@@ -27,7 +27,7 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse ($data as $levelunit) <!-- Gunakan indeks array -->
+                @forelse ($levelunit as $levelunit) <!-- Gunakan indeks array -->
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
                         <td class="px-6 py-4">{{ $loop->iteration }}</td>
                         <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">

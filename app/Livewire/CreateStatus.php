@@ -34,7 +34,7 @@ class CreateStatus extends Component
         $this->reset('keterangan');
 
         // Redirect dengan membawa pesan sukses
-        return redirect()->route('absensi.index')->with('success', 'Data Status baru berhasil ditambahkan.');
+        return redirect()->route('status.index')->with('success', 'Data Status baru berhasil ditambahkan.');
     }
     public function render()
     {

@@ -33,13 +33,13 @@
                                 <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
                                     {{ $shift['nama_shift'] ?? '-' }}
                                 </td>
-                                <td class="px-6 py-4">{{ $item['jam_masuk'] }}</td>
-                                <td class="px-6 py-4">{{ $item['jam_keluar'] }}</td>
-                                <td class="px-6 py-4">{{ $item['keterangan'] }}</td>
+                                <td class="px-6 py-4">{{ $shift['jam_masuk'] }}</td>
+                                <td class="px-6 py-4">{{ $shift['jam_keluar'] }}</td>
+                                <td class="px-6 py-4">{{ $shift['keterangan'] }}</td>
                                 <td class="px-6 py-4">
-                                    <a href="/shift/edit/{{ $shift['id'] }}"
+                                    <a href="{{route('shift.edit', $shift['id'] )}}"
                                         class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
-                                        data-tooltip-target="tooltip-jadwal-{{ $shift['id'] }}">
+                                        data-tooltip-target="tooltip-shift-{{ $shift['id'] }}">
                                         <i class="fa-solid fa-pen"></i>
                                     </a>
                                     <div id="tooltip-shift-{{ $shift['id'] }}" role="tooltip"

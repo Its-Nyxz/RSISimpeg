@@ -31,7 +31,7 @@ class EditStatus extends Component
         ]);
 
         session()->flash('success', 'Status berhasil diperbarui!');
-        return redirect()->route('absensi.index');
+        return redirect()->route('status.index');
     }
     public function render()
     {

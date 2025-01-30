@@ -9,7 +9,7 @@
                     </div>
     
                     <!-- Tombol Tambah Shift -->
-                    <a href="#"
+                    <a href="{{route('opsi.create')}}"
                         class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                         + Tambah Opsi Absen
                     </a>
@@ -31,12 +31,12 @@
                                     {{ $opsi['name'] ?? '-' }}
                                 </td>
                                 <td class="px-6 py-4">
-                                    <a href="/opsi/edit/{{ $opsi['id'] }}"
+                                    <a href="{{route('opsi.edit', $opsi['id']) }}"
                                         class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                         data-tooltip-target="tooltip-jadwal-{{ $opsi['id'] }}">
                                         <i class="fa-solid fa-pen"></i>
                                     </a>
-                                    <div id="tooltip-shift-{{ $shift['id'] }}" role="tooltip"
+                                    <div id="tooltip-opsi-{{ $opsi['id'] }}" role="tooltip"
                                         class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
                                         Ubah Opsi Absen
                                         <div class="tooltip-arrow" data-popper-arrow></div>
