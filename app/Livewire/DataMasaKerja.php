@@ -4,11 +4,12 @@ namespace App\Livewire;
 
 use App\Models\MasaKerja;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class DataMasaKerja extends Component
 {
+    use WithPagination;
     public $search = '';
-    public $masakerja = [];
 
     public function mount()
     {
@@ -17,22 +18,23 @@ class DataMasaKerja extends Component
 
     public function loadData()
     {
-        $this->masakerja = MasaKerja::when($this->search, function ($query) {
+        return MasaKerja::when($this->search, function ($query) {
             $query->where('nama', 'like', '%' . $this->search . '%')
                 ->orWhere('point', 'like', '%' . $this->search . '%');
-        })
-            ->get()
-            ->toArray();
+        })->paginate(15);
     }
 
     public function updateSearch($value)
     {
         $this->search = $value;
-        $this->loadData();
+        $this->resetPage();
     }
 
     public function render()
     {
-        return view('livewire.data-masa-kerja');
+        $masakerja = $this->loadData();
+        return view('livewire.data-masa-kerja', [
+            'masakerja' => $masakerja,
+        ]);
     }
 }

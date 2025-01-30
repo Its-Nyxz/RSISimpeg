@@ -32,7 +32,7 @@
                             {{ $tidaktetap['nama'] }}
                         </td>
                         <td class="px-6 py-4">{{ rupiah($tidaktetap['nom_makan']) }}</td>
-                        <td class="px-6 py-4">{{ rupiah($tidaktetap['nom_trans[port]']) }}</td>
+                        <td class="px-6 py-4">{{ rupiah($tidaktetap['nom_transport']) }}</td>
                         <td class="px-6 py-4">
                             <a href="{{ route('trans.edit', $tidaktetap['id']) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"

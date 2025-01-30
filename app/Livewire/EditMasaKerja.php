@@ -30,7 +30,8 @@ class EditMasaKerja extends Component
             'point' => $this->point,
         ]);
 
-        return redirect()->route('masakerja.index')->with('success', 'Data Masa Kerja baru berhasil ditambahkan.');
+        return redirect()->route('tukin.index')->with('success', 'Data Masa Kerja berhasil diupdate.');
+
     }
     
     public function render()

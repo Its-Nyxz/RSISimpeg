@@ -1,3 +1,3 @@
 <x-body>
-    <livewire:data-tidaktetap />
+    <livewire:data-trans />
 </x-body> 

@@ -74,10 +74,12 @@
                 <div x-show="activeTab === 'pointperan'" x-cloak class="p-4 bg-white rounded-lg md:p-8">
                     <livewire:data-tunjangan-kinerja type="pointperan" />
                 </div>
+                <div x-show="activeTab === 'pointperan'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
+                    <livewire:data-tunjangan-kinerja type="pointperan"/>
+                </div>
+                <div x-show="activeTab === 'tukinjabatan'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
+                    <livewire:data-tunjangan-kinerja type="tukinjabatan"/>
 
-                <!-- Jabatan -->
-                <div x-show="activeTab === 'tukinjabatan'" x-cloak class="p-4 bg-white rounded-lg md:p-8">
-                    <livewire:data-tunjangan-kinerja type="tukinjabatan" />
                 </div>
             </div>
         </div>

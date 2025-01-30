@@ -5,7 +5,7 @@ namespace App\Livewire;
 use App\Models\MasterTrans;
 use Livewire\Component;
 
-class DataTidakTetap extends Component
+class DataTrans extends Component
 {
     public $search = '';
     public $tidaktetaps = [];
@@ -33,6 +33,6 @@ class DataTidakTetap extends Component
     }
     public function render()
     {
-        return view('livewire.data-tidaktetap');
+        return view('livewire.data-trans');
     }
 }

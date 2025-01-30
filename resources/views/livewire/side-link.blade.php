@@ -32,13 +32,11 @@
                                 <li>
                                     <a href="{{ $subItem['href'] }}"
                                         class="flex text-left p-2 pl-12 text-base font-medium text-white rounded-lg hover:bg-gray-100 transition duration-150 hover:text-success-950">
-
                                         {{ $subItem['title'] }}
                                     </a>
                                 </li>
                             @endforeach
                         </ul>
-
                     @else
                         <a href="{{ $item['href'] }}"
                             class="flex items-left p-2 pl-10 text-base font-medium text-white rounded-lg hover:bg-gray-100 transition duration-150 hover:text-success-950">
@@ -49,5 +47,6 @@
             @endforeach
         </ul>
     </li>
+
 @endif
 
