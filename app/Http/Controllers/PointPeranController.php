@@ -13,7 +13,7 @@ class PointPeranController extends Controller
      */
     public function index()
     {
-        //
+        return view('pointperan.index');
     }
 
     /**
@@ -21,7 +21,7 @@ class PointPeranController extends Controller
      */
     public function create()
     {
-        //
+        return view('pointperan.create');
     }
 
     /**

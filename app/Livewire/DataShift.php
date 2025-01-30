@@ -5,7 +5,7 @@ use Livewire\Component;
 class DataShift extends Component
 {
     public $search = ''; // Properti untuk menyimpan nilai input pencarian
-    public $jadwals = [];
+    public $shifts = [];
     public function mount()
     {
         $this->loadData();

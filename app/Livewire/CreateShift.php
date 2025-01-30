@@ -36,7 +36,7 @@ class CreateShift extends Component
         $this->reset('jam_masuk');
         $this->reset('jam_keluar');
         $this->reset('keterangan');
-        return redirect()->route('absensi.index')->with('success', 'Data Shift baru berhasil ditambahkan.');
+        return redirect()->route('shift.index')->with('success', 'Data Shift baru berhasil ditambahkan.');
     }
 
     // Method to render the component view

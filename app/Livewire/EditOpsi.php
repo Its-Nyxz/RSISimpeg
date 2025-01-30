@@ -27,7 +27,7 @@ class EditOpsi extends Component
         ]);
 
         session()->flash('success', 'Opsi berhasil diperbarui!');
-        return redirect()->route('absensi.index');
+        return redirect()->route('opsi.index');
     }
     public function render()
     {

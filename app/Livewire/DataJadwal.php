@@ -3,6 +3,8 @@
 namespace App\Livewire;
 
 use App\Models\JadwalAbsensi;
+use App\Models\OpsiAbsen;
+use App\Models\Shift;
 use Livewire\Component;
 
 class DataJadwal extends Component
@@ -17,22 +19,25 @@ class DataJadwal extends Component
 
     public function loadData()
     {
-        $this->jadwals = JadwalAbsensi::when( $this->search, function($query){
-            $query->where('tanggal_jadwal', 'like', '%' . $this->search . '%') // Mencari berdasarkan tanggal jadwal
-                    ->orWhere('keterangan_absen', 'like', '%' . $this->search . '%') // Mencari berdasarkan keterangan absen
+        $this->jadwals = JadwalAbsensi::with('user', 'shift', 'opsi') // Eager load relationships
+            ->when($this->search, function ($query) {
+                $query->where('tanggal_jadwal', 'like', '%' . $this->search . '%')
+                    ->orWhere('keterangan_absen', 'like', '%' . $this->search . '%')
                     ->orWhereHas('user', function ($q) {
-                        $q->where('name', 'like', '%' . $this->search . '%'); // Mencari berdasarkan nama user
+                        $q->where('name', 'like', '%' . $this->search . '%');
                     })
                     ->orWhereHas('shift', function ($q) {
-                        $q->where('nama_shift', 'like', '%' . $this->search . '%'); // Mencari berdasarkan nama shift
+                        $q->where('nama_shift', 'like', '%' . $this->search . '%');
                     })
-                    ->orWhereHas('opsi_absens', function ($q) {
-                        $q->where('nama_opsi', 'like', '%' . $this->search . '%'); // Mencari berdasarkan nama opsi absensi
+                    ->orWhereHas('opsi', function ($q) {
+                        $q->where('name', 'like', '%' . $this->search . '%');
                     });
-        })
+            })
             ->get()
             ->toArray();
     }
+    
+    
     public function updateSearch($value)
     {
         $this->search = $value;

@@ -30,7 +30,7 @@ class CreateMasaKerja extends Component
         $this->reset('nama');
         $this->reset('point');
         // Redirect dengan membawa pesan sukses
-        return redirect()->route('tukin.index')->with('success', 'Data Masa Kerja baru berhasil ditambahkan.');
+        return redirect()->route('masakerja.index')->with('success', 'Data Masa Kerja baru berhasil ditambahkan.');
     }
 
     public function render()

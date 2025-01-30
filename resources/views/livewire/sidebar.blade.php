@@ -26,22 +26,29 @@
                     <livewire:side-link href="/dashboard" title="Home" icon="fa-solid fa-house" />
                     <livewire:side-link href="/users" title="Add User" icon="fa-solid fa-user-plus" />
                     <livewire:side-link title="Master Data" icon="fa-regular fa-address-book" :child="[
-                        ['title' => 'Tunjangan', 'href' => '/tunjangan'],
                         ['title' => 'Golongan', 'href' => '/golongan'],
                         ['title' => 'Gaji Pokok', 'href' => '/gapok'],
                         ['title' => 'Pendidikan', 'href' => '/pendidikan'],
-                        ['title' => 'Absensi', 'href' => '/absensi'],
-                        [
-                            'title' => 'Tunjangan Kinerja',
-                            'href' => '/tukin',
-                            'child' => [
-                                ['title' => 'Masa Kerja', 'href' => '/masakerja'],
-                                ['title' => 'Level Unit', 'href' => '/levelunit'],
-                            ],
+
+                        ['title' => 'Absensi', 'href' => '/#', 'child' => [
+                            ['title' => 'Jadwal Absensi', 'href' => '/jadwal'],
+                            ['title' => 'Shift', 'href' => '/shift'],
+                            ['title' => 'Opsi', 'href' => '/opsi'],
+                            ['title' => 'Status', 'href' => '/status'],
+                            ]
+
                         ],
                         ['title' => 'Unit Kerja', 'href' => '/unitkerja'],
                         ['title' => 'Potongan', 'href' => '/potongan'],
-                    ]" />
+                        ['title' => 'Tunjangan Kinerja', 'href' => '/#','child' => [
+                                ['title' => 'Masa Kerja', 'href' => '/masakerja'],
+                                ['title' => 'Level Unit', 'href' => '/levelunit'],
+                                ['title' => 'Proposionaltias Poin', 'href' => '/proposionalitas'],
+                                ['title' => 'Poin Peran Fungsionalitas', 'href' => '/poinperan'],
+                                ['title' => 'Tunjangan Kinerja Jabatan', 'href' => '/tukinjabatan'],
+                            ]
+                        ],
+                        ]" />
                     <livewire:side-link title="Kepegawaian" icon="fa-solid fa-people-group" :child="[
                         ['title' => 'Data Karyawan', 'href' => '/datakaryawan'],
                         ['title' => 'Kenaikan Berkala dan Golongan', 'href' => '/kenaikan'],
