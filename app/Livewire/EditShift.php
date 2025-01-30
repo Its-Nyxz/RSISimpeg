@@ -39,7 +39,7 @@ class EditShift extends Component
         ]);
 
         session()->flash('success', 'Shift berhasil diperbarui!');
-        return redirect()->route('absensi.index');
+        return redirect()->route('shift.index');
     }
     public function render()
     {

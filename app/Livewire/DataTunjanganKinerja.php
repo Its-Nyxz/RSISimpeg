@@ -23,6 +23,17 @@ class DataTunjanganKinerja extends Component
         $this->loadData();
     }
 
+    public function updatedSearch()
+    {
+        $this->loadData();
+    }
+
+    public function updateSearch($value = null)
+    {
+        $this->search = $value ?? $this->search;
+        $this->loadData();
+    }
+
     public function loadData()
     {
         $this->items = match ($this->type) {
@@ -33,11 +44,13 @@ class DataTunjanganKinerja extends Component
                     })->orWhereHas('levelPoint', function ($subQuery) {
                         $subQuery->where('point', 'like', '%' . $this->search . '%');
                     })->orWhere('level_unit', 'like', '%' . $this->search . '%');
-                })->get()->map(function ($item) {
-                    return [
-                        'id' => $item->id,
-                        'nama_unit' => $item->unitKerja->nama ?? null,
-                        'nama_level' => $item->levelPoint->nama ?? null,
+                })->get()->map(fn($item) => [
+                    'id' => $item->id,
+                    'nama_unit' => $item->unitKerja->nama ?? null,
+                    'nama_level' => $item->levelPoint->nama ?? null,
+                    'poin' => $item->levelPoint->point ?? null,
+                ])->toArray(),
+
 
                         'poin' => $item->levelPoint->point ?? null,
                     ];
@@ -54,16 +67,15 @@ class DataTunjanganKinerja extends Component
                     ];
                 })->toArray(),
 
-        
+
             'proposionalitas' => ProposionalitasPoint::with('proposable')
                 ->when($this->search, function ($query) {
                     $query->whereHasMorph(
                         'proposable',
                         ['App\Models\MasterFungsi', 'App\Models\MasterUmum'],
-                        function ($q) {
-                            $q->where('nama', 'like', '%' . $this->search . '%');
-                        }
+                        fn($q) => $q->where('nama', 'like', '%' . $this->search . '%')
                     );
+
                 })
                 ->get()
                 ->map(function ($item) {
@@ -73,14 +85,13 @@ class DataTunjanganKinerja extends Component
                         'poin' => $item->point,
                     ];
                 })->toArray(),
+
             'pointperan' => PointPeran::with('peransable')
                 ->when($this->search, function ($query) {
                     $query->whereHasMorph(
                         'peransable',
                         ['App\Models\MasterFungsi', 'App\Models\MasterUmum'],
-                        function ($q) {
-                            $q->where('nama', 'like', '%' . $this->search . '%');
-                        }
+                        fn($q) => $q->where('nama', 'like', '%' . $this->search . '%')
                     );
                 })
                 ->get()
@@ -104,15 +115,9 @@ class DataTunjanganKinerja extends Component
                         'poin' => $item->point,
                     ];
                 })->toArray(),
+
         };
     }
-
-    public function updateSearch($value)
-    {
-        $this->search = $value;
-        $this->loadData();
-    }
-
     public function render()
     {
         // \Log::debug('Search query:', ['search' => $this->search]);

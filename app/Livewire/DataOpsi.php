@@ -5,7 +5,7 @@ use Livewire\Component;
 class DataOpsi extends Component
 {
     public $search = ''; // Properti untuk menyimpan nilai input pencarian
-    public $jadwals = [];
+    public $opsis = [];
     public function mount()
     {
         $this->loadData();

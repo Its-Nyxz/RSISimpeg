@@ -7,6 +7,7 @@
                 <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Masa Kerja..."
                     class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
             </div>
+            @dump($search)
 
             <!-- Tombol Tambah Merk -->
             <a href="{{ route('masakerja.create') }}"

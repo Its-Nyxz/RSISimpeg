@@ -58,7 +58,7 @@ class EditJadwal extends Component
         ]);
 
         session()->flash('success', 'Jadwal absensi berhasil diperbarui!');
-        return redirect()->route('absensi.index');
+        return redirect()->route('jadwal.index');
     }
 
     public function render()

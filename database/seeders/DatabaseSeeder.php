@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             MasterGolonganSeeder::class, // Tambahkan ini
             MasterPendidikanSeeder::class,
+            KategoriJabatanSeeder::class,
             MasterFungsiSeeder::class,
             MasterGapokSeeder::class,
             MasterJabatanSeeder::class,
@@ -33,7 +34,7 @@ class DatabaseSeeder extends Seeder
             MasterTransSeeder::class,
             MasterUmumSeeder::class,
             OpsiAbsenSeeder::class,
-            JenisFileSeeder::class,
+            JenisFileSeeder::class,  
             KategoripphSeeder::class,
             NilaipphSeeder::class,
             JenisKaryawanSeeder::class,

@@ -31,6 +31,7 @@ class EditMasaKerja extends Component
         ]);
 
         return redirect()->route('tukin.index')->with('success', 'Data Masa Kerja berhasil diupdate.');
+
     }
     
     public function render()

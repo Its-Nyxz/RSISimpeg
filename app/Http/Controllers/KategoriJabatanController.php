@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PointPeran;
-use App\Http\Requests\StorePointPeranRequest;
-use App\Http\Requests\UpdatePointPeranRequest;
+use App\Models\KategoriJabatan;
+use App\Http\Requests\StoreKategoriJabatanRequest;
+use App\Http\Requests\UpdateKategoriJabatanRequest;
 
-class PointPeranController extends Controller
+class KategoriJabatanController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return view('pointperan.index');
+        //
     }
 
     /**
@@ -21,13 +21,13 @@ class PointPeranController extends Controller
      */
     public function create()
     {
-        return view('pointperan.create');
+        //
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StorePointPeranRequest $request)
+    public function store(StoreKategoriJabatanRequest $request)
     {
         //
     }
@@ -35,7 +35,7 @@ class PointPeranController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(PointPeran $pointPeran)
+    public function show(KategoriJabatan $kategoriJabatan)
     {
         //
     }
@@ -43,7 +43,7 @@ class PointPeranController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(PointPeran $pointPeran)
+    public function edit(KategoriJabatan $kategoriJabatan)
     {
         //
     }
@@ -51,7 +51,7 @@ class PointPeranController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePointPeranRequest $request, PointPeran $pointPeran)
+    public function update(UpdateKategoriJabatanRequest $request, KategoriJabatan $kategoriJabatan)
     {
         //
     }
@@ -59,7 +59,7 @@ class PointPeranController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PointPeran $pointPeran)
+    public function destroy(KategoriJabatan $kategoriJabatan)
     {
         //
     }

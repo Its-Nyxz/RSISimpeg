@@ -51,7 +51,7 @@ class CreateJadwal extends Component
 
         // Flash message dan redirect
         session()->flash('success', 'Jadwal Absensi berhasil ditambahkan!');
-        return redirect()->route('absensi.index'); // Redirect ke halaman jadwal absensi
+        return redirect()->route('jadwal.index'); // Redirect ke halaman jadwal absensi
     }
 
     public function render()

@@ -1,4 +1,11 @@
 <div class="container mx-auto py-6">
+    <div class="flex justify-between items-center mb-5">
+        <h1 class="text-2xl font-bold text-green-900">Tambah Data Pendidikan</h1>
+        <a href="{{ url()->previous() }}" class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
+            <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
+        </a>
+    </div>
+
     <form wire:submit.prevent="store">
         <!-- Card Container -->
         <div class="bg-green-100 border border-green-200 rounded-lg shadow-lg p-6">
@@ -49,8 +56,11 @@
                 @enderror
             </div>
             
-            <!-- Tombol Submit -->
-            <div class="form-group flex justify-end">
+            <!-- Tombol Aksi -->
+            <div class="form-group flex justify-end space-x-2">
+                <a href="{{ url()->previous() }}" class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
+                </a>
                 <button type="submit" class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
                     <i class="fa-solid fa-paper-plane mr-2"></i> Simpan Pendidikan
                 </button>
