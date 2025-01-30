@@ -1166,7 +1166,7 @@ class UserSeeder extends Seeder
 
         $this->command->info('Seeder user INST GAS MEDIK & ALKES berhasil dijalankan.');
 
-       
+
 
         // Data untuk unit UNIT MCU & POSKES
         $mcuPoskesMembers = [
@@ -1614,70 +1614,9 @@ class UserSeeder extends Seeder
         }
 
         $this->command->info('Seeder user ASET & LOGISTIK berhasil dijalankan.');
-        // Data untuk unit ASET & LOGISTIK
-        $asetLogistikMembers = [
-            ['name' => 'Ratih Titis P', 'role' => 'Kepala Unit'],
-            ['name' => 'Nur Ardi Firdosta'],
-            // ['name' => 'Fathul Bari'],
-            // ['name' => 'Oryzae Sativa Linies'],
-        ];
-
-        // Cari unit ASET & LOGISTIK
-        $asetLogistikUnit = UnitKerja::where('nama', 'ASET & LOGISTIK')->first();
-
-        if (!$asetLogistikUnit) {
-            $this->command->error('Unit ASET & LOGISTIK tidak ditemukan!');
-            return;
-        }
-
-        foreach ($asetLogistikMembers as $member) {
-            $user = User::firstOrCreate(
-                ['email' => strtolower(str_replace([' ', ',', '.', '/', '\'', '-'], '.', $member['name'])) . '@gmail.com'],
-                [
-                    'name' => $member['name'],
-                    'password' => Hash::make('123'), // Password default
-                    'unit_id' => $asetLogistikUnit->id,
-                ]
-            );
-
-            $role = $member['role'] ?? 'Staf';
-            $user->assignRole($role);
-        }
-
-        $this->command->info('Seeder user ASET & LOGISTIK berhasil dijalankan.');
-        
-        // Data untuk unit ASET & LOGISTIK
-        $asetLogistikMembers = [
-            ['name' => 'Bani Akbar Dhira Y', 'role' => 'Kepala Seksi'],
-            ['name' => 'Nur Ardi Firdosta'],
-        ];
-
-        // Cari unit ASET & LOGISTIK
-        $asetLogistikUnit = UnitKerja::where('nama', 'ASET & LOGISTIK')->first();
-
-        if (!$asetLogistikUnit) {
-            $this->command->error('Unit ASET & LOGISTIK tidak ditemukan!');
-            return;
-        }
-
-        foreach ($asetLogistikMembers as $member) {
-            $user = User::firstOrCreate(
-                ['email' => strtolower(str_replace([' ', ',', '.', '/', '\'', '-'], '.', $member['name'])) . '@gmail.com'],
-                [
-                    'name' => $member['name'],
-                    'password' => Hash::make('123'), // Password default
-                    'unit_id' => $asetLogistikUnit->id,
-                ]
-            );
-
-            $role = $member['role'] ?? 'Staf';
-            $user->assignRole($role);
-        }
-
-        $this->command->info('Seeder user ASET & LOGISTIK berhasil dijalankan.');
 
         // Data untuk unit GUDANG
-        $asetLogistikMembers = [
+        $Gudang = [
             ['name' => 'Ratih Titis Pamungkas', 'role' => 'Kepala Unit'],
             ['name' => 'Fathul Bari'],
             ['name' => 'Oryzae Sativa Linies'],
@@ -1691,7 +1630,7 @@ class UserSeeder extends Seeder
             return;
         }
 
-        foreach ($asetLogistikMembers as $member) {
+        foreach ($Gudang as $member) {
             $user = User::firstOrCreate(
                 ['email' => strtolower(str_replace([' ', ',', '.', '/', '\'', '-'], '.', $member['name'])) . '@gmail.com'],
                 [
