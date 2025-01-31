@@ -10,7 +10,6 @@ class DataLevelUnit extends Component
     public $search = '';
     public $levelunit = [];
 
-    public $search = '';
 
     public function mount()
     {

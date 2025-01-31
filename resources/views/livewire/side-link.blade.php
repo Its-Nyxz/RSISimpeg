@@ -1,4 +1,3 @@
-
 @if (!count($child) > 0)
     <li>
         <a href="{{ $href }}"
@@ -16,9 +15,8 @@
             <span class="flex-1 ml-3 text-left whitespace-nowrap">{{ $title }}</span>
             <i class="fa-solid fa-chevron-down ml-2"></i>
         </button>
-        <ul id="{{ Str::slug($title) }}" class="hidden py-2 space-y-2">
+        <ul id="{{ $title }}" class="hidden py-2 space-y-2">
             @foreach ($child as $item)
-
                 <li>
                     @if (!empty($item['child'])) <!-- Cek jika ada child di dalam item -->
                         <button type="button"
@@ -32,13 +30,11 @@
                                 <li>
                                     <a href="{{ $subItem['href'] }}"
                                         class="flex text-left p-2 pl-12 text-base font-medium text-white rounded-lg hover:bg-gray-100 transition duration-150 hover:text-success-950">
-
                                         {{ $subItem['title'] }}
                                     </a>
                                 </li>
                             @endforeach
                         </ul>
-
                     @else
                         <a href="{{ $item['href'] }}"
                             class="flex items-left p-2 pl-10 text-base font-medium text-white rounded-lg hover:bg-gray-100 transition duration-150 hover:text-success-950">
@@ -50,4 +46,3 @@
         </ul>
     </li>
 @endif
-
