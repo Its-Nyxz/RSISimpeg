@@ -27,16 +27,18 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse ($data as $index => $levelunit)
+                @forelse ($levelunit as $data)
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
-                        <td class="px-6 py-4">{{ ($data->currentPage() - 1) * $data->perPage() + $loop->iteration }}</td>
-                        <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
-                            {{ $levelunit->unitkerja->nama }}
-                        </td>
-                        <td class="px-6 py-4">{{ $levelunit->levelpoint->nama }}</td>
-                        <td class="px-6 py-4">{{ $levelunit->levelpoint->point }}</td>
                         <td class="px-6 py-4">
-                            <a href="{{ route('levelunit.edit', $levelunit['id']) }}"
+                            {{ ($levelunit->currentPage() - 1) * $levelunit->perPage() + $loop->iteration }}
+                        </td>
+                        <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
+                            {{ $data->unitkerja->nama }}
+                        </td>
+                        <td class="px-6 py-4">{{ $data->levelpoint->nama }}</td>
+                        <td class="px-6 py-4">{{ $data->levelpoint->point }}</td>
+                        <td class="px-6 py-4">
+                            <a href="{{ route('levelunit.edit', $data['id']) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300">
                                 <i class="fa-solid fa-pen"></i>
                             </a>
@@ -51,15 +53,15 @@
         </table>
     </div>
     <div class="mt-4 flex gap-2 justify-center items-center">
-        @if (!$data->onFirstPage())
+        @if (!$levelunit->onFirstPage())
             <button wire:click="previousPage" wire:loading.attr="disabled"
                 class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
                 &laquo; Sebelumnya
             </button>
         @endif
 
-        @for ($page = max($data->currentPage() - 3, 1); $page <= min($data->currentPage() + 3, $data->lastPage()); $page++)
-            @if ($page == $data->currentPage())
+        @for ($page = max($levelunit->currentPage() - 3, 1); $page <= min($levelunit->currentPage() + 3, $levelunit->lastPage()); $page++)
+            @if ($page == $levelunit->currentPage())
                 <span class="px-2 py-1 bg-success-600 text-white rounded-md text-sm">{{ $page }}</span>
             @else
                 <button wire:click="gotoPage({{ $page }})"
@@ -69,7 +71,7 @@
             @endif
         @endfor
 
-        @if ($data->hasMorePages())
+        @if ($levelunit->hasMorePages())
             <button wire:click="nextPage" wire:loading.attr="disabled"
                 class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
                 Selanjutnya &raquo;

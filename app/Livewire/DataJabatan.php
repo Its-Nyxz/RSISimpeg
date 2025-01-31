@@ -17,11 +17,15 @@ class DataJabatan extends Component
 
     public function loadData()
     {
-        $this->jabatans = MasterJabatan::when($this->search, function ($query) {
-            $query->where('nama', 'like', '%' . $this->search . '%')
-                ->orWhere('kualifikasi', 'like', '%' . $this->search . '%')
-                ->orWhere('nominal', 'like', '%' . $this->search . '%');
-        })
+        // Query data dengan relasi ke KategoriJabatan
+        $this->jabatans = MasterJabatan::with('kategorijabatan')
+            ->when($this->search, function ($query) {
+                $query->whereHas('kategorijabatan', function ($q) {
+                    $q->where('nama', 'like', '%' . $this->search . '%');
+                })
+                    ->orWhere('kualifikasi', 'like', '%' . $this->search . '%')
+                    ->orWhere('nominal', 'like', '%' . $this->search . '%');
+            })
             ->get()
             ->toArray();
     }

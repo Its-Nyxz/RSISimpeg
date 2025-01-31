@@ -44,6 +44,7 @@ use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\ProposionalitasPointController;
 use App\Http\Controllers\PointPeranController;
 use App\Http\Controllers\TukinJabatanController;
+use App\Http\Controllers\TimerController;
 
 
 Route::get('/', function () {
@@ -118,6 +119,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('proposionalitas', ProposionalitasPointController::class);
     Route::resource('poinperan', PointPeranController::class);
     Route::resource('tukinjabatan', TukinJabatanController::class);
+    Route::resource('timer', TimerController::class);
 
 });
 
