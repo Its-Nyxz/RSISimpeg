@@ -1,150 +1,93 @@
-<style>
-    .icon {
-        margin-left: 8px; /* Tambahkan jarak antara teks dan ikon */
-        cursor: pointer;
-        position: relative;
-    }
-    .icon:hover .tooltip {
-        display: block; /* Tampilkan tooltip saat hover */
-    }
-    .tooltip {
-        display: none;
-        position: absolute;
-        top: -30px; /* Posisi tooltip di atas ikon */
-        left: 0;
-        background-color: #006633;
-        color: white;
-        font-size: 12px;
-        padding: 5px 10px;
-        border-radius: 4px;
-        white-space: nowrap;
-        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .tooltip:after {
-        content: "";
-        position: absolute;
-        bottom: -5px;
-        left: 10px;
-        border-width: 5px;
-        border-style: solid;
-        border-color: #006633 transparent transparent transparent; /* Segitiga tooltip */
-    }
-</style>
-
-<div>
+<div class="space-y-6">
     <!-- Header -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <div style="display: flex; align-items: center;">
-            <i class="fa-solid fa-gear" style="font-size: 28px; margin-right: 10px;"></i>
-            <p style="font-family: 'Gilroy-Bold', sans-serif; font-size: 28px; font-weight: bold; margin: 0;">
-                Settings
-            </p>
+    <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <i class="fa-solid fa-gear text-3xl text-gray-700"></i>
+            <h1 class="text-2xl font-bold text-success-900">Settings</h1>
         </div>
+
         <!-- Kotak No. KTP -->
-        <div
-            style="
-            background-color: #28a745;
-            color: white;
-            font-family: 'Gilroy-Bold', sans-serif;
-            font-size: 14px;
-            font-weight: bold;
-            padding: 10px 20px;
-            border-radius: 5px;
-        ">
+        <div class="bg-green-600 text-white text-sm font-bold px-4 py-2 rounded-lg">
             {{ $userprofile->nip ?? '-' }}
         </div>
     </div>
-    <div class="flex space-x-6">
-        <div class="w-1/2">
-            <x-card :title="'Profile'" class="mb-6 text-success-900">
-                <div style="font-family: 'Gilroy-Regular', sans-serif; font-size: 14px;">
-                    <div style="display: grid; grid-template-columns: auto 1fr; row-gap: 10px; column-gap: 50px;">
-                        <div><strong>Nama</strong></div>
-                        <div>: {{ $userprofile->name }}</div>
 
-                        <div><strong>Jabatan</strong></div>
-                        <div>: {{ $userprofile->jabatan->nama ?? '-' }}</div>
-
-                        <div><strong>Tempat Tanggal Lahir</strong></div>
-                        <div>: {{ $userprofile->tempat }}, {{ $userprofile->tanggal_lahir }}</div>
-
-                        <div><strong>Tanggal Tetap</strong></div>
-                        <div>: {{ $userprofile->tanggal_tetap ?? '-' }}</div>
-
-                        <div><strong>Pendidikan Awal</strong></div>
-                        <div>: {{ $userprofile->pendidikan_awal ?? '-' }}</div>
-
-                        <div><strong>Pendidikan Penyesuaian</strong></div>
-                        <div>: {{ $userprofile->pendidikan_penyesuaian ?? '-' }}</div>
-
-                        <div><strong>Tanggal Penyesuaian</strong></div>
-                        <div>: {{ $userprofile->tgl_penyesuaian ?? '-' }}</div>
-
-                        <div><strong>Informasi Pensiun</strong></div>
-                        <div>: {{ $userprofile->pensiun ?? '-' }}</div>
-                    </div>
+    <div class="grid md:grid-cols-2 gap-6">
+        <!-- Profile Card -->
+        <x-card :title="'Profile'">
+            <div class="text-sm text-gray-700 space-y-3">
+                <div class="grid grid-cols-2">
+                    <div class="font-semibold">Nama</div>
+                    <div>: {{ $userprofile->name }}</div>
                 </div>
-                <!-- Tombol Edit Profile -->
-                <div style="margin-top: 20px;">
-                    <a href="{{ route('userprofile.editprofile') }}" class="btn btn-success"
-                        style="
-                        font-family: 'Gilroy-Bold', sans-serif;
-                        font-size: 14px;
-                        font-weight: bold;
-                        background-color: #006633;
-                        color: white;
-                        padding: 10px 20px;
-                        border-radius: 5px;
-                        text-decoration: none;
-                    ">
-                        Edit Profile
+                <div class="grid grid-cols-2">
+                    <div class="font-semibold">Jabatan</div>
+                    <div>: {{ $userprofile->jabatan->nama ?? '-' }}</div>
+                </div>
+                <div class="grid grid-cols-2">
+                    <div class="font-semibold">Tempat Tanggal Lahir</div>
+                    <div>: {{ $userprofile->tempat }}, {{ $userprofile->tanggal_lahir }}</div>
+                </div>
+                <div class="grid grid-cols-2">
+                    <div class="font-semibold">Tanggal Tetap</div>
+                    <div>: {{ $userprofile->tanggal_tetap ?? '-' }}</div>
+                </div>
+                <div class="grid grid-cols-2">
+                    <div class="font-semibold">Pendidikan Awal</div>
+                    <div>: {{ $userprofile->pendidikan_awal ?? '-' }}</div>
+                </div>
+                <div class="grid grid-cols-2">
+                    <div class="font-semibold">Pendidikan Penyesuaian</div>
+                    <div>: {{ $userprofile->pendidikan_penyesuaian ?? '-' }}</div>
+                </div>
+                <div class="grid grid-cols-2">
+                    <div class="font-semibold">Tanggal Penyesuaian</div>
+                    <div>: {{ $userprofile->tgl_penyesuaian ?? '-' }}</div>
+                </div>
+                <div class="grid grid-cols-2">
+                    <div class="font-semibold">Informasi Pensiun</div>
+                    <div>: {{ $userprofile->pensiun ?? '-' }}</div>
+                </div>
+            </div>
+
+            <!-- Tombol Edit Profile -->
+            <div class="mt-4">
+                <a href="{{ route('userprofile.editprofile') }}"
+                    class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                    Edit Profile
+                </a>
+            </div>
+        </x-card>
+
+        <!-- Login & Security Card -->
+        <x-card :title="'Login dan Keamanan'">
+            <div class="text-sm text-gray-700 space-y-3">
+                <p><strong>NIP:</strong> {{ $userprofile->nip ?? '-' }}</p>
+
+                <div class="flex items-center justify-between">
+                    <p><strong>No. WhatsApp:</strong> {{ $userprofile->no_hp ?? '-' }}</p>
+                    <a href="{{ route('userprofile.editnomor') }}"
+                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                        <i class="fa-solid fa-pen"></i>
                     </a>
                 </div>
-            </x-card>
-        </div>
-    </div>
 
-    <x-card :title="'Login dan Keamanan'" class="max-w-md">
-        <p>
-            <strong>NIP:</strong> {{ $userprofile->nip ?? '-' }}
-        </p>
-        <p>
-            <strong>No. WhatsApp:</strong>
-            @empty($userprofile->no_hp)
-                -
-            @else
-                {{ $userprofile->no_hp }}
-            @endempty
-            
-            <span class="icon">
-                <a href="{{ route('userprofile.editnomor') }}" class="icon" style="text-decoration: none;">
-                    <i class="fa-solid fa-pen" style="color: #006633;"></i>
-                </a>
-                <span class="tooltip">Ganti No WhatsApp</span>
-            </span>
-        </p>
-        <p>
-            <strong>Email:</strong>
-            @empty($userprofile->email)
-                -
-            @else
-                {{ $userprofile->email }}
-            @endempty
-            <span class="icon">
-                <a href="{{ route('userprofile.editemail') }}" class="icon" style="text-decoration: none;">
-                    <i class="fa-solid fa-pen" style="color: #006633;"></i>
-                </a>
-                <span class="tooltip">Ganti Email</span>
-            </span>
-        </p>
-        <p>
-            <strong>Password:</strong> ************
-            <span class="icon">
-                <a href="{{ route('userprofile.editpassword') }}" class="icon" style="text-decoration: none;">
-                    <i class="fa-solid fa-pen" style="color: #006633;"></i>
-                </a>
-                <span class="tooltip">Ganti Password</span>
-            </span>
-        </p>
-    </x-card>
+                <div class="flex items-center justify-between">
+                    <p><strong>Email:</strong> {{ $userprofile->email ?? '-' }}</p>
+                    <a href="{{ route('userprofile.editemail') }}"
+                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                        <i class="fa-solid fa-pen"></i>
+                    </a>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <p><strong>Password:</strong> ************</p>
+                    <a href="{{ route('userprofile.editpassword') }}"
+                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                        <i class="fa-solid fa-pen"></i>
+                    </a>
+                </div>
+            </div>
+        </x-card>
+    </div>
 </div>

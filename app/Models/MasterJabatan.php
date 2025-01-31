@@ -17,5 +17,9 @@ class MasterJabatan extends Model
     {
         return $this->hasMany(User::class, 'jabatan_id');
     }
-    
+
+    public function kategorijabatan()
+    {
+        return $this->belongsTo(KategoriJabatan::class, 'katjab_id');
+    }
 }

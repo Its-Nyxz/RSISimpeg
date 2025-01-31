@@ -7,59 +7,37 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\MasterJabatan;
 
-class EditProfile extends Component
+class EditNomor extends Component
 {
-    public $name, $jabatan_id, $tempat, $tanggal_lahir, $tanggal_tetap, $pendidikan_awal, $pendidikan_penyesuaian, $tgl_penyesuaian;
-    public $jabatans; // Untuk menyimpan data jabatan
+    public $no_hp;  // Property for the new WhatsApp number
+    public $old_no_hp; // Property for the old WhatsApp number
 
     public function mount()
     {
         $user = Auth::user();
-
-        // Set data awal dari user yang sedang login
-        $this->name = $user->name;
-        $this->jabatan_id = $user->jabatan_id;
-        $this->tempat = $user->tempat;
-        $this->tanggal_lahir = $user->tanggal_lahir;
-        $this->tanggal_tetap = $user->tanggal_tetap;
-        $this->pendidikan_awal = $user->pendidikan_awal;
-        $this->pendidikan_penyesuaian = $user->pendidikan_penyesuaian;
-        $this->tgl_penyesuaian = $user->tgl_penyesuaian;
-
-        // Ambil semua jabatan dari database
-        $this->jabatans = MasterJabatan::all();
+        $this->old_no_hp = $user->no_hp; // Set old number from the authenticated user
+        $this->no_hp = null;     // Pre-fill new number input with the current value
     }
 
-    public function updateProfile()
+    public function updateNomor()
     {
+        // Validate the input
         $this->validate([
-            'name' => 'required|string|max:255',
-            'jabatan_id' => 'nullable|exists:master_jabatan,id',
-            'tempat' => 'nullable|string|max:255',
-            'tanggal_lahir' => 'nullable|date',
-            'tanggal_tetap' => 'nullable|date',
-            'pendidikan_awal' => 'nullable|string|max:255',
-            'pendidikan_penyesuaian' => 'nullable|string|max:255',
-            'tgl_penyesuaian' => 'nullable|date',
+            'no_hp' => 'required|numeric|digits_between:10,15',
         ]);
 
+        // Update the user's WhatsApp number
         $user = Auth::user();
-        $user->update([
-            'name' => $this->name,
-            'jabatan_id' => $this->jabatan_id,
-            'tempat' => $this->tempat,
-            'tanggal_lahir' => $this->tanggal_lahir,
-            'tanggal_tetap' => $this->tanggal_tetap,
-            'pendidikan_awal' => $this->pendidikan_awal,
-            'pendidikan_penyesuaian' => $this->pendidikan_penyesuaian,
-            'tgl_penyesuaian' => $this->tgl_penyesuaian,
-        ]);
+        $user->no_hp = $this->no_hp;
+        $user->save();
 
-        session()->flash('success', 'Profil berhasil diperbarui!');
+        // Redirect with a success message
+        session()->flash('success', 'Nomor WhatsApp berhasil diupdate.');
+        return redirect()->route('userprofile.index');
     }
 
     public function render()
     {
-        return view('livewire.edit-profile');
+        return view('livewire.edit-nomor');
     }
 }
