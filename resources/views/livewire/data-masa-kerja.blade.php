@@ -7,7 +7,6 @@
                 <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Masa Kerja..."
                     class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
             </div>
-            @dump($search)
 
             <!-- Tombol Tambah Merk -->
             <a href="{{ route('masakerja.create') }}"
@@ -29,7 +28,8 @@
             <tbody>
                 @forelse ($masakerja as $item)
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
-                        <td class="px-6 py-4">{{ $loop->iteration + ($masakerja->currentPage() - 1) * $masakerja->perPage() }}</td>
+                        <td class="px-6 py-4">
+                            {{ $loop->iteration + ($masakerja->currentPage() - 1) * $masakerja->perPage() }}</td>
                         <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
                             {{ $item['nama'] }}
                         </td>

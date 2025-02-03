@@ -25,4 +25,8 @@ class KategoriJabatan extends Model
     {
         return $this->hasMany(MasterUmum::class, 'katjab_id');
     }
+    public function masterpotongan()
+    {
+        return $this->hasMany(MasterPotongan::class, 'katjab_id');
+    }
 }

@@ -30,11 +30,11 @@ class TukinPeranFungsional extends Component
                 });
             })
             ->get();
-    
+
         $this->items = $query->map(function ($pointperan) {
             return [
                 'id' => $pointperan->id,
-                'nama' => $pointperan->peransable->nama ?? '-',
+                'nama' => $pointperan->peransable->kategoriJabatan->nama ?? '-',
                 'poin' => $pointperan->point,
             ];
         });

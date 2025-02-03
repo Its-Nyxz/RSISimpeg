@@ -40,18 +40,7 @@ class ProposionalitasPointSeeder extends Seeder
             ['name' => 'Staf Instalasi Teknologi Informasi', 'point' => 1.5],
             ['name' => 'Staf Asuransi', 'point' => 1.25],
         ];
-
-        // Data untuk tabel Unit
-        $unit = [
-            ['name' => 'CASE MANAGER', 'point' => 1],
-            ['name' => 'ASET & LOGISTIK', 'point' => 1],
-            ['name' => 'KASIR', 'point' => 1],
-            ['name' => 'ASURANSI', 'point' => 1],
-            ['name' => 'KEUANGAN', 'point' => 1],
-            ['name' => 'AKUNTANSI', 'point' => 1],
-            ['name' => 'UNIT MCU & POSKES', 'point' => 1],
-        ];
-
+        
         // Menyimpan data fungsional
         foreach ($fungsional as $item) {
             $jabatan = MasterFungsi::where('nama', $item['name'])->first();
@@ -70,18 +59,6 @@ class ProposionalitasPointSeeder extends Seeder
             if ($jabatan) {
                 ProposionalitasPoint::create([
                     'proposable_type' => MasterUmum::class,
-                    'proposable_id' => $jabatan->id,
-                    'point' => $item['point']
-                ]);
-            }
-        }
-
-        // Menyimpan data unit
-        foreach ($unit as $item) {
-            $jabatan = UnitKerja::where('nama', $item['name'])->first();
-            if ($jabatan) {
-                ProposionalitasPoint::create([
-                    'proposable_type' => UnitKerja::class,
                     'proposable_id' => $jabatan->id,
                     'point' => $item['point']
                 ]);
