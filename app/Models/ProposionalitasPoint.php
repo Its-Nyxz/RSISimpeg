@@ -16,4 +16,9 @@ class ProposionalitasPoint extends Model
     {
         return $this->morphTo();
     }
+
+    public function unitkerja()
+    {
+        return $this->belongsTo(UnitKerja::class, 'unit_id');
+    }
 }
