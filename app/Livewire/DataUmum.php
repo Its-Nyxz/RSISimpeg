@@ -17,11 +17,15 @@ class DataUmum extends Component
 
     public function loadData()
     {
-        $this->umums = MasterUmum::when($this->search, function ($query) {
-            $query->where('nama', 'like', '%' . $this->search . '%')
-                ->orWhere('nominal', 'like', '%' . $this->search . '%')
-                ->orWhere('deskripsi', 'like', '%' . $this->search . '%');
-        })
+        // Query data dengan relasi ke KategoriJabatan
+        $this->umums = MasterUmum::with('kategorijabatan')
+            ->when($this->search, function ($query) {
+                $query->whereHas('kategorijabatan', function ($q) {
+                    $q->where('nama', 'like', '%' . $this->search . '%');
+                })
+                    ->orWhere('kualifikasi', 'like', '%' . $this->search . '%')
+                    ->orWhere('nominal', 'like', '%' . $this->search . '%');
+            })
             ->get()
             ->toArray();
     }

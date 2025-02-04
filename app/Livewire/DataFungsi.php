@@ -17,10 +17,15 @@ class DataFungsi extends Component
 
     public function loadData()
     {
-        $this->fungsionals = MasterFungsi::when( $this->search, function($query){
-            $query->where('nama', 'like', '%' . $this->search . '%')
-            ->orWhere('nominal', 'like', '%' . $this->search . '%');
-        })
+        // Query data dengan relasi ke KategoriJabatan
+        $this->fungsionals = MasterFungsi::with('kategorijabatan')
+            ->when($this->search, function ($query) {
+                $query->whereHas('kategorijabatan', function ($q) {
+                    $q->where('nama', 'like', '%' . $this->search . '%');
+                })
+                    ->orWhere('kualifikasi', 'like', '%' . $this->search . '%')
+                    ->orWhere('nominal', 'like', '%' . $this->search . '%');
+            })
             ->get()
             ->toArray();
     }

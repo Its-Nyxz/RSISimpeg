@@ -26,10 +26,21 @@
                     <livewire:side-link href="/dashboard" title="Home" icon="fa-solid fa-house" />
                     <livewire:side-link href="/users" title="Add User" icon="fa-solid fa-user-plus" />
                     <livewire:side-link title="Aktivitas Kerja" icon="fa-solid fa-user" :child="[
-                        ['title' => 'Timer', 'href' => '#'],
-                        ['title' => 'Absensi', 'href' => '/aktivitasabsensi'],
-                        ]" />
+                        ['title' => 'Timer', 'href' => '/timer'],
+                        ['title' => 'Absensi', 'href' => '#'],
+                    ]" />
                     <livewire:side-link title="Master Data" icon="fa-regular fa-address-book" :child="[
+                        [
+                            'title' => 'Tunjangan',
+                            'child' => [
+                                ['title' => 'Tunjangan Jabatan', 'href' => '/jabatan'],
+                                ['title' => 'Tunjangan Fungsional', 'href' => '/fungsional'],
+                                ['title' => 'Tunjangan Umum', 'href' => '/umum'],
+                                ['title' => 'Tunjangan Khusus', 'href' => '/khusus'],
+                                ['title' => 'Tunjangan Tidak Tetap', 'href' => '/trans'],
+                            ]
+                        ],
+
                         ['title' => 'Golongan', 'href' => '/golongan'],
                         ['title' => 'Gaji Pokok', 'href' => '/gapok'],
                         ['title' => 'Pendidikan', 'href' => '/pendidikan'],

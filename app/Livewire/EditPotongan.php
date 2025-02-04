@@ -44,6 +44,7 @@ class EditPotongan extends Component
         session()->flash('success', 'Potongan berhasil diperbarui!');
         return redirect()->route('potongan.index');
     }
+
     public function render()
     {
         return view('livewire.edit-potongan');

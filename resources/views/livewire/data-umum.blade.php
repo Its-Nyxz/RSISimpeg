@@ -29,12 +29,12 @@
                 @forelse ($umums as $umum)
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
                         <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
-                            {{ $umum['nama'] }}
+                            {{ $umum['kategorijabatan']['nama'] }}
                         </td>
                         <td class="px-6 py-4">{{ rupiah($umum['nominal']) }}</td>
                         <td class="px-6 py-4">{{ $umum['deskripsi'] }}</td>
                         <td class="px-6 py-4">
-                            <a href="{{ route('umum.edit',$umum['id']) }}"
+                            <a href="{{ route('umum.edit', $umum['id']) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                 data-tooltip-target="tooltip-umum-{{ $umum['id'] }}">
                                 <i class="fa-solid fa-pen"></i>

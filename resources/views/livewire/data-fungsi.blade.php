@@ -1,5 +1,5 @@
 <div>
-<div class="flex justify-between py-2 mb-3">
+    <div class="flex justify-between py-2 mb-3">
         <h1 class="text-2xl font-bold text-success-900">Master Fungsional</h1>
         <div class="flex justify-between items-center gap-4 mb-3">
             <div class="flex-1">
@@ -28,7 +28,7 @@
                 @forelse ($fungsionals as $fungsional)
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
                         <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
-                            {{ $fungsional['nama'] }}
+                            {{ $fungsional['kategorijabatan']['nama'] }}
                         </td>
                         <td class="px-6 py-4">{{ rupiah($fungsional['nominal']) }}</td>
                         <td class="px-6 py-4">{{ $fungsional['deskripsi'] }}</td>
