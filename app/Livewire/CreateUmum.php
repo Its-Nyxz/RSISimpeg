@@ -38,7 +38,7 @@ class CreateUmum extends Component
 
         // Redirect dengan membawa pesan sukses
 
-        return redirect()->route('tunjangan.index')->with('success', 'Data Tunjangan Umum baru berhasil ditambahkan.');
+        return redirect()->route('umum.index')->with('success', 'Data Tunjangan Umum baru berhasil ditambahkan.');
 
     }
 

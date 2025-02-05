@@ -66,7 +66,7 @@ class MasterUmumController extends Controller
             'deskripsi' => $validatedData['deskripsi'],
         ]);
 
-        return redirect()->route('tunjangan.index')->with('success', 'Umum berhasil diperbarui!');
+        return redirect()->route('umum.index')->with('success', 'Umum berhasil diperbarui!');
     }
 
     /**

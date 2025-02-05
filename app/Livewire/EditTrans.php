@@ -35,7 +35,7 @@ class EditTrans extends Component
         ]);
 
         session()->flash('success', 'Trans berhasil diperbarui!');
-        return redirect()->route('tunjangan.index');
+        return redirect()->route('trans.index');
     }
     public function render()
     {

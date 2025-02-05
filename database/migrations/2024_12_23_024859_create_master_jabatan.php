@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('master_jabatan', function (Blueprint $table) {
             $table->id();
-            $table->string('nama')->nullable();
+            $table->foreignId('katjab_id')->nullable()->constrained('kategori_jabatans')->onDelete('cascade');
             $table->string('kualifikasi')->nullable();
             $table->integer('nominal')->nullable();
             $table->string('deskripsi')->nullable();

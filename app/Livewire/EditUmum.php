@@ -35,7 +35,7 @@ class EditUmum extends Component
         ]);
 
         session()->flash('success', 'Umum berhasil diperbarui!');
-        return redirect()->route('tunjangan.index');
+        return redirect()->route('umum.index');
     }
     public function render()
     {

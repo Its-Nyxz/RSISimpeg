@@ -38,7 +38,7 @@ class CreateTrans extends Component
         $this->reset('nom_transport');
 
         // Redirect dengan membawa pesan sukses
-        return redirect()->route('tunjangan.index')->with('success', 'Data Tunjangan Tidak Tetap baru berhasil ditambahkan.');
+        return redirect()->route('trans.index')->with('success', 'Data Tunjangan Tidak Tetap baru berhasil ditambahkan.');
     }
 
     public function render()

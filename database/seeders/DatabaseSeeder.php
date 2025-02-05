@@ -25,23 +25,23 @@ class DatabaseSeeder extends Seeder
             MasterGolonganSeeder::class, // Tambahkan ini
             MasterPendidikanSeeder::class,
             KategoriJabatanSeeder::class,
-            MasterFungsiSeeder::class,
             MasterGapokSeeder::class,
             MasterJabatanSeeder::class,
+            MasterFungsiSeeder::class,
+            MasterUmumSeeder::class,
             MasterKhususSeeder::class,
             MasterPenyesuaianSeeder::class,
-            MasterPotonganSeeder::class,
+            // MasterPotonganSeeder::class,
             MasterTransSeeder::class,
-            MasterUmumSeeder::class,
             OpsiAbsenSeeder::class,
-            JenisFileSeeder::class,  
+            JenisFileSeeder::class,
             KategoripphSeeder::class,
             NilaipphSeeder::class,
             JenisKaryawanSeeder::class,
+            StatusAbsenSeeder::class,
             UnitKerjaSeeder::class,
             LevelPointSeeder::class,
             LevelUnitSeeder::class,
-            StatusAbsenSeeder::class,
             TerlibatPointSeeder::class,
             PosisiPointSeeder::class,
             ShiftPointSeeder::class,
@@ -54,7 +54,7 @@ class DatabaseSeeder extends Seeder
             PointKinerjaSeeder::class,
             PointJamKerjaSeeder::class,
             UserSeeder::class, // Tambahkan ini
-            TabelTest::class,
+            // TabelTest::class,
         ]);
     }
 }

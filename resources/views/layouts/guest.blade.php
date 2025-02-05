@@ -24,8 +24,7 @@
             </a> --}}
             <a href="/">
                 <!-- Gantikan x-application-logo dengan <img> -->
-                <img src="{{ asset('build/assets/logo.png') }}" class="w-40 h-40 fill-current text-gray-500"
-                    alt="Logo" />
+                <img src="{{ asset('img/logo.png') }}" class="w-40 h-40 fill-current text-gray-500" alt="Logo" />
             </a>
         </div>
 

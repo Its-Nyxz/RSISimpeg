@@ -10,11 +10,11 @@ class MasterPotongan extends Model
     protected $table = "master_potongan";
     protected $guarded = ['id'];
 
-    /**
+    /**pmas
      * Relasi ke MasterFungsi.
      */
-    public function fungsi()
+    public function kategorijabatan()
     {
-        return $this->belongsTo(MasterFungsi::class, 'fungsi_id');
+        return $this->belongsTo(KategoriJabatan::class, 'katjab_id');
     }
 }

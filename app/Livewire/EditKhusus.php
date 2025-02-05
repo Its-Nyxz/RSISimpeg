@@ -35,7 +35,7 @@ class EditKhusus extends Component
         ]);
 
         session()->flash('success', 'khusus berhasil diperbarui!');
-        return redirect()->route('tunjangan.index');
+        return redirect()->route('khusus.index');
     }
     public function render()
     {

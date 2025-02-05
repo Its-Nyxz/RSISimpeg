@@ -18,6 +18,11 @@ class MasterUmum extends Model
         return $this->hasMany(User::class, 'umum_id');
     }
 
+    public function kategorijabatan()
+    {
+        return $this->belongsTo(KategoriJabatan::class, 'katjab_id');
+    }
+
     public function points()
     {
         return $this->morphMany(PointJabatan::class, 'pointable');

@@ -23,6 +23,10 @@ class MasterFungsi extends Model
         return $this->belongsTo(KategoriJabatan::class, 'katjab_id');
     }
 
+    public function kategorijabatan()
+    {
+        return $this->belongsTo(KategoriJabatan::class, 'katjab_id');
+    }
     /**
      * Relasi ke MasterPotongan.
      */

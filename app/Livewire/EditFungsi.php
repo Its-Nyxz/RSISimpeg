@@ -35,7 +35,7 @@ class EditFungsi extends Component
         ]);
 
         session()->flash('success', 'fungsi berhasil diperbarui!');
-        return redirect()->route('tunjangan.index');
+        return redirect()->route('fungsional.index');
     }
     public function render()
     {

@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('proposionalitas_points', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('unit_id')->nullable()->constrained('unit_kerjas')->onDelete('cascade');
             $table->morphs('proposable'); // polymorphic relationship
+            $table->decimal('min_limit')->nullable(); // Minimal batas poin
             $table->decimal('point');
             $table->timestamps();
         });

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('master_umum', function (Blueprint $table) {
             $table->id();
-            $table->string('nama')->nullable();
+            $table->foreignId('katjab_id')->nullable()->constrained('kategori_jabatans')->onDelete('cascade');
             // $table->foreignId('parent_id')->nullable()->constrained('master_umum')->onDelete('cascade');
             $table->integer('nominal')->nullable();
             $table->string('deskripsi')->nullable();

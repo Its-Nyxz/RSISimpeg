@@ -12,4 +12,21 @@ class KategoriJabatan extends Model
 
     protected $table = "kategori_jabatans";
     protected $guarded = ['id'];
+
+    public function masterjabatan()
+    {
+        return $this->hasMany(MasterJabatan::class, 'katjab_id');
+    }
+    public function masterfungsi()
+    {
+        return $this->hasMany(MasterFungsi::class, 'katjab_id');
+    }
+    public function masterumum()
+    {
+        return $this->hasMany(MasterUmum::class, 'katjab_id');
+    }
+    public function masterpotongan()
+    {
+        return $this->hasMany(MasterPotongan::class, 'katjab_id');
+    }
 }
