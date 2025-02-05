@@ -17,9 +17,9 @@ class EditJadwal extends Component
     public $tanggal_jadwal;
     public $keterangan_absen;
 
-    public $users;
-    public $shifts;
-    public $opsiAbsens;
+    public $users = [];
+    public $shifts = [];
+    public $opsis = [];
 
     public function mount($jadwalId)
     {
@@ -35,7 +35,7 @@ class EditJadwal extends Component
         // Ambil data dari model untuk dropdown
         $this->users = User::all();
         $this->shifts = Shift::all();
-        $this->opsiAbsens = OpsiAbsen::all();
+        $this->opsis = OpsiAbsen::all();
     }
 
     public function updateJadwal()
@@ -61,8 +61,33 @@ class EditJadwal extends Component
         return redirect()->route('jadwal.index');
     }
 
+    // Method untuk memilih user
+    public function selectUser($id, $name)
+    {
+        $this->user_id = $id;
+        $this->nama = $name;
+    }
+
+    // Method untuk memilih shift
+    public function selectShift($id, $nama_shift)
+    {
+        $this->shift_id = $id;
+        $this->shift_nama = $nama_shift;
+    }
+
+    // Method untuk memilih opsi absensi
+    public function selectOpsi($id, $name)
+    {
+        $this->opsi_id = $id;
+        $this->opsi_nama = $name;
+    }
+
     public function render()
     {
-        return view('livewire.edit-jadwal');
+        return view('livewire.edit-jadwal', [
+            'users' => $this->users,
+            'shifts' => $this->shifts,
+            'opsis' => $this->opsis,
+        ]);
     }
 }

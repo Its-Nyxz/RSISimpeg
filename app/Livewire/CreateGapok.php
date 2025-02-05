@@ -19,14 +19,14 @@ class CreateGapok extends Component
 
     public function mount()
     {
-        $this->golongans = MasterGolongan::all(); // Ambil daftar golongan dari tabel master_golongan
+        $this->golongans = MasterGolongan::all(); // Ambil daftar golongan dari table master_golongan
     }
 
     public function store()
     {
         $this->validate(); // Validasi input
 
-        // Simpan Gaji Pokok ke dalam tabel master_gapok
+        // Simpan Gaji Pokok ke dalam table master_gapok
         MasterGapok::create([
             'gol_id' => $this->golongan_id,
             'nominal_gapok' => $this->nominal_gapok,
