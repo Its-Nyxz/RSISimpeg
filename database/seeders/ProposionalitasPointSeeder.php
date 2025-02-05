@@ -162,7 +162,7 @@ class ProposionalitasPointSeeder extends Seeder
             ['name' => 'Informasi + Filling', 'point' => 1, 'min_limit' => null, 'unit' => null],
             ['name' => 'Petugas Entry SKU', 'point' => 1, 'min_limit' => null, 'unit' => null],
             ['name' => 'Pelaksana Teknis Non Kefarmasian', 'point' => 1, 'min_limit' => null, 'unit' => null],
-            ['name' => 'Staf Instalasi Farmasi', 'point' => 1, 'min_limit' => null, 'unit' => null],
+            ['name' => 'Staf Instalasi Farmasi', 'point' => 1.1, 'min_limit' => null, 'unit' => null],
             ['name' => 'Koordinator Gudang', 'point' => 1, 'min_limit' => null, 'unit' => null],
             ['name' => 'Koordinator Distribusi', 'point' => 1, 'min_limit' => null, 'unit' => null],
             ['name' => 'Pramusaji', 'point' => 1, 'min_limit' => null, 'unit' => null],
@@ -178,10 +178,10 @@ class ProposionalitasPointSeeder extends Seeder
             ['name' => 'Staf Unit Transportasi dan Ambulance', 'point' => 1, 'min_limit' => null, 'unit' => null],
             ['name' => 'Staf Unit Pemulasaran Jenazah dan Binroh', 'point' => 1, 'min_limit' => null, 'unit' => null],
             ['name' => 'Staf Unit Pengelolaan Linen', 'point' => 1, 'min_limit' => null, 'unit' => null],
-            ['name' => 'Staf Seksi Manajemen Informasi dan Pelaporan', 'point' => 2, 'min_limit' => null, 'unit' => null],
-            ['name' => 'Staf Unit Gudang', 'point' => 2, 'min_limit' => null, 'unit' => null],
+            ['name' => 'Staf Seksi Manajemen Informasi dan Pelaporan', 'point' => 1, 'min_limit' => null, 'unit' => null],
+            ['name' => 'Staf Unit Gudang', 'point' => 1, 'min_limit' => null, 'unit' => null],
             ['name' => 'Staf Unit Pengamanan dan Peduli Lingkungan', 'point' => 1, 'min_limit' => null, 'unit' => null],
-            ['name' => 'Staf Instalasi Teknologi Informasi', 'point' => 1, 'min_limit' => null, 'unit' => null],
+            ['name' => 'Staf Instalasi Teknologi Informasi', 'point' => 1.15, 'min_limit' => null, 'unit' => null],
         ];
 
         // Simpan data fungsional dengan id kategori fungsional berdasarkan tunjangan

@@ -50,7 +50,7 @@ class DatabaseSeeder extends Seeder
             PointPeranSeeder::class,
             MasaKerjaSeeder::class,
             PointJabatanSeeder::class,
-            // ProposionalitasPointSeeder::class,
+            ProposionalitasPointSeeder::class,
             PointKinerjaSeeder::class,
             PointJamKerjaSeeder::class,
             UserSeeder::class, // Tambahkan ini
