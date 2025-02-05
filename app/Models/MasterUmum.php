@@ -38,10 +38,6 @@ class MasterUmum extends Model
         return $this->morphMany(PointPeran::class, 'peransable');
     }
 
-    public function kategorijabatan()
-    {
-        return $this->belongsTo(KategoriJabatan::class, 'katjab_id');
-    }
     // public function parent()
     // {
     //     return $this->belongsTo(MasterUmum::class, 'parent_id');
