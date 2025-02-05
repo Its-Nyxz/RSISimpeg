@@ -53,7 +53,6 @@ class CreateJadwal extends Component
 
         session()->flash('success', 'Jadwal Absensi berhasil ditambahkan!');
         return redirect()->route('jadwal.index');
-    }
 
     // Method untuk memilih user
 public function selectUser($id, $name)
