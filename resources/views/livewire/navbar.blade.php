@@ -14,7 +14,7 @@
                     <span
                         class="self-center text-[1.2rem] sm:text-xl font-bold whitespace-nowrap text-success-950">SIMPEG
                         <span class="font-medium">RSI
-                            BANJARNEGARA Pepk</span></span>
+                            BANJARNEGARA</span></span>
                 </a>
             </div>
             <div>
