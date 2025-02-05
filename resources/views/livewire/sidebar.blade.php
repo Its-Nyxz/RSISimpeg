@@ -66,7 +66,7 @@
                     ]" />
                     <livewire:side-link title="Kepegawaian" icon="fa-solid fa-people-group" :child="[
                         ['title' => 'Data Karyawan', 'href' => '/datakaryawan'],
-                        ['title' => 'Kenaikan Berkala dan Golongan', 'href' => '/kenaikan'],
+                        ['title' => 'Kenaikan', 'href' => '/kenaikan'],
                         ['title' => 'Approval Cuti', 'href' => '#'],
                         ['title' => 'Import Gaji', 'href' => '#'],
                         ['title' => 'Poin Peran Fungsional', 'href' => '/peranfungsional'],
