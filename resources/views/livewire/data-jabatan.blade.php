@@ -30,10 +30,10 @@
                 @forelse ($jabatans as $jabatan)
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
                         <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
-                            {{ $jabatan['kategorijabatan']['nama'] }}
+                            {{ $jabatan->kategorijabatan->nama ?? '-' }}
                         </td>
                         <td class="px-6 py-4">{{ $jabatan['kualifikasi'] }}</td>
-                        <td class="px-6 py-4">{{ rupiah($jabatan['nominal']) }}</td>
+                        <td class="px-6 py-4">Rp {{ number_format($jabatan->nominal, 0, ',', '.') }}</td>
                         <td class="px-6 py-4">{{ $jabatan['deskripsi'] }}</td>
                         <td class="px-6 py-4">
                             <a href="{{ route('jabatan.edit', $jabatan['id']) }}"

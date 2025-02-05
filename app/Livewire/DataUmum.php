@@ -26,8 +26,7 @@ class DataUmum extends Component
                     ->orWhere('kualifikasi', 'like', '%' . $this->search . '%')
                     ->orWhere('nominal', 'like', '%' . $this->search . '%');
             })
-            ->get()
-            ->toArray();
+            ->get();
     }
 
     public function updateSearch($value)

@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\MasterUmum;
+use App\Models\KategoriJabatan;
 
 class CreateUmum extends Component
 {
@@ -19,24 +20,30 @@ class CreateUmum extends Component
 
     public function save()
     {
-        $this->validate([
-            'nama' => 'required|string|max:255',
-            'nominal' => 'required|numeric|min:0',
-            'deskripsi' => 'required|string|max:255',
-        ]);
+        $this->validate();
+
+        $kategori = KategoriJabatan::where('nama', $this->nama)
+                    ->where('tunjangan', 'umum')
+                    ->first();
+
+        if (!$kategori) {
+            $kategori = KategoriJabatan::create([
+                'nama' => $this->nama,
+                'tunjangan' => 'umum'
+            ]);
+        }
 
         MasterUmum::create([
+            'katjab_id' => $kategori->id,
             'nama' => $this->nama,
             'nominal' => $this->nominal,
             'deskripsi' => $this->deskripsi,
         ]);
 
-        // Reset input setelah simpan
         $this->reset('nama');
         $this->reset('nominal');
         $this->reset('deskripsi');
 
-        // Redirect dengan membawa pesan sukses
 
         return redirect()->route('umum.index')->with('success', 'Data Tunjangan Umum baru berhasil ditambahkan.');
 
