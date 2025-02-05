@@ -13,7 +13,7 @@ class KategoriJabatanController extends Controller
      */
     public function index()
     {
-        //
+        return view('kategorijabatan.index');
     }
 
     /**
@@ -21,7 +21,7 @@ class KategoriJabatanController extends Controller
      */
     public function create()
     {
-        //
+        return view('kategorijabatan.create');
     }
 
     /**
@@ -43,9 +43,11 @@ class KategoriJabatanController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(KategoriJabatan $kategoriJabatan)
+    public function edit($id)
     {
-        //
+        $katjab = KategoriJabatan::findOrFail($id);
+
+        return view('kategorijabatan.edit', compact('katjab'));
     }
 
     /**
@@ -53,7 +55,19 @@ class KategoriJabatanController extends Controller
      */
     public function update(UpdateKategoriJabatanRequest $request, KategoriJabatan $kategoriJabatan)
     {
-        //
+        $validatedData = $request->validate([
+            'nama' => 'required|string|max:255',
+            'tunjangan' => 'required|in:jabatan,fungsi,umum',
+            'keterangan' => 'nullable|string|max:500',
+        ]);
+
+        $kategoriJabatan->update([
+            'nama' => $validatedData['nama'],
+            'tunjangan' => $validatedData['tunjangan'],
+            'keterangan' => $validatedData['keterangan'],
+        ]);
+
+        return redirect()->route('katjab.index')->with('success', 'Kategori Jabatan berhasil diperbarui!');        
     }
 
     /**

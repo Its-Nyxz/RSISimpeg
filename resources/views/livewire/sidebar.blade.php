@@ -63,6 +63,7 @@
                                 ['title' => 'Tunjangan Kinerja Jabatan', 'href' => '/tukinjabatan'],
                             ],
                         ],
+                        ['title' => 'Kategori Jabatan', 'href' => '/katjab'],
                     ]" />
                     <livewire:side-link title="Kepegawaian" icon="fa-solid fa-people-group" :child="[
                         ['title' => 'Data Karyawan', 'href' => '/datakaryawan'],
