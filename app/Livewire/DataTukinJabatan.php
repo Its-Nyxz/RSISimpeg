@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\KategoriJabatan;
 use Livewire\Component;
 use App\Models\PointJabatan;
 
@@ -23,23 +24,23 @@ class DataTukinJabatan extends Component
 
     public function fetchData()
     {
-        $query = PointJabatan::with('pointable') 
+        $query = PointJabatan::with('pointable')
             ->when($this->search, function ($query) {
                 $query->whereHasMorph('pointable', ['App\Models\MasterFungsi', 'App\Models\MasterUmum'], function ($q) {
-                    $q->where('nama', 'like', '%' . $this->search . '%'); 
+                    $q->where('nama', 'like', '%' . $this->search . '%');
                 });
             })
             ->get();
-    
+
         $this->items = $query->map(function ($pointJabatan) {
             return [
                 'id' => $pointJabatan->id,
-                'nama' => $pointJabatan->pointable->nama ?? '-',
+                'nama' => $pointJabatan->pointable->kategorijabatan->nama ?? '-',
                 'poin' => $pointJabatan->point,
             ];
         });
     }
-    
+
 
     public function render()
     {

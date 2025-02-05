@@ -49,9 +49,10 @@
                         <td colspan="5" class="text-center px-6 py-4">Tidak ada data Level Unit.</td>
                     </tr>
                 @endforelse
-            </tbody>
+            </tbody>            
         </table>
     </div>
+
     <div class="mt-4 flex gap-2 justify-center items-center">
         @if (!$levelunit->onFirstPage())
             <button wire:click="previousPage" wire:loading.attr="disabled"
@@ -79,3 +80,4 @@
         @endif
     </div>
 </div>
+

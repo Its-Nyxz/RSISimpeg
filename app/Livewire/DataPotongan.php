@@ -16,7 +16,7 @@ class DataPotongan extends Component
 
     public function loadData()
     {
-        $this->potongans = MasterPotongan::with('fungsi')
+        $this->potongans = MasterPotongan::with('kategorijabatan')
             ->when($this->search, function ($query) {
                 $query->where('nama', 'like', '%' . $this->search . '%');
             })

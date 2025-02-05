@@ -19,6 +19,7 @@
                         <tr>
                             <th scope="col" class="px-6 py-3">No</th>
                             <th scope="col" class="px-6 py-3">Proposionalitas</th>
+                            <th scope="col" class="px-6 py-3">Unit Kerja</th>
                             <th scope="col" class="px-6 py-3">Point</th>
                             <th scope="col" class="px-6 py-3">Action</th>
                         </tr>
@@ -31,6 +32,7 @@
                                 <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
                                     {{ $item['nama'] }}
                                 </td>
+                                <td class="px-6 py-4">{{ $item['nama_unit'] }}</td>
                                 <td class="px-6 py-4">{{ $item['poin'] }}</td>
                                 <td class="px-6 py-4">
                                     <a href="/poposionalitas/edit/{{ $item['id'] }}"

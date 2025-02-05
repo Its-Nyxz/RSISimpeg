@@ -9,8 +9,7 @@
                     <i class="fa-solid fa-bars"></i>
                 </button>
                 <a href="/" class="flex items-center">
-                    <img src="{{ asset('build/assets/logo.png') }}" class="mr-3 h-6 sm:h-9 hidden sm:flex"
-                        alt="Logo" />
+                    <img src="{{ asset('img/logo.png') }}" class="mr-3 h-6 sm:h-9 hidden sm:flex" alt="Logo" />
                     <span
                         class="self-center text-[1.2rem] sm:text-xl font-bold whitespace-nowrap text-success-950">SIMPEG
                         <span class="font-medium">RSI

@@ -34,8 +34,8 @@ class UnitKerja extends Model
         return $this->morphMany(PointJabatan::class, 'pointable');
     }
 
-    public function proposionalitasPoints()
+    public function unitkerja()
     {
-        return $this->morphMany(ProposionalitasPoint::class, 'proposable');
+        return $this->hasMany(ProposionalitasPoint::class, 'unit_id');
     }
 }
