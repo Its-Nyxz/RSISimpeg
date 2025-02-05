@@ -15,7 +15,7 @@
             <span class="flex-1 ml-3 text-left whitespace-nowrap">{{ $title }}</span>
             <i class="fa-solid fa-chevron-down ml-2"></i>
         </button>
-        <ul id="{{ Str::slug($title) }}" class="hidden py-2 space-y-2">
+        <ul id="{{ $title }}" class="hidden py-2 space-y-2">
             @foreach ($child as $item)
                 <li>
                     @if (!empty($item['child'])) <!-- Check if child exists -->
@@ -46,4 +46,6 @@
             @endforeach
         </ul>
     </li>
+
 @endif
+

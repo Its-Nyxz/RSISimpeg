@@ -13,6 +13,9 @@ class CreatePendidikan extends Component
     public $minim_gol;
     public $maxim_gol;
     public $golongans;
+    
+    public $minim_gol_nama;
+    public $maxim_gol_nama;
 
     // Mengambil data golongan untuk dropdown
     public function mount()
@@ -48,4 +51,3 @@ class CreatePendidikan extends Component
         return view('livewire.create-pendidikan');
     }
 }
-

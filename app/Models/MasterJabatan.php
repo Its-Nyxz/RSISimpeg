@@ -22,4 +22,6 @@ class MasterJabatan extends Model
     {
         return $this->belongsTo(KategoriJabatan::class, 'katjab_id');
     }
+
 }
+

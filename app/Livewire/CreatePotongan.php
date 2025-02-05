@@ -22,6 +22,14 @@ class CreatePotongan extends Component
         'deskripsi' => 'required',
     ];
 
+      // Method untuk memilih fungsi
+    public function selectFungsi($id, $name)
+    {
+        $this->fungsi_id = $id;
+        $this->fungsi_nama = $name;
+        $this->showDropdown = false; // Tutup dropdown setelah memilih
+    }
+  
     public function mount()
     {
         $this->jabatans = KategoriJabatan::all();
