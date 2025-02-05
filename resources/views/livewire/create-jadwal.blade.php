@@ -125,6 +125,7 @@
         }
 
         function selectItem(field, name, id) {
+
     document.getElementById(field).value = name;
 
     // Set the correct property name dynamically

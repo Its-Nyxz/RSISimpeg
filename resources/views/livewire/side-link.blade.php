@@ -26,7 +26,7 @@
                             {{ $item['title'] }}
                             <i class="fa-solid fa-chevron-down ml-2 group-hover:rotate-180 transition-transform"></i>
                         </button>
-                        <ul id="{{ Str::slug($item['title']) }}" class="hidden py-2 space-y-2">
+                        <ul id="{{ $item['title'] }}" class="hidden py-2 space-y-2">
                             @foreach ($item['child'] as $subItem)
                                 <li>
                                     <a href="{{ $subItem['href'] }}"
