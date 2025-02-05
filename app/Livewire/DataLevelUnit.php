@@ -10,6 +10,7 @@ class DataLevelUnit extends Component
 {
     use WithPagination;
 
+    public $search = '';
 
     public function updateSearch($value)
     {

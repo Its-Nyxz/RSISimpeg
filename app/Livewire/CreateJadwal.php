@@ -53,27 +53,27 @@ class CreateJadwal extends Component
 
         session()->flash('success', 'Jadwal Absensi berhasil ditambahkan!');
         return redirect()->route('jadwal.index');
-
+    }
     // Method untuk memilih user
-public function selectUser($id, $name)
-{
-    $this->user_id = $id;
-    $this->nama = $name;
-}
+    public function selectUser($id, $name)
+    {
+        $this->user_id = $id;
+        $this->nama = $name;
+    }
 
-// Method untuk memilih shift
-public function selectShift($id, $nama_shift)
-{
-    $this->shift_id = $id;
-    $this->shift_nama = $nama_shift;
-}
+    // Method untuk memilih shift
+    public function selectShift($id, $nama_shift)
+    {
+        $this->shift_id = $id;
+        $this->shift_nama = $nama_shift;
+    }
 
-// Method untuk memilih opsi absensi
-public function selectOpsi($id, $name)
-{
-    $this->opsi_id = $id;
-    $this->opsi_nama = $name;
-}
+    // Method untuk memilih opsi absensi
+    public function selectOpsi($id, $name)
+    {
+        $this->opsi_id = $id;
+        $this->opsi_nama = $name;
+    }
 
 
     public function render()
