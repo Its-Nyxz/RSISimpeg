@@ -8,39 +8,33 @@ use App\Models\KategoriJabatan;
 
 class CreateJabatan extends Component
 {
-    public $nama, $kualifikasi, $nominal, $deskripsi;
+    public $kualifikasi, $nominal, $deskripsi;
+    public $katjab_id;
+
+    public $katjabs = [];
 
     protected $rules = [
-        'nama' => 'required|string|max:255',
+        'katjab_id' => 'required|exists:kategori_jabatan,id',
         'kualifikasi' => 'required|string|max:255',
         'nominal' => 'required|numeric|min:0',
         'deskripsi' => 'required|string|max:255',
     ];
 
-    public function save()
+    public function mount()
+    {
+        $this->katjabs = KategoriJabatan::where('tunjangan', 'umum')->get();
+    }
+
+    public function store()
     {
         $this->validate();
 
-        $kategori = KategoriJabatan::where('nama', $this->nama)
-                    ->where('tunjangan', 'jabatan')
-                    ->first();
-
-        if (!$kategori) {
-            $kategori = KategoriJabatan::create([
-                'nama' => $this->nama,
-                'tunjangan' => 'jabatan'
-            ]);
-        }
-
         MasterJabatan::create([
-            'katjab_id' => $kategori->id,
-            'nama' => $this->nama,
+            'katjab_id' => $katjab_id,
             'kualifikasi' => $this->kualifikasi,
             'nominal' => $this->nominal,
             'deskripsi' => $this->deskripsi,
         ]);
-
-        $this->reset(['nama', 'kualifikasi', 'nominal', 'deskripsi']);
 
         return redirect()->route('jabatan.index')->with('success', 'Data Tunjangan Jabatan berhasil ditambahkan.');
     }
@@ -48,6 +42,8 @@ class CreateJabatan extends Component
 
     public function render()
     {
-        return view('livewire.create-jabatan');
+        return view('livewire.create-jabatan', [
+            'katjabs' => $this->katjabs,
+        ]);
     }
 }
