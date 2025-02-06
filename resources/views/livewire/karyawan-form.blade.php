@@ -305,7 +305,7 @@
                                     <optgroup label="Jabatan">
                                         @foreach ($jabatans as $jabatan)
                                             <option value="jabatan_{{ $jabatan->id }}">
-                                                {{ $jabatan->nama }}
+                                                {{ $jabatan->kategorijabatan->nama }}
                                             </option>
                                         @endforeach
                                     </optgroup>
@@ -314,7 +314,7 @@
                                     <optgroup label="Fungsi">
                                         @foreach ($fungsis as $fungsi)
                                             <option value="fungsi_{{ $fungsi->id }}">
-                                                {{ $fungsi->nama }}
+                                                {{ $fungsi->kategorijabatan->nama }}
                                             </option>
                                         @endforeach
                                     </optgroup>
@@ -323,7 +323,7 @@
                                     <optgroup label="Umum">
                                         @foreach ($umums as $umum)
                                             <option value="umum_{{ $umum->id }}">
-                                                {{ $umum->nama }}
+                                                {{ $umum->kategorijabatan->nama }}
                                             </option>
                                         @endforeach
                                     </optgroup>

@@ -9,6 +9,7 @@ use App\Models\UnitKerja;
 use App\Models\MasterUmum;
 use App\Models\MasterFungsi;
 use App\Models\JenisKaryawan;
+use App\Models\KategoriJabatan;
 use App\Models\Kategoripph;
 use App\Models\MasterJabatan;
 use App\Models\MasterGolongan;
@@ -38,6 +39,7 @@ class KaryawanForm extends Component
     public $formasi;
     public $trans;
     public $khusus;
+    public $katjab;
     public $jeniskaryawan;
     public $gol;
     public $golongans;
@@ -166,6 +168,7 @@ class KaryawanForm extends Component
         $this->umums = MasterUmum::all();
         $this->filteredKhusus = MasterKhusus::where('nama', 'like', '%Tenaga Kesehatan%')->get();
         $this->pphs = Kategoripph::all();
+        $this->katjab = KategoriJabatan::all();
         $this->roles = Role::where('id', '>', '3')->get();
         if ($this->id) {
             $user = User::find($this->id);
