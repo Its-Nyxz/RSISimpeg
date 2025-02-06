@@ -47,6 +47,7 @@ use App\Http\Controllers\TukinJabatanController;
 use App\Http\Controllers\TimerController;
 
 use App\Http\Controllers\AktivitasAbsensiController;
+use App\Http\Controllers\KategoriJabatanController;
 
 Route::get('/', function () {
     return redirect()->to('/login');
@@ -123,6 +124,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('timer', TimerController::class);
 
     Route::resource('aktivitasabsensi', AktivitasAbsensiController::class);
+    Route::resource('katjab', KategoriJabatanController::class);
 });
 
 require __DIR__ . '/auth.php';

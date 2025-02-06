@@ -72,9 +72,6 @@
 
             <!-- Tombol Aksi -->
             <div class="form-group flex justify-end space-x-2">
-                <a href="{{ url()->previous() }}" class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
-                    <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
-                </a>
                 <button type="submit" class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
                     <i class="fa-solid fa-paper-plane mr-2"></i> Simpan Pendidikan
                 </button>

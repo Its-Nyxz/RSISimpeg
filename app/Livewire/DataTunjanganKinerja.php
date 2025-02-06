@@ -19,7 +19,7 @@ class DataTunjanganKinerja extends Component
     public function mount($type)
     {
         $this->type = $type;
-        $this->search = '';
+
         $this->loadData();
     }
 
@@ -51,22 +51,16 @@ class DataTunjanganKinerja extends Component
                     'poin' => $item->levelPoint->point ?? null,
                 ])->toArray(),
 
-
-                        'poin' => $item->levelPoint->point ?? null,
-                    ];
-                })->toArray(),
-
             'masakerja' => MasaKerja::query()
-                ->when($this->search, function ($query) {
-                    $query->where('nama', 'like', '%' . $this->search . '%');
-                })->get()->map(function ($item) {
-                    return [
-                        'id' => $item->id,
-                        'nama' => $item->nama,
-                        'point' => $item->point,
-                    ];
-                })->toArray(),
-
+                ->when(
+                    $this->search,
+                    fn($query) =>
+                    $query->where('nama', 'like', '%Kontrak%')
+                )->get()->map(fn($item) => [
+                    'id' => $item->id,
+                    'nama' => $item->nama,
+                    'point' => $item->point,
+                ])->toArray(),
 
             'proposionalitas' => ProposionalitasPoint::with('proposable')
                 ->when($this->search, function ($query) {
@@ -75,16 +69,11 @@ class DataTunjanganKinerja extends Component
                         ['App\Models\MasterFungsi', 'App\Models\MasterUmum'],
                         fn($q) => $q->where('nama', 'like', '%' . $this->search . '%')
                     );
-
-                })
-                ->get()
-                ->map(function ($item) {
-                    return [
-                        'id' => $item->id,
-                        'nama' => $item->proposable->nama ?? '-',
-                        'poin' => $item->point,
-                    ];
-                })->toArray(),
+                })->get()->map(fn($item) => [
+                    'id' => $item->id,
+                    'nama' => $item->proposable->nama ?? '-',
+                    'poin' => $item->point,
+                ])->toArray(),
 
             'pointperan' => PointPeran::with('peransable')
                 ->when($this->search, function ($query) {
@@ -93,36 +82,30 @@ class DataTunjanganKinerja extends Component
                         ['App\Models\MasterFungsi', 'App\Models\MasterUmum'],
                         fn($q) => $q->where('nama', 'like', '%' . $this->search . '%')
                     );
-                })
-                ->get()
-                ->map(function ($item) {
-                    return [
-                        'id' => $item->id,
-                        'nama' => $item->peransable->nama ?? '-',
-                        'poin' => $item->point,
-                    ];
-                })->toArray(),
+                })->get()->map(fn($item) => [
+                    'id' => $item->id,
+                    'nama' => $item->peransable->nama ?? '-',
+                    'poin' => $item->point,
+                ])->toArray(),
+
             'tukinjabatan' => PointJabatan::with('pointable')
                 ->when($this->search, function ($query) {
-                    $query->whereHasMorph('pointable', ['App\Models\MasterFungsi', 'App\Models\MasterUmum'], function ($q) {
-                        $q->where('nama', 'like', '%' . $this->search . '%');
-                    });
-                })
-                ->get()->map(function ($item) {
-                    return [
-                        'id' => $item->id,
-                        'nama' => $item->pointable->nama ?? '-',
-                        'poin' => $item->point,
-                    ];
-                })->toArray(),
+                    $query->whereHasMorph(
+                        'pointable',
+                        ['App\Models\MasterFungsi', 'App\Models\MasterUmum'],
+                        fn($q) => $q->where('nama', 'like', '%' . $this->search . '%')
+                    );
+                })->get()->map(fn($item) => [
+                    'id' => $item->id,
+                    'nama' => $item->pointable->nama ?? '-',
+                    'poin' => $item->point,
+                ])->toArray(),
 
+            default => [],
         };
     }
     public function render()
     {
-        // \Log::debug('Search query:', ['search' => $this->search]);
-        // dd($this->search);
-    
         return view('livewire.data-tunjangan-kinerja');
     }
 }
