@@ -4,32 +4,36 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\MasterUmum;
+use App\Models\KategoriJabatan;
 
 class EditUmum extends Component
 {
     public $umum_id;
-    public $nama;
+    public $katjab_id;
     public $nominal;
     public $deskripsi;
+    
+    public $katjabs = [];
 
     public function mount($umumId){
         $umum = MasterUmum::findOrFail($umumId);
         $this->umum_id = $umum->id;
-        $this->nama = $umum->nama;
+        $this->katjab_id = $umum->katjab_id;
         $this->nominal = $umum->nominal;
         $this->deskripsi = $umum->deskripsi;
+        $this->katjabs = KategoriJabatan::where('tunjangan', 'umum')->get();
     }
 
     public function updateUmum(){
         $this->validate([
-            'nama' => 'required',
-            'nominal' => 'required',
-            'deskripsi' => 'required',
+            'katjab_id' => 'required|exists:kategori_jabatan,id',
+            'nominal' => 'required|numeric|min:0',
+            'deskripsi' => 'required|string|max:255',
         ]);
 
         $umum = MasterUmum::findOrFail($this->umum_id);
         $umum->update([
-            'nama' => $this->nama,
+            'katjab_id' => $this->katjab_id,
             'nominal' => $this->nominal,
             'deskripsi' => $this->deskripsi,
         ]);
