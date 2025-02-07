@@ -276,14 +276,19 @@
                                     wire:input="fetchSuggestions('jabatan', $event.target.value)"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-700 focus:border-green-700 block w-full p-2.5"
                                     placeholder="Cari Jabatan..." wire:blur="hideSuggestions('jabatan')" required>
-                                @if ($suggestions['jabatan'])
+
+                                @if (!empty($suggestions['jabatan']))
                                     <ul
                                         class="absolute z-20 w-full bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
-                                        @foreach ($suggestions['jabatan'] as $suggestion)
-                                            <li wire:click="selectSuggestion('jabatan', '{{ $suggestion }}')"
-                                                class="px-4 py-2 hover:bg-green-700 hover:text-white cursor-pointer transition duration-200">
-                                                {{ $suggestion }}
-                                            </li>
+                                        @foreach ($suggestions['jabatan'] as $tunjangan => $list)
+                                            <li class="bg-gray-100 px-4 py-2 font-bold text-gray-600 uppercase">
+                                                {{ ucfirst($tunjangan) }}</li>
+                                            @foreach ($list as $suggestion)
+                                                <li wire:click="selectSuggestion('jabatan', '{{ $suggestion }}')"
+                                                    class="px-4 py-2 hover:bg-green-700 hover:text-white cursor-pointer transition duration-200">
+                                                    {{ $suggestion }}
+                                                </li>
+                                            @endforeach
                                         @endforeach
                                     </ul>
                                 @endif
@@ -347,15 +352,15 @@
                                     Golongan *</label>
                             </td>
                             <td>
-                                {{-- <input type="text" id="golongan" wire:model.live="selectedGolonganNama"
+                                <input type="text" id="golongan" wire:model.live="selectedGolonganNama"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
                                     placeholder="Golongan akan terisi otomatis" readonly />
                                 @error('selectedGolonganNama')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                                @enderror --}}
-                                <span for="golongan"
+                                @enderror
+                                {{-- <span for="golongan"
                                     class="block mb-2 text-sm font-semibold text-gray-900 uppercase ">
-                                    {{ $selectedGolonganNama ?? '-' }} </span>
+                                    {{ $selectedGolonganNama ?? '-' }} </span> --}}
                             </td>
                         </tr>
                         @push('scripts')
