@@ -75,7 +75,7 @@
                     ]" />
                     <livewire:side-link href="/keuangan" title="Keuangan" icon="fa-solid fa-money-bills" />
                     <livewire:side-link href="#" title="Pengaturan" icon="fa-solid fa-gear" :child="[
-                        ['title' => 'Jabatan & Perizinan', 'href' => '/jabatanperizinan'],
+                        ['title' => 'Hak Akses & Perizinan', 'href' => '/jabatanperizinan'],
                         ['title' => 'User', 'href' => '/userprofile'],
                     ]" />
                 </ul>

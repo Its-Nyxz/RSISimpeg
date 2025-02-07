@@ -1,27 +1,27 @@
 <div>
 
 
-    <x-card title="Jabatan & Perizinan">
+    <x-card title="Hak Akses & Perizinan">
         <div class="flex justify-between items-center gap-4 mb-3">
-            <p>Pengaturan untuk Jabatan dan Perizinan yang dapat diakses.</p>
+            <p>Pengaturan untuk Hak Akses dan Perizinan yang dapat diakses.</p>
 
             <a href="#"
                 class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                + Buat Jabatan
+                + Buat Hak Akses
             </a>
         </div>
 
         <div class="flex-1" style="margin-bottom: 20px;">
-            <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Jabatan..."
+            <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Hak Akses..."
                 class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
         </div>
 
         @forelse ($jabatanperizinan as $item)
-            <x-card-tanpa-title>
-                <div class="flex justify-between items-center gap-4 mb-3">
+            <x-card-tanpa-title class="mb-4">
+                <div class="flex justify-between items-center ">
                     <p>{{ $item['name'] }}</p>
 
-                    <div class="flex justify-between items-center gap-4 mb-3">
+                    <div class="flex justify-between items-center gap-2">
                         <button type="button" class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                             data-tooltip-target="tooltip-item-{{ $item['id'] }}"
                             @click="$dispatch('open-modal', 'edit-modal', '{{ $item['id'] }}')">

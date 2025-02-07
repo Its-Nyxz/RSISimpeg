@@ -113,28 +113,28 @@
                         </tr>
                         <tr>
                             <td style="width: 40%">
-                                <label for="namapendidkan" class="block mb-2 text-sm font-medium text-gray-900">
+                                <label for="namapendidikan" class="block mb-2 text-sm font-medium text-gray-900">
                                     Pendidikan *</label>
                             </td>
                             <td>
-                                <input type="text" id="namapendidkan" wire:model.live="namapendidkan"
+                                <input type="text" id="namapendidikan" wire:model.live="namapendidikan"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
                                     placeholder="Pendidikan Pegawai" required />
-                                @error('namapendidkan')
+                                @error('namapendidikan')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
                             </td>
                         </tr>
                         <tr>
                             <td style="width: 40%">
-                                <label for="intitusi" class="block mb-2 text-sm font-medium text-gray-900">
+                                <label for="institusi" class="block mb-2 text-sm font-medium text-gray-900">
                                     Institusi *</label>
                             </td>
                             <td>
-                                <input type="text" id="intitusi" wire:model.live="intitusi"
+                                <input type="text" id="institusi" wire:model.live="institusi"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
                                     placeholder="Institusi Pegawai" required />
-                                @error('intitusi')
+                                @error('institusi')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
                             </td>
@@ -242,94 +242,51 @@
                         <tr>
                             <td style="width: 40%">
                                 <label for="unit" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Unit *</label>
+                                    Unit Kerja *</label>
                             </td>
-                            <td>
-                                <select wire:model.live="units"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 ">
-                                    <option value="" disabled selected>Pilih Unit</option>
-                                    @foreach ($units as $unit)
-                                        @if (Auth::user()->id == 1)
-                                            @if ($unit->parent_id === null)
-                                                <!-- Parent Unit -->
-                                                <option value="{{ $unit->id }}">{{ $unit->nama }}</option>
+                            <td class="relative">
+                                <input type="text" wire:model.live="unit"
+                                    wire:input="fetchSuggestions('unit', $event.target.value)"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-700 focus:border-blue-700 block w-full p-2.5"
+                                    placeholder="Cari Unit Kerja..." wire:blur="hideSuggestions('unit')" required>
 
-                                                <!-- Child Units -->
-                                                @foreach ($units->where('parent_id', $unit->id) as $childUnit)
-                                                    <option value="{{ $childUnit->id }}">--- {{ $childUnit->nama }}
-                                                    </option>
-                                                @endforeach
-                                            @endif
-                                        @else
-                                            <option value="{{ $unit->id }}">{{ $unit->nama }}</option>
-                                        @endif
-                                    @endforeach
-                                </select>
-                                @error('units')
-                                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                                @enderror
+                                @if ($suggestions['unit'])
+                                    <ul
+                                        class="absolute z-20 w-full bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
+                                        @foreach ($suggestions['unit'] as $suggestion)
+                                            <li wire:click="selectSuggestion('unit', '{{ $suggestion }}')"
+                                                class="px-4 py-2 hover:bg-blue-700 hover:text-white cursor-pointer transition duration-200">
+                                                {{ $suggestion }}
+                                            </li>
+                                        @endforeach
+                                        @dump($suggestion)
+                                    </ul>
+                                @endif
                             </td>
                         </tr>
+
                         <tr>
                             <td style="width: 40%">
-                                <label for="unit" class="block mb-2 text-sm font-medium text-gray-900">
+                                <label for="jabatan" class="block mb-2 text-sm font-medium text-gray-900">
                                     Jabatan *</label>
                             </td>
-                            <td>
-                                <div>
-                                    <select wire:model.live="selectedRoles"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 ">
-                                        <option value="" disabled selected>Pilih Role</option>
-                                        @foreach ($roles as $role)
-                                            <option value="{{ $role->name }}">
-                                                {{ ucwords(str_replace('_', ' ', $role->name)) }}
-                                                {{-- {{ formatRole($role->name) }} --}}
-                                            </option>
+                            <td class="relative">
+                                <input type="text" wire:model.live="jabatan"
+                                    wire:focus="fetchSuggestions('jabatan', $event.target.value)"
+                                    wire:input="fetchSuggestions('jabatan', $event.target.value)"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-700 focus:border-green-700 block w-full p-2.5"
+                                    placeholder="Cari Jabatan..." wire:blur="hideSuggestions('jabatan')" required>
+                                @if ($suggestions['jabatan'])
+                                    <ul
+                                        class="absolute z-20 w-full bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
+                                        @foreach ($suggestions['jabatan'] as $suggestion)
+                                            <li wire:click="selectSuggestion('jabatan', '{{ $suggestion }}')"
+                                                class="px-4 py-2 hover:bg-green-700 hover:text-white cursor-pointer transition duration-200">
+                                                {{ $suggestion }}
+                                            </li>
                                         @endforeach
-                                    </select>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="width: 40%">
-                                <label for="formasi" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Formasi *</label>
-                            </td>
-                            <td>
-                                <select id="formasi" wire:model.live="formasi"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
-                                    required>
-                                    <option value="">Pilih Formasi</option>
-
-                                    <!-- Opsi Jabatan -->
-                                    <optgroup label="Jabatan">
-                                        @foreach ($jabatans as $jabatan)
-                                            <option value="jabatan_{{ $jabatan->id }}">
-                                                {{ $jabatan->kategorijabatan->nama }}
-                                            </option>
-                                        @endforeach
-                                    </optgroup>
-
-                                    <!-- Opsi Fungsi -->
-                                    <optgroup label="Fungsi">
-                                        @foreach ($fungsis as $fungsi)
-                                            <option value="fungsi_{{ $fungsi->id }}">
-                                                {{ $fungsi->kategorijabatan->nama }}
-                                            </option>
-                                        @endforeach
-                                    </optgroup>
-
-                                    <!-- Opsi Umum -->
-                                    <optgroup label="Umum">
-                                        @foreach ($umums as $umum)
-                                            <option value="umum_{{ $umum->id }}">
-                                                {{ $umum->kategorijabatan->nama }}
-                                            </option>
-                                        @endforeach
-                                    </optgroup>
-                                    @error('formasi')
-                                        <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
-                                    @enderror
+                                    </ul>
+                                @endif
                             </td>
                         </tr>
                         <tr>
@@ -488,7 +445,7 @@
                             <td>
                                 <select wire:model.live="pphs"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 ">
-                                    <option value="" disabled selected>Pilih Unit</option>
+                                    <option value="">Pilih Kategori PPH</option>
                                     @foreach ($pphs as $pph)
                                         @if (Auth::user()->id == 1)
                                             @if ($pph->parent_id === null)
@@ -509,6 +466,26 @@
                                 @error('pphs')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 40%">
+                                <label for="unit" class="block mb-2 text-sm font-medium text-gray-900">
+                                    Hak Akses *</label>
+                            </td>
+                            <td>
+                                <div>
+                                    <select wire:model.live="selectedRoles"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 ">
+                                        <option value="">Pilih Hak Akses</option>
+                                        @foreach ($roles as $role)
+                                            <option value="{{ $role->id }}">
+                                                {{ ucwords(str_replace('_', ' ', $role->name)) }}
+                                                {{-- {{ formatRole($role->name) }} --}}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </td>
                         </tr>
                     </table>
