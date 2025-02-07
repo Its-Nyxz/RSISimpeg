@@ -11,16 +11,23 @@ class EditGapok extends Component
     public $gapok_id;
     public $golongan_id;
     public $nominal_gapok;
+    
+    public $golongan_id_nama;
+
     public $golongans = [];
 
     public function mount($gapokId)
-    {
-        $gapok = MasterGapok::findOrFail($gapokId);
-        $this->gapok_id = $gapok->id;
-        $this->golongan_id = $gapok->gol_id;
-        $this->nominal_gapok = $gapok->nominal_gapok;
-        $this->golongans = MasterGolongan::all();
-    }
+{
+    $gapok = MasterGapok::findOrFail($gapokId);
+    
+    $this->gapok_id = $gapok->id;
+    $this->golongan_id = $gapok->gol_id;
+    $this->nominal_gapok = $gapok->nominal_gapok;
+    $this->golongans = MasterGolongan::all();
+
+    // Ambil nama golongan buat diinput
+    $this->golongan_id_nama = MasterGolongan::where('id', $this->golongan_id)->value('nama');
+}
 
     // Menangani pembaruan data Gapok
     public function updateGapok()

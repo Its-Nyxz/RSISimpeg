@@ -17,6 +17,10 @@ class EditJadwal extends Component
     public $tanggal_jadwal;
     public $keterangan_absen;
 
+    public $user_nama;
+    public $shift_nama;
+    public $opsi_nama;
+
     public $users = [];
     public $shifts = [];
     public $opsis = [];
@@ -36,6 +40,10 @@ class EditJadwal extends Component
         $this->users = User::all();
         $this->shifts = Shift::all();
         $this->opsis = OpsiAbsen::all();
+
+        $this->user_nama = User::where('id', $this->user_id)->value('name');
+        $this->shift_nama = Shift::where('id', $this->shift_id)->value('nama_shift');
+        $this->opsi_nama = OpsiAbsen::where('id', $this->opsi_id)->value('name');
     }
 
     public function updateJadwal()

@@ -6,8 +6,8 @@
                 <label for="golongan_id" class="block text-sm font-medium text-green-900">Nama Golongan</label>
                 <div class="relative">
                     <input type="text" id="golongan_id" wire:model="golongan_id_nama" placeholder="Cari Golongan..." autocomplete="off"
-                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
-                        oninput="filterGolonganDropdown()" onclick="toggleGolonganDropdown()" />
+                    class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
+                    oninput="filterGolonganDropdown()" onclick="toggleGolonganDropdown()" />
                     
                     <ul id="golonganDropdown" class="dropdown hidden">
                         @foreach($golongans as $golongan)
