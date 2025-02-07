@@ -4,34 +4,41 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\MasterJabatan;
+use App\Models\KategoriJabatan;
+
 class EditJabatan extends Component
 {
     public $jabatan_id;
-    public $nama;
     public $kualifikasi;
     public $nominal;
     public $deskripsi;
+    public $katjab_id;
 
-    public function mount($jabatanId){
+    public $katjabs = [];
+
+    public function mount($jabatanId)
+    {
         $jabatan = MasterJabatan::findOrFail($jabatanId);
         $this->jabatan_id = $jabatan->id;
-        $this->nama = $jabatan->nama;
+        $this->katjab_id = $jabatan->katjab_id;
         $this->kualifikasi = $jabatan->kualifikasi;
         $this->nominal = $jabatan->nominal;
         $this->deskripsi = $jabatan->deskripsi;
+        $this->katjabs = KategoriJabatan::where('tunjangan', 'jabatan')->get();
     }
 
-    public function updateJabatan(){
+    public function updateJabatan()
+    {
         $this->validate([
-            'nama' => 'required',
-            'kualifikasi' => 'required',
-            'nominal' => 'required',
-            'deskripsi' => 'required',
+            'katjab_id' => 'required|exists:kategori_jabatan,id',
+            'kualifikasi' => 'required|string|max:255',
+            'nominal' => 'required|numeric|min:0',
+            'deskripsi' => 'required|string|max:255',
         ]);
 
         $jabatan = MasterJabatan::findOrFail($this->jabatan_id);
         $jabatan->update([
-            'nama' => $this->nama,
+            'katjab_id' => $this->katjab_id,
             'kualifikasi' => $this->kualifikasi,
             'nominal' => $this->nominal,
             'deskripsi' => $this->deskripsi,

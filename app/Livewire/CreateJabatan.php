@@ -4,51 +4,46 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\MasterJabatan;
+use App\Models\KategoriJabatan;
 
 class CreateJabatan extends Component
 {
-    public $nama;
-    public $kualifikasi;
-    public $nominal;
-    public $deskripsi;
+    public $kualifikasi, $nominal, $deskripsi;
+    public $katjab_id;
+
+    public $katjabs = [];
 
     protected $rules = [
-        'nama' => 'required|string|max:255',
+        'katjab_id' => 'required|exists:kategori_jabatan,id',
         'kualifikasi' => 'required|string|max:255',
         'nominal' => 'required|numeric|min:0',
         'deskripsi' => 'required|string|max:255',
     ];
 
-    public function save()
+    public function mount()
     {
-        // Validasi dan simpan data golongan
-        $this->validate([
-            'nama' => 'required|string|max:255',
-            'kualifikasi' => 'required|string|max:255',
-            'nominal' => 'required|numeric|min:0',
-            'deskripsi' => 'required|string|max:255',
-        ]);
+        $this->katjabs = KategoriJabatan::where('tunjangan', 'jabatan')->get();
+    }
 
-        // Menyimpan data golongan baru
-        MasterJabatan::create([
-            'nama' => $this->nama,
+    public function store()
+    {
+        $this->validate();
+
+        MasterJabatan::create(attributes: [
+            'katjab_id' => $this->katjab_id,
             'kualifikasi' => $this->kualifikasi,
             'nominal' => $this->nominal,
             'deskripsi' => $this->deskripsi,
         ]);
 
-        // Reset input setelah simpan
-        $this->reset('nama');
-        $this->reset('kualifikasi');
-        $this->reset('nominal');
-        $this->reset('deskripsi');
-
-        // Redirect dengan membawa pesan sukses
-        return redirect()->route('jabatan.index')->with('success', 'Data Tunjangan Jabatan baru berhasil ditambahkan.');
+        return redirect()->route('jabatan.index')->with('success', 'Data Tunjangan Jabatan berhasil ditambahkan.');
     }
+
 
     public function render()
     {
-        return view('livewire.create-jabatan');
+        return view('livewire.create-jabatan', [
+            'katjabs' => $this->katjabs,
+        ]);
     }
 }

@@ -28,9 +28,9 @@
                 @forelse ($fungsionals as $fungsional)
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
                         <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
-                            {{ $fungsional['kategorijabatan']['nama'] }}
+                            {{ $fungsional->kategorijabatan->nama ?? '-' }}
                         </td>
-                        <td class="px-6 py-4">{{ rupiah($fungsional['nominal']) }}</td>
+                        <td class="px-6 py-4">Rp {{ number_format($fungsional->nominal, 0, ',', '.') }}</td>
                         <td class="px-6 py-4">{{ $fungsional['deskripsi'] }}</td>
                         <td class="px-6 py-4">
                             <a href="{{ route('fungsional.edit', $fungsional['id']) }}"

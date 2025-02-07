@@ -15,7 +15,6 @@ class EditGapok extends Component
 
     public function mount($gapokId)
     {
-
         $gapok = MasterGapok::findOrFail($gapokId);
         $this->gapok_id = $gapok->id;
         $this->golongan_id = $gapok->gol_id;
@@ -33,7 +32,7 @@ class EditGapok extends Component
 
         $gapok = MasterGapok::findOrFail($this->gapok_id);
         $gapok->update([
-            'g  l_id' => $this->golongan_id,
+            'gol_id' => $this->golongan_id,
             'nominal_gapok' => $this->nominal_gapok,
         ]);
 

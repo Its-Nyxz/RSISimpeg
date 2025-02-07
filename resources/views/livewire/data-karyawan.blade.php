@@ -20,7 +20,6 @@
                     <th scope="col" class="px-6 py-3">NIP</th>
                     <th scope="col" class="px-6 py-3">Alamat</th>
                     <th scope="col" class="px-6 py-3">Jabatan</th>
-                    <th scope="col" class="px-6 py-3">Formasi</th>
                     <th scope="col" class="px-6 py-3">Unit</th>
                     <th scope="col" class="px-6 py-3">Detail</th>
                 </tr>
@@ -33,7 +32,6 @@
                         </td>
                         <td class="px-6 py-4">{{ $user->nip ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $user->alamat ?? '-' }}</td>
-                        <td class="px-6 py-4">{{ $user->roles->pluck('name')->implode(', ') ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $user->jabatan->nama ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $user->unitKerja->nama ?? '-' }}</td>
                         <td class="px-6 py-4">

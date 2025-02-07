@@ -9,6 +9,7 @@ use App\Models\UnitKerja;
 use App\Models\MasterUmum;
 use App\Models\MasterFungsi;
 use App\Models\JenisKaryawan;
+use App\Models\KategoriJabatan;
 use App\Models\Kategoripph;
 use App\Models\MasterJabatan;
 use App\Models\MasterGolongan;
@@ -29,7 +30,6 @@ class KaryawanForm extends Component
     public $no_hp;
     public $email;
     public $units;
-    public $jabatan;
     public $jabatans;
     public $fungsi;
     public $fungsis;
@@ -38,6 +38,7 @@ class KaryawanForm extends Component
     public $formasi;
     public $trans;
     public $khusus;
+    public $katjab;
     public $jeniskaryawan;
     public $gol;
     public $golongans;
@@ -58,6 +59,42 @@ class KaryawanForm extends Component
     public $filteredKhusus = [];
     public $selectedGolongan; // ID golongan yang dipilih otomatis
     public string $selectedGolonganNama; // Nama golongan yang ditampilkan di input
+    public $jabatan; // Input untuk jabatan
+    public $unit; // Input untuk unit kerja
+    public $suggestions = [
+        'jabatan' => [],
+        'unit' => [],
+    ];
+
+    public function fetchSuggestions($field, $value)
+    {
+        $this->suggestions[$field] = [];
+
+        // if ($value) {
+        if ($field === 'jabatan') {
+            $this->suggestions[$field] = KategoriJabatan::where('nama', 'like', "%$value%")
+                ->pluck('nama')->toArray();
+        } elseif ($field === 'unit') {
+            $this->suggestions[$field] = UnitKerja::where('nama', 'like', "%$value%")
+                ->pluck('nama')->toArray();
+        }
+        // }
+    }
+
+    public function selectSuggestion($field, $value)
+    {
+        if ($field === 'jabatan') {
+            $this->jabatan = $value;
+        } elseif ($field === 'unit') {
+            $this->unit = $value;
+        }
+        $this->suggestions[$field] = [];
+    }
+
+    public function hideSuggestions($field)
+    {
+        $this->suggestions[$field] = [];
+    }
 
     public function updatedSelectedPendidikan($pendidikanId)
     {
@@ -164,6 +201,7 @@ class KaryawanForm extends Component
         $this->jabatans = MasterJabatan::all();
         $this->fungsis = MasterFungsi::all();
         $this->umums = MasterUmum::all();
+        $this->katjab = KategoriJabatan::all();
         $this->filteredKhusus = MasterKhusus::where('nama', 'like', '%Tenaga Kesehatan%')->get();
         $this->pphs = Kategoripph::all();
         $this->roles = Role::where('id', '>', '3')->get();
