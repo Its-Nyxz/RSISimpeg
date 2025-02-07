@@ -16,7 +16,8 @@ class EditJabatan extends Component
 
     public $katjabs = [];
 
-    public function mount($jabatanId){
+    public function mount($jabatanId)
+    {
         $jabatan = MasterJabatan::findOrFail($jabatanId);
         $this->jabatan_id = $jabatan->id;
         $this->katjab_id = $jabatan->katjab_id;
@@ -26,7 +27,8 @@ class EditJabatan extends Component
         $this->katjabs = KategoriJabatan::where('tunjangan', 'jabatan')->get();
     }
 
-    public function updateJabatan(){
+    public function updateJabatan()
+    {
         $this->validate([
             'katjab_id' => 'required|exists:kategori_jabatan,id',
             'kualifikasi' => 'required|string|max:255',

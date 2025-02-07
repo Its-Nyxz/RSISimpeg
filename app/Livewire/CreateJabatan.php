@@ -22,15 +22,15 @@ class CreateJabatan extends Component
 
     public function mount()
     {
-        $this->katjabs = KategoriJabatan::where('tunjangan', 'umum')->get();
+        $this->katjabs = KategoriJabatan::where('tunjangan', 'jabatan')->get();
     }
 
     public function store()
     {
         $this->validate();
 
-        MasterJabatan::create([
-            'katjab_id' => $katjab_id,
+        MasterJabatan::create(attributes: [
+            'katjab_id' => $this->katjab_id,
             'kualifikasi' => $this->kualifikasi,
             'nominal' => $this->nominal,
             'deskripsi' => $this->deskripsi,

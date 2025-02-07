@@ -1,15 +1,17 @@
 <div>
     <div class="flex justify-between py-2 mb-3">
-        <h1 class="text-2xl font-bold text-success-900">Proposionalitas Point</h1>
-        <div class="flex justify-between items-center gap-4 mb-3">
+        <h1 class="text-2xl font-bold text-success-900">Kategori Jabatan</h1>
+        <div class="flex justify-between items-center gap-4 mbd-3">
+            <!-- Input Pencarian -->
             <div class="flex-1">
-                <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Proposionalitas..."
+                <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Kategori Jabatan..."
                     class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
             </div>
 
-            <a href="#"
+            <!-- Tombol Tambah Kategori Jabatan -->
+            <a href="{{route('katjab.create')}}"
                 class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                + Tambah Proposionalitas
+                + Tambah Kategori Jabatan
             </a>
         </div>
     </div>
@@ -17,44 +19,45 @@
         <table class="w-full text-sm text-left text-gray-700">
             <thead class="text-sm uppercase bg-success-400 text-success-900">
                 <tr>
-                    <th scope="col" class="px-6 py-3">Proposionalitas</th>
-                    <th scope="col" class="px-6 py-3">Unit Kerja</th>
-                    <th scope="col" class="px-6 py-3">Point</th>
+                    <th scope="col" class="px-6 py-3">Nama Kategori</th>
+                    <th scope="col" class="px-6 py-3">Tunjangan</th>
+                    <th scope="col" class="px-6 py-3">Keterangan</th>
                     <th scope="col" class="px-6 py-3">Action</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse ($items as $item)
+                @forelse ($katjab as $kategori)
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
                         <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
-                            {{ $item['proposable']['kategorijabatan']['nama'] }}
+                            {{ $kategori['nama'] ?? '-' }}
                         </td>
-                        <td class="px-6 py-4">{{ $item['unitkerja']['nama'] ?? '-' }}</td>
-                        <td class="px-6 py-4">{{ $item['point'] }}</td>
+                        <td class="px-6 py-4">{{ ucfirst($kategori['tunjangan']) }}</td>
+                        <td class="px-6 py-4">{{ $kategori['keterangan'] }}</td>
                         <td class="px-6 py-4">
-                            <a href="/poposionalitas/edit/{{ $item['id'] }}"
+                            <a href="{{route('katjab.edit', $kategori['id']) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
-                                data-tooltip-target="tooltip-jadwal-{{ $item['id'] }}">
+                                data-tooltip-target="tooltip-kategori-{{ $kategori['id'] }}">
                                 <i class="fa-solid fa-pen"></i>
                             </a>
-                            <div id="tooltip-item-{{ $item['id'] }}" role="tooltip"
+                            <div id="tooltip-kategori-{{ $kategori['id'] }}" role="tooltip"
                                 class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
-                                Ubah Proposionalitas
+                                Ubah Kategori Jabatan
                                 <div class="tooltip-arrow" data-popper-arrow></div>
                             </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center px-6 py-4">Tidak ada data Proposionalitas.</td>
+                        <td colspan="4" class="text-center px-6 py-4">Tidak ada data Kategori Jabatan.</td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
+    <!-- Pagination Controls -->
     <div class="mt-4 flex gap-2 justify-center items-center">
         {{-- Previous Page Link --}}
-        @if (!$items->onFirstPage())
+        @if (!$katjab->onFirstPage())
             <button wire:click="previousPage" wire:loading.attr="disabled"
                 class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
                 &laquo; Sebelumnya
@@ -63,8 +66,8 @@
 
         {{-- Pagination Numbers --}}
         @php
-            $totalPages = $items->lastPage();
-            $currentPage = $items->currentPage();
+            $totalPages = $katjab->lastPage();
+            $currentPage = $katjab->currentPage();
             $range = 3; // Range around current page
         @endphp
 
@@ -103,7 +106,7 @@
         @endif
 
         {{-- Next Page Link --}}
-        @if ($items->hasMorePages())
+        @if ($katjab->hasMorePages())
             <button wire:click="nextPage" wire:loading.attr="disabled"
                 class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
                 Selanjutnya &raquo;
