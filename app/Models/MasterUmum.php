@@ -13,10 +13,10 @@ class MasterUmum extends Model
     /**
      * Relasi ke TUmum.
      */
-    public function users()
-    {
-        return $this->hasMany(User::class, 'umum_id');
-    }
+    // public function users()
+    // {
+    //     return $this->hasMany(User::class, 'umum_id');
+    // }
 
     public function kategorijabatan()
     {

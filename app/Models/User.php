@@ -3,16 +3,17 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Models\GajiBruto;
 use App\Models\Gapok;
+use App\Models\GajiBruto;
+use App\Models\UnitKerja;
 use App\Models\MasterTrans;
 use App\Models\Penyesuaian;
-use App\Models\JadwalAbsensi;
 use App\Models\MasterFungsi;
 use App\Models\MasterKhusus;
+use App\Models\JadwalAbsensi;
 use App\Models\MasterJabatan;
+use App\Models\KategoriJabatan;
 use App\Models\MasterPendidikan;
-use App\Models\UnitKerja;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -58,13 +59,21 @@ class User extends Authenticatable
     /**
      * Relasi ke MasterFungsi.
      */
-    public function fungsi()
+    // public function fungsi()
+    // {
+    //     return $this->belongsTo(MasterFungsi::class, 'fungsi_id');
+    // }
+    // public function jabatan()
+    // {
+    //     return $this->belongsTo(MasterJabatan::class, 'jabatan_id');
+    // }
+    // public function umums()
+    // {
+    //     return $this->belongsTo(MasterUmum::class, 'umum_id');
+    // }
+    public function kategorijabatan()
     {
-        return $this->belongsTo(MasterFungsi::class, 'fungsi_id');
-    }
-    public function jabatan()
-    {
-        return $this->belongsTo(MasterJabatan::class, 'jabatan_id');
+        return $this->belongsTo(KategoriJabatan::class, 'jabatan_id');
     }
     public function trans()
     {
@@ -85,13 +94,6 @@ class User extends Authenticatable
     public function jenis()
     {
         return $this->belongsTo(JenisKaryawan::class, 'jenis_id');
-    }
-    /**
-     * Relasi ke TUmum.
-     */
-    public function umums()
-    {
-        return $this->belongsTo(MasterUmum::class, 'umum_id');
     }
     public function penyesuaians()
     {

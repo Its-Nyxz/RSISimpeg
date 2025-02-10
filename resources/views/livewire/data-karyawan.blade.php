@@ -32,7 +32,7 @@
                         </td>
                         <td class="px-6 py-4">{{ $user->nip ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $user->alamat ?? '-' }}</td>
-                        <td class="px-6 py-4">{{ $user->jabatan->nama ?? '-' }}</td>
+                        <td class="px-6 py-4">{{ $user->kategorijabatan->nama ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $user->unitKerja->nama ?? '-' }}</td>
                         <td class="px-6 py-4">
                             <a href="{{ route('detailkaryawan.show', ['detailkaryawan' => $user->id]) }}"

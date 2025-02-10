@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Models\UnitKerja;
+use App\Models\KategoriJabatan;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
@@ -1723,19 +1724,19 @@ class UserSeeder extends Seeder
 
         // Data untuk unit PENGAMANAN
         $pengamananMembers = [
-            ['name' => 'Eko Pranoto', 'role' => 'Kepala Unit'],
-            ['name' => 'Sahro Susilo'],
-            ['name' => 'Senja Kristiawan'],
-            ['name' => 'Margianto'],
-            ['name' => 'Khadmono'],
-            ['name' => 'Ivan Yunanto'],
-            ['name' => 'Redyan Chamdan Nofebrianto'],
-            ['name' => 'Misrun'],
-            ['name' => 'Hidayat Setiawan'],
-            ['name' => 'Kharwani'],
-            ['name' => 'Alfiyan Hidayanto'],
-            ['name' => 'Yudi Saputra'],
-            ['name' => 'Sodik Kholidun'],
+            ['name' => 'Eko Pranoto', 'role' => 'Kepala Unit', 'jabatan' => 'Ka. Unit Pengamanan dan Peduli Lingkungan'],
+            ['name' => 'Sahro Susilo', 'jabatan' => 'Staf Unit Pengamanan dan Peduli Lingkungan'],
+            ['name' => 'Senja Kristiawan', 'jabatan' => 'Staf Unit Pengamanan dan Peduli Lingkungan'],
+            ['name' => 'Margianto', 'jabatan' => 'Staf Unit Pengamanan dan Peduli Lingkungan'],
+            ['name' => 'Khadmono', 'jabatan' => 'Staf Unit Pengamanan dan Peduli Lingkungan'],
+            ['name' => 'Ivan Yunanto', 'jabatan' => 'Staf Unit Pengamanan dan Peduli Lingkungan'],
+            ['name' => 'Redyan Chamdan Nofebrianto', 'jabatan' => 'Staf Unit Pengamanan dan Peduli Lingkungan'],
+            ['name' => 'Misrun', 'jabatan' => 'Staf Unit Pengamanan dan Peduli Lingkungan'],
+            ['name' => 'Hidayat Setiawan', 'jabatan' => 'Staf Unit Pengamanan dan Peduli Lingkungan'],
+            ['name' => 'Kharwani', 'jabatan' => 'Staf Unit Pengamanan dan Peduli Lingkungan'],
+            ['name' => 'Alfiyan Hidayanto', 'jabatan' => 'Staf Unit Pengamanan dan Peduli Lingkungan'],
+            ['name' => 'Yudi Saputra', 'jabatan' => 'Staf Unit Pengamanan dan Peduli Lingkungan'],
+            ['name' => 'Sodik Kholidun', 'jabatan' => 'Staf Unit Pengamanan dan Peduli Lingkungan'],
         ];
 
         // Cari unit PENGAMANAN
@@ -1747,12 +1748,14 @@ class UserSeeder extends Seeder
         }
 
         foreach ($pengamananMembers as $member) {
+            $KategoriJabatan = KategoriJabatan::where('nama', $member['jabatan'])->value('id');
             $user = User::firstOrCreate(
                 ['email' => strtolower(str_replace([' ', ',', '.', '/', '\'', '-'], '.', $member['name'])) . '@gmail.com'],
                 [
                     'name' => $member['name'],
                     'password' => Hash::make('123'), // Password default
                     'unit_id' => $pengamananUnit->id,
+                    'jabatan_id' => $KategoriJabatan,
                 ]
             );
 
@@ -1764,10 +1767,10 @@ class UserSeeder extends Seeder
 
         // Data untuk unit UNIT PEMASARAN
         $pemasaranMembers = [
-            ['name' => 'Adi Setiadi', 'role' => 'Kepala Unit'],
-            ['name' => 'Purwanto'],
-            ['name' => 'Rahma Desta K.,S.KM'],
-            ['name' => 'Desi Yulianti.,S.Sos'],
+            ['name' => 'Adi Setiadi', 'role' => 'Kepala Unit', 'jabatan' => 'Plt. Ka. Unit Pemasaran'],
+            ['name' => 'Purwanto', 'jabatan' => 'Staf Unit Pemasaran'],
+            ['name' => 'Rahma Desta K.,S.KM', 'jabatan' => 'Staf Unit Pemasaran'],
+            ['name' => 'Desi Yulianti.,S.Sos', 'jabatan' => 'Staf Unit Pemasaran'],
         ];
 
         // Cari unit UNIT PEMASARAN
@@ -1779,12 +1782,14 @@ class UserSeeder extends Seeder
         }
 
         foreach ($pemasaranMembers as $member) {
+            $KategoriJabatan = KategoriJabatan::where('nama', $member['jabatan'])->value('id');
             $user = User::firstOrCreate(
                 ['email' => strtolower(str_replace([' ', ',', '.', '/', '\'', '-'], '.', $member['name'])) . '@gmail.com'],
                 [
                     'name' => $member['name'],
                     'password' => Hash::make('123'), // Password default
                     'unit_id' => $pemasaranUnit->id,
+                    'jabatan_id' => $KategoriJabatan,
                 ]
             );
 
@@ -1796,10 +1801,10 @@ class UserSeeder extends Seeder
 
         // Data untuk unit IT
         $itMembers = [
-            ['name' => 'Basuki Imam Sampurna', 'role' => 'Kepala Unit'],
-            ['name' => 'Harry Satrio Aji'],
-            ['name' => 'Athaya Muhammad Shidqi Rahmat'],
-            ['name' => 'Mistomo'],
+            ['name' => 'Basuki Imam Sampurna', 'role' => 'Kepala Unit', 'jabatan' => 'Ka. Instalasi Teknologi Informasi'],
+            ['name' => 'Harry Satrio Aji', 'jabatan' => 'Staf Instalasi Teknologi Informasi'],
+            ['name' => 'Athaya Muhammad Shidqi Rahmat', 'jabatan' => 'Staf Instalasi Teknologi Informasi'],
+            ['name' => 'Mistomo', 'jabatan' => 'Staf Instalasi Teknologi Informasi'],
         ];
 
         // Cari unit IT
@@ -1811,12 +1816,14 @@ class UserSeeder extends Seeder
         }
 
         foreach ($itMembers as $member) {
+            $KategoriJabatan = KategoriJabatan::where('nama', $member['jabatan'])->value('id');
             $user = User::firstOrCreate(
                 ['email' => strtolower(str_replace([' ', ',', '.', '/', '\'', '-'], '.', $member['name'])) . '@gmail.com'],
                 [
                     'name' => $member['name'],
                     'password' => Hash::make('123'), // Password default
                     'unit_id' => $itUnit->id,
+                    'jabatan_id' => $KategoriJabatan,
                 ]
             );
 
@@ -1828,7 +1835,7 @@ class UserSeeder extends Seeder
 
         // Data untuk unit KOMITE
         $komiteMembers = [
-            ['name' => 'Fajarianto', 'role' => 'Kepala Unit'],
+            ['name' => 'Fajarianto', 'role' => 'Kepala Unit', 'jabatan' => 'Sekretaris Komite Mutu'],
         ];
 
         // Cari unit KOMITE
@@ -1840,12 +1847,14 @@ class UserSeeder extends Seeder
         }
 
         foreach ($komiteMembers as $member) {
+            $KategoriJabatan = KategoriJabatan::where('nama', $member['jabatan'])->value('id');
             $user = User::firstOrCreate(
                 ['email' => strtolower(str_replace([' ', ',', '.', '/', '\'', '-'], '.', $member['name'])) . '@gmail.com'],
                 [
                     'name' => $member['name'],
                     'password' => Hash::make('123'), // Password default
                     'unit_id' => $komiteUnit->id,
+                    'jabatan_id' => $KategoriJabatan,
                 ]
             );
 
@@ -1857,7 +1866,7 @@ class UserSeeder extends Seeder
 
         // Data untuk unit KOMITE
         $komiteperawatMembers = [
-            ['name' => 'Joni Krismanto', 'role' => 'Kepala Unit'],
+            ['name' => 'Joni Krismanto', 'role' => 'Kepala Unit', 'jabatan' => 'Ketua Komite Keperawatan'],
         ];
 
         // Cari unit KOMITE
@@ -1869,12 +1878,14 @@ class UserSeeder extends Seeder
         }
 
         foreach ($komiteperawatMembers as $member) {
+            $KategoriJabatan = KategoriJabatan::where('nama', $member['jabatan'])->value('id');
             $user = User::firstOrCreate(
                 ['email' => strtolower(str_replace([' ', ',', '.', '/', '\'', '-'], '.', $member['name'])) . '@gmail.com'],
                 [
                     'name' => $member['name'],
                     'password' => Hash::make('123'), // Password default
                     'unit_id' => $komiteUnitPerawat->id,
+                    'jabatan_id' => $KategoriJabatan,
                 ]
             );
 
@@ -1886,8 +1897,8 @@ class UserSeeder extends Seeder
 
         // Data untuk unit SPI
         $SPI = [
-            ['name' => 'Gonggo Iswahyudi', 'role' => 'Kepala Unit'],
-            ['name' => 'Lutfian Prisnandika'],
+            ['name' => 'Gonggo Iswahyudi', 'role' => 'Kepala Unit', 'jabatan' => 'Ketua SPI'],
+            ['name' => 'Lutfian Prisnandika', 'jabatan' => 'Anggota SPI'],
             // ['name' => 'Rudi Abri W'],
             // ['name' => 'M Azhar Nur Cholid'],
         ];
@@ -1901,12 +1912,14 @@ class UserSeeder extends Seeder
         }
 
         foreach ($SPI as $member) {
+            $KategoriJabatan = KategoriJabatan::where('nama', $member['jabatan'])->value('id');
             $user = User::firstOrCreate(
                 ['email' => strtolower(str_replace([' ', ',', '.', '/', '\'', '-'], '.', $member['name'])) . '@gmail.com'],
                 [
                     'name' => $member['name'],
                     'password' => Hash::make('123'), // Password default
                     'unit_id' => $SPIunit->id,
+                    'jabatan_id' => $KategoriJabatan,
                 ]
             );
 
@@ -1918,8 +1931,8 @@ class UserSeeder extends Seeder
 
         // Data untuk unit SUPERVISOR
         $SUPERVISOR = [
-            ['name' => 'Rudi Abri W', 'role' => 'Kepala Unit'],
-            ['name' => 'M Azhar Nur Cholid'],
+            ['name' => 'Rudi Abri W', 'role' => 'Kepala Unit', 'jabatan' => 'Supervisor'],
+            ['name' => 'M Azhar Nur Cholid', 'jabatan' => 'Supervisor'],
         ];
 
         // Cari unit SUPERVISOR
@@ -1931,12 +1944,14 @@ class UserSeeder extends Seeder
         }
 
         foreach ($SUPERVISOR as $member) {
+            $KategoriJabatan = KategoriJabatan::where('nama', $member['jabatan'])->value('id');
             $user = User::firstOrCreate(
                 ['email' => strtolower(str_replace([' ', ',', '.', '/', '\'', '-'], '.', $member['name'])) . '@gmail.com'],
                 [
                     'name' => $member['name'],
                     'password' => Hash::make('123'), // Password default
                     'unit_id' => $SUPERVISORunit->id,
+                    'jabatan_id' => $KategoriJabatan,
                 ]
             );
 
@@ -1945,5 +1960,37 @@ class UserSeeder extends Seeder
         }
 
         $this->command->info('Seeder user SUPERVISOR berhasil dijalankan.');
+
+        // Data untuk unit dewas
+        $dewas = [
+            ['name' => 'Usiana Tri R', 'role' => 'Kepala Unit', 'jabatan' => 'Dewan Pengawas'],
+            ['name' => 'Dr. Nono Sukarman', 'jabatan' => 'Dewan Pengawas'],
+        ];
+
+        // Cari unit dewas
+        $dewasunit = UnitKerja::where('nama', 'DEWAN PENGAWAS')->first();
+
+        if (!$dewasunit) {
+            $this->command->error('Unit DEWAS tidak ditemukan!');
+            return;
+        }
+
+        foreach ($dewas as $member) {
+            $KategoriJabatan = KategoriJabatan::where('nama', $member['jabatan'])->value('id');
+            $user = User::firstOrCreate(
+                ['email' => strtolower(str_replace([' ', ',', '.', '/', '\'', '-'], '.', $member['name'])) . '@gmail.com'],
+                [
+                    'name' => $member['name'],
+                    'password' => Hash::make('123'), // Password default
+                    'unit_id' => $dewasunit->id,
+                    'jabatan_id' => $KategoriJabatan,
+                ]
+            );
+
+            $role = $member['role'] ?? 'Staf';
+            $user->assignRole($role);
+        }
+
+        $this->command->info('Seeder user DEWAS berhasil dijalankan.');
     }
 }

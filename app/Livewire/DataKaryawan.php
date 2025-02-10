@@ -27,7 +27,7 @@ class DataKaryawan extends Component
 
     public function loadData()
     {
-        return User::with(['jabatan', 'unitKerja', 'roles'])->where('id', '>', '1') // Eager load jabatan dan unitKerja
+        return User::with(['kategorijabatan', 'unitKerja', 'roles'])->where('id', '>', '1') // Eager load jabatan dan unitKerja
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%')
                     ->orWhere('no_ktp', 'like', '%' . $this->search . '%')

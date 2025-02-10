@@ -87,6 +87,7 @@ class UnitKerjaSeeder extends Seeder
             ['name' => 'IAPI', 'kode' => 'IAPI', 'keterangan' => 'Ikatan Ahli Pengadaan Indonesia'],
             ['name' => 'SPI', 'kode' => 'SPI', 'keterangan' => ' Satuan Pengawas Internal '],
             ['name' => 'GUDANG', 'kode' => 'GUDANG', 'keterangan' => ' Unit Gudang '],
+            ['name' => 'DEWAN PENGAWAS', 'kode' => 'DEWAS', 'keterangan' => ' Unit Dewan Pengawas '],
         ];
 
         // Menambahkan unit dengan sub-unit
