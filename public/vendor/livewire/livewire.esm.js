@@ -2876,7 +2876,7 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
       get raw() {
         return raw;
       },
-      version: "3.14.8",
+      version: "3.14.7",
       flushAndStopDeferringMutations,
       dontAutoEvaluateFunctions,
       disableEffectScheduling,
@@ -7154,13 +7154,8 @@ var require_module_cjs9 = __commonJS({
           } else {
             processInputValue(el, false);
           }
-          if (el._x_model) {
-            if (el._x_model.get() === el.value)
-              return;
-            if (el._x_model.get() === null && el.value === "")
-              return;
+          if (el._x_model)
             el._x_model.set(el.value);
-          }
         });
         const controller = new AbortController();
         cleanup(() => {
@@ -7500,9 +7495,6 @@ function handleFileUpload(el, property, component, cleanup) {
     if (!el.isConnected)
       return;
     if (value === null || value === "") {
-      el.value = "";
-    }
-    if (el.multiple && Array.isArray(value) && value.length === 0) {
       el.value = "";
     }
   });

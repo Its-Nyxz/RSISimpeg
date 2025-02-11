@@ -20,9 +20,9 @@ return new class extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->foreignId('unit_id')->nullable()->constrained('unit_kerjas')->onDelete('cascade');
-            $table->foreignId('jabatan_id')->nullable()->constrained('master_jabatan')->onDelete('cascade');
-            $table->foreignId('fungsi_id')->nullable()->constrained('master_fungsi')->onDelete('cascade');
-            $table->foreignId('umum_id')->nullable()->constrained('master_umum')->onDelete('cascade');
+            $table->foreignId('jabatan_id')->nullable()->constrained('kategori_jabatans')->onDelete('cascade');
+            $table->foreignId('fungsi_id')->nullable();
+            $table->foreignId('umum_id')->nullable();
             $table->foreignId('trans_id')->nullable()->constrained('master_trans')->onDelete('cascade');
             $table->foreignId('khusus_id')->nullable()->constrained('master_khusus')->onDelete('cascade');
             $table->foreignId('jenis_id')->nullable()->constrained('jenis_karyawans')->onDelete('cascade');
