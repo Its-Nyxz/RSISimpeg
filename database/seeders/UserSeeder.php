@@ -22,6 +22,7 @@ class UserSeeder extends Seeder
             'Super Admin',
             'Kepegawaian',
             'Keuangan',
+            'Manager',
             'Kepala Unit',
             'Kepala Sub Unit',
             'Kepala Instalasi',
@@ -1633,8 +1634,10 @@ class UserSeeder extends Seeder
 
         // Data untuk unit PELAYANAN MEDIK
         $pelayananMedikMembers = [
-            ['name' => 'Eko Setiono', 'role' => 'Kepala Unit'],
-            ['name' => 'Lia Eris Fitriani'],
+            ['name' => 'dr. Aditya Chandra Putra.,Sp PD', 'role' => 'Manager', 'jabatan' => 'Wadir Pelayanan'],
+            ['name' => 'dr. Dedy Pujo Purnomo.,Sp An', 'role' => 'Manager', 'jabatan' => 'Manajer Pelayanan Medik'],
+            ['name' => 'Eko Setiono', 'jabatan' => 'Staf Manajer Pelayanan Medik'],
+            ['name' => 'Lia Eris Fitriani', 'jabatan' => 'Staf Manajer Pelayanan Medik'],
         ];
 
         // Cari unit PELAYANAN MEDIK
@@ -1646,12 +1649,14 @@ class UserSeeder extends Seeder
         }
 
         foreach ($pelayananMedikMembers as $member) {
+            $KategoriJabatan = KategoriJabatan::where('nama', $member['jabatan'])->value('id');
             $user = User::firstOrCreate(
                 ['email' => strtolower(str_replace([' ', ',', '.', '/', '\'', '-'], '.', $member['name'])) . '@gmail.com'],
                 [
                     'name' => $member['name'],
                     'password' => Hash::make('123'), // Password default
                     'unit_id' => $pelayananMedikUnit->id,
+                    'jabatan_id' => $KategoriJabatan,
                 ]
             );
 
@@ -1663,8 +1668,11 @@ class UserSeeder extends Seeder
 
         // Data untuk unit PENUNJANG
         $penunjangMembers = [
-            ['name' => 'Mutia Kanza Salama', 'role' => 'Kepala Unit'],
-            ['name' => 'Puspita Chandra Alviana'],
+            ['name' => 'Purbo Santosa', 'role' => 'Manager', 'jabatan' => 'Manajer Penunjang'],
+            ['name' => 'Umu Trisniati', 'role' => 'Kepala Seksi', 'jabatan' => 'Ka. Seksi Penunjang Medik+ Plt. Instalasi Gas Medik dan Alkes'],
+            ['name' => 'Ahmad Nur Banjari', 'role' => 'Kepala Seksi', 'jabatan' => 'Ka. Seksi Penunjang Non Medik'],
+            ['name' => 'Mutia Kanza Salama', 'jabatan' => 'Staf Manajer Penunjang'],
+            ['name' => 'Puspita Chandra Alviana', 'jabatan' => 'Staf Manajer Penunjang'],
         ];
 
         // Cari unit PENUNJANG
@@ -1676,12 +1684,14 @@ class UserSeeder extends Seeder
         }
 
         foreach ($penunjangMembers as $member) {
+            $KategoriJabatan = KategoriJabatan::where('nama', $member['jabatan'])->value('id');
             $user = User::firstOrCreate(
                 ['email' => strtolower(str_replace([' ', ',', '.', '/', '\'', '-'], '.', $member['name'])) . '@gmail.com'],
                 [
                     'name' => $member['name'],
                     'password' => Hash::make('123'), // Password default
                     'unit_id' => $penunjangUnit->id,
+                    'jabatan_id' => $KategoriJabatan,
                 ]
             );
 
@@ -1693,8 +1703,11 @@ class UserSeeder extends Seeder
 
         // Data untuk unit KEPERAWATAN
         $keperawatanMembers = [
-            ['name' => 'Rifki Nafisani', 'role' => 'Kepala Unit'],
-            ['name' => 'Muhadi'],
+            ['name' => 'Siti Zaenab', 'role' => 'Manager', 'jabatan' => 'Manajer Keperawatan'],
+            ['name' => 'Nurul Ulfah Kh', 'role' => 'Kepala Seksi', 'jabatan' => 'Ka. Seksi Keperawatan Rajal, Ranap, Gadar'],
+            ['name' => 'Rudiati', 'role' => 'Kepala Seksi', 'jabatan' => 'Ka. Seksi Keperawatan Bedah, Intensif, HD, MP, Rehabilitasi Medik'],
+            ['name' => 'Rifki Nafisani', 'jabatan' => 'Staf Manajer Keperawatan'],
+            ['name' => 'Muhadi', 'jabatan' => 'Staf Manajer Keperawatan'],
         ];
 
         // Cari unit KEPERAWATAN
@@ -1706,12 +1719,14 @@ class UserSeeder extends Seeder
         }
 
         foreach ($keperawatanMembers as $member) {
+            $KategoriJabatan = KategoriJabatan::where('nama', $member['jabatan'])->value('id');
             $user = User::firstOrCreate(
                 ['email' => strtolower(str_replace([' ', ',', '.', '/', '\'', '-'], '.', $member['name'])) . '@gmail.com'],
                 [
                     'name' => $member['name'],
                     'password' => Hash::make('123'), // Password default
                     'unit_id' => $keperawatanUnit->id,
+                    'jabatan_id' => $KategoriJabatan,
                 ]
             );
 
