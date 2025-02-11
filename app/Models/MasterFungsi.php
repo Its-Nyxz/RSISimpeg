@@ -14,10 +14,10 @@ class MasterFungsi extends Model
     /**
      * Relasi ke User.
      */
-    public function users()
-    {
-        return $this->hasMany(User::class, 'fungsi_id');
-    }
+    // public function users()
+    // {
+    //     return $this->hasMany(User::class, 'fungsi_id');
+    // }
     public function kategorijabatan()
     {
         return $this->belongsTo(KategoriJabatan::class, 'katjab_id');
