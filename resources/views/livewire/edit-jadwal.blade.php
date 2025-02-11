@@ -6,10 +6,9 @@
             <div class="col-span-2">
                 <label for="nama" class="block text-sm font-medium text-green-900">Nama</label>
                 <div class="relative">
-                    <input type="text" id="nama" wire:model.lazy="nama" placeholder="Cari nama..." autocomplete="off"
+                    <input type="text" id="nama" wire:model.lazy="user_nama" placeholder="Cari nama..." autocomplete="off"
                         class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
                         oninput="filterDropdown('nama')" onclick="toggleDropdown('nama')" />
-
                     <ul id="namaDropdown" class="dropdown hidden">
                         @foreach($users as $user)
                             <li class="dropdown-item" onclick="selectItem('nama', '{{ $user->name }}', '{{ $user->id }}')">
@@ -27,10 +26,9 @@
             <div class="col-span-2">
                 <label for="shift" class="block text-sm font-medium text-green-900">Shift</label>
                 <div class="relative">
-                    <input type="text" id="shift" wire:model.lazy="shift" placeholder="Cari shift..." autocomplete="off"
+                    <input type="text" id="shift" wire:model.lazy="shift_nama" placeholder="Cari shift..." autocomplete="off"
                         class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
                         oninput="filterDropdown('shift')" onclick="toggleDropdown('shift')" />
-
                     <ul id="shiftDropdown" class="dropdown hidden">
                         @foreach($shifts as $shift)
                             <li class="dropdown-item" onclick="selectItem('shift', '{{ $shift->nama_shift }}', '{{ $shift->id }}')">
@@ -48,10 +46,9 @@
             <div class="col-span-2">
                 <label for="opsi" class="block text-sm font-medium text-green-900">Opsi Absensi</label>
                 <div class="relative">
-                    <input type="text" id="opsi" wire:model.lazy="opsi" placeholder="Cari opsi absensi..." autocomplete="off"
+                    <input type="text" id="opsi" wire:model.lazy="opsi_nama" placeholder="Cari opsi absensi..." autocomplete="off"
                         class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
                         oninput="filterDropdown('opsi')" onclick="toggleDropdown('opsi')" />
-
                     <ul id="opsiDropdown" class="dropdown hidden">
                         @foreach($opsis as $opsi)
                             <li class="dropdown-item" onclick="selectItem('opsi', '{{ $opsi->name }}', '{{ $opsi->id }}')">
@@ -68,7 +65,7 @@
             <!-- Tanggal Jadwal -->
             <div class="col-span-2">
                 <label for="tanggal" class="block text-sm font-medium text-green-900">Tanggal Jadwal</label>
-                <input type="date" id="tanggal" wire:model="tanggal" class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" />
+                <input type="date" id="tanggal" wire:model.lazy="tanggal_jadwal" class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" />
                 @error('tanggal')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
@@ -77,7 +74,7 @@
             <!-- Keterangan Absensi -->
             <div class="col-span-2">
                 <label for="keterangan" class="block text-sm font-medium text-green-900">Keterangan Absensi</label>
-                <select id="keterangan" wire:model="keterangan" class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
+                <select id="keterangan" wire:model.lazy="keterangan_absen" class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
                     <option value="">Pilih Keterangan Absensi</option>
                     <option value="Cuti">Cuti</option>
                     <option value="Libur">Libur</option>
@@ -126,16 +123,13 @@
     
         function selectItem(field, name, id) {
             document.getElementById(field).value = name;
-    
-            // Set the correct property name dynamically
             if (field === 'nama') {
-                @this.set('user_id', id);  // Set the user_id
+                @this.set('user_id', id);
             } else if (field === 'shift') {
-                @this.set('shift_id', id);  // Set the shift_id
+                @this.set('shift_id', id);
             } else if (field === 'opsi') {
-                @this.set('opsi_id', id);  // Set the opsi_id
+                @this.set('opsi_id', id);
             }
-    
             document.getElementById(field + 'Dropdown').classList.add('hidden');
         }
     

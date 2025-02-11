@@ -12,6 +12,7 @@ class EditFungsi extends Component
     public $katjab_id;
     public $nominal;
     public $deskripsi;
+    public $katjab_id_nama;
 
     public $katjabs = [];
 
@@ -22,6 +23,9 @@ class EditFungsi extends Component
         $this->nominal = $fungsi->nominal;
         $this->deskripsi = $fungsi->deskripsi;
         $this->katjabs = KategoriJabatan::where('tunjangan', 'umum')->get();
+
+        // Ambil nama kategori jabatan berdasarkan katjab_id
+        $this->katjab_id_nama = KategoriJabatan::where('id', $this->katjab_id)->value('nama');
     }
 
     public function updateFungsi(){

@@ -5,8 +5,8 @@
                 <label for="katjab_id" class="block text-sm font-medium text-green-900">Nama Jabatan</label>
                 <div class="relative">
                     <input type="text" id="katjab_id" wire:model="katjab_id_nama" placeholder="Cari Jabatan..." autocomplete="off"
-                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
-                        oninput="filterKatjabDropdown()" onclick="toggleKatjabDropdown()" />
+                    class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
+                    oninput="filterKatjabDropdown()" onclick="toggleKatjabDropdown()" />
                     
                     <ul id="katjabDropdown" class="dropdown hidden">
                         @foreach($katjabs as $katjab)
