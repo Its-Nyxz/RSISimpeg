@@ -60,6 +60,10 @@
                     <th scope="col" class="px-6 py-3">Jabatan</th>
                     <th scope="col" class="px-6 py-3">Awal Masuk</th>
                     <th scope="col" class="px-6 py-3">Lama Bekerja</th>
+                    <th scope="col" class="px-6 py-3">Status Hak Cuti</th>
+                    <th scope="col" class="px-6 py-3">Cuti Bersama Pemerintah</th>
+                    <th scope="col" class="px-6 py-3">Hak Cuti Karyawan</th>
+                    <th scope="col" class="px-6 py-3">Jumlah Cuti Karyawan</th>
                 </tr>
             </thead>
             <tbody>
@@ -72,6 +76,10 @@
                         <td class="px-6 py-4">{{ $user->kategorijabatan->nama ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $user->tgl_penyesuaian ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $user->masa_kerja ?? '-' }}</td>
+                        <td class="px-6 py-4">-</td>
+                        <td class="px-6 py-4">-</td>
+                        <td class="px-6 py-4">-</td>
+                        <td class="px-6 py-4">-</td>
                     </tr>
                 @empty
                     <tr>
