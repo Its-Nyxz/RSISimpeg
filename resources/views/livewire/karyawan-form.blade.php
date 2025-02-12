@@ -259,7 +259,6 @@
                                                 {{ $suggestion }}
                                             </li>
                                         @endforeach
-                                        @dump($suggestion)
                                     </ul>
                                 @endif
                             </td>
