@@ -25,7 +25,7 @@
                 <ul class="space-y-2 border-t pt-4">
                     <livewire:side-link href="/dashboard" title="Home" icon="fa-solid fa-house" />
                     <livewire:side-link href="/users" title="Add User" icon="fa-solid fa-user-plus" />
-                    <livewire:side-link title="Aktivitas Kerja" icon="fa-solid fa-user" :child="[['title' => 'Timer', 'href' => '/timer'], ['title' => 'Absensi', 'href' => '#']]" />
+                    <livewire:side-link title="Aktivitas Kerja" icon="fa-solid fa-user" :child="[['title' => 'Timer', 'href' => '/timer'], ['title' => 'Absensi', 'href' => 'aktivitasabsensi']]" />
                     <livewire:side-link title="Master Data" icon="fa-regular fa-address-book" :child="[
                         [
                             'title' => 'Tunjangan',
