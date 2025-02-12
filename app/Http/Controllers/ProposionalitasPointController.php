@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\ProposionalitasPoint;
 use App\Http\Requests\StoreProposionalitasPointRequest;
 use App\Http\Requests\UpdateProposionalitasPointRequest;
+use App\Models\MasterFungsi;
+use App\Models\MasterUmum;
+use App\Models\UnitKerja;
+use Request;
 
 class ProposionalitasPointController extends Controller
 {
@@ -21,7 +25,7 @@ class ProposionalitasPointController extends Controller
      */
     public function create()
     {
-        //
+        return view('proposionalitas.create');
     }
 
     /**
@@ -43,18 +47,38 @@ class ProposionalitasPointController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(ProposionalitasPoint $proposionalitasPoint)
+    public function edit($id)
     {
-        //
+        $proposionalitasPoint = ProposionalitasPoint::findOrFail($id);
+        $proposables = MasterFungsi::with('kategorijabatan')->get()->merge(
+            MasterUmum::with('kategorijabatan')->get()
+        );
+        $unitkerjas = UnitKerja::all();
+    
+        return view('proposionalitas.edit', compact('proposionalitasPoint', 'proposables', 'unitkerjas'));
     }
-
+    
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateProposionalitasPointRequest $request, ProposionalitasPoint $proposionalitasPoint)
+    public function update(Request $request, ProposionalitasPoint $proposionalitasPoint)
     {
-        //
+        $validatedData = $request->validate([
+            'proposable_id' => 'required', 
+            'unit_id' => 'nullable|exists:unit_kerjas,id',
+            'point' => 'required|numeric',
+        ]);
+    
+        $proposionalitasPoint->update([
+            'proposable_id' => $validatedData['proposable_id'],
+            'proposable_type' => get_class(MasterFungsi::find($validatedData['proposable_id']) ?? MasterUmum::find($validatedData['proposable_id'])), 
+            'unit_id' => $validatedData['unit_id'],
+            'point' => $validatedData['point'],
+        ]);
+    
+        return redirect()->route('proposionalitas.index')->with('success', 'Proposionalitas berhasil diperbarui!');
     }
+    
 
     /**
      * Remove the specified resource from storage.

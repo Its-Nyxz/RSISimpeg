@@ -25,7 +25,7 @@
                 <ul class="space-y-2 border-t pt-4">
                     <livewire:side-link href="/dashboard" title="Home" icon="fa-solid fa-house" />
                     <livewire:side-link href="/users" title="Add User" icon="fa-solid fa-user-plus" />
-                    <livewire:side-link title="Aktivitas Kerja" icon="fa-solid fa-user" :child="[['title' => 'Timer', 'href' => '/timer'], ['title' => 'Absensi', 'href' => '#']]" />
+                    <livewire:side-link title="Aktivitas Kerja" icon="fa-solid fa-user" :child="[['title' => 'Timer', 'href' => '/timer'], ['title' => 'Absensi', 'href' => 'aktivitasabsensi']]" />
                     <livewire:side-link title="Master Data" icon="fa-regular fa-address-book" :child="[
                         [
                             'title' => 'Tunjangan',
@@ -68,7 +68,7 @@
                     <livewire:side-link title="Kepegawaian" icon="fa-solid fa-people-group" :child="[
                         ['title' => 'Data Karyawan', 'href' => '/datakaryawan'],
                         ['title' => 'Kenaikan', 'href' => '/kenaikan'],
-                        ['title' => 'Approval Cuti', 'href' => '#'],
+                        ['title' => 'Approval Cuti', 'href' => '/cuti'],
                         ['title' => 'Import Gaji', 'href' => '#'],
                         ['title' => 'Poin Peran Fungsional', 'href' => '/peranfungsional'],
                         ['title' => 'Poin Penilaian Pekerja', 'href' => '/penilaian'],

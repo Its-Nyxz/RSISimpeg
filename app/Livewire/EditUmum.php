@@ -12,6 +12,7 @@ class EditUmum extends Component
     public $katjab_id;
     public $nominal;
     public $deskripsi;
+    public $katjab_id_nama;
     
     public $katjabs = [];
 
@@ -22,6 +23,9 @@ class EditUmum extends Component
         $this->nominal = $umum->nominal;
         $this->deskripsi = $umum->deskripsi;
         $this->katjabs = KategoriJabatan::where('tunjangan', 'umum')->get();
+
+        // Ambil nama kategori jabatan berdasarkan katjab_id
+        $this->katjab_id_nama = KategoriJabatan::where('id', $this->katjab_id)->value('nama');
     }
 
     public function updateUmum(){
