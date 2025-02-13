@@ -69,7 +69,7 @@
                         ['title' => 'Data Karyawan', 'href' => '/datakaryawan'],
                         ['title' => 'Kenaikan', 'href' => '/kenaikan'],
                         ['title' => 'Approval Cuti', 'href' => '/cuti'],
-                        ['title' => 'Import Gaji', 'href' => '#'],
+                        ['title' => 'Import Gaji', 'href' => '/importgaji'],
                         ['title' => 'Poin Peran Fungsional', 'href' => '/peranfungsional'],
                         ['title' => 'Poin Penilaian Pekerja', 'href' => '/penilaian'],
                     ]" />
