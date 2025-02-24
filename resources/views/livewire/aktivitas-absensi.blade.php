@@ -65,8 +65,8 @@
             </thead>
             <tbody>
                 <tr class="odd:bg-green-50 even:bg-green-100 border-b border-green-300 hover:bg-green-200">
-                    <td class="px-6 py-4 font-medium text-green-900 whitespace-nowrap">Senad</td>
-                    <td class="px-6 py-4">06 Jan 2025</td>
+                    <td class="px-6 py-4 font-medium text-green-900 whitespace-nowrap">-</td>
+                    <td class="px-6 py-4">-</td>
                     <td class="px-6 py-4">-</td>
                     <td class="px-6 py-4">-</td>
                     <td class="px-6 py-4">-</td>
