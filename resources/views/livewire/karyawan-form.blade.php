@@ -447,31 +447,25 @@
                                     Kategori PPH *</label>
                             </td>
                             <td>
-                                <select wire:model.live="pphs"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 ">
+                                <select wire:model.live="selectedPph"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5">
                                     <option value="">Pilih Kategori PPH</option>
-                                    @foreach ($pphs as $pph)
-                                        @if (Auth::user()->id == 1)
-                                            @if ($pph->parent_id === null)
-                                                <!-- Parent pph -->
-                                                <option value="{{ $pph->id }}">{{ $pph->nama }}</option>
 
-                                                <!-- Child pphs -->
-                                                @foreach ($pphs->where('parent_id', $pph->id) as $childpph)
-                                                    <option value="{{ $childpph->id }}">--- {{ $childpph->nama }}
-                                                    </option>
-                                                @endforeach
-                                            @endif
-                                        @else
-                                            <option value="{{ $pph->id }}">{{ $pph->nama }}</option>
-                                        @endif
+                                    @foreach ($parentPphs as $parent)
+                                        <optgroup label="{{ $parent->nama }}">
+                                            @foreach ($childPphs->where('parent_id', $parent->id) as $child)
+                                                <option value="{{ $child->id }}">{{ $child->nama }}</option>
+                                            @endforeach
+                                        </optgroup>
                                     @endforeach
+
                                 </select>
-                                @error('pphs')
+                                @error('selectedPph')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
                             </td>
                         </tr>
+
                         <tr>
                             <td style="width: 40%">
                                 <label for="unit" class="block mb-2 text-sm font-medium text-gray-900">
@@ -485,7 +479,6 @@
                                         @foreach ($roles as $role)
                                             <option value="{{ $role->id }}">
                                                 {{ ucwords(str_replace('_', ' ', $role->name)) }}
-                                                {{-- {{ formatRole($role->name) }} --}}
                                             </option>
                                         @endforeach
                                     </select>
@@ -502,4 +495,5 @@
             class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Simpan</button>
 
     </div>
+    @dump($errors->first())
 </div>
