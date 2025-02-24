@@ -1522,12 +1522,12 @@ class UserSeeder extends Seeder
 
         // Data untuk unit ASURANSI
         $asuransiMembers = [
-            ['name' => 'Erlita Puspitasari', 'role' => 'Kepala Unit'],
-            ['name' => 'Dian Olivia Oktafiyanti'],
-            ['name' => 'Edwin Sulistyo'],
-            ['name' => 'Nila Suprobo'],
-            ['name' => 'Winda Riyana'],
-            ['name' => 'Rahmalina Mentari Putri'],
+            ['name' => 'Erlita Puspitasari', 'role' => 'Kepala Seksi', 'jabatan' => 'Ka. Seksi Asuransi'],
+            ['name' => 'Dian Olivia Oktafiyanti', 'jabatan' => 'Staf Seksi Asuransi'],
+            ['name' => 'Edwin Sulistyo', 'jabatan' => 'Staf Seksi Asuransi'],
+            ['name' => 'Nila Suprobo', 'jabatan' => 'Staf Seksi Asuransi'],
+            ['name' => 'Winda Riyana', 'jabatan' => 'Staf Seksi Asuransi'],
+            ['name' => 'Rahmalina Mentari Putri', 'jabatan' => 'Staf Seksi Asuransi'],
         ];
 
         // Cari unit ASURANSI
@@ -1539,12 +1539,14 @@ class UserSeeder extends Seeder
         }
 
         foreach ($asuransiMembers as $member) {
+            $KategoriJabatan = KategoriJabatan::where('nama', $member['jabatan'])->value('id');
             $user = User::firstOrCreate(
                 ['email' => strtolower(str_replace([' ', ',', '.', '/', '\'', '-'], '.', $member['name'])) . '@gmail.com'],
                 [
                     'name' => $member['name'],
                     'password' => Hash::make('123'), // Password default
                     'unit_id' => $asuransiUnit->id,
+                    'jabatan_id' => $KategoriJabatan,
                 ]
             );
 
@@ -1556,8 +1558,8 @@ class UserSeeder extends Seeder
 
         // Data untuk unit ASET & LOGISTIK
         $asetLogistikMembers = [
-            ['name' => 'Ratih Titis P', 'role' => 'Kepala Unit'],
-            ['name' => 'Nur Ardi Firdosta'],
+            ['name' => 'Bani Akbar Dhira Y', 'role' => 'Kepala Seksi', 'jabatan' => 'Ka. Seksi Aset dan Logistik'],
+            ['name' => 'Nur Ardi Firdosta', 'jabatan' => 'Staf Seksi Aset dan Logistik'],
             // ['name' => 'Fathul Bari'],
             // ['name' => 'Oryzae Sativa Linies'],
         ];
@@ -1571,12 +1573,14 @@ class UserSeeder extends Seeder
         }
 
         foreach ($asetLogistikMembers as $member) {
+            $KategoriJabatan = KategoriJabatan::where('nama', $member['jabatan'])->value('id');
             $user = User::firstOrCreate(
                 ['email' => strtolower(str_replace([' ', ',', '.', '/', '\'', '-'], '.', $member['name'])) . '@gmail.com'],
                 [
                     'name' => $member['name'],
                     'password' => Hash::make('123'), // Password default
                     'unit_id' => $asetLogistikUnit->id,
+                    'jabatan_id' => $KategoriJabatan,
                 ]
             );
 
@@ -1585,27 +1589,12 @@ class UserSeeder extends Seeder
         }
 
         $this->command->info('Seeder user ASET & LOGISTIK berhasil dijalankan.');
-        // Data untuk unit ASET & LOGISTIK
-        $asetLogistikMembers = [
-            ['name' => 'Ratih Titis P', 'role' => 'Kepala Unit'],
-            ['name' => 'Nur Ardi Firdosta'],
-            // ['name' => 'Fathul Bari'],
-            // ['name' => 'Oryzae Sativa Linies'],
-        ];
-
-        // Cari unit ASET & LOGISTIK
-        $asetLogistikUnit = UnitKerja::where('nama', 'ASET & LOGISTIK')->first();
-
-        if (!$asetLogistikUnit) {
-            $this->command->error('Unit ASET & LOGISTIK tidak ditemukan!');
-            return;
-        }
 
         // Data untuk unit GUDANG
         $Gudang = [
-            ['name' => 'Ratih Titis Pamungkas', 'role' => 'Kepala Unit'],
-            ['name' => 'Fathul Bari'],
-            ['name' => 'Oryzae Sativa Linies'],
+            ['name' => 'Ratih Titis Pamungkas', 'role' => 'Kepala Unit', 'jabatan' => 'Ka. Unit Gudang'],
+            ['name' => 'Fathul Bari', 'jabatan' => 'Staf Unit Gudang'],
+            ['name' => 'Oryzae Sativa Linies', 'jabatan' => 'Staf Unit Gudang'],
         ];
 
         // Cari unit GUDANG
@@ -1617,12 +1606,14 @@ class UserSeeder extends Seeder
         }
 
         foreach ($Gudang as $member) {
+            $KategoriJabatan = KategoriJabatan::where('nama', $member['jabatan'])->value('id');
             $user = User::firstOrCreate(
                 ['email' => strtolower(str_replace([' ', ',', '.', '/', '\'', '-'], '.', $member['name'])) . '@gmail.com'],
                 [
                     'name' => $member['name'],
                     'password' => Hash::make('123'), // Password default
                     'unit_id' => $asetLogistikUnit->id,
+                    'jabatan_id' => $KategoriJabatan,
                 ]
             );
 
