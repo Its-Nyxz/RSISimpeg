@@ -17,7 +17,6 @@ class EditProfile extends Component
     public function mount()
     {
         $user = Auth::user();
-
         $this->name = $user->name;
         $this->jabatan_id = $user->jabatan_id;
         $this->tempat = $user->tempat;
@@ -26,6 +25,8 @@ class EditProfile extends Component
         $this->pendidikan_id = $user->pendidikan;
         $this->pendidikan_penyesuaian = $user->pendidikan_penyesuaian;
         $this->tgl_penyesuaian = $user->tgl_penyesuaian;
+        $this->pensiun = $user->pensiun;
+
 
         $this->jabatans = KategoriJabatan::all();
         $this->pendidikans = MasterPendidikan::all();
@@ -35,7 +36,7 @@ class EditProfile extends Component
     {
         $this->validate([
             'name' => 'required|string|max:255',
-            'jabatan_id' => 'nullable|exists:master_jabatan,id',
+            'jabatan_id' => 'nullable|exists:kategori_jabatans,id',
             'tempat' => 'nullable|string|max:255',
             'tanggal_lahir' => 'nullable|date',
             'tanggal_tetap' => 'nullable|date',

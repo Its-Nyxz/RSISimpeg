@@ -25,12 +25,16 @@
                     <div>: {{ $userprofile->kategorijabatan->nama ?? '-' }}</div>
                 </div>
                 <div class="grid grid-cols-2">
-                    <div class="font-semibold">Tempat Tanggal Lahir</div>
-                    <div>: {{ $userprofile->tempat }}, {{ $userprofile->tanggal_lahir }}</div>
+                    <div class="font-semibold">Tempat, Tanggal Lahir</div>
+                    <div>: {{ $userprofile->tempat ?? '-' }},
+                        {{ $userprofile->tanggal_lahir ? \Carbon\Carbon::parse($userprofile->tanggal_lahir)->locale('id')->translatedFormat('d F Y') : '-' }}
+                    </div>
                 </div>
                 <div class="grid grid-cols-2">
                     <div class="font-semibold">Tanggal Tetap</div>
-                    <div>: {{ $userprofile->tanggal_tetap ?? '-' }}</div>
+                    <div>:
+                        {{ $userprofile->tanggal_tetap ? \Carbon\Carbon::parse($userprofile->tanggal_tetap)->locale('id')->translatedFormat('d F Y') : '-' }}
+                    </div>
                 </div>
                 <div class="grid grid-cols-2">
                     <div class="font-semibold">Pendidikan Awal</div>
@@ -42,11 +46,15 @@
                 </div>
                 <div class="grid grid-cols-2">
                     <div class="font-semibold">Tanggal Penyesuaian</div>
-                    <div>: {{ $userprofile->tgl_penyesuaian ?? '-' }}</div>
+                    <div>:
+                        {{ $userprofile->tgl_penyesuaian ? \Carbon\Carbon::parse($userprofile->tgl_penyesuaian)->locale('id')->translatedFormat('d F Y') : '-' }}
+                    </div>
                 </div>
                 <div class="grid grid-cols-2">
                     <div class="font-semibold">Informasi Pensiun</div>
-                    <div>: {{ $userprofile->pensiun ?? '-' }}</div>
+                    <div>:
+                        {{ $userprofile->pensiun ? \Carbon\Carbon::parse($userprofile->pensiun)->locale('id')->translatedFormat('d F Y') : '-' }}
+                    </div>
                 </div>
             </div>
 
