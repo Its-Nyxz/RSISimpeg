@@ -37,7 +37,7 @@
                                     value="{{ $action }}" 
                                     class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
                                     <label for="{{ $action }}" class="text-sm text-gray-600">
-                                        {{ Str::ucfirst(str_replace('_', ' ', $action)) }}
+                                        {{ Str::title(str_replace('-', ' ', $action)) }}
                                     </label>
                                 </div>
                             @endforeach
