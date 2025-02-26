@@ -3,11 +3,12 @@
         <h1 class="text-2xl font-bold text-success-900">Approval Cuti</h1>
         <div class="relative">
             <!-- Tombol Notification -->
+            @can('notification')
             <button @click="open = !open"
                 class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200 flex items-center gap-2 relative">
                 <i class="fa-solid fa-bell"></i> Notification
             </button>
-
+            @endcan
             <!-- Modal Dropdown -->
             <div x-show="open" x-transition 
                 class="absolute right-0 mt-2 w-96 bg-green-100 p-6 rounded-lg shadow-lg z-50">

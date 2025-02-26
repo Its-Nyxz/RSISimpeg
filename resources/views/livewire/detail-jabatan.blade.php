@@ -1,185 +1,52 @@
 <div>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h1 style="font-size: 20px; font-weight: bold; margin: 0;">
-            {{ $jabatan->nama }}
-        </h1>
-        <div style="display: flex; gap: 10px;">
-            <a href="/jabatanperizinan"
-                class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                Kembali
-            </a>
-            <button
-                style="background-color: #fff; border: 2px solid #ddd; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-                <img src="https://cdn-icons-png.flaticon.com/512/484/484611.png" alt="Trash Icon"
-                    style="width: 20px; height: 20px;">
-            </button>
-        </div>
+    <div class="flex justify-end items-center mb-5 gap-2">
+        <a href="/jabatanperizinan"
+            class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+            Kembali
+        </a>
+        <button class="bg-white border-2 border-gray-300 w-10 h-10 flex items-center justify-center cursor-pointer">
+            <img src="https://cdn-icons-png.flaticon.com/512/484/484611.png" alt="Trash Icon" class="w-5 h-5">
+        </button>
     </div>
 
-    <x-card title="Perizinan">
-        <div class="section" style="margin-bottom: 20px;">
-            <div class="section-title">Aset</div>
-            <hr style="border: 0; border-top: 1px solid #ddd; margin: 10px 0;">
-            <div class="controls" style="text-align: right; margin-top: 10px;">
-                <a href="#">Select All</a>
-                <a href="#" style="color: red; margin-left: 10px;">Reset All</a>
+    @if ($roleId)
+        <x-card title="Perizinan">
+            @if (session()->has('message'))
+                <div class="text-green-500 font-semibold">{{ session('message') }}</div>
+            @endif
+            <div class="space-y-4">
+                @foreach ($permissions as $category => $actions)
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-800 border-b pb-2">{{ $category }}</h4>
+                        <div class="flex justify-end space-x-2">
+                            <button type="button" wire:click="selectAllForCategory('{{ $category }}')" class="text-sm text-primary-600 hover:underline">
+                                Pilih Semua
+                            </button>
+                            @if ($this->isCategoryFullySelected($category))
+                                <button type="button" wire:click="resetAllForCategory('{{ $category }}')" class="text-sm text-red-600 hover:underline">
+                                    Reset
+                                </button>
+                            @endif
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                            @foreach ($actions as $action)
+                                <div class="flex items-center space-x-2">
+                                    <input type="checkbox" 
+                                    id="{{ $action }}" 
+                                    wire:model.live="selectedPermissions" 
+                                    value="{{ $action }}" 
+                                    class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
+                                    <label for="{{ $action }}" class="text-sm text-gray-600">
+                                        {{ Str::ucfirst(str_replace('_', ' ', $action)) }}
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endforeach
             </div>
-            <div class="permissions"
-                style="display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 10px;">
-                <label><input type="checkbox" checked> Price</label>
-                <label><input type="checkbox" checked> New</label>
-                <label><input type="checkbox" checked> Edit</label>
-                <label><input type="checkbox" checked> Del</label>
-                <label><input type="checkbox" checked> Pdf</label>
-                <label><input type="checkbox" checked> Xls</label>
-                <label><input type="checkbox" checked> Noaktif</label>
-                <label><input type="checkbox" checked> Reaktif</label>
-            </div>
-        </div>
-
-        <div class="section" style="margin-bottom: 20px;">
-            <div class="section-title">History</div>
-            <hr style="border: 0; border-top: 1px solid #ddd; margin: 10px 0;">
-            <div class="controls" style="text-align: right; margin-top: 10px;">
-                <a href="#">Select All</a>
-                <a href="#" style="color: red; margin-left: 10px;">Reset All</a>
-            </div>
-            <div class="permissions"
-                style="display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 10px;">
-                <label><input type="checkbox" checked> View</label>
-                <label><input type="checkbox" checked> Newedit</label>
-                <label><input type="checkbox" checked> Del</label>
-            </div>
-        </div>
-
-        <div class="section" style="margin-bottom: 20px;">
-            <div class="section-title">Trans</div>
-            <hr style="border: 0; border-top: 1px solid #ddd; margin: 10px 0;">
-            <div class="controls" style="text-align: right; margin-top: 10px;">
-                <a href="#">Select All</a>
-                <a href="#" style="color: red; margin-left: 10px;">Reset All</a>
-            </div>
-            <div class="permissions"
-                style="display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 10px;">
-                <label><input type="checkbox" checked> View</label>
-                <label><input type="checkbox" checked> Newedit</label>
-                <label><input type="checkbox" checked> Del</label>
-            </div>
-        </div>
-
-        <div class="section" style="margin-bottom: 20px;">
-            <div class="section-title">Data</div>
-            <hr style="border: 0; border-top: 1px solid #ddd; margin: 10px 0;">
-            <div class="controls" style="text-align: right; margin-top: 10px;">
-                <a href="#">Select All</a>
-                <a href="#" style="color: red; margin-left: 10px;">Reset All</a>
-            </div>
-            <div class="permissions"
-                style="display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 10px;">
-                <label><input type="checkbox" checked> kategori</label>
-                <label><input type="checkbox" checked> Merk</label>
-                <label><input type="checkbox" checked> Barang</label>
-                <label><input type="checkbox" checked> Toko</label>
-                <label><input type="checkbox" checked> Penanggung jawab</label>
-                <label><input type="checkbox" checked> Kategori stok</label>
-                <label><input type="checkbox" checked> Lokasi</label>
-                <label><input type="checkbox" checked> Lokasi Gudang</label>
-                <label><input type="checkbox" checked> Unit Kerja</label>
-            </div>
-        </div>
-
-        <div class="section" style="margin-bottom: 20px;">
-            <div class="section-title">Qr</div>
-            <hr style="border: 0; border-top: 1px solid #ddd; margin: 10px 0;">
-            <div class="permissions"
-                style="display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 10px;">
-                <label><input type="checkbox" checked> Print</label>
-            </div>
-        </div>
-
-        <div class="section" style="margin-bottom: 20px;">
-            <div class="section-title">Pengaturan</div>
-            <hr style="border: 0; border-top: 1px solid #ddd; margin: 10px 0;">
-            <div class="permissions"
-                style="display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 10px;">
-                <label><input type="checkbox" checked> Pengaturan</label>
-            </div>
-        </div>
-
-        <div class="section" style="margin-bottom: 20px;">
-            <div class="section-title">Inventaris</div>
-            <hr style="border: 0; border-top: 1px solid #ddd; margin: 10px 0;">
-            <div class="controls" style="text-align: right; margin-top: 10px;">
-                <a href="#">Select All</a>
-                <a href="#" style="color: red; margin-left: 10px;">Reset All</a>
-            </div>
-            <div class="permissions"
-                style="display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 10px;">
-                <label><input type="checkbox" checked> Edit lokasi penerimaan</label>
-                <label><input type="checkbox" checked> Tambah barang datang</label>
-                <label><input type="checkbox" checked> Unggah foto barang datang</label>
-                <label><input type="checkbox" checked> Edit jumlah diterima</label>
-                <label><input type="checkbox" checked> Upload foto bukti</label>
-            </div>
-        </div>
-
-        <div class="section" style="margin-bottom: 20px;">
-            <div class="section-title">Permintaan</div>
-            <hr style="border: 0; border-top: 1px solid #ddd; margin: 10px 0;">
-            <div class="permissions"
-                style="display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 10px;">
-                <label><input type="checkbox" checked> Persetujuan jumlah barang</label>
-            </div>
-        </div>
-
-        <div class="section" style="margin-bottom: 20px;">
-            <div class="section-title">Peminjaman</div>
-            <hr style="border: 0; border-top: 1px solid #ddd; margin: 10px 0;">
-            <div class="permissions"
-                style="display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 10px;">
-                <label><input type="checkbox" checked> Persetujuan peminjaman aset</label>
-            </div>
-        </div>
-
-        <div class="section" style="margin-bottom: 20px;">
-            <div class="section-title">Persetujuan</div>
-            <hr style="border: 0; border-top: 1px solid #ddd; margin: 10px 0;">
-            <div class="permissions"
-                style="display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 10px;">
-                <label><input type="checkbox" checked> Persetujuan</label>
-            </div>
-        </div>
-
-        <div class="section" style="margin-bottom: 20px;">
-            <div class="section-title">Kontrak</div>
-            <hr style="border: 0; border-top: 1px solid #ddd; margin: 10px 0;">
-            <div class="permissions"
-                style="display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 10px;">
-                <label><input type="checkbox" checked> Tambah kontak baru</label>
-            </div>
-        </div>
-
-        <div class="section" style="margin-bottom: 20px;">
-            <div class="section-title">Pelayanan</div>
-            <hr style="border: 0; border-top: 1px solid #ddd; margin: 10px 0;">
-            <div class="permissions"
-                style="display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 10px;">
-                <label><input type="checkbox" checked> Xls</label>
-            </div>
-        </div>
-
-        <div class="section" style="margin-bottom: 20px;">
-            <div class="section-title">Stok</div>
-            <hr style="border: 0; border-top: 1px solid #ddd; margin: 10px 0;">
-            <div class="controls" style="text-align: right; margin-top: 10px;">
-                <a href="#">Select All</a>
-                <a href="#" style="color: red; margin-left: 10px;">Reset All</a>
-            </div>
-            <div class="permissions"
-                style="display: grid; grid-template-columns: repeat(4, minmax(150px, 1fr)); gap: 10px;">
-                <label><input type="checkbox" checked> Show Detail</label>
-                <label><input type="checkbox" checked> Xls</label>
-            </div>
-        </div>
-    </x-card>
+        </x-card>
+    @else
+        <div class="text-red-500 font-semibold">Role tidak ditemukan atau sudah dihapus.</div>
+    @endif
 </div>
