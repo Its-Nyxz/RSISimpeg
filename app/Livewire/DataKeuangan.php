@@ -25,12 +25,12 @@ class DataKeuangan extends Component
 
     public function loadData()
     {
-        return User::with(['jabatan', 'unitKerja', 'roles'])->where('id', '>', '1')
+        return User::with(['kategorijabatan', 'unitKerja', 'roles'])->where('id', '>', '1')
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%')
                     ->orWhere('no_ktp', 'like', '%' . $this->search . '%')
                     ->orWhere('alamat', 'like', '%' . $this->search . '%');
-            })->paginate(15);
+            })->orderBy('jabatan_id', 'asc')->paginate(15);
     }
 
     public function render()
