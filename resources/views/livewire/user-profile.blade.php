@@ -22,7 +22,7 @@
                 </div>
                 <div class="grid grid-cols-2">
                     <div class="font-semibold">Jabatan</div>
-                    <div>: {{ $userprofile->jabatan->nama ?? '-' }}</div>
+                    <div>: {{ $userprofile->kategorijabatan->nama ?? '-' }}</div>
                 </div>
                 <div class="grid grid-cols-2">
                     <div class="font-semibold">Tempat Tanggal Lahir</div>
@@ -34,7 +34,7 @@
                 </div>
                 <div class="grid grid-cols-2">
                     <div class="font-semibold">Pendidikan Awal</div>
-                    <div>: {{ $userprofile->pendidikan_awal ?? '-' }}</div>
+                    <div>: {{ $userprofile->pendidikanUser->deskripsi ?? '-' }}</div>
                 </div>
                 <div class="grid grid-cols-2">
                     <div class="font-semibold">Pendidikan Penyesuaian</div>

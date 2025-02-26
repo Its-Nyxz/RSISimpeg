@@ -1,6 +1,5 @@
 <div>
-    <h1 class="text-2xl font-bold text-success-900 mb-5">Edit Profil</h1>
-
+   
     <form wire:submit.prevent="updateProfile">
         <div class="grid grid-cols-2 gap-4 bg-green-100 border border-green-200 rounded-lg shadow-lg p-6">
             
@@ -50,7 +49,7 @@
             </div>
 
             <!-- Tanggal Tetap -->
-            <div class="form-group">
+            <div class="form-group  col-span-2  ">
                 <label for="tanggal_tetap" class="text-sm font-medium text-green-700">Tanggal Tetap</label>
                 <input type="date" id="tanggal_tetap" wire:model="tanggal_tetap" 
                     class="form-control @error('tanggal_tetap') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
@@ -60,7 +59,7 @@
             </div>
 
             <!-- Pendidikan Awal -->
-            <div class="form-group col-span-2">
+            <div class="form-group">
                 <label for="pendidikan_id" class="text-sm font-medium text-green-700">Pendidikan Awal</label>
                 <select id="pendidikan_id" wire:model="pendidikan_id"
                     class="form-control @error('pendidikan_id') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
@@ -107,8 +106,8 @@
 
         <!-- Tombol Submit -->
         <div class="form-group flex justify-end mt-4">
-            <button type="submit" class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
-                <i class="fa-solid fa-paper-plane mr-2"></i> Simpan
+            <button type="submit" class="flex mb-4 items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
+                <i class="fa-solid fa-paper-plane mr-2 "></i> Simpan
             </button>
         </div>
     </form>
