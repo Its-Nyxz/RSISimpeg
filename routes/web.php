@@ -127,6 +127,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('timer', TimerController::class);
     Route::resource('cuti', CutiController::class);
     Route::resource('importgaji', ImportGajiController::class);
+    Route::resource('approvalcuti', CutiController::class);
     Route::resource('aktivitasabsensi', AktivitasAbsensiController::class);
     Route::resource('katjab', KategoriJabatanController::class);
 });
