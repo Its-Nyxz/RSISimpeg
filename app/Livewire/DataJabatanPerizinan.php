@@ -8,7 +8,8 @@ use Spatie\Permission\Models\Role;
 
 class DataJabatanPerizinan extends Component
 {
-
+    public $jabatanId;
+    public $jabatanNama;
     public $jabatanperizinan;
     public $search = '';
 
@@ -31,6 +32,32 @@ class DataJabatanPerizinan extends Component
         $this->search = $value;
         $this->loadData();
     }
+
+    public function editJabatan($id)
+    {
+        $jabatan = Role::findOrFail($id);
+
+        $this->jabatanId = $jabatan->id;
+        $this->jabatanNama = $jabatan->name;
+
+        $this->dispatch('open-modal', 'edit-modal');
+    }
+
+    public function updateJabatan()
+    {
+        $this->validate([
+            'jabatanNama' => 'required|string|max:255',
+        ]);
+
+        $jabatan = Role::findOrFail($this->jabatanId);
+        $jabatan->name = $this->jabatanNama;
+        $jabatan->save();
+
+        $this->loadData(); // Refresh data
+        $this->dispatch('close-modal', 'edit-modal');
+        return redirect()->route('jabatanperizinan.index')->with('success', 'Nama Jabatan berhasil diupdate.');
+    }
+
 
     public function render()
     {

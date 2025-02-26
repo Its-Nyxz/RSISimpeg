@@ -49,7 +49,9 @@ class KaryawanForm extends Component
     public $pendidikans;
     public $no_rek;
     public $kategori;
-    public $pphs;
+    public $selectedPph;
+    public $parentPphs;
+    public $childPphs;
     public $tmt;
     public $masakerja;
     public $roles;
@@ -80,10 +82,8 @@ class KaryawanForm extends Component
                 $this->suggestions[$field][$tunjangan] = $katjabList->pluck('nama')->toArray();
             }
         } elseif ($field === 'unit') {
-            $this->suggestions[$field] = UnitKerja::where('nama', 'like', "%$value%")
-                ->pluck('nama')->toArray();
+            $this->suggestions[$field] = UnitKerja::where('nama', 'like', "%$value%")->pluck('nama')->toArray();
         }
-        // }
     }
 
     public function selectSuggestion($field, $value)
@@ -208,7 +208,13 @@ class KaryawanForm extends Component
         $this->umums = MasterUmum::all();
         $this->katjab = KategoriJabatan::all();
         $this->filteredKhusus = MasterKhusus::where('nama', 'like', '%Tenaga Kesehatan%')->get();
-        $this->pphs = Kategoripph::all();
+
+        // Pisahkan antara Parent dan Child PPH
+        $this->parentPphs = Kategoripph::whereNull('parent_id')->get();
+        $this->childPphs = Kategoripph::whereNotNull('parent_id')->get();
+
+        // Default value untuk child PPH yang dipilih
+        $this->selectedPph = null;
         $this->roles = Role::where('id', '>', '3')->get();
         if ($this->id) {
             $user = User::find($this->id);
@@ -267,9 +273,9 @@ class KaryawanForm extends Component
                 'pendidikan_id' => $this->selectedPendidikan,
                 'golongan_id' => $this->selectedGolongan,
                 'jenis_id' => $this->jeniskaryawan,
-                'jabatan_id' => $jabatanId,
-                'fungsi_id' => $fungsiId,
-                'umum_id' => $umumId,
+                // 'jabatan_id' => $jabatanId,
+                // 'fungsi_id' => $fungsiId,
+                // 'umum_id' => $umumId,
                 'khusus_id' => $this->khusus,
                 'tmt' => $this->tmt,
                 'masa_kerja' => $this->masakerja,
