@@ -21,6 +21,7 @@
 
                     <div class="flex justify-between items-center gap-2">
                         <button type="button" class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
+                            wire:click="editJabatan({{ $item['id'] }})"
                             data-tooltip-target="tooltip-item-{{ $item['id'] }}"
                             @click="$dispatch('open-modal', 'edit-modal', '{{ $item['id'] }}')">
 
@@ -49,7 +50,7 @@
 
     <x-modal name="edit-modal" maxWidth="lg" :show="false">
 
-        <form style="margin: 10px; 20px; 30px; 40px;">
+        <form style="margin: 10px; 20px; 30px; 40px;" wire:submit.prevent="updateJabatan">
 
             <h2 class="text-lg font-semibold mb-4">Edit Jabatan</h2>
 
@@ -57,7 +58,7 @@
 
                 <label for="jabatan_nama" class="block text-sm font-medium text-gray-700">Nama Jabatan</label>
 
-                <input type="text" id="jabatan_nama" name="jabatan_nama"
+                <input type="text" id="jabatan_nama" wire:model="jabatanNama"
                     class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600"
                     placeholder="Nama Jabatan">
 

@@ -37,7 +37,7 @@
                         <td class="px-6 py-4">{{ $user->nik ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $user->alamat ?? '-' }}</td>
                         {{-- <td class="px-6 py-4">{{ $user->roles->pluck('name')->implode(', ') ?? '-' }}</td> --}}
-                        <td class="px-6 py-4">{{ $user->jabatan->nama ?? '-' }}</td>
+                        <td class="px-6 py-4">{{ $user->kategorijabatan->nama ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $user->unitKerja->nama ?? '-' }}</td>
                         <td class="px-6 py-4 text-center">
                             <a href="{{route('detailkeuangan.show', ['detailkeuangan' => $user->id])}}"class="flex items-center justify-center w-10 h-10 rounded bg-[#006633]" style="margin-left: 40px; border-radius: 20%;">

@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Http\Request;
 use App\Models\MasterJabatan;
 use App\Models\MasterPendidikan;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class UserProfileController extends Controller
 {
@@ -72,12 +73,12 @@ class UserProfileController extends Controller
         $user = Auth::user();
 
         // Mengecek apakah password lama sesuai dengan yang ada di database
-        if (!\Hash::check($request->current_password, $user->password)) {
+        if (!Hash::check($request->current_password, $user->password)) {
             return back()->withErrors(['current_password' => 'Password lama tidak sesuai.']);
         }
 
         // Update password baru
-        $user->password = \Hash::make($request->new_password);
+        $user->password = Hash::make($request->new_password);
         $user->save();
 
         return redirect()->back()->with('success', 'Password berhasil diperbarui.');
@@ -121,5 +122,4 @@ class UserProfileController extends Controller
 
         return redirect()->back()->with('success', 'Profil berhasil diperbarui!');
     }
-
 }

@@ -25,14 +25,17 @@
                 </tr>
             </thead>
             <tbody>
+                @forelse($users as $user)
                 <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
-                    <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">-</td>
-                    <td class="px-6 py-4">-</td>
-                    <td class="px-6 py-4"></td>
+                    <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">{{  $user->name }}</td>
+                    <td class="px-6 py-4">{{ $user->kategorijabatan->nama ?? '-'}}</td>
+                    <td class="px-6 py-4"> {{ $user->pendidikan->nama ?? '-' }}</td>
                 </tr>
-                {{-- <tr>
-                    <td colspan="3" class="text-center px-6 py-4">Tidak ada data Gaji Karyawan.</td>
-                </tr> --}}
+                @empty
+                    <tr>
+                        <td colspan="7" class="text-center px-6 py-4">Tidak ada data Karyawan.</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>

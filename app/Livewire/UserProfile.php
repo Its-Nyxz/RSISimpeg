@@ -12,7 +12,7 @@ class UserProfile extends Component
     public function mount()
     {
         // Ambil data user yang sedang login
-        $this->userprofile = User::with('jabatan')
+        $this->userprofile = User::with('kategorijabatan', 'pendidikanUser')
             ->where('id', Auth::id()) // Filter berdasarkan ID user yang login
             ->first(); 
     }
