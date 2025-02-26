@@ -1,6 +1,4 @@
 <div>
-
-
     <x-card title="Hak Akses & Perizinan">
         <div class="flex justify-between items-center gap-4 mb-3">
             <p>Pengaturan untuk Hak Akses dan Perizinan yang dapat diakses.</p>
