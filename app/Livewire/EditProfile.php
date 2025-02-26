@@ -27,7 +27,7 @@ class EditProfile extends Component
         $this->tgl_penyesuaian = $user->tgl_penyesuaian;
         $this->pensiun = $user->pensiun;
 
-        // $this->jabatans = MasterJabatan::with('kategorijabatan')->get();
+
         $this->jabatans = KategoriJabatan::all();
         $this->pendidikans = MasterPendidikan::all();
     }

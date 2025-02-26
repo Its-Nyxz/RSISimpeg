@@ -1,6 +1,5 @@
 <div>
-    <h1 class="text-2xl font-bold text-success-900 mb-5">Edit Profil</h1>
-
+   
     <form wire:submit.prevent="updateProfile">
         <div class="grid grid-cols-2 gap-4 bg-green-100 border border-green-200 rounded-lg shadow-lg p-6">
 

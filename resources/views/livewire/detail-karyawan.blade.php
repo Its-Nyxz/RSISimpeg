@@ -6,7 +6,7 @@
             + Tambah History
         </a>
     </div>
-
+    
     <div class="flex space-x-6">
         <div class="w-1/2">
             <x-card title="{{ $user->no_ktp ?? '-' }}" class="mb-6 text-success-900">
@@ -15,7 +15,7 @@
                         <strong>Nama</strong>: {{ $user->name ?? '-' }}
                     </div>
                     <div class="mb-4">
-                        <strong>Jabatan</strong>: {{ $namaJabatan }}
+                        <strong>Jabatan</strong>: {{ $user->kategorijabatan->nama ?? '-' }}
                     </div>
                     <div class="mb-4">
                         <strong>Tempat, Tanggal Lahir</strong>: {{ $user->tempat ?? '-' }}, {{ $tanggal_lahir ?? '-' }}
