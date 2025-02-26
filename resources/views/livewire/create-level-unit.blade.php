@@ -10,42 +10,48 @@
         <div class="grid grid-cols-2 gap-4 bg-green-100 border border-green-200 rounded-lg shadow-lg p-6">
             
             <!-- Unit Kerja -->
-            <div class="col-span-2">
+            <div class="col-span-2 relative">
                 <label for="unitkerja" class="block text-sm font-medium text-green-900">Unit Kerja</label>
-                <div class="relative">
-                    <input type="text" id="unitkerja" wire:model.lazy="unit_kerja" placeholder="Cari Unit Kerja..." autocomplete="off"
-                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
-                        oninput="filterDropdown('unitkerja')" onclick="toggleDropdown('unitkerja')" />
-                    
-                    <ul id="unitkerjaDropdown" class="dropdown hidden">
-                        @foreach($unitkerja as $item)
-                            <li class="dropdown-item" onclick="selectItem('unitkerja', '{{ $item->nama }}', '{{ $item->id }}')">
-                                {{ $item->nama }}
+                <input type="text" id="unitkerja" wire:model="unit_kerja" 
+                    wire:focus="fetchSuggestions('unit_kerja', $event.target.value)"
+                    wire:input="fetchSuggestions('unit_kerja', $event.target.value)"
+                    class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" placeholder="Cari Unit Kerja..." />
+
+                <!-- Dropdown -->
+                @if(!empty($unitKerjaOptions))
+                    <ul class="absolute w-full bg-white shadow-md rounded-lg mt-1 overflow-hidden z-10">
+                        @foreach ($unitKerjaOptions as $unit)
+                            <li class="p-2 hover:bg-green-200 cursor-pointer" wire:click="selectUnitKerja('{{ $unit->id }}', '{{ $unit->nama }}')">
+                                {{ $unit->nama }}
                             </li>
                         @endforeach
                     </ul>
-                </div>
+                @endif
+
                 @error('unit_id')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>
 
             <!-- Level Point -->
-            <div class="col-span-2">
+            <div class="col-span-2 relative">
                 <label for="levelpoint" class="block text-sm font-medium text-green-900">Level Point</label>
-                <div class="relative">
-                    <input type="text" id="levelpoint" wire:model.lazy="level_point" placeholder="Cari Level Point..." autocomplete="off"
-                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
-                        oninput="filterDropdown('levelpoint')" onclick="toggleDropdown('levelpoint')" />
-                    
-                    <ul id="levelpointDropdown" class="dropdown hidden">
-                        @foreach($levelpoint as $item)
-                            <li class="dropdown-item" onclick="selectItem('levelpoint', '{{ $item->nama }} - {{ $item->point }}', '{{ $item->id }}')">
-                                {{ $item->nama }} - {{ $item->point }}
+                <input type="text" id="levelpoint" wire:model="level_point" 
+                    wire:focus="fetchSuggestions('level_point', $event.target.value)"
+                    wire:input="fetchSuggestions('level_point', $event.target.value)"
+                    class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" placeholder="Cari Level Point..." />
+
+                <!-- Dropdown -->
+                @if(!empty($levelPointOptions))
+                    <ul class="absolute w-full bg-white shadow-md rounded-lg mt-1 overflow-hidden z-10">
+                        @foreach ($levelPointOptions as $level)
+                            <li class="p-2 hover:bg-green-200 cursor-pointer" wire:click="selectLevelPoint('{{ $level->id }}', '{{ $level->nama }}')">
+                                {{ $level->nama }}
                             </li>
                         @endforeach
                     </ul>
-                </div>
+                @endif
+
                 @error('level_id')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
@@ -60,66 +66,10 @@
         </div>
     </form>
 
-    <script>
-        function toggleDropdown(id) {
-            document.getElementById(id + 'Dropdown').classList.toggle('hidden');
-        }
-
-        function filterDropdown(id) {
-            const input = document.getElementById(id).value.toLowerCase();
-            const dropdown = document.getElementById(id + 'Dropdown');
-            const items = dropdown.getElementsByTagName('li');
-
-            dropdown.classList.remove('hidden');
-
-            for (let item of items) {
-                const text = item.textContent.toLowerCase();
-                item.style.display = text.includes(input) ? '' : 'none';
-            }
-        }
-
-        function selectItem(field, name, id) {
-            document.getElementById(field).value = name;
-            
-            if (field === 'unitkerja') {
-                @this.set('unit_id', id);
-            } else if (field === 'levelpoint') {
-                @this.set('level_id', id);
-            }
-            
-            document.getElementById(field + 'Dropdown').classList.add('hidden');
-        }
-    </script>
-
-    <style>
-        .dropdown {
-            position: absolute;
-            z-index: 10;
-            background: white;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            max-height: 150px;
-            overflow-y: auto;
-            width: 100%;
-        }
-
-        .dropdown-item {
-            padding: 8px 12px;
-            cursor: pointer;
-        }
-
-        .dropdown-item:hover {
-            background-color: #d1fae5;
-        }
-
-        .dropdown::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .dropdown::-webkit-scrollbar-thumb {
-            background-color: #a3d9a5;
-            border-radius: 4px;
-        }
-    </style>
+    <!-- Notifikasi -->
+    @if (session()->has('success'))
+        <div class="alert alert-success mt-3 p-4 bg-green-200 text-green-800 rounded-lg">
+            {{ session('success') }}
+        </div>
+    @endif
 </div>

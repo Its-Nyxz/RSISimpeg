@@ -9,29 +9,46 @@ use App\Models\LevelPoint;
 
 class CreateLevelUnit extends Component
 {
-    public $unit_nama;    // Menyimpan nama unit yang dipilih (hanya untuk tampilan)
-    public $unit_id;      // Menyimpan ID unit untuk database
-    public $level_nama;   // Menyimpan nama level yang dipilih (hanya untuk tampilan)
-    public $level_id;     // Menyimpan ID level untuk database
-
-    public $unitkerja = [];
-    public $levelpoint = [];
+    public $unit_kerja;
+    public $unit_id;
+    public $level_point;
+    public $level_id;
+    public $unitKerjaOptions = [];
+    public $levelPointOptions = [];
 
     protected $rules = [
         'unit_id' => 'required|exists:unit_kerjas,id',
         'level_id' => 'required|exists:level_points,id',
     ];
 
-    public function mount()
+    public function fetchSuggestions($field, $query)
     {
-        $this->unitkerja = UnitKerja::all();
-        $this->levelpoint = LevelPoint::all();
+        if ($field === 'unit_kerja') {
+            $this->unitKerjaOptions = UnitKerja::where('nama', 'like', "%$query%")
+                ->get();
+        } elseif ($field === 'level_point') {
+            $this->levelPointOptions = LevelPoint::where('nama', 'like', "%$query%")
+                ->get();
+        }
+    }
+
+    public function selectUnitKerja($id, $name)
+    {
+        $this->unit_id = $id;
+        $this->unit_kerja = $name;
+        $this->unitKerjaOptions = [];
+    }
+
+    public function selectLevelPoint($id, $name)
+    {
+        $this->level_id = $id;
+        $this->level_point = $name;
+        $this->levelPointOptions = [];
     }
 
     public function store()
     {
         $this->validate();
-
         LevelUnit::create([
             'unit_id' => $this->unit_id,
             'level_id' => $this->level_id,
@@ -41,25 +58,8 @@ class CreateLevelUnit extends Component
         return redirect()->route('levelunit.index');
     }
 
-    // Method untuk memilih unit kerja
-    public function selectUnit($id, $name)
-    {
-        $this->unit_id = $id;
-        $this->unit_nama = $name;
-    }
-
-    // Method untuk memilih level point
-    public function selectLevel($id, $name)
-    {
-        $this->level_id = $id;
-        $this->level_nama = $name;
-    }
-
     public function render()
     {
-        return view('livewire.create-level-unit', [
-            'unitkerja' => $this->unitkerja,
-            'levelpoint' => $this->levelpoint,
-        ]);
+        return view('livewire.create-level-unit');
     }
 }

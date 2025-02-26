@@ -6,10 +6,12 @@
                 <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Karyawan..."
                     class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
             </div>
+            @can('create')
             <a href="{{ route('datakaryawan.create') }}"
                 class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                 + Tambah Karyawan
             </a>
+            @endcan
         </div>
     </div>
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -35,10 +37,12 @@
                         <td class="px-6 py-4">{{ $user->kategorijabatan->nama ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $user->unitKerja->nama ?? '-' }}</td>
                         <td class="px-6 py-4">
+                            @can('detail')
                             <a href="{{ route('detailkaryawan.show', ['detailkaryawan' => $user->id]) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300">
                                 <i class="fa-solid fa-pen"></i>
                             </a>
+                            @endcan
                         </td>
                     </tr>
                 @empty

@@ -13,8 +13,29 @@ class CreateJabatan extends Component
 
     public $katjabs = [];
 
+    public $katjab_nama;
+    public $suggestions = [];
+
+    public function fetchSuggestions($type, $query)
+    {
+        if ($type === 'jabatan') {
+            $this->suggestions = KategoriJabatan::where('nama', 'like', "%$query%")
+                ->get()
+                ->toArray();
+        }
+
+        // dd($this->suggestions);
+    }
+
+    public function selectJabatan($id, $name)
+    {
+        $this->katjab_id = $id;
+        $this->katjab_nama = $name;
+        $this->suggestions = [];
+    }
+
     protected $rules = [
-        'katjab_id' => 'required|exists:kategori_jabatan,id',
+        'katjab_id' => 'required|exists:kategori_jabatans,id',
         'kualifikasi' => 'required|string|max:255',
         'nominal' => 'required|numeric|min:0',
         'deskripsi' => 'required|string|max:255',
@@ -27,9 +48,10 @@ class CreateJabatan extends Component
 
     public function store()
     {
+        // dd($this->katjab_id);
         $this->validate();
 
-        MasterJabatan::create(attributes: [
+        MasterJabatan::create([
             'katjab_id' => $this->katjab_id,
             'kualifikasi' => $this->kualifikasi,
             'nominal' => $this->nominal,
@@ -38,7 +60,6 @@ class CreateJabatan extends Component
 
         return redirect()->route('jabatan.index')->with('success', 'Data Tunjangan Jabatan berhasil ditambahkan.');
     }
-
 
     public function render()
     {
