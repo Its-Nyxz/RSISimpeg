@@ -13,10 +13,10 @@ class MasterJabatan extends Model
     /**
      * Relasi ke User.
      */
-    // public function users()
-    // {
-    //     return $this->hasMany(User::class, 'jabatan_id');
-    // }
+    public function users()
+    {
+        return $this->hasMany(User::class, 'jabatan_id');
+    }
 
     public function kategorijabatan()
     {

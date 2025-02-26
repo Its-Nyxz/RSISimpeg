@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\KategoriJabatan;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
@@ -22,11 +23,11 @@ class EditProfile extends Component
         $this->tempat = $user->tempat;
         $this->tanggal_lahir = $user->tanggal_lahir;
         $this->tanggal_tetap = $user->tanggal_tetap;
-        $this->pendidikan = $user->pendidikan_id;
+        $this->pendidikan_id = $user->pendidikan;
         $this->pendidikan_penyesuaian = $user->pendidikan_penyesuaian;
         $this->tgl_penyesuaian = $user->tgl_penyesuaian;
 
-        $this->jabatans = MasterJabatan::all();
+        $this->jabatans = KategoriJabatan::all();
         $this->pendidikans = MasterPendidikan::all();
     }
 
@@ -51,8 +52,8 @@ class EditProfile extends Component
             'tempat' => $this->tempat,
             'tanggal_lahir' => $this->tanggal_lahir,
             'tanggal_tetap' => $this->tanggal_tetap,
-            'pendidikan_id' => $this->pendidikan,
-            'pendidikan_penyesuaian' => $this->pend_penyesuaian,
+            'pendidikan' => $this->pendidikan_id,
+            'pendidikan_penyesuaian' => $this->pendidikan_penyesuaian,
             'tgl_penyesuaian' => $this->tgl_penyesuaian,
             'pensiun' => $this->pensiun,
         ]);
