@@ -26,7 +26,6 @@
                             </li>
                         @endforeach
                     </ul>
-            
                 @error('user_id')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror

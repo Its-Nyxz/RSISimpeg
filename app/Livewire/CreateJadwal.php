@@ -34,8 +34,13 @@ class CreateJadwal extends Component
 
     public function fetchSuggestions($field, $query)
     {
+        $userLogin = auth()->user(); // Mendapatkan user yang sedang login
+    
         if ($field === 'user') {
             $this->users = User::where('name', 'like', "%$query%")
+                ->whereHas('unitKerja', function ($query) use ($userLogin) {
+                    $query->where('id', $userLogin->unitKerja->id);
+                })
                 ->get();
         } elseif ($field === 'shift') {
             $this->shifts = Shift::where('nama_shift', 'like', "%$query%")
@@ -45,6 +50,8 @@ class CreateJadwal extends Component
                 ->get();
         }
     }
+    
+    
 
     // public function mount()
     // {
