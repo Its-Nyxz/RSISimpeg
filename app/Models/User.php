@@ -59,18 +59,18 @@ class User extends Authenticatable
     /**
      * Relasi ke MasterFungsi.
      */
-    // public function fungsi()
-    // {
-    //     return $this->belongsTo(MasterFungsi::class, 'fungsi_id');
-    // }
-    // public function jabatan()
-    // {
-    //     return $this->belongsTo(MasterJabatan::class, 'jabatan_id');
-    // }
-    // public function umums()
-    // {
-    //     return $this->belongsTo(MasterUmum::class, 'umum_id');
-    // }
+    public function fungsi()
+    {
+        return $this->belongsTo(MasterFungsi::class, 'fungsi_id');
+    }
+    public function jabatan()
+    {
+        return $this->belongsTo(MasterJabatan::class, 'jabatan_id');
+    }
+    public function umums()
+    {
+        return $this->belongsTo(MasterUmum::class, 'umum_id');
+    }
     public function kategorijabatan()
     {
         return $this->belongsTo(KategoriJabatan::class, 'jabatan_id');
@@ -87,7 +87,7 @@ class User extends Authenticatable
     {
         return $this->belongsTo(MasterPendidikan::class, 'pend_awal');
     }
-    public function pendidikan()
+    public function pendidikanUser()
     {
         return $this->belongsTo(MasterPendidikan::class, 'pendidikan');
     }
