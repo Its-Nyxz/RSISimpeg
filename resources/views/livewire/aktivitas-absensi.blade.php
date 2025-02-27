@@ -1,7 +1,7 @@
 <div class="container mx-auto mt-6 p-6 bg-white shadow-md rounded-lg">
     <!-- Header -->
     <div class="py-2 mb-3">
-        <h1 class="text-2xl font-bold text-green-700 mb-2">Absensi</h1>
+        <h1 class="text-2xl font-bold text-green-700 mb-2">List History</h1>
         <div class="flex space-x-4">
             <select class="border-2 border-gray-700 rounded-md p-2">
                 <option>Januari</option>

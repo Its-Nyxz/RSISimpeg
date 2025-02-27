@@ -31,7 +31,7 @@ class RolePermissionSeeder extends Seeder
         $permissions = [
             'add-user',
             'timer',
-            'absensi',
+            'list-history',
             'tunjangan',
             'golongan',
             'gaji-pokok',
