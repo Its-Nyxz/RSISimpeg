@@ -1463,13 +1463,13 @@ class UserSeeder extends Seeder
 
         // Data untuk unit UNIT PENGELOLAAN LINEN
         $linenMembers = [
-            ['name' => 'Dr. Kartiko Sumartoyo.,Sp U', 'role' => 'Manager', 'jabatan' => 'Wadir Umum dan Keuangan'],
-            ['name' => 'Budiono', 'role' => 'Kepala Unit', 'jabatan' => 'Ka. Unit Pengelolaan Linen'],
-            ['name' => 'Hari Nugroho', 'jabatan' => 'Staf Unit Pengelolaan Linen'],
-            ['name' => 'Bariroh Ahmad', 'jabatan' => 'Staf Unit Pengelolaan Linen'],
-            ['name' => 'Mustangin', 'jabatan' => 'Staf Unit Pengelolaan Linen'],
-            ['name' => 'Rifin Supratman', 'jabatan' => 'Staf Unit Pengelolaan Linen'],
-            ['name' => 'Agus Junaedi', 'jabatan' => 'Staf Unit Pengelolaan Linen'],
+            ['name' => 'Dr. Kartiko Sumartoyo.,Sp U', 'role' => 'Keuangan', 'jabatan' => 'Wadir Umum dan Keuangan'],
+            ['name' => 'Budiono', 'role' => 'Keuangan', 'jabatan' => 'Ka. Unit Pengelolaan Linen'],
+            ['name' => 'Hari Nugroho', 'role' => 'Keuangan', 'jabatan' => 'Staf Unit Pengelolaan Linen'],
+            ['name' => 'Bariroh Ahmad', 'role' => 'Keuangan', 'jabatan' => 'Staf Unit Pengelolaan Linen'],
+            ['name' => 'Mustangin', 'role' => 'Keuangan', 'jabatan' => 'Staf Unit Pengelolaan Linen'],
+            ['name' => 'Rifin Supratman', 'role' => 'Keuangan', 'jabatan' => 'Staf Unit Pengelolaan Linen'],
+            ['name' => 'Agus Junaedi', 'role' => 'Keuangan', 'jabatan' => 'Staf Unit Pengelolaan Linen'],
         ];
 
         // Cari unit UNIT PENGELOLAAN LINEN
@@ -1582,10 +1582,10 @@ class UserSeeder extends Seeder
 
         // Data untuk unit AKUNTANSI
         $akuntansiMembers = [
-            ['name' => 'Endah Lestari D', 'role' => 'Kepala Seksi', 'jabatan' => 'Manajer Keuangan+ Plt. Ka. Seksi Akuntansi'],
-            ['name' => 'Nur Aini Oktaviani', 'jabatan' => 'Staf Seksi Akuntansi'],
-            ['name' => 'Anissa Vista Tiara Wardhani', 'jabatan' => 'Staf Seksi Akuntansi'],
-            ['name' => 'Entoek Puri W', 'jabatan' => 'Staf Seksi Akuntansi'],
+            ['name' => 'Endah Lestari D', 'role' => 'Keuangan', 'jabatan' => 'Manajer Keuangan+ Plt. Ka. Seksi Akuntansi'],
+            ['name' => 'Nur Aini Oktaviani', 'role' => 'Keuangan', 'jabatan' => 'Staf Seksi Akuntansi'],
+            ['name' => 'Anissa Vista Tiara Wardhani', 'role' => 'Keuangan', 'jabatan' => 'Staf Seksi Akuntansi'],
+            ['name' => 'Entoek Puri W', 'role' => 'Keuangan', 'jabatan' => 'Staf Seksi Akuntansi'],
         ];
 
         // Cari unit AKUNTANSI
@@ -1617,11 +1617,11 @@ class UserSeeder extends Seeder
 
         // Data untuk unit KEUANGAN
         $keuanganMembers = [
-            ['name' => 'Nur Chalifah', 'role' => 'Kepala Seksi', 'jabatan' => 'Ka. Seksi Keuangan'],
-            ['name' => 'Siti Maulidah', 'jabatan' => 'Staf Seksi Keuangan'],
-            ['name' => 'Adinda Lionita Hidayah.,SE', 'jabatan' => 'Staf Seksi Keuangan'],
-            ['name' => 'Eka Lestari', 'jabatan' => 'Staf Seksi Keuangan'],
-            ['name' => 'Dini Inti Wahyuni', 'jabatan' => 'Staf Seksi Keuangan'],
+            ['name' => 'Nur Chalifah', 'role' => 'Keuangan', 'jabatan' => 'Ka. Seksi Keuangan'],
+            ['name' => 'Siti Maulidah', 'role' => 'Keuangan', 'jabatan' => 'Staf Seksi Keuangan'],
+            ['name' => 'Adinda Lionita Hidayah.,SE', 'role' => 'Keuangan', 'jabatan' => 'Staf Seksi Keuangan'],
+            ['name' => 'Eka Lestari', 'role' => 'Keuangan', 'jabatan' => 'Staf Seksi Keuangan'],
+            ['name' => 'Dini Inti Wahyuni', 'role' => 'Keuangan', 'jabatan' => 'Staf Seksi Keuangan'],
         ];
 
         // Cari unit KEUANGAN
@@ -1650,15 +1650,15 @@ class UserSeeder extends Seeder
 
         $this->command->info('Seeder user AKUNTANSI berhasil dijalankan.');
 
-        // Data untuk unit KEUANGAN
+        // Data untuk unit KASIR
         $kasirMembers = [
-            ['name' => 'Khodijah', 'jabatan' => 'Staf Seksi Keuangan (Kasir)'],
-            ['name' => 'Sri Afti Cahyani', 'jabatan' => 'Staf Seksi Keuangan (Kasir)'],
-            ['name' => 'Suci Prihatiyani', 'jabatan' => 'Staf Seksi Keuangan (Kasir)'],
-            ['name' => 'Surya Eka Wardani', 'jabatan' => 'Staf Seksi Keuangan (Kasir)'],
-            ['name' => 'Liana Yulianti', 'jabatan' => 'Staf Seksi Keuangan (Kasir)'],
-            ['name' => 'Candra Bisma Abdul', 'jabatan' => 'Staf Seksi Keuangan (Kasir)'],
-            ['name' => 'Dika Muzaqi Eka P', 'jabatan' => 'Staf Seksi Keuangan (Kasir)'],
+            ['name' => 'Khodijah', 'role' => 'Keuangan', 'jabatan' => 'Staf Seksi Keuangan (Kasir)'],
+            ['name' => 'Sri Afti Cahyani', 'role' => 'Keuangan', 'jabatan' => 'Staf Seksi Keuangan (Kasir)'],
+            ['name' => 'Suci Prihatiyani', 'role' => 'Keuangan', 'jabatan' => 'Staf Seksi Keuangan (Kasir)'],
+            ['name' => 'Surya Eka Wardani', 'role' => 'Keuangan', 'jabatan' => 'Staf Seksi Keuangan (Kasir)'],
+            ['name' => 'Liana Yulianti', 'role' => 'Keuangan', 'jabatan' => 'Staf Seksi Keuangan (Kasir)'],
+            ['name' => 'Candra Bisma Abdul', 'role' => 'Keuangan', 'jabatan' => 'Staf Seksi Keuangan (Kasir)'],
+            ['name' => 'Dika Muzaqi Eka P', 'role' => 'Keuangan', 'jabatan' => 'Staf Seksi Keuangan (Kasir)'],
         ];
 
         // Cari unit KASIR
@@ -1678,41 +1678,6 @@ class UserSeeder extends Seeder
                     'password' => Hash::make('123'), // Password default
                     'unit_id' => $kasirUnit->id,
                     'jabatan_id' => $KategoriJabatan,
-                ]
-            );
-
-            $role = $member['role'] ?? 'Staf';
-            $user->assignRole($role);
-        }
-
-        $this->command->info('Seeder user KEUANGAN berhasil dijalankan.');
-
-        // Data untuk unit KASIR
-        $kasirMembers = [
-            ['name' => 'Khodijah'],
-            ['name' => 'Sri Afti Cahyani'],
-            ['name' => 'Suci Prihatiyani'],
-            ['name' => 'Surya Eka Wardani'],
-            ['name' => 'Liana Yulianti'],
-            ['name' => 'Candra Bisma Abdul'],
-            ['name' => 'Dika Muzaqi Eka P'],
-        ];
-
-        // Cari unit KASIR
-        $kasirUnit = UnitKerja::where('nama', 'KASIR')->first();
-
-        if (!$kasirUnit) {
-            $this->command->error('Unit KASIR tidak ditemukan!');
-            return;
-        }
-
-        foreach ($kasirMembers as $member) {
-            $user = User::firstOrCreate(
-                ['email' => $this->emailFormat($member['name'])],
-                [
-                    'name' => $member['name'],
-                    'password' => Hash::make('123'), // Password default
-                    'unit_id' => $kasirUnit->id,
                 ]
             );
 
