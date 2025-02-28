@@ -1464,12 +1464,12 @@ class UserSeeder extends Seeder
         // Data untuk unit UNIT PENGELOLAAN LINEN
         $linenMembers = [
             ['name' => 'Dr. Kartiko Sumartoyo.,Sp U', 'role' => 'Keuangan', 'jabatan' => 'Wadir Umum dan Keuangan'],
-            ['name' => 'Budiono', 'role' => 'Keuangan', 'jabatan' => 'Ka. Unit Pengelolaan Linen'],
-            ['name' => 'Hari Nugroho', 'role' => 'Keuangan', 'jabatan' => 'Staf Unit Pengelolaan Linen'],
-            ['name' => 'Bariroh Ahmad', 'role' => 'Keuangan', 'jabatan' => 'Staf Unit Pengelolaan Linen'],
-            ['name' => 'Mustangin', 'role' => 'Keuangan', 'jabatan' => 'Staf Unit Pengelolaan Linen'],
-            ['name' => 'Rifin Supratman', 'role' => 'Keuangan', 'jabatan' => 'Staf Unit Pengelolaan Linen'],
-            ['name' => 'Agus Junaedi', 'role' => 'Keuangan', 'jabatan' => 'Staf Unit Pengelolaan Linen'],
+            ['name' => 'Budiono', 'role' => 'Kepala Unit', 'jabatan' => 'Ka. Unit Pengelolaan Linen'],
+            ['name' => 'Hari Nugroho', 'jabatan' => 'Staf Unit Pengelolaan Linen'],
+            ['name' => 'Bariroh Ahmad', 'jabatan' => 'Staf Unit Pengelolaan Linen'],
+            ['name' => 'Mustangin', 'jabatan' => 'Staf Unit Pengelolaan Linen'],
+            ['name' => 'Rifin Supratman', 'jabatan' => 'Staf Unit Pengelolaan Linen'],
+            ['name' => 'Agus Junaedi', 'jabatan' => 'Staf Unit Pengelolaan Linen'],
         ];
 
         // Cari unit UNIT PENGELOLAAN LINEN
