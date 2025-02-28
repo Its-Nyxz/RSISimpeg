@@ -8,7 +8,7 @@ import "flowbite";
 import Swal from "sweetalert2";
 window.Swal = Swal;
 
-window.confirmRemove = function (message, callback) {
+window.confirmAlert = function (message, confirmButtonText, callback) {
     Swal.fire({
         title: "Apakah Anda yakin?",
         text: message || "Data akan dihapus secara permanen!",
@@ -16,7 +16,7 @@ window.confirmRemove = function (message, callback) {
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
-        confirmButtonText: "Ya, hapus!",
+        confirmButtonText: confirmButtonText || "Ya, hapus!",
         cancelButtonText: "Batal",
     }).then((result) => {
         if (result.isConfirmed) {
