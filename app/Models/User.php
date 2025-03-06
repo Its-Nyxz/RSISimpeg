@@ -83,10 +83,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(MasterKhusus::class, 'khusus_id');
     }
-    // public function pendAwal()
-    // {
-    //     return $this->belongsTo(MasterPendidikan::class, 'pend_awal');
-    // }
+    public function pendAwal()
+    {
+        return $this->belongsTo(MasterPendidikan::class, 'pend_awal');
+    }
     public function pendidikanUser()
     {
         return $this->belongsTo(MasterPendidikan::class, 'pendidikan');

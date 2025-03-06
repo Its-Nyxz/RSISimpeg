@@ -116,6 +116,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('masakerja', MasaKerjaController::class);
     Route::resource('levelunit', LevelUnitController::class);
 
+
     Route::resource('unitkerja', UnitKerjaController::class);
     // Route::resource('userprofile', UserProfileController::class);
     // Route::get('/userprofile', [UserProfileController::class, 'index'])->name('userprofile');

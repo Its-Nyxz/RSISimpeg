@@ -2,22 +2,24 @@
 
 namespace App\Livewire;
 
-use App\Models\KategoriJabatan;
 use Livewire\Component;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
-use App\Models\MasterJabatan;
+use App\Models\KategoriJabatan;
 use App\Models\MasterPendidikan;
+use App\Models\User;
 
-class EditProfile extends Component
+class EditUsers extends Component
 {
-    public $name, $jabatan_id, $tempat, $tanggal_lahir, $tanggal_tetap, $pendidikan_id, $pendidikan_penyesuaian, $tgl_penyesuaian, $pensiun;
+    public $user;
+    public $user_id, $nip, $email, $username, $name, $jabatan_id, $tempat, $tanggal_lahir, $tanggal_tetap, $pendidikan_id, $pendidikan_penyesuaian, $tgl_penyesuaian, $pensiun;
     public $jabatans, $pendidikans;
 
-    public function mount()
+    public function mount($user)
     {
-        $user = Auth::user();
-        
+        $this->user = $user;
+        $this->user_id = $user->id;
+        $this->nip = $user->nip;
+        $this->email = $user->email;
+        $this->username = $user->username;
         $this->name = $user->name;
         $this->jabatan_id = $user->jabatan_id;
         $this->tempat = $user->tempat;
@@ -36,6 +38,9 @@ class EditProfile extends Component
     public function updateProfile()
     {
         $this->validate([
+            'nip' => 'required|string|max:255',
+            'email' => 'required|string|max:255',
+            'username' => 'required|string|max:255',
             'name' => 'required|string|max:255',
             'jabatan_id' => 'nullable|exists:kategori_jabatans,id',
             'tempat' => 'nullable|string|max:255',
@@ -47,8 +52,10 @@ class EditProfile extends Component
             'pensiun' => 'nullable|date',
         ]);
 
-        $user = Auth::user();
-        $user->update([
+        User::findorfail($this->user_id)->update([
+            'nip' => $this->nip,
+            'email' => $this->email,
+            'username' => $this->username,
             'name' => $this->name,
             'jabatan_id' => $this->jabatan_id,
             'tempat' => $this->tempat,
@@ -60,11 +67,11 @@ class EditProfile extends Component
             'pensiun' => $this->pensiun,
         ]);
 
-        return redirect()->route('userprofile.index')->with('success', 'Profile berhasil diupdate.');
+        return redirect()->route('userprofile.index')->with('success', 'User berhasil diupdate.');
     }
 
     public function render()
     {
-        return view('livewire.edit-profile');
+        return view('livewire.edit-users');
     }
 }
