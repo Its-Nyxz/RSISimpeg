@@ -1,5 +1,7 @@
 <?php
 
+use Carbon\Carbon;
+
 if (!function_exists('rupiah')) {
     function rupiah($angka)
     {
@@ -19,5 +21,12 @@ if (!function_exists('isActiveMenu')) {
             }
         }
         return false;
+    }
+}
+
+if (!function_exists('formatDate')) {
+    function formatDate($date, $format = 'd F Y', $locale = 'id') //jika format dan local kosong maka $format = 'd F Y' dan $locale = 'id' adalah defaultnya
+    {
+        return Carbon::parse($date)->locale($locale)->translatedFormat($format);
     }
 }

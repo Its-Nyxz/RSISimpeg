@@ -27,17 +27,13 @@
                 <div class="grid grid-cols-2">
                     <div class="font-semibold">Tempat, Tanggal Lahir</div>
                     <div>: {{ $userprofile->tempat ?? '-' }},
-                        {{ $userprofile->tanggal_lahir
-                            ? \Carbon\Carbon::parse($userprofile->tanggal_lahir)->locale('id')->translatedFormat('d F Y')
-                            : '-' }}
+                        {{ $userprofile->tanggal_lahir ? formatDate($userprofile->tanggal_lahir) : '-' }}
                     </div>
                 </div>
                 <div class="grid grid-cols-2">
                     <div class="font-semibold">Tanggal Tetap</div>
                     <div>:
-                        {{ $userprofile->tanggal_tetap
-                            ? \Carbon\Carbon::parse($userprofile->tanggal_tetap)->locale('id')->translatedFormat('d F Y')
-                            : '-' }}
+                        {{ $userprofile->tanggal_tetap ? formatDate($userprofile->tanggal_tetap) : '-' }}
                     </div>
                 </div>
                 <div class="grid grid-cols-2">
@@ -51,17 +47,13 @@
                 <div class="grid grid-cols-2">
                     <div class="font-semibold">Tanggal Penyesuaian</div>
                     <div>:
-                        {{ $userprofile->tgl_penyesuaian
-                            ? \Carbon\Carbon::parse($userprofile->tgl_penyesuaian)->locale('id')->translatedFormat('d F Y')
-                            : '-' }}
+                        {{ $userprofile->tgl_penyesuaian ? formatDate($userprofile->tgl_penyesuaian) : '-' }}
                     </div>
                 </div>
                 <div class="grid grid-cols-2">
                     <div class="font-semibold">Informasi Pensiun</div>
                     <div>:
-                        {{ $userprofile->pensiun
-                            ? \Carbon\Carbon::parse($userprofile->pensiun)->locale('id')->translatedFormat('d F Y')
-                            : '-' }}
+                        {{ $userprofile->pensiun ? formatDate($userprofile->pensiun) : '-' }}
                     </div>
                 </div>
             </div>
@@ -107,7 +99,7 @@
         </x-card>
     </div>
 
-    @if (Auth::user()->hasRole('Super Admin') || Auth::user()->hasRole('Keuangan'))
+    @if (Auth::user()->hasRole('Super Admin') || Auth::user()->hasRole('Administrator') || Auth::user()->hasRole('Kepegawaian'))
         <div>
             <x-card :title="'Data Users'">
                 <div class="flex justify-end mb-3">
@@ -118,10 +110,10 @@
                                 placeholder="Cari User..."
                                 class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
                         </div>
-                        <a href="{{ route('users.create') }}"
+                        {{-- <a href="{{ route('users.create') }}"
                             class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                             + Tambah User
-                        </a>
+                        </a> --}}
                     </div>
                 </div>
                 <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
