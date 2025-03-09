@@ -15,8 +15,8 @@ class DetailJabatan extends Component
 
     protected $defaultPermissions = [
         'Add User' => ['add-user'],
-        'Aktivitas Kerja' => ['timer', 'absensi'],
-        'Master Data' => ['tunjangan', 'golongan', 'gaji-pokok', 'pendidikan', 'absen', 'unit-kerja', 'potongan', 'tunjangan-kinerja', 'kategori-jabatan'],
+        'Aktivitas Kerja' => ['timer', 'list-history', 'absen'],
+        'Master Data' => ['tunjangan', 'golongan', 'gaji-pokok', 'pendidikan', 'unit-kerja', 'potongan', 'tunjangan-kinerja', 'kategori-jabatan'],
         'Data Karyawan' => ['create', 'detail'],
         'Kenaikan' => ['view-kenaikan'],
         'Approval Cuti' => ['notification'],
