@@ -20,7 +20,7 @@ class UsersController extends Controller
      */
     public function create()
     {
-        //
+        return view('users.index');
     }
 
     /**
@@ -42,9 +42,10 @@ class UsersController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(User $users)
+    public function edit($id)
     {
-        //
+        $user = User::findOrFail($id);
+        return view('users.editUser', compact('user'));
     }
 
     /**

@@ -22,7 +22,7 @@
         <!-- Tombol Submit -->
         <div class="form-group col-span-2 flex justify-end mt-4">
             <button type="submit" class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
-                <i class="fa-solid fa-paper-plane mr-2"></i> Save
+                <i class="fa-solid fa-paper-plane mr-2"></i> Simpan
             </button>
         </div>
     </form>

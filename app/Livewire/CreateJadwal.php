@@ -48,11 +48,9 @@ class CreateJadwal extends Component
                 )
                 ->get();
         } elseif ($field === 'shift') {
-            $this->shifts = Shift::where('nama_shift', 'like', "%$query%")
-                ->get();
+            $this->shifts = Shift::where('nama_shift', 'like', "%$query%")->get();
         } elseif ($field === 'opsi') {
-            $this->opsis = OpsiAbsen::where('name', 'like', "%$query%")
-                ->get();
+            $this->opsis = OpsiAbsen::where('name', 'like', "%$query%")->get();
         }
     }
     

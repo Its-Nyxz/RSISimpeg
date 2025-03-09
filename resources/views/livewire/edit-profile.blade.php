@@ -2,8 +2,7 @@
    
     <form wire:submit.prevent="updateProfile">
         <div class="grid grid-cols-2 gap-4 bg-green-100 border border-green-200 rounded-lg shadow-lg p-6">
-
-            <!-- Nama -->
+             {{-- Nama --}}
             <div class="form-group col-span-2">
                 <label for="name" class="text-sm font-medium text-green-700">Nama</label>
                 <input type="text" id="name" wire:model="name"
@@ -13,7 +12,7 @@
                 @enderror
             </div>
 
-            <!-- Jabatan -->
+             {{-- Jabatan  --}}
             <div class="form-group col-span-2">
                 <label for="jabatan_id" class="text-sm font-medium text-green-700">Jabatan</label>
                 <select id="jabatan_id" wire:model="jabatan_id"
@@ -28,7 +27,7 @@
                 @enderror
             </div>
 
-            <!-- Tempat -->
+            {{-- Tempat Lahir --}}
             <div class="form-group">
                 <label for="tempat" class="text-sm font-medium text-green-700">Tempat</label>
                 <input type="text" id="tempat" wire:model="tempat"
@@ -38,7 +37,7 @@
                 @enderror
             </div>
 
-            <!-- Tanggal Lahir -->
+            {{-- Tanggal Lahir --}}
             <div class="form-group">
                 <label for="tanggal_lahir" class="text-sm font-medium text-green-700">Tanggal Lahir</label>
                 <input type="date" id="tanggal_lahir" wire:model="tanggal_lahir"
@@ -48,8 +47,8 @@
                 @enderror
             </div>
 
-            <!-- Tanggal Tetap -->
-            <div class="form-group col-span-2 md:col-span-1">
+            {{-- Tanggal Tetap --}}
+            <div class="form-group col-span-2 ">
                 <label for="tanggal_tetap" class="text-sm font-medium text-green-700">Tanggal Tetap</label>
                 <input type="date" id="tanggal_tetap" wire:model="tanggal_tetap"
                     class="form-control @error('tanggal_tetap') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
@@ -58,7 +57,7 @@
                 @enderror
             </div>
 
-            <!-- Pendidikan Awal -->
+            {{-- Pend awal --}}
             <div class="form-group col-span-2 md:col-span-1">
                 <label for="pendidikan_id" class="text-sm font-medium text-green-700">Pendidikan Awal</label>
                 <select id="pendidikan_id" wire:model="pendidikan_id"
@@ -73,8 +72,8 @@
                 @enderror
             </div>
 
-            <!-- Pendidikan Penyesuaian -->
-            <div class="form-group col-span-2">
+            {{-- end penyesuaian --}}
+            <div class="form-group col-span-2 md:col-span-1">
                 <label for="pendidikan_penyesuaian" class="text-sm font-medium text-green-700">Pendidikan
                     Penyesuaian</label>
                 <input type="text" id="pendidikan_penyesuaian" wire:model="pendidikan_penyesuaian"
@@ -84,7 +83,7 @@
                 @enderror
             </div>
 
-            <!-- Tanggal Penyesuaian -->
+            {{-- Tanggal Penyesuaian  --}}
             <div class="form-group col-span-2">
                 <label for="tgl_penyesuaian" class="text-sm font-medium text-green-700">Tanggal Penyesuaian</label>
                 <input type="date" id="tgl_penyesuaian" wire:model="tgl_penyesuaian"
@@ -94,7 +93,7 @@
                 @enderror
             </div>
 
-            <!-- Tanggal Pensiun -->
+            {{-- pensiun --}}
             <div class="form-group col-span-2">
                 <label for="pensiun" class="text-sm font-medium text-green-700">Informasi Pensiun</label>
                 <input type="date" id="pensiun" wire:model="pensiun"
@@ -105,7 +104,7 @@
             </div>
         </div>
 
-        <!-- Tombol Submit -->
+        {{-- button sumbit --}}
         <div class="form-group flex justify-end mt-4 mb-4">
             <button type="submit"
                 class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
@@ -114,7 +113,7 @@
         </div>
     </form>
 
-    <!-- Notifikasi -->
+    {{-- Notifikasi --}}
     @if (session()->has('success'))
         <div class="alert alert-success mt-3 p-4 bg-green-200 text-green-800 rounded-lg">
             {{ session('success') }}

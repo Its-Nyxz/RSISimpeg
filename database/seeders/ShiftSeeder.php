@@ -14,9 +14,9 @@ class ShiftSeeder extends Seeder
     public function run(): void
     {
         $shifts = [
-            ['name' => 'Morning Shift', 'start_time' => '08:00:00', 'end_time' => '16:00:00'],
-            ['name' => 'Evening Shift', 'start_time' => '16:00:00', 'end_time' => '00:00:00'],
-            ['name' => 'Night Shift', 'start_time' => '00:00:00', 'end_time' => '08:00:00'],
+            ['nama_shift' => 'Morning Shift', 'jam_masuk' => '08:00:00', 'jam_keluar' => '16:00:00', 'keterangan' => 'Shift Pagi'],
+            ['nama_shift' => 'Evening Shift', 'jam_masuk' => '16:00:00', 'jam_keluar' => '00:00:00', 'keterangan' => 'Shift Sore'],
+            ['nama_shift' => 'Night Shift', 'jam_masuk' => '00:00:00', 'jam_keluar' => '08:00:00', 'keterangan' => 'Shift Malam'],
         ];
 
         foreach ($shifts as $shift) {

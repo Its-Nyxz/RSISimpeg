@@ -1,7 +1,8 @@
 <div>
     <div class="flex justify-between items-center mb-5">
-        <h1 class="text-2xl font-bold text-green-900">Tambah Data Jadwal</h1>   
-        <a href="{{ url()->previous() }}" class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
+        <h1 class="text-2xl font-bold text-green-900">Tambah Data Jadwal</h1>
+        <a href="{{ route('jadwal.index') }}"
+            class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
             <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
         </a>
     </div>
@@ -14,8 +15,7 @@
                 <label for="nama" class="block text-sm font-medium text-green-900">Nama</label>
                 <input type="text" id="nama" wire:model.lazy="nama"
                     wire:focus="fetchSuggestions('user', $event.target.value)"
-                    wire:input="fetchSuggestions('user', $event.target.value)"
-                    placeholder="Cari Nama..."
+                    wire:input="fetchSuggestions('user', $event.target.value)" placeholder="Cari Nama..."
                     class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-green-500 p-2.5"
                     autocomplete="off" />
                 
@@ -26,29 +26,31 @@
                             </li>
                         @endforeach
                     </ul>
+
                 @error('user_id')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
-            </div>            
+            </div>
 
             <!-- Shift -->
             <div class="form-group col-span-2 relative">
                 <label for="shift_id" class="block text-sm font-medium text-green-900">Shift</label>
                 <input type="text" id="shift_nama" wire:model.lazy="shift_nama"
                     wire:focus="fetchSuggestions('shift', $event.target.value)"
-                    wire:input="fetchSuggestions('shift', $event.target.value)"
-                    placeholder="Cari Shift..."
+                    wire:input="fetchSuggestions('shift', $event.target.value)" placeholder="Cari Shift..."
                     class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-green-500 p-2.5"
                     autocomplete="off" />
-                
-                <ul id="shiftDropdown" class="dropdown absolute w-full bg-white rounded-lg shadow-lg mt-1 z-10" wire:loading.remove>
-                    @foreach($shifts as $suggestion)
-                        <li class="dropdown-item p-2 hover:bg-green-200 cursor-pointer" wire:click="selectShift('{{ $suggestion['id'] }}', '{{ $suggestion['nama_shift'] }}')">
+
+                <ul id="shiftDropdown" class="dropdown absolute w-full bg-white rounded-lg shadow-lg mt-1 z-10"
+                    wire:loading.remove>
+                    @foreach ($shifts as $suggestion)
+                        <li class="dropdown-item p-2 hover:bg-green-200 cursor-pointer"
+                            wire:click="selectShift('{{ $suggestion['id'] }}', '{{ $suggestion['nama_shift'] }}')">
                             {{ $suggestion['nama_shift'] }}
-                        </li>                        
+                        </li>
                     @endforeach
                 </ul>
-            
+
                 @error('shift_id')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
@@ -59,19 +61,20 @@
                 <label for="opsi_id" class="block text-sm font-medium text-green-900">Opsi Absensi</label>
                 <input type="text" id="opsi_nama" wire:model.lazy="opsi_nama"
                     wire:focus="fetchSuggestions('opsi', $event.target.value)"
-                    wire:input="fetchSuggestions('opsi', $event.target.value)"
-                    placeholder="Cari opsi absensi..."
+                    wire:input="fetchSuggestions('opsi', $event.target.value)" placeholder="Cari opsi absensi..."
                     class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-green-500 p-2.5"
                     autocomplete="off" />
-                
-                <ul id="opsiDropdown" class="dropdown absolute w-full bg-white rounded-lg shadow-lg mt-1 z-10" wire:loading.remove>
-                    @foreach($opsis as $suggestion)
-                        <li class="dropdown-item p-2 hover:bg-green-200 cursor-pointer" wire:click="selectOpsi('{{ $suggestion['id'] }}', '{{ $suggestion['name'] }}')">
+
+                <ul id="opsiDropdown" class="dropdown absolute w-full bg-white rounded-lg shadow-lg mt-1 z-10"
+                    wire:loading.remove>
+                    @foreach ($opsis as $suggestion)
+                        <li class="dropdown-item p-2 hover:bg-green-200 cursor-pointer"
+                            wire:click="selectOpsi('{{ $suggestion['id'] }}', '{{ $suggestion['name'] }}')">
                             {{ $suggestion['name'] }}
-                        </li>                        
+                        </li>
                     @endforeach
                 </ul>
-            
+
                 @error('opsi_id')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
@@ -80,7 +83,8 @@
             <!-- Tanggal Jadwal -->
             <div class="form-group col-span-2">
                 <label for="tanggal" class="block text-sm font-medium text-green-900">Tanggal Jadwal</label>
-                <input type="date" id="tanggal" wire:model="tanggal" class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-green-500 p-2.5" />
+                <input type="date" id="tanggal" wire:model="tanggal"
+                    class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-green-500 p-2.5" />
                 @error('tanggal')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
@@ -89,7 +93,8 @@
             <!-- Keterangan Absensi -->
             <div class="form-group col-span-2">
                 <label for="keterangan" class="block text-sm font-medium text-green-900">Keterangan Absensi</label>
-                <select id="keterangan" wire:model="keterangan" class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-green-500 p-2.5">
+                <select id="keterangan" wire:model="keterangan"
+                     class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-green-500 p-2.5">
                     <option value="">Pilih Keterangan Absensi</option>
                     <option value="Cuti">Cuti</option>
                     <option value="Libur">Libur</option>
@@ -105,7 +110,8 @@
 
         <!-- Tombol Submit -->
         <div class="flex justify-end mt-4">
-            <button type="submit" class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
+            <button type="submit"
+                class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
                 <i class="fa-solid fa-paper-plane mr-2"></i> Save
             </button>
         </div>
@@ -134,17 +140,29 @@
 
             // Set the correct property name dynamically
             if (field === 'nama') {
-                @this.set('user_id', id);  // Set the user_id
+                @this.set('user_id', id); // Set the user_id
             } else if (field === 'shift') {
-                @this.set('shift_id', id);  // Set the shift_id
+                @this.set('shift_id', id); // Set the shift_id
             } else if (field === 'opsi') {
-                @this.set('opsi_id', id);  // Set the opsi_id
+                @this.set('opsi_id', id); // Set the opsi_id
+            }
+
+            document.getElementById(field).value = name;
+
+            // Set the correct property name dynamically
+            if (field === 'nama') {
+                @this.set('user_id', id); // Set the user_id
+            } else if (field === 'shift') {
+                @this.set('shift_id', id); // Set the shift_id
+            } else if (field === 'opsi') {
+                @this.set('opsi_id', id); // Set the opsi_id
             }
 
             document.getElementById(field + 'Dropdown').classList.add('hidden');
         }
 
-        document.addEventListener('click', function (e) {
+
+        document.addEventListener('click', function(e) {
             const fields = ['nama', 'shift', 'opsi'];
             fields.forEach(field => {
                 const input = document.getElementById(field);
