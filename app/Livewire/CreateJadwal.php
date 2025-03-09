@@ -35,14 +35,11 @@ class CreateJadwal extends Component
     public function fetchSuggestions($field, $query)
     {
         if ($field === 'user') {
-            $this->users = User::where('name', 'like', "%$query%")
-                ->get();
+            $this->users = User::where('name', 'like', "%$query%")->where('id', '>', 1)->get();
         } elseif ($field === 'shift') {
-            $this->shifts = Shift::where('nama_shift', 'like', "%$query%")
-                ->get();
+            $this->shifts = Shift::where('nama_shift', 'like', "%$query%")->get();
         } elseif ($field === 'opsi') {
-            $this->opsis = OpsiAbsen::where('name', 'like', "%$query%")
-                ->get();
+            $this->opsis = OpsiAbsen::where('name', 'like', "%$query%")->get();
         }
     }
 

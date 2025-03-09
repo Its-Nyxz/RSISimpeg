@@ -96,7 +96,7 @@
             <div class="form-group col-span-2">
                 <label for="keterangan" class="block text-sm font-medium text-green-900">Keterangan Absensi</label>
                 <select id="keterangan" wire:model="keterangan"
-                    class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-green-500 p-2.5">
+                     class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-green-500 p-2.5">
                     <option value="">Pilih Keterangan Absensi</option>
                     <option value="Cuti">Cuti</option>
                     <option value="Libur">Libur</option>
@@ -149,8 +149,20 @@
                 @this.set('opsi_id', id); // Set the opsi_id
             }
 
+            document.getElementById(field).value = name;
+
+            // Set the correct property name dynamically
+            if (field === 'nama') {
+                @this.set('user_id', id); // Set the user_id
+            } else if (field === 'shift') {
+                @this.set('shift_id', id); // Set the shift_id
+            } else if (field === 'opsi') {
+                @this.set('opsi_id', id); // Set the opsi_id
+            }
+
             document.getElementById(field + 'Dropdown').classList.add('hidden');
         }
+
 
         document.addEventListener('click', function(e) {
             const fields = ['nama', 'shift', 'opsi'];
