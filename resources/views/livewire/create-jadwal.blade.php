@@ -18,16 +18,14 @@
                     wire:input="fetchSuggestions('user', $event.target.value)" placeholder="Cari Nama..."
                     class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-green-500 p-2.5"
                     autocomplete="off" />
-
-                <ul id="namaDropdown" class="dropdown absolute w-full bg-white rounded-lg shadow-lg mt-1 z-10"
-                    wire:loading.remove>
-                    @foreach ($users as $suggestion)
-                        <li class="dropdown-item p-2 hover:bg-green-200 cursor-pointer"
-                            wire:click="selectUser('{{ $suggestion['id'] }}', '{{ $suggestion['name'] }}')">
-                            {{ $suggestion['name'] }}
-                        </li>
-                    @endforeach
-                </ul>
+                
+                    <ul id="namaDropdown" class="dropdown absolute w-full bg-white rounded-lg shadow-lg mt-1 z-10" wire:loading.remove>
+                        @foreach($users as $suggestion)
+                            <li class="dropdown-item p-2 hover:bg-green-200 cursor-pointer" wire:click="selectUser('{{ $suggestion['id'] }}', '{{ $suggestion['name'] }}')">
+                                {{ $suggestion['name'] }}
+                            </li>
+                        @endforeach
+                    </ul>
 
                 @error('user_id')
                     <span class="text-danger text-sm">{{ $message }}</span>

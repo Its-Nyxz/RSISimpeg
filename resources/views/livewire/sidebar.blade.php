@@ -29,7 +29,17 @@
                         @endcan
                         <livewire:side-link title="Aktivitas Kerja" icon="fa-solid fa-user" :child="array_filter([
                         auth()->user()->can('timer') ? ['title' => 'Timer', 'href' => '/timer'] : null,
-                        auth()->user()->can('absensi') ? ['title' => 'Absensi', 'href' => 'aktivitasabsensi'] : null,
+                        auth()->user()->can('absensi') ? ['title' => 'List', 'href' => 'aktivitasabsensi'] : null,
+                        auth()->user()->can('absen') ?[
+                            'title' => 'Absensi',
+                            'href' => '/#',
+                            'child' => [
+                                ['title' => 'Jadwal Absensi', 'href' => '/jadwal'],
+                                ['title' => 'Shift', 'href' => '/shift'],
+                                ['title' => 'Opsi', 'href' => '/opsi'],
+                                ['title' => 'Status', 'href' => '/status'],
+                            ],
+                        ] : null,
                     ])" />
                     <livewire:side-link title="Master Data" icon="fa-regular fa-address-book" :child="array_filter([
                         auth()->user()->can('tunjangan') ?[
@@ -45,16 +55,6 @@
                         auth()->user()->can('golongan') ?['title' => 'Golongan', 'href' => '/golongan'] : null,
                         auth()->user()->can('gaji-pokok') ?['title' => 'Gaji Pokok', 'href' => '/gapok'] :null,
                         auth()->user()->can('pendidikan') ?['title' => 'Pendidikan', 'href' => '/pendidikan'] :null,
-                        auth()->user()->can('absen') ?[
-                            'title' => 'Absensi',
-                            'href' => '/#',
-                            'child' => [
-                                ['title' => 'Jadwal Absensi', 'href' => '/jadwal'],
-                                ['title' => 'Shift', 'href' => '/shift'],
-                                ['title' => 'Opsi', 'href' => '/opsi'],
-                                ['title' => 'Status', 'href' => '/status'],
-                            ],
-                        ] : null,
                         auth()->user()->can('unit-kerja') ?['title' => 'Unit Kerja', 'href' => '/unitkerja']:null,
                         auth()->user()->can('potongan') ?['title' => 'Potongan', 'href' => '/potongan']:null,
                         auth()->user()->can('tunjangan-kinerja') ?[
