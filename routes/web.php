@@ -51,6 +51,7 @@ use App\Http\Controllers\ImportGajiController;
 
 use App\Http\Controllers\AktivitasAbsensiController;
 use App\Http\Controllers\KategoriJabatanController;
+use App\Livewire\UserProfile;
 
 Route::get('/', function () {
     return redirect()->to('/login');
@@ -78,6 +79,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::resource('users', UsersController::class);
+    Route::get('users/create', [UsersController::class, 'create'])->name('users.create');
+    Route::get('users/edit/{id}', [UsersController::class, 'edit'])->name('users.edit');
+    Route::put('users/resetPassword/{id}', [UserProfile::class, 'resetPassword'])->name('users.resetPassword');
+    Route::delete('users/destroy/{id}', [UserProfile::class, 'destroy'])->name('users.destroy');
     Route::resource('absensi', AbsensiController::class);
     Route::resource('shift', ShiftController::class);
     Route::resource('opsi', OpsiAbsenController::class);
@@ -111,6 +116,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('tukin', TunjanganKinerjaController::class);
     Route::resource('masakerja', MasaKerjaController::class);
     Route::resource('levelunit', LevelUnitController::class);
+
 
     Route::resource('unitkerja', UnitKerjaController::class);
     // Route::resource('userprofile', UserProfileController::class);

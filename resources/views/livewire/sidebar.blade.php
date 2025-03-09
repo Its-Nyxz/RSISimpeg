@@ -29,7 +29,7 @@
                         @endcan
                         <livewire:side-link title="Aktivitas Kerja" icon="fa-solid fa-user" :child="array_filter([
                         auth()->user()->can('timer') ? ['title' => 'Timer', 'href' => '/timer'] : null,
-                        auth()->user()->can('list-history') ? ['title' => 'List History', 'href' => 'aktivitasabsensi'] : null,
+                        auth()->user()->can('absensi') ? ['title' => 'List', 'href' => 'aktivitasabsensi'] : null,
                         auth()->user()->can('absen') ?[
                             'title' => 'Absensi',
                             'href' => '/#',
