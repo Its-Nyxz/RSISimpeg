@@ -82,10 +82,8 @@ class KaryawanForm extends Component
                 $this->suggestions[$field][$tunjangan] = $katjabList->pluck('nama')->toArray();
             }
         } elseif ($field === 'unit') {
-            $this->suggestions[$field] = UnitKerja::where('nama', 'like', "%$value%")
-                ->pluck('nama')->toArray();
+            $this->suggestions[$field] = UnitKerja::where('nama', 'like', "%$value%")->pluck('nama')->toArray();
         }
-        // }
     }
 
     public function selectSuggestion($field, $value)

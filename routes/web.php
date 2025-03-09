@@ -47,6 +47,7 @@ use App\Http\Controllers\TukinJabatanController;
 use App\Http\Controllers\TimerController;
 
 use App\Http\Controllers\CutiController;
+use App\Http\Controllers\ImportGajiController;
 
 use App\Http\Controllers\AktivitasAbsensiController;
 use App\Http\Controllers\KategoriJabatanController;
@@ -130,8 +131,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('poinperan', PointPeranController::class);
     Route::resource('tukinjabatan', TukinJabatanController::class);
     Route::resource('timer', TimerController::class);
+    Route::resource('cuti', CutiController::class);
+    Route::resource('importgaji', ImportGajiController::class);
     Route::resource('approvalcuti', CutiController::class);
-
     Route::resource('aktivitasabsensi', AktivitasAbsensiController::class);
     Route::resource('katjab', KategoriJabatanController::class);
 });

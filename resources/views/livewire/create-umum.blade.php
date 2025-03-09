@@ -5,24 +5,26 @@
             <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
         </a>
     </div>
-    <form wire:submit.prevent="save">
+    <form wire:submit.prevent="store">
         <div class="grid grid-cols-2 gap-4 bg-green-100 border border-green-200 rounded-lg shadow-lg p-6">
-            <div class="form-group col-span-2">
+            <div class="form-group col-span-2 relative">
                 <label for="katjab_id" class="block text-sm font-medium text-green-900">Nama Jabatan</label>
-                <div class="relative">
-                    <input type="text" id="katjab_id" wire:model="katjab_id_nama" placeholder="Cari Jabatan..." autocomplete="off"
-                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
-                        oninput="filterKatjabDropdown()" onclick="toggleKatjabDropdown()" />
-                    
-                    <ul id="katjabDropdown" class="dropdown hidden">
-                        @foreach($katjabs as $katjab)
-                            <li class="dropdown-item" onclick="selectKatjab('{{ $katjab->nama }}', '{{ $katjab->id }}')">
-                                {{ $katjab->nama }}
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-                @error('katjab_id') 
+                <input type="text" id="katjab_nama" wire:model.lazy="katjab_nama"
+                    wire:focus="fetchSuggestions('jabatan', $event.target.value)"
+                    wire:input="fetchSuggestions('jabatan', $event.target.value)"
+                    placeholder="Cari Nama Jabatan..."
+                    class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
+                    autocomplete="off" />
+                
+                <ul id="katjabDropdown" class="dropdown {{ empty($suggestions) ? 'hidden' : '' }}">
+                    @foreach($suggestions as $suggestion)
+                        <li class="dropdown-item" wire:click="selectJabatan('{{ $suggestion['id'] }}', '{{ $suggestion['nama'] }}')">
+                            {{ $suggestion['nama'] }}
+                        </li>
+                    @endforeach
+                </ul>
+                
+                @error('katjab_id')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>

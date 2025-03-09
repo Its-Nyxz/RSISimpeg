@@ -25,6 +25,7 @@ class MasterPendidikanSeeder extends Seeder
             ['nama' => 'S1 - Apoteker', 'deskripsi' => 'Sarjana S1 Apoteker', 'minim_gol' => 10, 'maxim_gol' => 13],
             ['nama' => 'S1 - Nurse', 'deskripsi' => 'Sarjana S1 Perawat', 'minim_gol' => 10, 'maxim_gol' => 13],
             ['nama' => 'S1 - Dokter', 'deskripsi' => 'Sarjana S1 Dokter', 'minim_gol' => 10, 'maxim_gol' => 13],
+            ['nama' => 'S1 - Informatika', 'deskripsi' => 'Sarjana S1 Informatika', 'minim_gol' => 10, 'maxim_gol' => 13],
             ['nama' => 'S2 - Umum', 'deskripsi' => 'Magister S2 Umum', 'minim_gol' => 11, 'maxim_gol' => 15],
             ['nama' => 'S2 - Spesialis', 'deskripsi' => 'Magister S2 Spesialis', 'minim_gol' => 12, 'maxim_gol' => 16],
             ['nama' => 'S2 - Direktur', 'deskripsi' => 'Magister S2 Direktur', 'minim_gol' => 13, 'maxim_gol' => 17],
