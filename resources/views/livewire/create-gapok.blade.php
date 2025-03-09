@@ -12,14 +12,17 @@
             <div class="form-group">
                 <label for="golongan_id" class="block text-sm font-medium text-green-900">Nama Golongan</label>
                 <div class="relative">
-                    <input type="text" id="golongan_id" wire:model="golongan_id_nama" placeholder="Cari Golongan..." autocomplete="off"
-                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
-                        oninput="filterGolonganDropdown()" onclick="toggleGolonganDropdown()" />
+                    <input type="text" id="golongan_nama" wire:model.lazy="golongan_nama"
+                    wire:focus="fetchSuggestions('golongan', $event.target.value)"
+                    wire:input="fetchSuggestions('golongan', $event.target.value)"
+                    placeholder="Cari Nama Golongan..."
+                    class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
+                    autocomplete="off" />
                     
-                    <ul id="golonganDropdown" class="dropdown hidden">
-                        @foreach($golongans as $golongan)
-                            <li class="dropdown-item" onclick="selectGolongan('{{ $golongan->nama }}', '{{ $golongan->id }}')">
-                                {{ $golongan->nama }}
+                    <ul id="golonganDropdown" class="dropdown {{ empty($suggestions) ? 'hidden' : '' }}">
+                        @foreach($suggestions as $suggestion)
+                            <li class="dropdown-item" wire:click="selectGolongan('{{ $suggestion['id'] }}', '{{ $suggestion['nama'] }}')">
+                                {{ $suggestion['nama'] }}
                             </li>
                         @endforeach
                     </ul>

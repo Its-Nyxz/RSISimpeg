@@ -27,13 +27,17 @@
                 <div class="grid grid-cols-2">
                     <div class="font-semibold">Tempat, Tanggal Lahir</div>
                     <div>: {{ $userprofile->tempat ?? '-' }},
-                        {{ $userprofile->tanggal_lahir ? formatDate($userprofile->tanggal_lahir) : '-' }}
+                        {{ $userprofile->tanggal_lahir
+                            ? \Carbon\Carbon::parse($userprofile->tanggal_lahir)->locale('id')->translatedFormat('d F Y')
+                            : '-' }}
                     </div>
                 </div>
                 <div class="grid grid-cols-2">
                     <div class="font-semibold">Tanggal Tetap</div>
                     <div>:
-                        {{ $userprofile->tanggal_tetap ? formatDate($userprofile->tanggal_tetap) : '-' }}
+                        {{ $userprofile->tanggal_tetap
+                            ? \Carbon\Carbon::parse($userprofile->tanggal_tetap)->locale('id')->translatedFormat('d F Y')
+                            : '-' }}
                     </div>
                 </div>
                 <div class="grid grid-cols-2">
@@ -47,13 +51,17 @@
                 <div class="grid grid-cols-2">
                     <div class="font-semibold">Tanggal Penyesuaian</div>
                     <div>:
-                        {{ $userprofile->tgl_penyesuaian ? formatDate($userprofile->tgl_penyesuaian) : '-' }}
+                        {{ $userprofile->tgl_penyesuaian
+                            ? \Carbon\Carbon::parse($userprofile->tgl_penyesuaian)->locale('id')->translatedFormat('d F Y')
+                            : '-' }}
                     </div>
                 </div>
                 <div class="grid grid-cols-2">
                     <div class="font-semibold">Informasi Pensiun</div>
                     <div>:
-                        {{ $userprofile->pensiun ? formatDate($userprofile->pensiun) : '-' }}
+                        {{ $userprofile->pensiun
+                            ? \Carbon\Carbon::parse($userprofile->pensiun)->locale('id')->translatedFormat('d F Y')
+                            : '-' }}
                     </div>
                 </div>
             </div>
@@ -70,8 +78,13 @@
         <!-- Login & Security Card -->
         <x-card :title="'Login dan Keamanan'">
             <div class="text-sm text-gray-700 space-y-3">
-                <p><strong>NIP:</strong> {{ $userprofile->nip ?? '-' }}</p>
-
+                <div class="flex items-center justify-between">
+                    <p><strong>NIP:</strong> {{ $userprofile->nip ?? '-' }}</p>
+                    <a href="#"
+                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                        <i class="fa-solid fa-eye"></i>
+                    </a>
+                </div>
                 <div class="flex items-center justify-between">
                     <p><strong>No. WhatsApp:</strong> {{ $userprofile->no_hp ?? '-' }}</p>
                     <a href="{{ route('userprofile.editnomor') }}"
@@ -99,7 +112,12 @@
         </x-card>
     </div>
 
-    @if (Auth::user()->hasRole('Super Admin') || Auth::user()->hasRole('Administrator') || Auth::user()->hasRole('Kepegawaian'))
+
+    @php
+        $roles = ['Super Admin', 'Kepegawaian', 'Administrator'];
+    @endphp
+
+    @if (Auth::user()->hasAnyRole($roles))
         <div>
             <x-card :title="'Data Users'">
                 <div class="flex justify-end mb-3">
@@ -108,7 +126,7 @@
                         <div class="flex-1">
                             <input type="text" wire:keyup="updateSearch($event.target.value)"
                                 placeholder="Cari User..."
-                                class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
+                                class="w-full rounded-lg px-10 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
                         </div>
                         {{-- <a href="{{ route('users.create') }}"
                             class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">

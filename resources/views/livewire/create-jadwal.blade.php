@@ -138,6 +138,16 @@
         }
 
         function selectItem(field, name, id) {
+            document.getElementById(field).value = name;
+
+            // Set the correct property name dynamically
+            if (field === 'nama') {
+                @this.set('user_id', id); // Set the user_id
+            } else if (field === 'shift') {
+                @this.set('shift_id', id); // Set the shift_id
+            } else if (field === 'opsi') {
+                @this.set('opsi_id', id); // Set the opsi_id
+            }
 
             document.getElementById(field).value = name;
 

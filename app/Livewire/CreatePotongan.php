@@ -14,6 +14,24 @@ class CreatePotongan extends Component
     public $nominal;
     public $deskripsi;
     public $jabatans = [];
+    public $katjab_nama;
+    public $suggestions = [];
+
+    public function fetchSuggestions($type, $query)
+    {
+        if ($type === 'jabatan') {
+            $this->suggestions = KategoriJabatan::where('nama', 'like', "%$query%")
+                ->get()
+                ->toArray();
+        }
+    }
+
+    public function selectJabatan($id, $name)
+    {
+        $this->katjab_id = $id;
+        $this->katjab_nama = $name;
+        $this->suggestions = [];
+    }
 
     protected $rules = [
         'katjab_id' => 'required|exists:kategori_jabatans,id',

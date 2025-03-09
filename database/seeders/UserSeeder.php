@@ -34,7 +34,7 @@ class UserSeeder extends Seeder
         // Buat Roles jika belum ada
         $roles = [
             'Super Admin',
-            'Kepegawaian',
+            'Kepegawaian', //
             'Keuangan',
             'Manager',
             'Kepala Unit',
@@ -44,7 +44,7 @@ class UserSeeder extends Seeder
             'Kepala Seksi',
             'Penanggung Jawab',
             'Koordinator',
-            'Administrator',
+            'Administrator', //
             'Staf',
         ];
 
@@ -190,7 +190,7 @@ class UserSeeder extends Seeder
             ['name' => 'Sofyanul Affan Hidayat', 'jabatan' => 'Perawat Pelaksana'],
             ['name' => 'Nanang Cahyono', 'jabatan' => 'Perawat Pelaksana'],
             ['name' => 'Arif Yulianto', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Restika Dyah Utami', 'jabatan' => 'Staf Administrasi IBS'],
+            ['name' => 'Restika Dyah Utami','role' => 'Administrator', 'jabatan' => 'Staf Administrasi IBS'],
         ];
 
         // Cari unit IBS
@@ -329,7 +329,7 @@ class UserSeeder extends Seeder
             ['name' => 'Sahid Menru Hidayatulloh', 'jabatan' => 'Perawat Pelaksana'],
             ['name' => 'Helman Riyadi', 'jabatan' => 'Perawat Pelaksana'],
             ['name' => 'Darmuji', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => "Nur Wakhidah Lulu'ul Jannah", 'jabatan' => 'Administrasi Instalasi Dialisis'],
+            ['name' => "Nur Wakhidah Lulu'ul Jannah",'role' => 'Administrator', 'jabatan' => 'Administrasi Instalasi Dialisis'],
         ];
 
         // Cari unit Instalasi Dialisis
@@ -1128,8 +1128,8 @@ class UserSeeder extends Seeder
             ['name' => 'Zaenal Arifin', 'jabatan' => 'Analis Kesehatan'],
             ['name' => 'Argandari.,A.Md AK', 'jabatan' => 'Analis Kesehatan'],
             ['name' => 'Tyas Asalwa Nabila', 'jabatan' => 'Analis Kesehatan'],
-            ['name' => 'Rosna Erviana', 'jabatan' => 'Staf Administrasi'],
-            ['name' => 'Diaz Cagar Biru Langit', 'jabatan' => 'Staf Administrasi'],
+            ['name' => 'Rosna Erviana','role' => 'Administrator', 'jabatan' => 'Staf Administrasi'],
+            ['name' => 'Diaz Cagar Biru Langit','role' => 'Administrator', 'jabatan' => 'Staf Administrasi'],
             ['name' => 'Alfina Reinada Hapsari.,A.Md AK', 'jabatan' => 'Teknisi Bank Darah'],
         ];
 
@@ -1312,7 +1312,7 @@ class UserSeeder extends Seeder
         $mcuPoskesMembers = [
             ['name' => 'Ruslan', 'role' => 'Kepala Unit', 'jabatan' => 'Ka. Unit MCU dan Poskes'],
             ['name' => 'Mamat Setiawan', 'jabatan' => 'Perawat Pelaksana Poskes dr. Nono'],
-            ['name' => 'Robby Ilmiawan', 'jabatan' => 'Staf Administrasi Unit MCU dan Poskes'],
+            ['name' => 'Robby Ilmiawan','role' => 'Administrator', 'jabatan' => 'Staf Administrasi Unit MCU dan Poskes'],
         ];
 
         // Cari unit UNIT MCU & POSKES
@@ -1546,10 +1546,10 @@ class UserSeeder extends Seeder
         $sdmMembers = [
             ['name' => 'Dr. Ardhi Oemar Agustjik', 'role' => 'Manager', 'jabatan' => 'Manajer SDM'],
             ['name' => 'Silih Prasetya', 'jabatan' => 'Staf Manajer SDM'],
-            ['name' => 'Mister', 'role' => 'Kepala Seksi', 'jabatan' => 'Ka. Seksi Kepegawaian'],
+            ['name' => 'Mister', 'role' => 'Kepegawaian', 'jabatan' => 'Ka. Seksi Kepegawaian'],
             ['name' => 'Riris Afianto', 'role' => 'Kepala Seksi', 'jabatan' => 'Ka. Seksi Pendidikan, Pelatihan dan Pengembangan SDM'], //+ Plt. Ka. Seksi Kajian dan Budaya Islam
-            ['name' => 'Diana Melisawati', 'jabatan' => 'Staf Seksi Kepegawaian'],
-            ['name' => 'Dyah Novita Sari', 'jabatan' => 'Staf Seksi Kepegawaian'],
+            ['name' => 'Diana Melisawati', 'role' => 'Kepegawaian', 'jabatan' => 'Staf Seksi Kepegawaian'],
+            ['name' => 'Dyah Novita Sari', 'role' => 'Kepegawaian', 'jabatan' => 'Staf Seksi Kepegawaian'],
             ['name' => 'Barkah Setiyani', 'jabatan' => 'Staf Seksi Pendidikan, Pelatihan dan Pengembangan SDM'],
             ['name' => 'Eko Santoso', 'jabatan' => 'Staf Seksi Kajian dan Budaya Islam'],
         ];

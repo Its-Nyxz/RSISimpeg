@@ -43,6 +43,13 @@ class CreateJadwal extends Component
         }
     }
 
+    // public function mount()
+    // {
+    //     $this->users = User::all();
+    //     $this->shifts = Shift::all();
+    //     $this->opsis = OpsiAbsen::all();
+    // }
+
     public function store()
     {
         $this->validate();

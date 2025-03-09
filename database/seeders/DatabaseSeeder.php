@@ -55,7 +55,7 @@ class DatabaseSeeder extends Seeder
             PointKinerjaSeeder::class,
             PointJamKerjaSeeder::class,
             UserSeeder::class, // Tambahkan ini
-            // TabelTest::class,
+            RolePermissionSeeder::class,
         ]);
     }
 }
