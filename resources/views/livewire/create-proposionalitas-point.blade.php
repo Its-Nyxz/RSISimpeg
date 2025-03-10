@@ -12,30 +12,44 @@
             <!-- Pilih Nama Master -->
             <div class="col-span-2 relative">
                 <label for="proposable_id" class="block text-sm font-medium text-green-900">Nama Master</label>
-                <input type="text" id="proposable_input" oninput="filterDropdown('proposable')" onclick="toggleDropdown('proposable')" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" placeholder="Cari Nama Master...">
-                <ul id="proposableDropdown" class="dropdown hidden">
-                    @foreach($proposables as $item)
-                        <li class="dropdown-item" onclick="selectItem('proposable', '{{ $item->kategorijabatan->nama ?? $item->name }}', '{{ $item->id }}')">
-                            {{ $item->kategorijabatan->nama ?? $item->name }}
-                        </li>
-                    @endforeach
-                </ul>
-                <input type="hidden" wire:model.defer="proposable_id" id="proposable">
+                <input type="text" id="proposable_input" wire:model="proposable_nama" 
+                    wire:focus="fetchSuggestions('proposable', $event.target.value)" 
+                    wire:input="fetchSuggestions('proposable', $event.target.value)"
+                    class="mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" placeholder="Cari Nama Master..." autocomplete="off">
+
+                <!-- Dropdown -->
+                @if (!empty($proposableOptions))
+                    <ul class="absolute w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 z-50 max-h-40 overflow-y-auto">
+                        @foreach($proposableOptions as $item)
+                            <li wire:click="selectItem('proposable', '{{ $item->id }}', '{{ $item->kategorijabatan->nama ?? $item->name }}')" class="p-2 cursor-pointer hover:bg-green-200">
+                                {{ $item->kategorijabatan->nama ?? $item->name }}
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+
                 @error('proposable_id') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
             </div>
 
             <!-- Pilih Unit Kerja -->
             <div class="col-span-2 relative">
                 <label for="unit_id" class="block text-sm font-medium text-green-900">Unit Kerja</label>
-                <input type="text" id="unit_input" oninput="filterDropdown('unit')" onclick="toggleDropdown('unit')" class="mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" placeholder="Cari Unit Kerja...">
-                <ul id="unitDropdown" class="dropdown hidden">
-                    @foreach($unitkerjas as $unit)
-                        <li class="dropdown-item" onclick="selectItem('unit', '{{ $unit->nama }}', '{{ $unit->id }}')">
-                            {{ $unit->nama }}
-                        </li>
-                    @endforeach
-                </ul>
-                <input type="hidden" wire:model.defer="unit_id" id="unit">
+                <input type="text" id="unit_input" wire:model="unit_nama" 
+                    wire:focus="fetchSuggestions('unit', $event.target.value)" 
+                    wire:input="fetchSuggestions('unit', $event.target.value)"
+                    class="mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" placeholder="Cari Unit Kerja..." autocomplete="off">
+
+                <!-- Dropdown -->
+                @if (!empty($unitOptions))
+                    <ul class="absolute w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 z-50 max-h-40 overflow-y-auto">
+                        @foreach($unitOptions as $unit)
+                            <li wire:click="selectItem('unit', '{{ $unit->id }}', '{{ $unit->nama }}')" class="p-2 cursor-pointer hover:bg-green-200">
+                                {{ $unit->nama }}
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+
                 @error('unit_id') <span class="text-red-600 text-sm">{{ $message }}</span> @enderror
             </div>
 
@@ -60,62 +74,4 @@
             {{ session('success') }}
         </div>
     @endif
-
-    <script>
-        function toggleDropdown(id) {
-            document.getElementById(id + 'Dropdown').classList.toggle('hidden');
-        }
-
-        function filterDropdown(id) {
-            const input = document.getElementById(id + '_input').value.toLowerCase();
-            const dropdown = document.getElementById(id + 'Dropdown');
-            const items = dropdown.getElementsByTagName('li');
-
-            dropdown.classList.remove('hidden');
-
-            for (let item of items) {
-                const text = item.textContent.toLowerCase();
-                item.style.display = text.includes(input) ? '' : 'none';
-            }
-        }
-
-        function selectItem(field, name, id) {
-            document.getElementById(field + '_input').value = name;
-            document.getElementById(field).value = id;
-            @this.set(field + '_id', id);
-            document.getElementById(field + 'Dropdown').classList.add('hidden');
-        }
-    </script>
-
-    <style>
-        .dropdown {
-            position: absolute;
-            z-index: 10;
-            background: white;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            max-height: 150px;
-            overflow-y: auto;
-            width: 100%;
-        }
-
-        .dropdown-item {
-            padding: 8px 12px;
-            cursor: pointer;
-        }
-
-        .dropdown-item:hover {
-            background-color: #d1fae5;
-        }
-
-        .dropdown::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .dropdown::-webkit-scrollbar-thumb {
-            background-color: #a3d9a5;
-            border-radius: 4px;
-        }
-    </style>
 </div>

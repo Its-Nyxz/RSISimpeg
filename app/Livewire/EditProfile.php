@@ -17,7 +17,6 @@ class EditProfile extends Component
     public function mount()
     {
         $user = Auth::user();
-        
         $this->name = $user->name;
         $this->jabatan_id = $user->jabatan_id;
         $this->tempat = $user->tempat;

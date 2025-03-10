@@ -12,6 +12,27 @@ class CreateGapok extends Component
     public $nominal_gapok; // Properti untuk nominal gaji pokok
     public $golongans = []; // Properti untuk daftar golongan
 
+    public $golongan_nama;
+    public $suggestions = [];
+
+    public function fetchSuggestions($type, $query)
+    {
+        if ($type === 'golongan') {
+            $this->suggestions = MasterGolongan::where('nama', 'like', "%$query%")
+                ->get()
+                ->toArray();
+        }
+
+        // dd($this->suggestions);
+    }
+
+    public function selectGolongan($id, $name)
+    {
+        $this->golongan_id = $id;
+        $this->golongan_nama = $name;
+        $this->suggestions = [];
+    }
+
     protected $rules = [
         'golongan_id' => 'required|exists:master_golongan,id', // Validasi pilihan golongan
         'nominal_gapok' => 'required|numeric|min:0', // Validasi nominal gaji pokok

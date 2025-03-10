@@ -1,3 +1,3 @@
 <x-body>
-@livewire('detail-jabatan', ['id' => $jabatan->id])
+    <livewire:detail-jabatan :roleId="$role->id" />
 </x-body>

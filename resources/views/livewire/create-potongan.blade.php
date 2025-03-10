@@ -27,15 +27,23 @@
                 @error('fungsi_id')--}}
 
             <!-- Pilihan Nama Jabatan -->
-            <div class="form-group mb-4">
+            <div class="form-group mb-4 relative">
                 <label for="katjab_id" class="block text-sm font-medium text-green-900">Nama Jabatan</label>
-                <select id="katjab_id" wire:model="katjab_id"
-                    class="form-control @error('katjab_id') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
-                    <option value="">-- Pilih Jabatan --</option>
-                    @foreach ($jabatans as $jabatan)
-                        <option value="{{ $jabatan->id }}">{{ $jabatan->nama }}</option>
+                <input type="text" id="katjab_nama" wire:model.lazy="katjab_nama"
+                    wire:focus="fetchSuggestions('jabatan', $event.target.value)"
+                    wire:input="fetchSuggestions('jabatan', $event.target.value)"
+                    placeholder="Cari Nama Jabatan..."
+                    class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
+                    autocomplete="off" />
+                
+                <ul id="katjabDropdown" class="dropdown {{ empty($suggestions) ? 'hidden' : '' }}">
+                    @foreach($suggestions as $suggestion)
+                        <li class="dropdown-item" wire:click="selectJabatan('{{ $suggestion['id'] }}', '{{ $suggestion['nama'] }}')">
+                            {{ $suggestion['nama'] }}
+                        </li>
                     @endforeach
-                </select>
+                </ul>
+                
                 @error('katjab_id')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror

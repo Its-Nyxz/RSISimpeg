@@ -32,12 +32,26 @@ class CreateJadwal extends Component
         'keterangan' => 'nullable|string',
     ];
 
-    public function mount()
+    public function fetchSuggestions($field, $query)
     {
-        $this->users = User::all();
-        $this->shifts = Shift::all();
-        $this->opsis = OpsiAbsen::all();
+        if ($field === 'user') {
+            $this->users = User::where('name', 'like', "%$query%")
+                ->get();
+        } elseif ($field === 'shift') {
+            $this->shifts = Shift::where('nama_shift', 'like', "%$query%")
+                ->get();
+        } elseif ($field === 'opsi') {
+            $this->opsis = OpsiAbsen::where('name', 'like', "%$query%")
+                ->get();
+        }
     }
+
+    // public function mount()
+    // {
+    //     $this->users = User::all();
+    //     $this->shifts = Shift::all();
+    //     $this->opsis = OpsiAbsen::all();
+    // }
 
     public function store()
     {
@@ -59,6 +73,7 @@ class CreateJadwal extends Component
     {
         $this->user_id = $id;
         $this->nama = $name;
+        $this->users = [];
     }
 
     // Method untuk memilih shift
@@ -66,6 +81,7 @@ class CreateJadwal extends Component
     {
         $this->shift_id = $id;
         $this->shift_nama = $nama_shift;
+        $this->shifts = [];
     }
 
     // Method untuk memilih opsi absensi
@@ -73,15 +89,12 @@ class CreateJadwal extends Component
     {
         $this->opsi_id = $id;
         $this->opsi_nama = $name;
+        $this->opsis = [];
     }
 
 
     public function render()
     {
-        return view('livewire.create-jadwal', [
-            'users' => $this->users,
-            'shifts' => $this->shifts,
-            'opsis' => $this->opsis,
-        ]);
+        return view('livewire.create-jadwal');
     }
 }

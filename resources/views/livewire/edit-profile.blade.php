@@ -2,7 +2,6 @@
    
     <form wire:submit.prevent="updateProfile">
         <div class="grid grid-cols-2 gap-4 bg-green-100 border border-green-200 rounded-lg shadow-lg p-6">
-
              {{-- Nama --}}
             <div class="form-group col-span-2">
                 <label for="name" class="text-sm font-medium text-green-700">Nama</label>

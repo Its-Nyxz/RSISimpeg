@@ -32,7 +32,7 @@ class DataKaryawan extends Component
                 $query->where('name', 'like', '%' . $this->search . '%')
                     ->orWhere('no_ktp', 'like', '%' . $this->search . '%')
                     ->orWhere('alamat', 'like', '%' . $this->search . '%');
-            })->paginate(15);
+            })->orderBy('jabatan_id', 'asc')->paginate(15);
     }
 
     public function render()
