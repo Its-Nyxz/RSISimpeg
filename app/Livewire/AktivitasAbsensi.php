@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Absen;
+use App\Models\Holidays;
 use Livewire\Component;
 use App\Models\JadwalAbsensi;
 
@@ -66,7 +67,7 @@ class AktivitasAbsensi extends Component
                 : '-';
             $this->items[] = [
                 'hari' => Carbon::parse($date)->locale('id')->isoFormat('dddd'),
-                'tanggal' => Carbon::parse($date)->format('d-m-Y'),
+                'tanggal' => Carbon::parse($date)->translatedFormat('d F Y'),
                 'jam_kerja' => $duration, // Jika tidak ada jadwal, tampilkan '-'
                 'rencana_kerja' => $absensi?->deskripsi_in ?? '-',
                 'laporan_kerja' => $absensi?->deskripsi_out ?? '-',
@@ -85,13 +86,10 @@ class AktivitasAbsensi extends Component
             return true;
         }
 
-        // Tandai merah jika termasuk dalam libur nasional
-        $holidays = [
-            '2025-01-01', // Tahun Baru
-            '2025-12-25', // Natal
-        ];
+        // Cek di database jika tanggal termasuk libur nasional
+        $holiday = Holidays::where('date', $carbonDate->format('Y-m-d'))->exists();
 
-        if (in_array($carbonDate->format('Y-m-d'), $holidays)) {
+        if ($holiday) {
             return true;
         }
 

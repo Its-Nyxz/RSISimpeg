@@ -56,6 +56,7 @@ class DatabaseSeeder extends Seeder
             PointJamKerjaSeeder::class,
             UserSeeder::class, // Tambahkan ini
             RolePermissionSeeder::class,
+            HolidaysSeeder::class,
         ]);
     }
 }

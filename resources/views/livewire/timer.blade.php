@@ -41,7 +41,7 @@
             <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                 <div class="bg-white p-6 rounded-md w-96">
                     <h2 class="text-xl font-bold mb-4">Mulai Timer</h2>
-                    <textarea wire:model.live="deskripsi_in" class="w-full p-2 border rounded-md"
+                    <textarea wire:model.defer="deskripsi_in" class="w-full p-2 border rounded-md"
                         placeholder="Masukkan deskripsi pekerjaan..."></textarea>
                     <div class="mt-4 flex justify-end gap-2">
                         <button wire:click="$set('showStartModal', false)"
@@ -86,7 +86,23 @@
                 </div>
             </div>
         @endif
+        @push('scripts')
+            <script type="module">
+                window.addEventListener('alert-error', event => {
 
+                    // Ambil langsung dari event.detail.message
+                    const message = event.detail.message;
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                });
+            </script>
+        @endpush
     </div>
     @push('scripts')
         {{-- JavaScript Timer --}}
@@ -175,6 +191,7 @@
     {{-- Rencana Kerja --}}
     <h3 class="font-bold mt-4">RENCANA KERJA</h3>
     <p class="font-semibold text-gray-600">{{ $deskripsi_in ?? '-' }}</p>
+
     {{-- kerja Selesai --}}
     @if (!empty($deskripsi_out))
         <h3 class="font-bold mt-4">SELESAI KERJA</h3>

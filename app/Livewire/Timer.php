@@ -68,6 +68,18 @@ class Timer extends Component
             $shift = Shift::where('id', $jadwal->shift_id)->first();
             if ($shift) {
                 $startShift = Carbon::parse($shift->jam_masuk);
+
+                // Periksa apakah sudah masuk 15 menit sebelum shift
+                $canStart = $this->timeIn->greaterThanOrEqualTo($startShift->subMinutes(15));
+
+                if (!$canStart) {
+                    $this->dispatch('alert-error', message: 'Anda hanya bisa memulai timer 15 menit sebelum waktu shift dimulai.');
+
+                    $this->isRunning = false;
+                    $this->deskripsi_in = null;
+                    return;
+                }
+
                 $selisih = $startShift->diffInSeconds($this->timeIn, false);
 
                 if ($selisih > 0) {
