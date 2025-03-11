@@ -20,7 +20,9 @@ return new class extends Migration
             $table->integer('late')->nullable();
             $table->dateTime('time_in')->nullable();
             $table->dateTime('time_out')->nullable();
-            $table->text('keterangan')->nullable();
+            $table->text('keterangan_mulai')->nullable();
+            $table->text('keterangan_selesai')->nullable();
+            $table->text('feedback')->nullable();
             $table->timestamps(0);
         });
     }

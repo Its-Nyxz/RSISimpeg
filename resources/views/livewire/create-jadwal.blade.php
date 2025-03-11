@@ -56,53 +56,12 @@
                 @enderror
             </div>
 
-            <!-- Opsi Absensi -->
-            <div class="form-group col-span-2 relative">
-                <label for="opsi_id" class="block text-sm font-medium text-green-900">Opsi Absensi</label>
-                <input type="text" id="opsi_nama" wire:model.lazy="opsi_nama"
-                    wire:focus="fetchSuggestions('opsi', $event.target.value)"
-                    wire:input="fetchSuggestions('opsi', $event.target.value)" placeholder="Cari opsi absensi..."
-                    class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-green-500 p-2.5"
-                    autocomplete="off" />
-
-                <ul id="opsiDropdown" class="dropdown absolute w-full bg-white rounded-lg shadow-lg mt-1 z-10"
-                    wire:loading.remove>
-                    @foreach ($opsis as $suggestion)
-                        <li class="dropdown-item p-2 hover:bg-green-200 cursor-pointer"
-                            wire:click="selectOpsi('{{ $suggestion['id'] }}', '{{ $suggestion['name'] }}')">
-                            {{ $suggestion['name'] }}
-                        </li>
-                    @endforeach
-                </ul>
-
-                @error('opsi_id')
-                    <span class="text-danger text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-
             <!-- Tanggal Jadwal -->
             <div class="form-group col-span-2">
                 <label for="tanggal" class="block text-sm font-medium text-green-900">Tanggal Jadwal</label>
                 <input type="date" id="tanggal" wire:model="tanggal"
                     class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-green-500 p-2.5" />
                 @error('tanggal')
-                    <span class="text-danger text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-
-            <!-- Keterangan Absensi -->
-            <div class="form-group col-span-2">
-                <label for="keterangan" class="block text-sm font-medium text-green-900">Keterangan Absensi</label>
-                <select id="keterangan" wire:model="keterangan"
-                     class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-green-500 p-2.5">
-                    <option value="">Pilih Keterangan Absensi</option>
-                    <option value="Cuti">Cuti</option>
-                    <option value="Libur">Libur</option>
-                    <option value="Tugas">Tugas</option>
-                    <option value="Ijin">Ijin</option>
-                    <option value="Sakit">Sakit</option>
-                </select>
-                @error('keterangan')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>
@@ -143,8 +102,6 @@
                 @this.set('user_id', id); // Set the user_id
             } else if (field === 'shift') {
                 @this.set('shift_id', id); // Set the shift_id
-            } else if (field === 'opsi') {
-                @this.set('opsi_id', id); // Set the opsi_id
             }
 
             document.getElementById(field).value = name;
@@ -154,8 +111,6 @@
                 @this.set('user_id', id); // Set the user_id
             } else if (field === 'shift') {
                 @this.set('shift_id', id); // Set the shift_id
-            } else if (field === 'opsi') {
-                @this.set('opsi_id', id); // Set the opsi_id
             }
 
             document.getElementById(field + 'Dropdown').classList.add('hidden');
@@ -163,7 +118,7 @@
 
 
         document.addEventListener('click', function(e) {
-            const fields = ['nama', 'shift', 'opsi'];
+            const fields = ['nama', 'shift'];
             fields.forEach(field => {
                 const input = document.getElementById(field);
                 const dropdown = document.getElementById(field + 'Dropdown');
