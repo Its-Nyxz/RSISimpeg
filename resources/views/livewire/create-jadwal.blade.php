@@ -18,14 +18,16 @@
                     wire:input="fetchSuggestions('user', $event.target.value)" placeholder="Cari Nama..."
                     class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-green-500 p-2.5"
                     autocomplete="off" />
-                
-                    <ul id="namaDropdown" class="dropdown absolute w-full bg-white rounded-lg shadow-lg mt-1 z-10" wire:loading.remove>
-                        @foreach($users as $suggestion)
-                            <li class="dropdown-item p-2 hover:bg-green-200 cursor-pointer" wire:click="selectUser('{{ $suggestion['id'] }}', '{{ $suggestion['name'] }}')">
-                                {{ $suggestion['name'] }}
-                            </li>
-                        @endforeach
-                    </ul>
+
+                <ul id="namaDropdown" class="dropdown absolute w-full bg-white rounded-lg shadow-lg mt-1 z-10"
+                    wire:loading.remove>
+                    @foreach ($users as $suggestion)
+                        <li class="dropdown-item p-2 hover:bg-green-200 cursor-pointer"
+                            wire:click="selectUser('{{ $suggestion['id'] }}', '{{ $suggestion['name'] }}')">
+                            {{ $suggestion['name'] }}
+                        </li>
+                    @endforeach
+                </ul>
 
                 @error('user_id')
                     <span class="text-danger text-sm">{{ $message }}</span>
@@ -56,6 +58,30 @@
                 @enderror
             </div>
 
+            <!-- Opsi Absensi -->
+            {{-- <div class="form-group col-span-2 relative">
+                <label for="opsi_id" class="block text-sm font-medium text-green-900">Opsi Absensi</label>
+                <input type="text" id="opsi_nama" wire:model.lazy="opsi_nama"
+                    wire:focus="fetchSuggestions('opsi', $event.target.value)"
+                    wire:input="fetchSuggestions('opsi', $event.target.value)" placeholder="Cari opsi absensi..."
+                    class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-green-500 p-2.5"
+                    autocomplete="off" />
+
+                <ul id="opsiDropdown" class="dropdown absolute w-full bg-white rounded-lg shadow-lg mt-1 z-10"
+                    wire:loading.remove>
+                    @foreach ($opsis as $suggestion)
+                        <li class="dropdown-item p-2 hover:bg-green-200 cursor-pointer"
+                            wire:click="selectOpsi('{{ $suggestion['id'] }}', '{{ $suggestion['name'] }}')">
+                            {{ $suggestion['name'] }}
+                        </li>
+                    @endforeach
+                </ul>
+
+                @error('opsi_id')
+                    <span class="text-danger text-sm">{{ $message }}</span>
+                @enderror
+            </div> --}}
+
             <!-- Tanggal Jadwal -->
             <div class="form-group col-span-2">
                 <label for="tanggal" class="block text-sm font-medium text-green-900">Tanggal Jadwal</label>
@@ -65,6 +91,24 @@
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>
+
+            <!-- Keterangan Absensi -->
+            {{-- <div class="form-group col-span-2">
+                <label for="keterangan" class="block text-sm font-medium text-green-900">Keterangan Absensi</label>
+                <select id="keterangan" wire:model="keterangan"
+                     class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-green-500 p-2.5">
+                    <option value="">Pilih Keterangan Absensi</option>
+                    <option value="Cuti">Cuti</option>
+                    <option value="Libur">Libur</option>
+                    <option value="Tugas">Tugas</option>
+                    <option value="Ijin">Ijin</option>
+                    <option value="Sakit">Sakit</option>
+                </select>
+                @error('keterangan')
+                    <span class="text-danger text-sm">{{ $message }}</span>
+                @enderror
+            </div> --}}
+
         </div>
 
         <!-- Tombol Submit -->

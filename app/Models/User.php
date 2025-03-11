@@ -130,4 +130,8 @@ class User extends Authenticatable
     {
         return $this->belongsTo(UnitKerja::class, 'unit_id');
     }
+    public function absen()
+    {
+        return $this->hasMany(Absen::class, 'user_id');
+    }
 }

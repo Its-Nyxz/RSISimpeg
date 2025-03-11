@@ -17,7 +17,9 @@ class CreateJadwal extends Component
     // public $opsi_nama;     // Menyimpan nama opsi absensi (hanya untuk tampilan)
     // public $opsi_id;       // Menyimpan ID opsi absensi untuk database
     public $tanggal;       // Tanggal jadwal
-    // public $keterangan;    // Keterangan absensi
+
+    //public $keterangan;    // Keterangan absensi
+
 
     public $users = [];    // Daftar user
     public $shifts = [];   // Daftar shift
@@ -35,7 +37,7 @@ class CreateJadwal extends Component
     public function fetchSuggestions($field, $query)
     {
         $userLogin = auth()->user(); // User yang sedang login
-    
+
         if ($field === 'user') {
             $this->users = User::where('name', 'like', "%$query%")
                 ->when(
@@ -49,13 +51,16 @@ class CreateJadwal extends Component
                 ->get();
         } elseif ($field === 'shift') {
             $this->shifts = Shift::where('nama_shift', 'like', "%$query%")->get();
-        } // } elseif ($field === 'opsi') {
+
+        }
+        // elseif ($field === 'opsi') {
+
         //     $this->opsis = OpsiAbsen::where('name', 'like', "%$query%")->get();
         // }
     }
-    
-    
-    
+
+
+
 
     // public function mount()
     // {
@@ -74,6 +79,8 @@ class CreateJadwal extends Component
             // 'opsi_id' => $this->opsi_id,
             'tanggal_jadwal' => $this->tanggal,
             // 'keterangan_absen' => $this->keterangan,
+
+
         ]);
 
         session()->flash('success', 'Jadwal Absensi berhasil ditambahkan!');
