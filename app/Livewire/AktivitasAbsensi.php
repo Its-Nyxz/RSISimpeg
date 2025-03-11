@@ -7,7 +7,9 @@ use App\Models\User;
 use App\Models\Absen;
 use App\Models\Holidays;
 use Livewire\Component;
+
 use App\Models\JadwalAbsensi;
+
 
 class AktivitasAbsensi extends Component
 {
@@ -74,6 +76,7 @@ class AktivitasAbsensi extends Component
                 'feedback' => $absensi?->feedback ?? '-',
                 'is_holiday' => $this->isHoliday($date),
             ];
+
         }
     }
     // Fungsi untuk menandai tanggal merah (libur nasional atau Minggu)

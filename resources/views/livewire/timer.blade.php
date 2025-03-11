@@ -199,3 +199,4 @@
         <p class="font-semibold text-gray-600">{{ $deskripsi_out ?? '-' }}</p>
     @endif
 </div>
+

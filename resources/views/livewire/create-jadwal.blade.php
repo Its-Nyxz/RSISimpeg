@@ -58,7 +58,6 @@
                 @enderror
             </div>
 
-
             <!-- Opsi Absensi -->
             {{-- <div class="form-group col-span-2 relative">
                 <label for="opsi_id" class="block text-sm font-medium text-green-900">Opsi Absensi</label>

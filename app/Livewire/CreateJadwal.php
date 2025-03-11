@@ -17,7 +17,9 @@ class CreateJadwal extends Component
     // public $opsi_nama;     // Menyimpan nama opsi absensi (hanya untuk tampilan)
     // public $opsi_id;       // Menyimpan ID opsi absensi untuk database
     public $tanggal;       // Tanggal jadwal
+
     //public $keterangan;    // Keterangan absensi
+
 
     public $users = [];    // Daftar user
     public $shifts = [];   // Daftar shift
@@ -77,6 +79,7 @@ class CreateJadwal extends Component
             // 'opsi_id' => $this->opsi_id,
             'tanggal_jadwal' => $this->tanggal,
             // 'keterangan_absen' => $this->keterangan,
+
 
         ]);
 

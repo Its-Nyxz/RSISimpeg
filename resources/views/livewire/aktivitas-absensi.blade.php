@@ -1,6 +1,7 @@
 <div class="container mx-auto mt-6 p-6 bg-white shadow-md rounded-lg">
     <!-- Header -->
     <div class="py-2 mb-3">
+
         <h1 class="text-2xl font-bold text-green-700 mb-2">List History Absensi</h1>
         <div class="flex space-x-4">
             <!-- Pilihan User (Hanya jika user adalah parent) -->
@@ -38,6 +39,7 @@
                     <th scope="col" class="px-6 py-3">Hari</th>
                     <th scope="col" class="px-6 py-3">Tanggal</th>
                     <th scope="col" class="px-6 py-3">Jam Kerja</th>
+
                     <th scope="col" class="px-6 py-3">Rencana Kerja</th>
                     <th scope="col" class="px-6 py-3">Laporan Kerja</th>
                     <th scope="col" class="px-6 py-3">Feedback</th>
