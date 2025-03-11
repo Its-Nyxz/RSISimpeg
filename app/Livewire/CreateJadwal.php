@@ -29,13 +29,13 @@ class CreateJadwal extends Component
         'shift_id' => 'required|exists:shifts,id',
         // 'opsi_id' => 'required|exists:opsi_absens,id',
         'tanggal' => 'required|date',
-        //'keterangan' => 'nullable|string',
+        // 'keterangan' => 'nullable|string',
     ];
 
     public function fetchSuggestions($field, $query)
     {
         $userLogin = auth()->user(); // User yang sedang login
-    
+
         if ($field === 'user') {
             $this->users = User::where('name', 'like', "%$query%")
                 ->when(
@@ -49,13 +49,16 @@ class CreateJadwal extends Component
                 ->get();
         } elseif ($field === 'shift') {
             $this->shifts = Shift::where('nama_shift', 'like', "%$query%")->get();
-        } // } elseif ($field === 'opsi') {
+
+        }
+        // elseif ($field === 'opsi') {
+
         //     $this->opsis = OpsiAbsen::where('name', 'like', "%$query%")->get();
         // }
     }
-    
-    
-    
+
+
+
 
     // public function mount()
     // {
@@ -73,7 +76,8 @@ class CreateJadwal extends Component
             'shift_id' => $this->shift_id,
             // 'opsi_id' => $this->opsi_id,
             'tanggal_jadwal' => $this->tanggal,
-            //'keterangan_absen' => $this->keterangan,
+            // 'keterangan_absen' => $this->keterangan,
+
         ]);
 
         session()->flash('success', 'Jadwal Absensi berhasil ditambahkan!');

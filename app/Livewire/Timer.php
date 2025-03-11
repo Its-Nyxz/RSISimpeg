@@ -2,165 +2,201 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Session;
 use App\Models\Absen;
 use App\Models\JadwalAbsensi;
-use App\Models\StatusAbsen;
+use App\Models\Shift;
+use Livewire\Component;
+use Illuminate\Support\Facades\Auth;
 
 class Timer extends Component
 {
+    public $jadwal_id;
     public $time = 0;
     public $isRunning = false;
-    public $isPaused = false;
-    public $startTime;
-    public $showWorkPlanModal = false;
-    public $showWorkReportModal = false;
-    public $workPlan = '';
-    public $workReport = '';
-    public $items = [];
+    public $timeIn;
+    public $timeOut;
+    public $late = false;
+    public $keterangan = null;
+    public $deskripsi_in;
+    public $deskripsi_out;
+    public $deskripsi_dinas;
+    public $showDinasModal = false;
+    public $showStartModal = false;
+    public $showStopModal = false;
 
-    public function mount()
+    public function mount($jadwal_id)
     {
-        if (Session::has('timer_data')) {
-            $sessionData = Session::get('timer_data');
-    
-            $this->startTime = Carbon::parse($sessionData['startTime']);
-            $this->isRunning = $sessionData['isRunning'];
-            $this->isPaused = $sessionData['isPaused'];
-            $this->time = $sessionData['time'] ?? 0;
-    
-            // Hanya load data jika masih berjalan
-            if ($this->isRunning) {
-                $this->loadData();
+        $this->jadwal_id = $jadwal_id;
+
+        // Ambil data absensi berdasarkan jadwal_id dan user yang sedang login
+        $absensi = Absen::where('jadwal_id', $this->jadwal_id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if ($absensi) {
+            $this->timeIn = $absensi->time_in;
+            $this->timeOut = $absensi->time_out;
+            $this->late = $absensi->late;
+            $this->keterangan = $absensi->keterangan;
+            $this->deskripsi_in = $absensi->deskripsi_in;
+            $this->deskripsi_out = $absensi->deskripsi_out;
+
+
+            // Jika timer masih berjalan
+            if ($this->timeIn && !$this->timeOut) {
+                $this->isRunning = true;
             } else {
-                $this->items = []; // Reset jika timer sudah selesai
+                $this->isRunning = false;
             }
-        } else {
-            $this->items = []; // Reset jika tidak ada session
         }
     }
-    
 
-    public function loadData()
+    public function openStartModal()
     {
-        $user = Auth::user();
-
-        $this->items = Absen::where('jadwal_id', function ($query) use ($user) {
-                $query->select('id')
-                    ->from('jadwal_absensis')
-                    ->where('user_id', $user->id);
-            })
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($absen) {
-                return [
-                    'rencana_kerja' => $absen->keterangan_mulai ?? '-',
-                ];
-            })
-            ->toArray(); // Pastikan hasilnya berupa array
+        $this->showStartModal = true;
     }
 
-    public function openWorkPlanModal()
+    public function startTimer()
     {
-        $this->showWorkPlanModal = true;
-    }
+        if (!$this->isRunning) {
+            $this->isRunning = true;
+            $this->timeIn = now();
 
-    public function startTimerWithPlan()
-    {
-        if ($this->isRunning) return;
+            // Ambil shift berdasarkan jadwal
+            $jadwal = JadwalAbsensi::where('id', $this->jadwal_id)->first();
+            $shift = Shift::where('id', $jadwal->shift_id)->first();
+            if ($shift) {
+                $startShift = Carbon::parse($shift->jam_masuk);
 
-        $this->isRunning = true;
-        $this->isPaused = false;
-        $this->startTime = Carbon::now('Asia/Jakarta');
+                // Periksa apakah sudah masuk 15 menit sebelum shift
+                $canStart = $this->timeIn->greaterThanOrEqualTo($startShift->subMinutes(15));
 
-        // Tambahkan inputan terbaru ke daftar rencana kerja langsung
-        $this->items = array_merge($this->items, [['rencana_kerja' => $this->workPlan]]);
+                if (!$canStart) {
+                    $this->dispatch('alert-error', message: 'Anda hanya bisa memulai timer 15 menit sebelum waktu shift dimulai.');
 
-        // Simpan di session
-        Session::put('timer_data', [
-            'startTime' => $this->startTime->toDateTimeString(),
-            'isRunning' => true,
-            'isPaused' => false,
-            'time' => 0,
-            'workPlan' => $this->workPlan
-        ]);
+                    $this->isRunning = false;
+                    $this->deskripsi_in = null;
+                    return;
+                }
 
-        $this->showWorkPlanModal = false;
-        $this->workPlan = '';
-    }
+                $selisih = $startShift->diffInSeconds($this->timeIn, false);
 
-    public function pauseTimer()
-    {
-        if (!$this->isRunning || $this->isPaused) return;
-        $this->isPaused = true;
-        Session::put('timer_data.isPaused', true);
-    }
+                if ($selisih > 0) {
+                    $this->late = true;
+                    $this->keterangan = "Terlambat " . gmdate('H:i:s', abs($selisih)) . " dari waktu mulai shift";
+                    $statusAbsen = 2; // Keterlambatan
+                } else {
+                    $this->late = false;
+                    $this->keterangan = "Masuk tepat waktu";
+                    $statusAbsen = 1; // Tepat Waktu
+                }
+            }
 
-    public function resumeTimer()
-    {
-        if (!$this->isPaused) return;
-        $this->isPaused = false;
-        Session::put('timer_data.isPaused', false);
+            // Gunakan firstOrCreate untuk menyimpan atau memperbarui data absensi
+            Absen::firstOrCreate(
+                [
+                    'jadwal_id' => $this->jadwal_id,
+                    'user_id' => Auth::id(),
+                ],
+                [
+                    'time_in' => $this->timeIn,
+                    'deskripsi_in' => $this->deskripsi_in,
+                    'late' => $this->late ? 1 : 0,
+                    'keterangan' => $this->keterangan,
+                    'present' => 1,
+                    'status_absen_id' => $statusAbsen
+                ]
+            );
+            // Kirim sinyal ke frontend (Alpine.js) untuk mulai timer
+            $this->dispatch('timer-started', now()->timestamp);
+            $this->showStartModal = false;
+            $this->deskripsi_in = null;
+        }
     }
 
     public function openWorkReportModal()
     {
-        $this->showWorkReportModal = true;
-    }
+        if ($this->isRunning) {
+            $this->isRunning = false;
+            $this->timeOut = now();
 
-    public function submitWorkReport()
-    {
-        if (!$this->isRunning) return;
-    
-        $user = Auth::user();
-        $jadwal = JadwalAbsensi::where('user_id', $user->id)->first();
-        $statusAbsen = StatusAbsen::first();
-        $workPlan = Session::get('timer_data')['workPlan'] ?? '';
-        $workReport = $this->workReport;
-    
-        if ($jadwal && $statusAbsen) {
-            Absen::create([
-                'jadwal_id' => $jadwal->id,
-                'status_absen_id' => $statusAbsen->id,
-                'time_in' => Carbon::parse(Session::get('timer_data')['startTime'])->setTimezone('Asia/Jakarta'),
-                'time_out' => Carbon::now('Asia/Jakarta'),
-                'total_seconds' => $this->time,
-                'keterangan_mulai' => $workPlan,
-                'keterangan_selesai' => $workReport,
-            ]);
+            // Hitung selisih waktu antara time_in dan time_out
+            $selisih = Carbon::parse($this->timeIn)->diffInSeconds($this->timeOut);
+            // $stop = (int) Carbon::parse($this->timeOut)->timestamp;
+            // dd($stop);
+            // Perbarui data di database
+            Absen::where('jadwal_id', $this->jadwal_id)
+                ->where('user_id', Auth::id())
+                ->update([
+                    'time_out' => $this->timeOut,
+                    'deskripsi_out' => $this->deskripsi_out,
+                    'keterangan' => "Total waktu bekerja: " . gmdate('H:i:s', $selisih)
+                ]);
+            // Kirim sinyal ke frontend untuk menghentikan timer
+
+            $this->dispatch('timer-stopped');
+
+            $this->showStopModal = false;
+            $this->deskripsi_out = null;
+
+            return redirect()->to('/timer');
         }
-    
-        // Reset state
-        $this->isRunning = false;
-        $this->isPaused = false;
-        $this->time = 0;
-        $this->workReport = '';
-    
-        // Hapus session sebelum reload halaman
-        Session::forget('timer_data');  
-        $this->items = []; // Pastikan reset daftar rencana kerja
-    
-        $this->showWorkReportModal = false;
     }
     
 
 
-    public function updateTimer()
+    public function dinasKeluar()
     {
-        if ($this->isRunning && !$this->isPaused) {
-            $startTime = Session::get('timer_data')['startTime'] ?? 0;
+        $user = auth()->user();
 
-            if (!is_numeric($startTime)) {
-                $startTime = Carbon::parse($startTime)->setTimezone('Asia/Jakarta')->timestamp;
+        // Ambil jadwal shift berdasarkan user atau jadwal ID
+        $jadwal = JadwalAbsensi::where('id', $this->jadwal_id)->first();
+
+        if ($jadwal) {
+            $shift = Shift::where('id', $jadwal->shift_id)->first();
+
+            if ($shift) {
+                // Ambil jam kerja dari shift
+                $timeIn = Carbon::parse($shift->jam_masuk)->timestamp;
+                $timeOut = Carbon::parse($shift->jam_keluar)->timestamp;
+
+                // Simpan ke database
+                Absen::updateOrCreate(
+                    [
+                        'jadwal_id' => $this->jadwal_id,
+                        'user_id' => $user->id,
+                    ],
+                    [
+                        'time_in' => $timeIn,
+                        'time_out' => $timeOut,
+                        'deskripsi_in' => $this->deskripsi_dinas, // Sama dengan deskripsi in
+                        'status_absen_id' => 1,
+                        'present' => 1,
+                        'keterangan' => "Dinas Keluar Terhitung Hadir dan 8 Jam kerja",
+
+                    ]
+                );
+
+                // Reset setelah simpan
+                $this->deskripsi_dinas = null;
+                $this->showDinasModal = false;
+
+                session()->flash('message', 'Data dinas keluar berhasil disimpan.');
+            } else {
+                session()->flash('error', 'Shift tidak ditemukan.');
             }
-
-            $this->time = now('Asia/Jakarta')->timestamp - $startTime;
-            Session::put('timer_data.time', $this->time);
+        } else {
+            session()->flash('error', 'Jadwal tidak ditemukan.');
         }
     }
+
+    // public function updateTimer()
+    // {
+    //     if ($this->isRunning) {
+    //         $this->time = now()->diffInSeconds(Carbon::parse($this->timeIn));
+    //     }
+    // }
 
     public function render()
     {

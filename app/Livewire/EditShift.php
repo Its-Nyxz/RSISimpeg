@@ -2,8 +2,9 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
+use Carbon\Carbon;
 use App\Models\Shift;
+use Livewire\Component;
 
 class EditShift extends Component
 {
@@ -13,16 +14,22 @@ class EditShift extends Component
     public $jam_keluar;
     public $keterangan;
 
-    public function mount($shiftId){
+    // Load data saat mount
+    public function mount($shiftId)
+    {
         $shift = Shift::findOrFail($shiftId);
         $this->shift_id = $shift->id;
         $this->nama_shift = $shift->nama_shift;
-        $this->jam_masuk = $shift->jam_masuk;
-        $this->jam_keluar = $shift->jam_keluar;
+
+        // Konversi ke format Asia/Jakarta
+        $this->jam_masuk = Carbon::parse($shift->jam_masuk)->setTimezone('Asia/Jakarta')->format('H:i');
+        $this->jam_keluar = Carbon::parse($shift->jam_keluar)->setTimezone('Asia/Jakarta')->format('H:i');
         $this->keterangan = $shift->keterangan;
     }
 
-    public function updateShift(){
+    // Update shift
+    public function updateShift()
+    {
         $this->validate([
             'nama_shift' => 'required|string|max:255',
             'jam_masuk' => 'required|date_format:H:i',
@@ -31,10 +38,15 @@ class EditShift extends Component
         ]);
 
         $shift = Shift::findOrFail($this->shift_id);
+
+        // Konversi waktu ke timezone Asia/Jakarta sebelum menyimpan
+        $jamMasuk = Carbon::createFromFormat('H:i', $this->jam_masuk, 'Asia/Jakarta')->format('H:i:s');
+        $jamKeluar = Carbon::createFromFormat('H:i', $this->jam_keluar, 'Asia/Jakarta')->format('H:i:s');
+
         $shift->update([
             'nama_shift' => $this->nama_shift,
-            'jam_masuk' => $this->jam_masuk,
-            'jam_keluar' => $this->jam_keluar,
+            'jam_masuk' => $jamMasuk,
+            'jam_keluar' => $jamKeluar,
             'keterangan' => $this->keterangan,
         ]);
 

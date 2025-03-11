@@ -50,6 +50,7 @@ use App\Http\Controllers\CutiController;
 use App\Http\Controllers\ImportGajiController;
 
 use App\Http\Controllers\AktivitasAbsensiController;
+use App\Http\Controllers\HolidaysController;
 use App\Http\Controllers\KategoriJabatanController;
 use App\Livewire\UserProfile;
 
@@ -136,6 +137,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('approvalcuti', CutiController::class);
     Route::resource('aktivitasabsensi', AktivitasAbsensiController::class);
     Route::resource('katjab', KategoriJabatanController::class);
+    Route::get('liburnasional/{tipe}/{holiday}', [HolidaysController::class, 'create']);
+    Route::resource('liburnasional', HolidaysController::class);
 });
 
 require __DIR__ . '/auth.php';
