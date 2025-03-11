@@ -5,7 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\User;
 use App\Models\Shift;
-use App\Models\OpsiAbsen;
+// use App\Models\OpsiAbsen;
 use App\Models\JadwalAbsensi;
 
 class CreateJadwal extends Component
@@ -14,14 +14,14 @@ class CreateJadwal extends Component
     public $user_id;       // Menyimpan ID user untuk database
     public $shift_nama;    // Menyimpan nama shift yang dipilih (hanya untuk tampilan)
     public $shift_id;      // Menyimpan ID shift untuk database
-    public $opsi_nama;     // Menyimpan nama opsi absensi (hanya untuk tampilan)
-    public $opsi_id;       // Menyimpan ID opsi absensi untuk database
+    // public $opsi_nama;     // Menyimpan nama opsi absensi (hanya untuk tampilan)
+    // public $opsi_id;       // Menyimpan ID opsi absensi untuk database
     public $tanggal;       // Tanggal jadwal
-    public $keterangan;    // Keterangan absensi
+    //public $keterangan;    // Keterangan absensi
 
     public $users = [];    // Daftar user
     public $shifts = [];   // Daftar shift
-    public $opsis = [];    // Daftar opsi absensi
+    // public $opsis = [];    // Daftar opsi absensi
 
     // Aturan validasi
     protected $rules = [
@@ -49,8 +49,10 @@ class CreateJadwal extends Component
                 ->get();
         } elseif ($field === 'shift') {
             $this->shifts = Shift::where('nama_shift', 'like', "%$query%")->get();
+
         }
         // elseif ($field === 'opsi') {
+
         //     $this->opsis = OpsiAbsen::where('name', 'like', "%$query%")->get();
         // }
     }
@@ -75,6 +77,7 @@ class CreateJadwal extends Component
             // 'opsi_id' => $this->opsi_id,
             'tanggal_jadwal' => $this->tanggal,
             // 'keterangan_absen' => $this->keterangan,
+
         ]);
 
         session()->flash('success', 'Jadwal Absensi berhasil ditambahkan!');
@@ -97,12 +100,12 @@ class CreateJadwal extends Component
     }
 
     // Method untuk memilih opsi absensi
-    public function selectOpsi($id, $name)
-    {
-        $this->opsi_id = $id;
-        $this->opsi_nama = $name;
-        $this->opsis = [];
-    }
+    // public function selectOpsi($id, $name)
+    // {
+    //     $this->opsi_id = $id;
+    //     $this->opsi_nama = $name;
+    //     $this->opsis = [];
+    // }
 
 
     public function render()

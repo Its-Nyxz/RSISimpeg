@@ -32,7 +32,7 @@
 
     <!-- Absensi Table -->
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-        <table class="w-full text-sm text-left text-gray-700">
+        <table class="w-full text-sm text-center text-gray-700">
             <thead class="text-center text-sm bg-green-300 text-green-900">
                 <tr>
                     <th scope="col" class="px-6 py-3">Hari</th>

@@ -58,6 +58,7 @@
                 @enderror
             </div>
 
+
             <!-- Opsi Absensi -->
             {{-- <div class="form-group col-span-2 relative">
                 <label for="opsi_id" class="block text-sm font-medium text-green-900">Opsi Absensi</label>
@@ -108,6 +109,7 @@
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div> --}}
+
         </div>
 
         <!-- Tombol Submit -->
@@ -145,8 +147,6 @@
                 @this.set('user_id', id); // Set the user_id
             } else if (field === 'shift') {
                 @this.set('shift_id', id); // Set the shift_id
-            } else if (field === 'opsi') {
-                @this.set('opsi_id', id); // Set the opsi_id
             }
 
             document.getElementById(field).value = name;
@@ -156,8 +156,6 @@
                 @this.set('user_id', id); // Set the user_id
             } else if (field === 'shift') {
                 @this.set('shift_id', id); // Set the shift_id
-            } else if (field === 'opsi') {
-                @this.set('opsi_id', id); // Set the opsi_id
             }
 
             document.getElementById(field + 'Dropdown').classList.add('hidden');
@@ -165,7 +163,7 @@
 
 
         document.addEventListener('click', function(e) {
-            const fields = ['nama', 'shift', 'opsi'];
+            const fields = ['nama', 'shift'];
             fields.forEach(field => {
                 const input = document.getElementById(field);
                 const dropdown = document.getElementById(field + 'Dropdown');

@@ -104,6 +104,9 @@ class AktivitasAbsensi extends Component
     }
     public function render()
     {
-        return view('livewire.aktivitas-absensi');
+        return view('livewire.aktivitas-absensi', [
+            'bulanOptions' => range(1, 12),
+            'tahunOptions' => range(now()->year - 5, now()->year)
+        ]);
     }
 }

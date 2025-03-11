@@ -1,6 +1,7 @@
-<div>
+<div wire:poll.1000ms="updateTimer">
     <h1 class="text-2xl font-bold text-success-900">Timer</h1>
-
+    <p class="text-gray-500">{{ now()->format('l, d F Y') }}</p>
+    <h1 class="text-4xl font-bold text-center">{{ gmdate('H:i:s', $time) }}</h1>
     <div class="p-4 text-left">
         {{-- Tanggal --}}
         <p class="text-gray-500">{{ now()->format('l, d F Y') }}</p>

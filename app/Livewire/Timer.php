@@ -115,7 +115,7 @@ class Timer extends Component
         }
     }
 
-    public function stopTimer()
+    public function openWorkReportModal()
     {
         if ($this->isRunning) {
             $this->isRunning = false;
@@ -143,6 +143,8 @@ class Timer extends Component
             return redirect()->to('/timer');
         }
     }
+    
+
 
     public function dinasKeluar()
     {
