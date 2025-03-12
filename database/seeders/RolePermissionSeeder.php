@@ -32,6 +32,8 @@ class RolePermissionSeeder extends Seeder
             'add-user',
             'timer',
             'list-history',
+            'list-history-create',
+            'list-history-edit',
             'select-user',
             'tunjangan',
             'golongan',
