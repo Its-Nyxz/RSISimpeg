@@ -61,13 +61,14 @@ class AktivitasAbsensi extends Component
                 ->with('absensi')
                 ->first();
 
-            $absensi = $jadwal?->absensi->first();
+                $absensi = Absen::where('jadwal_id', $jadwal?->id)->first();
             $timeIn = $absensi?->time_in ? Carbon::parse($absensi->time_in) : null;
             $timeOut = $absensi?->time_out ? Carbon::parse($absensi->time_out) : null;
             $duration = $timeIn && $timeOut
                 ? $timeIn->diff($timeOut)->format('%H:%I:%S')
                 : '-';
             $this->items[] = [
+                'id' => $absensi ? $absensi->id : null,
                 'hari' => Carbon::parse($date)->locale('id')->isoFormat('dddd'),
                 'tanggal' => Carbon::parse($date)->translatedFormat('d F Y'),
                 'jam_kerja' => $duration, // Jika tidak ada jadwal, tampilkan '-'
