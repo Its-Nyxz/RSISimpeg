@@ -2,16 +2,19 @@
 
 namespace App\Livewire;
 
+use App\Models\User;
 use Livewire\Component;
 use App\Models\KategoriJabatan;
 use App\Models\MasterPendidikan;
-use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class EditUsers extends Component
 {
     public $user;
-    public $user_id, $nip, $email, $username, $name, $jabatan_id, $tempat, $tanggal_lahir, $tanggal_tetap, $pendidikan_id, $pendidikan_penyesuaian, $tgl_penyesuaian, $pensiun;
+    public $user_id, $nip, $email, $password, $username, $name;
     public $jabatans, $pendidikans;
+    public $current_password, $new_password, $new_password_confirmation;
 
     public function mount($user)
     {
@@ -19,55 +22,58 @@ class EditUsers extends Component
         $this->user_id = $user->id;
         $this->nip = $user->nip;
         $this->email = $user->email;
+        $this->password = $user->password;
         $this->username = $user->username;
         $this->name = $user->name;
-        $this->jabatan_id = $user->jabatan_id;
-        $this->tempat = $user->tempat;
-        $this->tanggal_lahir = $user->tanggal_lahir;
-        $this->tanggal_tetap = $user->tanggal_tetap;
-        $this->pendidikan_id = $user->pendidikan;
-        $this->pendidikan_penyesuaian = $user->pendidikan_penyesuaian;
-        $this->tgl_penyesuaian = $user->tgl_penyesuaian;
-        $this->pensiun = $user->pensiun;
 
 
         $this->jabatans = KategoriJabatan::all();
         $this->pendidikans = MasterPendidikan::all();
     }
 
-    public function updateProfile()
+    public function updateUser()
     {
         $this->validate([
             'nip' => 'required|string|max:255',
             'email' => 'required|string|max:255',
             'username' => 'required|string|max:255',
-            'name' => 'required|string|max:255',
-            'jabatan_id' => 'nullable|exists:kategori_jabatans,id',
-            'tempat' => 'nullable|string|max:255',
-            'tanggal_lahir' => 'nullable|date',
-            'tanggal_tetap' => 'nullable|date',
-            'pendidikan_id' => 'nullable|max:255',
-            'pendidikan_penyesuaian' => 'nullable|string|max:255',
-            'tgl_penyesuaian' => 'nullable|date',
-            'pensiun' => 'nullable|date',
         ]);
 
         User::findorfail($this->user_id)->update([
             'nip' => $this->nip,
             'email' => $this->email,
             'username' => $this->username,
-            'name' => $this->name,
-            'jabatan_id' => $this->jabatan_id,
-            'tempat' => $this->tempat,
-            'tanggal_lahir' => $this->tanggal_lahir,
-            'tanggal_tetap' => $this->tanggal_tetap,
-            'pendidikan' => $this->pendidikan_id,
-            'pendidikan_penyesuaian' => $this->pendidikan_penyesuaian,
-            'tgl_penyesuaian' => $this->tgl_penyesuaian,
-            'pensiun' => $this->pensiun,
         ]);
 
         return redirect()->route('userprofile.index')->with('success', 'User berhasil diupdate.');
+    }
+
+
+    public function updatePassword()
+    {
+        // Validasi input
+        $this->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|confirmed',
+            'new_password_confirmation' => 'required|string',
+        ], [
+            'current_password.required' => 'Password Lama harus di isi',
+            'new_password.required' => 'Password Baru harus di isi',
+            'new_password_confirmation.required' => 'Ulangi Password Baru harus di isi',
+            'new_password.confirmed' => 'Konfirmasi Password tidak cocok dengan Password Baru',
+        ]);
+
+        if (!Hash::check($this->current_password, $this->password)) {
+            // Jika password lama tidak sesuai
+            $this->addError('current_password', 'Password lama tidak sesuai.');
+            return;
+        }
+        User::findOrFail($this->user_id)->update([
+            'password' => Hash::make($this->new_password)
+        ]);
+
+        session()->flash('success', 'Password berhasil diupdate.');
+        return redirect()->route('userprofile.index');
     }
 
     public function render()
