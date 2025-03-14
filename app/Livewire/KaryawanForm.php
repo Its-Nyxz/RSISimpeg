@@ -20,6 +20,8 @@ use Spatie\Permission\Models\Role;
 class KaryawanForm extends Component
 {
     public $karyawan;
+    public $user;
+    public $user_id;
     public $id;
     public $nama;
     public $namapendidikan;
@@ -40,6 +42,7 @@ class KaryawanForm extends Component
     public $khusus;
     public $katjab;
     public $jeniskaryawan;
+    public $selectedJenisKaryawan; //untuk select jenis karyawan
     public $gol;
     public $golongans;
     public $jk;
@@ -197,8 +200,36 @@ class KaryawanForm extends Component
     }
 
 
-    public function mount()
+    public function mount($user = null)
     {
+        $this->user = $user;
+        if ($user != null) {
+            $this->user_id = $user->id;
+            $this->nip = $user->nip;
+            $this->nama = $user->name;
+            $this->email = $user->email;
+            $this->no_ktp = $user->no_ktp;
+            $this->no_hp = $user->no_hp;
+            $this->no_rek = $user->no_rek;
+            $this->selectedPendidikan = $user->pendidikan;
+            // $this->pendidikan = $user->pendidikan;
+            $this->institusi = $user->pendidikan_penyesuaian;
+            $this->jk = $user->jk;
+            $this->alamat = $user->alamat;
+            $this->tempat = $user->tempat;
+            $this->tanggal_lahir = $user->tanggal_lahir;
+            $this->unit = $user->unitKerja->nama ?? '';
+            $this->jabatan = $user->kategorijabatan->nama;
+            $this->selectedJenisKaryawan = $user->jenis_id;
+            $this->tmt = $user->tmt;
+            $this->masakerja = $user->masa_kerja;
+            $this->selectedGolonganNama = $user->golongan->nama ?? '';
+            $this->gol = $user->gol_id;
+            $this->khusus = $user->khusus_id;
+            $this->selectedPph = $user->kategori_id;
+            $this->selectedRoles = $user->roles->pluck('id')->toArray();
+        }
+
         $this->units = UnitKerja::all();
         $this->jeniskaryawan = JenisKaryawan::all();
         $this->pendidikans = MasterPendidikan::with(['minimGolongan', 'maximGolongan'])->get();
@@ -214,13 +245,7 @@ class KaryawanForm extends Component
         $this->childPphs = Kategoripph::whereNotNull('parent_id')->get();
 
         // Default value untuk child PPH yang dipilih
-        $this->selectedPph = null;
         $this->roles = Role::where('id', '>', '3')->get();
-        if ($this->id) {
-            $user = User::find($this->id);
-            // Ambil roles yang sudah dimiliki user
-            $this->selectedRoles = $user->roles->pluck('name')->toArray();
-        }
     }
 
     public function save()
@@ -270,7 +295,7 @@ class KaryawanForm extends Component
                 'alamat' => $this->alamat,
                 'tempat' => $this->tempat,
                 'tanggal_lahir' => $this->tanggal_lahir,
-                'pendidikan_id' => $this->selectedPendidikan,
+                'pendidikan' => $this->selectedPendidikan,
                 'golongan_id' => $this->selectedGolongan,
                 'jenis_id' => $this->jeniskaryawan,
                 // 'jabatan_id' => $jabatanId,
@@ -287,6 +312,70 @@ class KaryawanForm extends Component
         if ($this->selectedRoles) {
             $user->syncRoles($this->selectedRoles);
         }
+    }
+
+    public function updateKaryawan()
+    {
+        $this->validate([
+            'nama' => 'required|string|max:255',
+            'nip' => 'required|max:50|unique:users,nip,' . $this->user_id,
+            'email' => 'required|email|max:255|unique:users,email,' . $this->user_id,
+            'no_ktp' => 'required|string|max:50',
+            'no_hp' => 'required|string|max:15',
+            'no_rek' => 'required|integer',
+            'selectedPendidikan' => 'required|exists:master_pendidikan,id',
+            'institusi' => 'required|string|max:255',
+            'alamat' => 'nullable|string|max:255',
+            'tempat' => 'required|string|max:255',
+            'tanggal_lahir' => 'required|date',
+            'unit' => 'required',
+            'jabatan' => 'required',
+            'selectedJenisKaryawan' => 'required',
+            'tmt' => 'required',
+            'masakerja' => 'required',
+            'selectedGolonganNama' => 'required',
+            'khusus' => 'required',
+            'selectedPph' => 'required',
+            'selectedRoles' => 'required',
+        ]);
+        $unit = UnitKerja::where('nama', $this->unit)->first(); // Cari ID berdasarkan nama unit
+        $kategoriJabatan = KategoriJabatan::where('nama', $this->jabatan)->first(); // Cari ID berdasarkan nama kategori jabatan
+        if (!$unit) {
+            return back()->with('error', 'Unit tidak ditemukan.');
+        } elseif (!$kategoriJabatan) {
+            return back()->with('error', 'Kategori Jabatan tidak ditemukan.');
+        }
+
+        $user = User::findOrFail($this->user_id);
+        $user->update([
+            'name' => $this->nama,
+            'nip' => $this->nip,
+            'email' => $this->email,
+            'no_ktp' => $this->no_ktp,
+            'no_hp' => $this->no_hp,
+            'no_rek' => $this->no_rek,
+            'pendidikan' => $this->selectedPendidikan,
+            'pendidikan_penyesuaian' => $this->institusi,
+            'jk' => $this->jk,
+            'alamat' => $this->alamat,
+            'tempat' => $this->tempat,
+            'tanggal_lahir' => $this->tanggal_lahir,
+            'unit_id' => $unit->id,
+            'jabatan_id' => $kategoriJabatan->id,
+            'jenis_id' => $this->selectedJenisKaryawan,
+            'tmt' => $this->tmt,
+            'masa_kerja' => $this->masakerja,
+            'gol_id' => $this->selectedGolongan ?? $this->gol,
+            'khusus_id' => $this->khusus,
+            'kategori_id' => $this->selectedPph,
+        ]);
+
+        if (!empty($this->selectedRoles)) {
+            $roles = Role::whereIn('id', (array) $this->selectedRoles)->pluck('name')->toArray();
+            $user->syncRoles($roles);
+        }
+
+        return redirect()->route('detailkaryawan.show', $this->user_id)->with('success', 'Karyawan berhasil diupdate.');
     }
 
 

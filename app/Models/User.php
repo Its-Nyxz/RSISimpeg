@@ -59,6 +59,10 @@ class User extends Authenticatable
     /**
      * Relasi ke MasterFungsi.
      */
+    public function golongan()
+    {
+        return $this->belongsTo(MasterGolongan::class, 'gol_id');
+    }
     public function fungsi()
     {
         return $this->belongsTo(MasterFungsi::class, 'fungsi_id');

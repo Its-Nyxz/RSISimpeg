@@ -111,6 +111,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('datakaryawan', DataKaryawanController::class);
     Route::resource('detailkaryawan', DetailKaryawanController::class);
+    Route::get('editKaryawan/{id}', [DataKaryawanController::class, 'edit'])->name('editKaryawan.edit');
     Route::resource('detailkeuangan', DetailKeuanganController::class);
 
     Route::resource('tukin', TunjanganKinerjaController::class);

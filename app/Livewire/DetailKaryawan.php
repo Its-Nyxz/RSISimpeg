@@ -26,11 +26,6 @@ class DetailKaryawan extends Component
 
         // Mendapatkan deskripsi pendidikan berdasarkan pendidikan_id
         $this->deskripsiPendidikan = $user->pendidikanUser->deskripsi ?? '-';
-
-        $this->tanggal_lahir = $user->tanggal_lahir ? Carbon::parse($user->tanggal_lahir)->locale('id')->translatedFormat('d F Y') : '-';
-        $this->tanggal_tetap = $user->tanggal_tetap ? Carbon::parse($user->tanggal_tetap)->locale('id')->translatedFormat('d F Y') : '-';
-        $this->tgl_penyesuaian = $user->tgl_penyesuaian ? Carbon::parse($user->tgl_penyesuaian)->locale('id')->translatedFormat('d F Y') : '-';
-        $this->pensiun = $user->pensiun ? Carbon::parse($user->pensiun)->locale('id')->translatedFormat('d F Y') : '-';
     }
 
     public function render()
