@@ -8,8 +8,31 @@
     </div>
     <form wire:submit.prevent="store">
         <div class="grid grid-cols-2 gap-4 bg-green-100 border border-green-200 rounded-lg shadow-lg p-6">
-            <!-- Nama Shift -->
+            <!-- Unit Kerja -->
+            <div class="col-span-2 relative">
+                <label for="unitkerja" class="block text-sm font-medium text-green-900">Unit Kerja</label>
+                <input type="text" id="unitkerja" wire:model="unit_kerja" 
+                    wire:focus="fetchSuggestions('unit_kerja', $event.target.value)"
+                    wire:input="fetchSuggestions('unit_kerja', $event.target.value)"
+                    class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" placeholder="Cari Unit Kerja..." />
 
+                <!-- Dropdown -->
+                @if(!empty($unitKerjaOptions))
+                    <ul class="absolute w-full bg-white shadow-md rounded-lg mt-1 overflow-hidden z-10">
+                        @foreach ($unitKerjaOptions as $unit)
+                            <li class="p-2 hover:bg-green-200 cursor-pointer" wire:click="selectUnitKerja('{{ $unit->id }}', '{{ $unit->nama }}')">
+                                {{ $unit->nama }}
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+
+                @error('unit_id')
+                    <span class="text-danger text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+            
+            <!-- Nama Shift -->
             <div class="form-group col-span-2">
                 <label for="nama_shift" class="block text-sm font-medium text-green-900">Nama Shift</label>
                 <input type="text" id="nama_shift" wire:model="nama_shift"

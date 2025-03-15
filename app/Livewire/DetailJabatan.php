@@ -15,7 +15,7 @@ class DetailJabatan extends Component
 
     protected $defaultPermissions = [
         'Add User' => ['add-user'],
-        'Aktivitas Kerja' => ['timer', 'list-history', 'absen'],
+        'Aktivitas Kerja' => ['timer', 'list-history', 'list-history-edit', 'list-history-create', 'absen'],
         'Master Data' => ['tunjangan', 'golongan', 'gaji-pokok', 'pendidikan', 'unit-kerja', 'potongan', 'tunjangan-kinerja', 'kategori-jabatan'],
         'Data Karyawan' => ['create', 'detail'],
         'Kenaikan' => ['view-kenaikan'],
@@ -28,30 +28,27 @@ class DetailJabatan extends Component
     ];
 
     public function mount($roleId)
-{
-    $this->roleId = $roleId;
-    $role = Role::findOrFail($this->roleId);
-    $this->formattedRole = $role->name;
+    {
+        $this->roleId = $roleId;
+        $role = Role::findOrFail($this->roleId);
+        $this->formattedRole = $role->name;
 
-    // Ambil semua permission yang ada di database
-    $this->permissions = $this->defaultPermissions;
+        // Ambil semua permission yang ada di database
+        $this->permissions = $this->defaultPermissions;
 
-    // 🔥 Kalau role BELUM punya permission, kasih semua default permission
-    $existingPermissions = $role->permissions->pluck('name')->toArray();
-    if (empty($existingPermissions)) {
-        $this->selectedPermissions = collect($this->defaultPermissions)->flatten()->toArray();
-        $this->syncPermissionsToRole(); // Simpan langsung ke DB
-    } else {
-        $this->selectedPermissions = $existingPermissions;
+        // 🔥 Kalau role BELUM punya permission, kasih semua default permission
+        $existingPermissions = $role->permissions->pluck('name')->toArray();
+        if (empty($existingPermissions)) {
+            $this->selectedPermissions = collect($this->defaultPermissions)->flatten()->toArray();
+            $this->syncPermissionsToRole(); // Simpan langsung ke DB
+        } else {
+            $this->selectedPermissions = $existingPermissions;
+        }
     }
-}
-
 
     // 🔥 FIX: Simpan otomatis ke database setiap kali selectedPermissions berubah
     public function updatedSelectedPermissions()
     {
-        // dd($this->selectedPermissions);
-        // dd('fungsi jalan');
         $this->syncPermissionsToRole();
     }
 

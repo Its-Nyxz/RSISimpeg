@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Carbon\Carbon;
 use App\Models\Shift;
+use App\Models\UnitKerja;
 use Livewire\Component;
 
 class EditShift extends Component
@@ -13,21 +14,36 @@ class EditShift extends Component
     public $jam_masuk;
     public $jam_keluar;
     public $keterangan;
+    public $unit_id;
+    public $unit_kerja;
+    public $unitKerjaOptions = [];
 
-    // Load data saat mount
     public function mount($shiftId)
     {
         $shift = Shift::findOrFail($shiftId);
         $this->shift_id = $shift->id;
         $this->nama_shift = $shift->nama_shift;
-
-        // Konversi ke format Asia/Jakarta
         $this->jam_masuk = Carbon::parse($shift->jam_masuk)->setTimezone('Asia/Jakarta')->format('H:i');
         $this->jam_keluar = Carbon::parse($shift->jam_keluar)->setTimezone('Asia/Jakarta')->format('H:i');
         $this->keterangan = $shift->keterangan;
+        $this->unit_id = $shift->unit_id;
+        $this->unit_kerja = UnitKerja::where('id', $this->unit_id)->value('nama');
     }
 
-    // Update shift
+    public function fetchSuggestions($field, $value)
+    {
+        if ($field === 'unit_kerja') {
+            $this->unitKerjaOptions = UnitKerja::where('nama', 'like', "%$value%")->get();
+        }
+    }
+
+    public function selectUnitKerja($id, $nama)
+    {
+        $this->unit_id = $id;
+        $this->unit_kerja = $nama;
+        $this->unitKerjaOptions = []; // Sembunyikan dropdown setelah memilih
+    }
+
     public function updateShift()
     {
         $this->validate([
@@ -35,24 +51,22 @@ class EditShift extends Component
             'jam_masuk' => 'required|date_format:H:i',
             'jam_keluar' => 'required|date_format:H:i',
             'keterangan' => 'nullable|string',
+            'unit_id' => 'required|exists:unit_kerjas,id',
         ]);
 
         $shift = Shift::findOrFail($this->shift_id);
-
-        // Konversi waktu ke timezone Asia/Jakarta sebelum menyimpan
-        $jamMasuk = Carbon::createFromFormat('H:i', $this->jam_masuk, 'Asia/Jakarta')->format('H:i:s');
-        $jamKeluar = Carbon::createFromFormat('H:i', $this->jam_keluar, 'Asia/Jakarta')->format('H:i:s');
-
         $shift->update([
             'nama_shift' => $this->nama_shift,
-            'jam_masuk' => $jamMasuk,
-            'jam_keluar' => $jamKeluar,
+            'jam_masuk' => Carbon::createFromFormat('H:i', $this->jam_masuk, 'Asia/Jakarta')->format('H:i:s'),
+            'jam_keluar' => Carbon::createFromFormat('H:i', $this->jam_keluar, 'Asia/Jakarta')->format('H:i:s'),
             'keterangan' => $this->keterangan,
+            'unit_id' => $this->unit_id,
         ]);
 
         session()->flash('success', 'Shift berhasil diperbarui!');
         return redirect()->route('shift.index');
     }
+
     public function render()
     {
         return view('livewire.edit-shift');
