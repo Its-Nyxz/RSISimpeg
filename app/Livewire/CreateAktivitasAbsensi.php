@@ -11,6 +11,7 @@ use Carbon\Carbon;
 class CreateAktivitasAbsensi extends Component
 {
     public $user_id, $user_name, $jadwal_id, $tanggal, $time_in, $time_out, $deskripsi_in, $deskripsi_out, $deskripsi_lembur, $keterangan;
+
     public $suggestions = [];
 
     public function mount()
@@ -88,3 +89,4 @@ class CreateAktivitasAbsensi extends Component
         return view('livewire.create-aktivitas-absensi');
     }
 }
+

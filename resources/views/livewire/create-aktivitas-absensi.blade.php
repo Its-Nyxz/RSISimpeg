@@ -68,6 +68,7 @@
                 @error('deskripsi_lembur')<span class="text-danger text-sm">{{ $message }}</span>@enderror
             </div>
 
+
             <!-- Keterangan -->
             <div class="form-group col-span-2">
                 <label for="keterangan" class="block text-sm font-medium text-green-900">Keterangan</label>

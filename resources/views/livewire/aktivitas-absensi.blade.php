@@ -35,6 +35,7 @@
             + Tambah
         </a>
         @endcan
+
     </div>
 
     <!-- Absensi Table -->
