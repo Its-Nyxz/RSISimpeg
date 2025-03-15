@@ -1,4 +1,4 @@
-<div>
+<div class="mb-4">
     <div class="flex justify-between py-2 mb-3">
         <h1 class="text-2xl font-bold text-success-900">Data Karyawan</h1>
         <div class="flex justify-between items-center gap-4 mb-3">
@@ -39,8 +39,8 @@
                         <td class="px-6 py-4">
                             @can('detail')
                             <a href="{{ route('detailkaryawan.show', ['detailkaryawan' => $user->id]) }}"
-                                class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300">
-                                <i class="fa-solid fa-pen"></i>
+                                class="flex items-center justify-center bg-green-700 text-white font-medium rounded-md px-3 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
+                                <i class="fa-solid fa-magnifying-glass"></i>
                             </a>
                             @endcan
                         </td>

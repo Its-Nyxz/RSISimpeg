@@ -1,14 +1,13 @@
-<div>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-3">
-        <div>
-            {{-- Data Pegawai --}}
+    <form>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-3">
             <div>
+                {{-- Data Pegawai --}}
                 <x-card title="Data Pegawai" class="mb-3">
                     <table class="w-full border-separate border-spacing-y-4">
                         <tr>
                             <td style="width: 40%">
                                 <label for="nama" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Nama Pegawai *</label>
+                                    Nama Pegawai <span class="text-sm text-red-500">*</span></label>
                             </td>
                             <td>
                                 <input type="text" id="nama" wire:model.live="nama"
@@ -22,7 +21,7 @@
                         <tr>
                             <td>
                                 <label for="nip" class="block mb-2 text-sm font-medium text-gray-900">
-                                    NIP *</label>
+                                    NIP <span class="text-sm text-red-500">*</span></label>
                             </td>
                             <td>
                                 <input type="text" id="nip" wire:model.live="nip"
@@ -36,7 +35,7 @@
                         <tr>
                             <td>
                                 <label for="email" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Email *</label>
+                                    Email <span class="text-sm text-red-500">*</span></label>
                             </td>
                             <td>
                                 <input type="text" id="email" wire:model.live="email"
@@ -50,7 +49,7 @@
                         <tr>
                             <td>
                                 <label for="no_ktp" class="block mb-2 text-sm font-medium text-gray-900">
-                                    No KTP *</label>
+                                    No KTP <span class="text-sm text-red-500">*</span></label>
                             </td>
                             <td>
                                 <input type="text" id="no_ktp" wire:model.live="no_ktp"
@@ -64,7 +63,7 @@
                         <tr>
                             <td>
                                 <label for="no_hp" class="block mb-2 text-sm font-medium text-gray-900">
-                                    No Hp *</label>
+                                    No Hp <span class="text-sm text-red-500">*</span></label>
                             </td>
                             <td>
                                 <input type="text" id="no_hp" wire:model.live="no_hp"
@@ -77,8 +76,8 @@
                         </tr>
                         <tr>
                             <td>
-                                <label for="no_ktp" class="block mb-2 text-sm font-medium text-gray-900">
-                                    No Rek *</label>
+                                <label for="no_rek" class="block mb-2 text-sm font-medium text-gray-900">
+                                    No Rek <span class="text-sm text-red-500">*</span></label>
                             </td>
                             <td>
                                 <input type="text" id="no_rek" wire:model.live="no_rek"
@@ -91,8 +90,8 @@
                         </tr>
                         <tr>
                             <td>
-                                <label for="pendidikan" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Kategori Pendidikan *</label>
+                                <label for="pendidikans" class="block mb-2 text-sm font-medium text-gray-900">
+                                    Kategori Pendidikan <span class="text-sm text-red-500">*</span></label>
                             </td>
                             <td>
                                 <select id="pendidikans" wire:model.live="selectedPendidikan"
@@ -111,10 +110,10 @@
                                 @enderror
                             </td>
                         </tr>
-                        <tr>
+                        {{-- <tr>
                             <td style="width: 40%">
                                 <label for="namapendidikan" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Pendidikan *</label>
+                                    Pendidikan <span class="text-sm text-red-500">*</span></label>
                             </td>
                             <td>
                                 <input type="text" id="namapendidikan" wire:model.live="namapendidikan"
@@ -124,11 +123,11 @@
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
                             </td>
-                        </tr>
+                        </tr> --}}
                         <tr>
                             <td style="width: 40%">
                                 <label for="institusi" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Institusi *</label>
+                                    Institusi <span class="text-sm text-red-500">*</span></label>
                             </td>
                             <td>
                                 <input type="text" id="institusi" wire:model.live="institusi"
@@ -142,7 +141,7 @@
                         <tr>
                             <td>
                                 <label for="jk" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Jenis Kelamin *</label>
+                                    Jenis Kelamin <span class="text-sm text-red-500">*</span></label>
                             </td>
                             <td>
                                 <label class="flex items-center">
@@ -175,7 +174,7 @@
                         <tr>
                             <td>
                                 <label for="tempat" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Tempat Lahir *</label>
+                                    Tempat Lahir <span class="text-sm text-red-500">*</span></label>
                             </td>
                             <td>
                                 <input type="text" id="tempat" wire:model.live="tempat"
@@ -189,7 +188,7 @@
                         <tr wire:ignore>
                             <td class="w-1/3">
                                 <label for="tanggal_lahir" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Tanggal Lahir *
+                                    Tanggal Lahir <span class="text-sm text-red-500">*</span>
                                 </label>
                             </td>
                             <td>
@@ -234,18 +233,17 @@
                     </table>
                 </x-card>
             </div>
-        </div>
-        <div>
             <div>
                 <x-card title="Detail Pegawai" class="mb-3">
                     <table class="w-full border-separate border-spacing-y-4">
                         <tr>
                             <td style="width: 40%">
                                 <label for="unit" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Unit Kerja *</label>
+                                    Unit Kerja <span class="text-sm text-red-500">*</span></label>
                             </td>
                             <td class="relative">
-                                <input type="text" wire:model.live="unit"
+                                <input id="unit" type="text" wire:model.live="unit"
+                                    wire:focus="fetchSuggestions('unit', $event.target.value)"
                                     wire:input="fetchSuggestions('unit', $event.target.value)"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-700 focus:border-blue-700 block w-full p-2.5"
                                     placeholder="Cari Unit Kerja..." wire:blur="hideSuggestions('unit')" required>
@@ -267,10 +265,10 @@
                         <tr>
                             <td style="width: 40%">
                                 <label for="jabatan" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Jabatan *</label>
+                                    Jabatan <span class="text-sm text-red-500">*</span></label>
                             </td>
                             <td class="relative">
-                                <input type="text" wire:model.live="jabatan"
+                                <input id="jabatan" type="text" wire:model.live="jabatan"
                                     wire:focus="fetchSuggestions('jabatan', $event.target.value)"
                                     wire:input="fetchSuggestions('jabatan', $event.target.value)"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-700 focus:border-green-700 block w-full p-2.5"
@@ -296,12 +294,11 @@
                         <tr>
                             <td style="width: 40%">
                                 <label for="jenis" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Jenis *</label>
+                                    Jenis <span class="text-sm text-red-500">*</span></label>
                             </td>
                             <td>
-                                <select id="jeniskaryawan" wire:model.live="jeniskaryawan"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
-                                    required>
+                                <select id="jenis" wire:model.live="selectedJenisKaryawan"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 ">
                                     <option value="">Pilih Jenis Pegawai</option>
                                     @foreach ($jeniskaryawan as $jenis)
                                         <option value="{{ $jenis->id }}">
@@ -309,7 +306,7 @@
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('jeniskaryawan')
+                                @error('selectedJenisKaryawan')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
                             </td>
@@ -317,7 +314,7 @@
                         <tr wire:ignore>
                             <td class="w-1/3">
                                 <label for="tmt" class="block mb-2 text-sm font-medium text-gray-900">TMT
-                                    *</label>
+                                    <span class="text-sm text-red-500">*</span></label>
                             </td>
                             <td>
                                 <input type="date" id="tmt" wire:model.live="tmt"
@@ -331,7 +328,7 @@
                         <tr>
                             <td>
                                 <label for="masakerja" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Masa Kerja *</label>
+                                    Masa Kerja <span class="text-sm text-red-500">*</span></label>
                             </td>
                             <td>
                                 <div class="flex items-center">
@@ -348,7 +345,7 @@
                         <tr>
                             <td>
                                 <label for="golongan" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Golongan *</label>
+                                    Golongan <span class="text-sm text-red-500">*</span></label>
                             </td>
                             <td>
                                 <input type="text" id="golongan" wire:model.live="selectedGolonganNama"
@@ -379,7 +376,7 @@
                                         altFormat: "F j, Y",
                                         dateFormat: "Y-m-d",
                                         maxDate: "today", // Restrict future dates
-                                        defaultDate: "today", // Set default date to today
+                                        defaultDate: dateInput.value ? dateInput.value : "today", // Set default date to today
                                         onChange: function(selectedDates, dateStr, instance) {
                                             if (selectedDates.length > 0) {
                                                 const selectedDate = new Date(selectedDates[0]);
@@ -416,14 +413,13 @@
                         @endpush
                     </table>
                 </x-card>
-            </div>
-            <div>
+
                 <x-card title="Lain-Lain" class="mb-3">
                     <table class="w-full border-separate border-spacing-y-4">
                         <tr>
                             <td>
                                 <label for="khusus" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Tunjangan Khusus *</label>
+                                    Tunjangan Khusus <span class="text-sm text-red-500">*</span></label>
                             </td>
                             <td>
                                 <select id="khusus" wire:model.live="khusus"
@@ -444,10 +440,10 @@
                         <tr>
                             <td style="width: 40%">
                                 <label for="pph" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Kategori PPH *</label>
+                                    Kategori PPH <span class="text-sm text-red-500">*</span></label>
                             </td>
                             <td>
-                                <select wire:model.live="selectedPph"
+                                <select id="pph" wire:model.live="selectedPph"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5">
                                     <option value="">Pilih Kategori PPH</option>
 
@@ -465,15 +461,14 @@
                                 @enderror
                             </td>
                         </tr>
-
                         <tr>
                             <td style="width: 40%">
-                                <label for="unit" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Hak Akses *</label>
+                                <label for="roles" class="block mb-2 text-sm font-medium text-gray-900">
+                                    Hak Akses <span class="text-sm text-red-500">*</span></label>
                             </td>
                             <td>
                                 <div>
-                                    <select wire:model.live="selectedRoles"
+                                    <select id="roles" wire:model.live="selectedRoles"
                                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 ">
                                         <option value="">Pilih Hak Akses</option>
                                         @foreach ($roles as $role)
@@ -489,10 +484,18 @@
                 </x-card>
             </div>
         </div>
-    </div>
-    <div class="flex justify-end">
-        <button type="button" wire:click="save"
-            class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Simpan</button>
+        <div class="flex justify-end mb-3">
+            @if ($user == null)
+                <button type="button" wire:click="save()"
+                    class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                    <i class="fa-solid fa-paper-plane mr-2"></i> Simpan
+                </button>
+            @else
+                <button type="button" wire:click="updateKaryawan()"
+                    class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                    <i class="fa-solid fa-pen mr-2"></i> Edit
+                </button>
+            @endif
 
-    </div>
-</div>
+        </div>
+    </form>
