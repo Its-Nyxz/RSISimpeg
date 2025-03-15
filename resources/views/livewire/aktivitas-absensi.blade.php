@@ -29,10 +29,13 @@
         </div>
 
         <!-- Tombol Tambah -->
+        @can('list-history-create')
         <a href="{{ route('aktivitasabsensi.create') }}"
             class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
             + Tambah
         </a>
+        @endcan
+
     </div>
 
     <!-- Absensi Table -->
@@ -45,8 +48,12 @@
                     <th scope="col" class="px-6 py-3">Jam Kerja</th>
                     <th scope="col" class="px-6 py-3">Rencana Kerja</th>
                     <th scope="col" class="px-6 py-3">Laporan Kerja</th>
+                    <th scope="col" class="px-6 py-3">Jam Lembur</th>
+                    <th scope="col" class="px-6 py-3">Deskripsi Lembur</th>
                     <th scope="col" class="px-6 py-3">Feedback</th>
-                    <th scope="col" class="px-6 py-3">Action</th>
+                    @can('list-history-edit')
+                        <th scope="col" class="px-6 py-3">Action</th>
+                    @endcan
                 </tr>
             </thead>
             <tbody>
@@ -60,17 +67,20 @@
                         <td class="px-6 py-4">{{ $item['jam_kerja'] }}</td>
                         <td class="px-6 py-4">{{ $item['rencana_kerja'] }}</td>
                         <td class="px-6 py-4">{{ $item['laporan_kerja'] }}</td>
+                        <th class="px-6 py-4">{{ $item['jam_lembur'] }}</th>
+                        <th class="px-6 py-4">{{ $item['laporan_lembur'] }}</th>
                         <td class="px-6 py-4">{{ $item['feedback'] }}</td>
-                        <td class="px-6 py-4">
-    @if (!is_null($item['id']))
-        <a href="{{ route('aktivitasabsensi.edit', $item['id']) }}"
-            class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
-            data-tooltip-target="tooltip-item-{{ $item['id'] }}">
-            <i class="fa-solid fa-pen"></i>
-        </a>
-    @endif
-</td>
-
+                        @can('list-history-edit')
+                            <td class="px-6 py-4">
+                                @if (!is_null($item['id']))
+                                    <a href="{{ route('aktivitasabsensi.edit', $item['id']) }}"
+                                        class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
+                                        data-tooltip-target="tooltip-item-{{ $item['id'] }}">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </a>
+                                @endif
+                            </td>
+                        @endcan
                     </tr>
                 @empty
                     <tr>

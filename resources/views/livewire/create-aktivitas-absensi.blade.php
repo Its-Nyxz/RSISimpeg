@@ -61,6 +61,14 @@
                 @error('deskripsi_out')<span class="text-danger text-sm">{{ $message }}</span>@enderror
             </div>
 
+            <!-- Deskripsi Lembur -->
+            <div class="form-group col-span-2">
+                <label for="deskripsi_lembur" class="block text-sm font-medium text-green-900">Deskripsi Lembur</label>
+                <input type="text" id="deskripsi_lembur" wire:model="deskripsi_lembur" class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" />
+                @error('deskripsi_lembur')<span class="text-danger text-sm">{{ $message }}</span>@enderror
+            </div>
+
+
             <!-- Keterangan -->
             <div class="form-group col-span-2">
                 <label for="keterangan" class="block text-sm font-medium text-green-900">Keterangan</label>

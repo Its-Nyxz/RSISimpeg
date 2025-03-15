@@ -29,6 +29,15 @@ class UserSeeder extends Seeder
         return $emailUsername . '@gmail.com';
     }
 
+    private function usernameFormat($name)
+    {
+        // Hanya biarkan huruf dan spasi
+        $name = strtolower(preg_replace('/[^a-zA-Z ]/', '', $name));
+
+        // Ubah ke lowercase dan hapus spasi
+        return strtolower(str_replace(' ', '', $name));
+    }
+
     public function run(): void
     {
         // Buat Roles jika belum ada
@@ -64,7 +73,7 @@ class UserSeeder extends Seeder
 
         // Data untuk Direktur
         $direktur = [
-            ['name' => 'Dr. H, Arif Fadlullah Chonar', 'jabatan' => 'Direktur'],
+            ['name' => 'Dr. H, Arif Fadlullah Chonar', 'nip' => '01030167', 'jabatan' => 'Direktur'],
         ];
 
         foreach ($direktur as $member) {
@@ -72,6 +81,8 @@ class UserSeeder extends Seeder
             $user = User::firstOrCreate(
                 ['email' => $this->emailFormat($member['name'])],
                 [
+                    'nip' => $member['nip'],
+                    'username' => $this->usernameFormat($member['name']),
                     'name' => $member['name'],
                     'password' => Hash::make('123'), // Password default
                     'jabatan_id' => $KategoriJabatan,
@@ -86,10 +97,10 @@ class UserSeeder extends Seeder
 
         // Data Kepala Instalasi
         $kepalaInstalasi = [
-            ['unit_name' => 'IRJ', 'name' => 'drg Amalia Rahmaniar', 'jabatan' => 'Kepala Instalasi Rawat Jalan'], //102
+            ['unit_name' => 'IRJ', 'name' => 'drg Amalia Rahmaniar', 'nip' => '01200559', 'jabatan' => 'Kepala Instalasi Rawat Jalan'], //102
             ['unit_name' => 'IAPI', 'name' => 'Dr. Anantya Hari W.,Sp.An', 'jabatan' => 'Dokter Spesialis Anastesi + Ka. IAPI'], //part time
-            ['unit_name' => 'IMP', 'name' => 'Tatun Parjiati', 'jabatan' => 'Ka. IMP'],
-            ['unit_name' => 'INST RANAP', 'name' => 'Agus Widayat', 'jabatan' => 'Ka. Instalasi Rawat Inap'],
+            ['unit_name' => 'IMP', 'name' => 'Tatun Parjiati', 'nip' => '02990132', 'jabatan' => 'Ka. IMP'],
+            ['unit_name' => 'INST RANAP', 'name' => 'Agus Widayat', 'nip' => '02050192', 'jabatan' => 'Ka. Instalasi Rawat Inap'],
         ];
 
         foreach ($kepalaInstalasi as $data) {
@@ -100,6 +111,8 @@ class UserSeeder extends Seeder
                 $user = User::firstOrCreate(
                     ['email' => $this->emailFormat($data['name'])],
                     [
+                        'nip' => $data['nip'] ?? null,
+                        'username' => $this->usernameFormat($data['name']),
                         'name' => $data['name'],
                         'password' => Hash::make('123'),
                         'unit_id' => $unit->id,
@@ -136,9 +149,9 @@ class UserSeeder extends Seeder
 
         // Data untuk unit Dokter Umum Full Time
         $dokterUmumFullTime = [
-            ['name' => 'Dr. H. Agung Widiharto', 'jabatan' => 'Dokter Umum Fungsional'],
-            ['name' => 'Dr. Alfiyah Rakhmatul Azizah', 'jabatan' => 'Dokter Umum Fungsional + PJ Klaim'],
-            ['name' => 'Dr. Fitratul Aliyah', 'jabatan' => 'Dokter Umum Fungsional'],
+            ['name' => 'Dr. H. Agung Widiharto', 'nip' => '01080241', 'jabatan' => 'Dokter Umum Fungsional'],
+            ['name' => 'Dr. Alfiyah Rakhmatul Azizah', 'nip' => '01240677', 'jabatan' => 'Dokter Umum Fungsional + PJ Klaim'],
+            ['name' => 'Dr. Fitratul Aliyah', 'nip' => '01240678', 'jabatan' => 'Dokter Umum Fungsional'],
         ];
 
         // Cari unit Dokter Umum Full Time
@@ -154,6 +167,8 @@ class UserSeeder extends Seeder
             $user = User::firstOrCreate(
                 ['email' => $this->emailFormat($member['name'])],
                 [
+                    'nip' => $member['nip'] ?? null,
+                    'username' => $this->usernameFormat($member['name']),
                     'name' => $member['name'],
                     'password' => Hash::make('123'), // Password default
                     'unit_id' => $dokterUmumFullTimeunit->id,
@@ -170,14 +185,14 @@ class UserSeeder extends Seeder
         // Data untuk unit IBS (penambahan data anggota IBS)
         $ibsMembers = [
             // ['name' => 'Dr. M Yudha S.U., Sp.B', 'role' => 'Kepala Instalasi', 'jabatan' => 'Dokter Spesialis Bedah + Ka. Instalasi Bedah Sentral'],
-            ['name' => 'Sulis Setiyanto', 'role' => 'Kepala Unit', 'jabatan' => 'Karu IBS'],
-            ['name' => 'Daryanto', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Mat Suwignyo', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Anifah', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Mohammad Amrulloh', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Singgih Triyantoro', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Riyan Nuryana', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Umi Sakdiyah', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Sulis Setiyanto', 'nip' => '02090266', 'role' => 'Kepala Unit', 'jabatan' => 'Karu IBS'],
+            ['name' => 'Daryanto', 'nip' => '02129314', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Mat Suwignyo', 'nip' => '02100290', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Anifah', 'nip' => '02220594', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Mohammad Amrulloh', 'nip' => '02150409', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Singgih Triyantoro', 'nip' => '02140391', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Riyan Nuryana', 'nip' => '02180478', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Umi Sakdiyah', 'nip' => '02160433', 'jabatan' => 'Perawat Pelaksana'],
             ['name' => 'Dwi Agung Nugroho', 'jabatan' => 'Perawat Pelaksana'],
             ['name' => 'Atik Wakiah', 'jabatan' => 'Perawat Pelaksana'],
             ['name' => 'Supriyadi.,A.Md Kep', 'jabatan' => 'Perawat Pelaksana'],
@@ -190,7 +205,7 @@ class UserSeeder extends Seeder
             ['name' => 'Sofyanul Affan Hidayat', 'jabatan' => 'Perawat Pelaksana'],
             ['name' => 'Nanang Cahyono', 'jabatan' => 'Perawat Pelaksana'],
             ['name' => 'Arif Yulianto', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Restika Dyah Utami','role' => 'Administrator', 'jabatan' => 'Staf Administrasi IBS'],
+            ['name' => 'Restika Dyah Utami', 'role' => 'Administrator', 'jabatan' => 'Staf Administrasi IBS'],
         ];
 
         // Cari unit IBS
@@ -206,6 +221,8 @@ class UserSeeder extends Seeder
             $user = User::firstOrCreate(
                 ['email' => $this->emailFormat($member['name'])],
                 [
+                    'nip' => $member['nip'] ?? null,
+                    'username' => $this->usernameFormat($member['name']),
                     'name' => $member['name'],
                     'password' => Hash::make('123'),
                     'unit_id' => $ibsUnit->id,
@@ -329,7 +346,7 @@ class UserSeeder extends Seeder
             ['name' => 'Sahid Menru Hidayatulloh', 'jabatan' => 'Perawat Pelaksana'],
             ['name' => 'Helman Riyadi', 'jabatan' => 'Perawat Pelaksana'],
             ['name' => 'Darmuji', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => "Nur Wakhidah Lulu'ul Jannah",'role' => 'Administrator', 'jabatan' => 'Administrasi Instalasi Dialisis'],
+            ['name' => "Nur Wakhidah Lulu'ul Jannah", 'role' => 'Administrator', 'jabatan' => 'Administrasi Instalasi Dialisis'],
         ];
 
         // Cari unit Instalasi Dialisis
@@ -1128,8 +1145,8 @@ class UserSeeder extends Seeder
             ['name' => 'Zaenal Arifin', 'jabatan' => 'Analis Kesehatan'],
             ['name' => 'Argandari.,A.Md AK', 'jabatan' => 'Analis Kesehatan'],
             ['name' => 'Tyas Asalwa Nabila', 'jabatan' => 'Analis Kesehatan'],
-            ['name' => 'Rosna Erviana','role' => 'Administrator', 'jabatan' => 'Staf Administrasi'],
-            ['name' => 'Diaz Cagar Biru Langit','role' => 'Administrator', 'jabatan' => 'Staf Administrasi'],
+            ['name' => 'Rosna Erviana', 'role' => 'Administrator', 'jabatan' => 'Staf Administrasi'],
+            ['name' => 'Diaz Cagar Biru Langit', 'role' => 'Administrator', 'jabatan' => 'Staf Administrasi'],
             ['name' => 'Alfina Reinada Hapsari.,A.Md AK', 'jabatan' => 'Teknisi Bank Darah'],
         ];
 
@@ -1312,7 +1329,7 @@ class UserSeeder extends Seeder
         $mcuPoskesMembers = [
             ['name' => 'Ruslan', 'role' => 'Kepala Unit', 'jabatan' => 'Ka. Unit MCU dan Poskes'],
             ['name' => 'Mamat Setiawan', 'jabatan' => 'Perawat Pelaksana Poskes dr. Nono'],
-            ['name' => 'Robby Ilmiawan','role' => 'Administrator', 'jabatan' => 'Staf Administrasi Unit MCU dan Poskes'],
+            ['name' => 'Robby Ilmiawan', 'role' => 'Administrator', 'jabatan' => 'Staf Administrasi Unit MCU dan Poskes'],
         ];
 
         // Cari unit UNIT MCU & POSKES
@@ -1544,14 +1561,18 @@ class UserSeeder extends Seeder
 
         // Data untuk unit SDM
         $sdmMembers = [
-            ['name' => 'Dr. Ardhi Oemar Agustjik', 'role' => 'Manager', 'jabatan' => 'Manajer SDM'],
+            ['name' => 'Dr. ardhi Oemar Agustjik', 'nip' => '000111',  'role' => 'Manager', 'jabatan' => 'Manajer SDM'],
             ['name' => 'Silih Prasetya', 'jabatan' => 'Staf Manajer SDM'],
-            ['name' => 'Mister', 'role' => 'Kepegawaian', 'jabatan' => 'Ka. Seksi Kepegawaian'],
-            ['name' => 'Riris Afianto', 'role' => 'Kepala Seksi', 'jabatan' => 'Ka. Seksi Pendidikan, Pelatihan dan Pengembangan SDM'], //+ Plt. Ka. Seksi Kajian dan Budaya Islam
-            ['name' => 'Diana Melisawati', 'role' => 'Kepegawaian', 'jabatan' => 'Staf Seksi Kepegawaian'],
-            ['name' => 'Dyah Novita Sari', 'role' => 'Kepegawaian', 'jabatan' => 'Staf Seksi Kepegawaian'],
-            ['name' => 'Barkah Setiyani', 'jabatan' => 'Staf Seksi Pendidikan, Pelatihan dan Pengembangan SDM'],
-            ['name' => 'Eko Santoso', 'jabatan' => 'Staf Seksi Kajian dan Budaya Islam'],
+            ['name' => 'Riris Afianto', 'role' => 'Kepala Seksi', 'jabatan' => 'Ka. Seksi Pendidikan, Pelatihan dan Pengembangan SDM'],
+            ['name' => 'Mister', 'nip' => '111222', 'role' => 'Kepegawaian', 'jabatan' => 'Ka. Seksi Kepegawaian'],
+            ['name' => 'Diana Melisawati', 'nip' => '222333', 'role' => 'Kepegawaian', 'jabatan' => 'Staf Seksi Kepegawaian'],
+            ['name' => 'Dyah Novita Sari', 'nip' => '333444', 'role' => 'Kepegawaian', 'jabatan' => 'Staf Seksi Kepegawaian'],
+            ['name' => 'Barkah Setiyani', 'nip' => '444555', 'role' => 'Kepegawaian', 'jabatan' => 'Staf Seksi Kepegawaian'],
+            ['name' => 'Eko Santoso', 'nip' => '555666', 'role' => 'Kepegawaian', 'jabatan' => 'Staf Seksi Kepegawaian'],
+
+            // ['name' => 'Barkah Setiyani', 'jabatan' => 'Staf Seksi Pendidikan, Pelatihan dan Pengembangan SDM'],      // data seeder asli
+            // ['name' => 'Eko Santoso', 'jabatan' => 'Staf Seksi Kajian dan Budaya Islam'],
+
         ];
 
         // Cari unit SDM
@@ -1564,10 +1585,22 @@ class UserSeeder extends Seeder
 
         foreach ($sdmMembers as $member) {
             $KategoriJabatan = KategoriJabatan::where('nama', $member['jabatan'])->value('id');
+
+            // Regex untuk menghapus gelar di awal (Dr., Prof., Ir., H., drg., dll) dan di akhir (Sp.An, S.Ked, M.T, Gaji, dll)
+            $cleanName = preg_replace('/^(Dr\.|Prof\.|Ir\.|H\.|Gaji|S\.|A\.|drg\.)\s+|\s*,?\s*(Sp\.\w+|S\.\w+|M\.\w+|Gaji|A\.\w+|H\.\w+|Ir\.\w+|Dr\.\w+|Prof\.\w+|drg\.\w+)$/', '', $member['name']);
+
+            // Hilangkan double space yang mungkin tersisa
+            $cleanName = preg_replace('/\s+/', ' ', $cleanName);
+
+            // Hapus spasi dan ubah ke lowercase untuk username
+            $username = isset($member['nip']) ? strtolower(str_replace(' ', '', $cleanName)) : null;
+
             $user = User::firstOrCreate(
                 ['email' => $this->emailFormat($member['name'])],
                 [
                     'name' => $member['name'],
+                    'nip' => $member['nip'] ?? null,
+                    'username' => $username,
                     'password' => Hash::make('123'), // Password default
                     'unit_id' => $sdmUnit->id,
                     'jabatan_id' => $KategoriJabatan,
@@ -1579,6 +1612,7 @@ class UserSeeder extends Seeder
         }
 
         $this->command->info('Seeder user SDM berhasil dijalankan.');
+
 
         // Data untuk unit AKUNTANSI
         $akuntansiMembers = [

@@ -7,9 +7,7 @@ use App\Models\User;
 use App\Models\Absen;
 use App\Models\Holidays;
 use Livewire\Component;
-
 use App\Models\JadwalAbsensi;
-
 
 class AktivitasAbsensi extends Component
 {
@@ -55,31 +53,61 @@ class AktivitasAbsensi extends Component
         for ($day = 1; $day <= $daysInMonth; $day++) {
             $date = Carbon::create($this->year, $this->month, $day)->format('Y-m-d');
 
-            // Ambil data jadwal di tanggal tersebut (kalau ada)
+            // Ambil data jadwal di tanggal tersebut
             $jadwal = JadwalAbsensi::where('user_id', $this->selectedUserId)
                 ->whereDate('tanggal_jadwal', $date)
-                ->with('absensi')
+                ->with(['absensi', 'shift'])
                 ->first();
 
-                $absensi = Absen::where('jadwal_id', $jadwal?->id)->first();
+            $shift = $jadwal?->shift; // Ambil shift dari jadwal absensi
+            $absensi = $jadwal?->absensi->first(); // Ambil satu absensi pertama
+
+            // Ambil jam masuk dan keluar dari shift
+            $shiftStart = $shift ? Carbon::parse($shift->jam_masuk) : null;
+            $shiftEnd = $shift ? Carbon::parse($shift->jam_keluar) : null;
+
+            // Ambil jam masuk dan keluar dari absensi
             $timeIn = $absensi?->time_in ? Carbon::parse($absensi->time_in) : null;
             $timeOut = $absensi?->time_out ? Carbon::parse($absensi->time_out) : null;
-            $duration = $timeIn && $timeOut
-                ? $timeIn->diff($timeOut)->format('%H:%I:%S')
-                : '-';
+
+            // Default values
+            $duration = '-';
+            $overtime = '-';
+
+            if ($timeIn && $timeOut && $shiftStart && $shiftEnd) {
+                // **Hitung total jam kerja berdasarkan shift**
+                $shiftDuration = $shiftStart->diffInMinutes($shiftEnd);
+
+                // **Hitung total waktu kerja dari absensi**
+                $totalMinutes = $timeIn->diffInMinutes($timeOut);
+
+                // **Jam kerja hanya dihitung maksimal sesuai shift**
+                $workMinutes = min($totalMinutes, $shiftDuration);
+                $overtimeMinutes = max(0, $totalMinutes - $shiftDuration);
+
+                // Format hasil
+                $duration = sprintf('%02d:%02d:%02d', intdiv($workMinutes, 60), $workMinutes % 60, 0);
+                if ($overtimeMinutes > 0) {
+                    $overtime = sprintf('%02d:%02d:%02d', intdiv($overtimeMinutes, 60), $overtimeMinutes % 60, 0);
+                }
+            }
+
+            // Simpan data ke array
             $this->items[] = [
                 'id' => $absensi ? $absensi->id : null,
                 'hari' => Carbon::parse($date)->locale('id')->isoFormat('dddd'),
                 'tanggal' => Carbon::parse($date)->translatedFormat('d F Y'),
-                'jam_kerja' => $duration, // Jika tidak ada jadwal, tampilkan '-'
+                'jam_kerja' => $duration,
+                'jam_lembur' => $overtime,
                 'rencana_kerja' => $absensi?->deskripsi_in ?? '-',
                 'laporan_kerja' => $absensi?->deskripsi_out ?? '-',
+                'laporan_lembur' => $absensi?->deskripsi_lembur ?? '-',
                 'feedback' => $absensi?->feedback ?? '-',
                 'is_holiday' => $this->isHoliday($date),
             ];
-
         }
     }
+
     // Fungsi untuk menandai tanggal merah (libur nasional atau Minggu)
     public function isHoliday($date)
     {

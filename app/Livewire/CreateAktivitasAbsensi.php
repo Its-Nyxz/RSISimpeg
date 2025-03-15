@@ -10,7 +10,8 @@ use Carbon\Carbon;
 
 class CreateAktivitasAbsensi extends Component
 {
-    public $user_id, $user_name, $jadwal_id, $tanggal, $time_in, $time_out, $deskripsi_in, $deskripsi_out, $keterangan;
+    public $user_id, $user_name, $jadwal_id, $tanggal, $time_in, $time_out, $deskripsi_in, $deskripsi_out, $deskripsi_lembur, $keterangan;
+
     public $suggestions = [];
 
     public function mount()
@@ -51,6 +52,7 @@ class CreateAktivitasAbsensi extends Component
             'time_out' => 'nullable|date_format:H:i',
             'deskripsi_in' => 'nullable|string',
             'deskripsi_out' => 'nullable|string',
+            'deskripsi_lembur' => 'nullable|string',
             'keterangan' => 'nullable|string',
         ]);
 
@@ -74,6 +76,7 @@ class CreateAktivitasAbsensi extends Component
                 'time_out' => $this->time_out ? Carbon::parse($this->time_out)->format('Y-m-d H:i:s') : null,
                 'deskripsi_in' => $this->deskripsi_in,
                 'deskripsi_out' => $this->deskripsi_out,
+                'deskripsi_lembur' => $this->deskripsi_lembur,
                 'keterangan' => $this->keterangan,
             ]
         );
@@ -86,3 +89,4 @@ class CreateAktivitasAbsensi extends Component
         return view('livewire.create-aktivitas-absensi');
     }
 }
+

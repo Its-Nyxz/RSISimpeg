@@ -46,4 +46,5 @@ class EditAktivitasAbsensi extends Component
     {
         return view('livewire.edit-aktivitas-absensi');
     }
+
 }

@@ -14,6 +14,7 @@ class UserProfile extends Component
 
     public $userprofile;
     public $search = '';
+    public $showNip = false;
     public function mount()
     {
         // Ambil data user yang sedang login
@@ -21,6 +22,11 @@ class UserProfile extends Component
             ->where('id', Auth::id()) // Filter berdasarkan ID user yang login
             ->first();
         $this->loadData();
+    }
+
+    public function toggleNip()
+    {
+        $this->showNip = !$this->showNip;
     }
 
     public function updateSearch($value)

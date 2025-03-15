@@ -1,26 +1,32 @@
 <?php
+
 namespace App\Livewire;
 use App\Models\Shift;
+use App\Models\UnitKerja;
 use Livewire\Component;
+
 class DataShift extends Component
 {
     public $search = ''; // Properti untuk menyimpan nilai input pencarian
     public $shifts = [];
+    
     public function mount()
     {
         $this->loadData();
     }
     public function loadData()
     {
-        $this->shifts = Shift::when( $this->search, function($query){
+        $this->shifts = Shift::with('unitKerja')
+        ->when($this->search, function ($query) {
             $query->where('nama_shift', 'like', '%' . $this->search . '%')
-                    ->orWhere('jam_masuk', 'like', '%' . $this->search . '%')
-                    ->orWhere('jam_keluar', 'like', '%' . $this->search . '%')
-                    ->orWhere('keterangan', 'like', '%' . $this->search . '%');
+                ->orWhere('jam_masuk', 'like', '%' . $this->search . '%')
+                ->orWhere('jam_keluar', 'like', '%' . $this->search . '%')
+                ->orWhere('keterangan', 'like', '%' . $this->search . '%');
         })
-            ->get()
-            ->toArray();
+        ->get()
+        ->toArray();
     }
+
     public function updateSearch($value)
     {
         $this->search = $value;
