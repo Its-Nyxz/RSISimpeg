@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use App\Models\User;
 
 class LoginRequest extends FormRequest
 {
@@ -41,27 +42,30 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        $loginField = $this->input('login');
-        $password = $this->input('password');
-
-        // Menentukan apakah input adalah email, username, atau NIP
-        $fieldType = filter_var($loginField, FILTER_VALIDATE_EMAIL) ? 'email' : (is_numeric($loginField) ? 'nip' : 'username');
+        // Tentukan apakah input 'login' adalah email, nip, atau username
+        $fieldType = filter_var($this->input('login'), FILTER_VALIDATE_EMAIL)
+            ? 'email'
+            : (is_numeric($this->input('login')) ? 'nip' : 'username');
 
         // Cari user berdasarkan field yang sesuai
-        $user = \App\Models\User::where($fieldType, $loginField)->first();
+        $user = User::where($fieldType, $this->input('login'))->first();
 
-        if (!$user) {
-            throw ValidationException::withMessages([
-                'login' => __('User dengan ' . $fieldType . ' ini tidak ditemukan.'),
-            ]);
-        }
-
-        // Periksa apakah password cocok
-        if (!Auth::attempt([$fieldType => $loginField, 'password' => $password], $this->boolean('remember'))) {
+        // Jika user tidak ditemukan
+        if (! $user) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'password' => __('Password yang dimasukkan salah.'),
+                'login' => __('auth.user_not_found', ['field' => $fieldType]),
+            ]);
+        }
+
+        // Coba autentikasi user
+        if (! Auth::attempt([$fieldType => $this->input('login'), 'password' => $this->input('password')], $this->boolean('remember'))) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'password' => __('auth.password_incorrect'),
+
             ]);
         }
 
@@ -96,6 +100,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('login')) . '|' . $this->ip());
+        return Str::transliterate(Str::lower($this->string('login')).'|'.$this->ip());
     }
 }
