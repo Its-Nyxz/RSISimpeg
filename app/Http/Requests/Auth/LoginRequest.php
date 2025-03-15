@@ -65,6 +65,7 @@ class LoginRequest extends FormRequest
 
             throw ValidationException::withMessages([
                 'password' => __('auth.password_incorrect'),
+
             ]);
         }
 

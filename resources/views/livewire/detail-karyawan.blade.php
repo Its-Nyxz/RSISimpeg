@@ -6,9 +6,9 @@
             + Tambah History
         </a>
     </div>
-    
-    <div class="flex space-x-6">
-        <div class="w-1/2">
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="w-full">
             <x-card title="{{ $user->no_ktp ?? '-' }}" class="mb-6 text-success-900">
                 <div style="font-family: 'Gilroy-Regular', sans-serif; font-size: 14px;">
                     <div class="mb-4">
@@ -18,10 +18,12 @@
                         <strong>Jabatan</strong>: {{ $user->kategorijabatan->nama ?? '-' }}
                     </div>
                     <div class="mb-4">
-                        <strong>Tempat, Tanggal Lahir</strong>: {{ $user->tempat ?? '-' }}, {{ $tanggal_lahir ?? '-' }}
+                        <strong>Tempat, Tanggal Lahir</strong>: {{ $user->tempat ?? '-' }},
+                        {{ $user->tanggal_lahir ? formatDate($user->tanggal_lahir) : '-' }}
                     </div>
                     <div class="mb-4">
-                        <strong>Tanggal Tetap</strong>: {{ $tanggal_tetap ?? '-' }}
+                        <strong>Tanggal Tetap</strong>:
+                        {{ $user->tanggal_tetap ? formatDate($user->tanggal_tetap) : '-' }}
                     </div>
                     <div class="mb-4">
                         <strong>Pendidikan Awal</strong>: {{ $deskripsiPendidikan ?? '-' }}
@@ -30,16 +32,25 @@
                         <strong>Pendidikan Penyesuaian</strong>: {{ $user->pendidikan_penyesuaian ?? '-' }}
                     </div>
                     <div class="mb-4">
-                        <strong>Tanggal Penyesuaian</strong>: {{ $tgl_penyesuaian }}
+                        <strong>Tanggal Penyesuaian</strong>:
+                        {{ $user->tgl_penyesuaian ? formatDate($user->tgl_penyesuaian) : '-' }}
                     </div>
                     <div class="mb-4">
-                        <strong>Informasi Pensiun</strong>: {{ $pensiun }}
+                        <strong>Informasi Pensiun</strong>:
+                        {{ $user->pensiun ? formatDate($user->pensiun) : '-' }}
                     </div>
+                </div>
+                <!-- Tombol Edit Karyawan -->
+                <div class="mt-4">
+                    <a href="{{ route('editKaryawan.edit', ['id' => $user->id]) }}"
+                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                        Edit Karyawan
+                    </a>
                 </div>
             </x-card>
         </div>
 
-        <div class="w-1/2">
+        <div class="w-full">
             <x-card title="No recent" class="mb-6 text-success-900">
                 <div style="font-family: 'Gilroy-Regular', sans-serif; font-size: 14px;">
                     <div class="mb-4">

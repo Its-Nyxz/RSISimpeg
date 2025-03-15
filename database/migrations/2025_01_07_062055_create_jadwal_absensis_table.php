@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('shift_id')->constrained('shifts')->onDelete('cascade');
-            $table->foreignId('opsi_id')->constrained('opsi_absens')->onDelete('cascade');
+            $table->foreignId('opsi_id')->nullable()->constrained('opsi_absens')->onDelete('cascade');
             $table->date('tanggal_jadwal');
-            $table->enum('keterangan_absen', ['Cuti', 'Libur', 'Tugas', 'Ijin', 'Sakit'])->nullable();
+            //$table->enum('keterangan_absen', ['Cuti', 'Libur', 'Tugas', 'Ijin', 'Sakit'])->nullable();
             $table->timestamps();
         });
     }

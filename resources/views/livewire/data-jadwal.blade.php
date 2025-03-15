@@ -2,58 +2,61 @@
     <div class="flex justify-between py-2 mb-3">
         <h1 class="text-2xl font-bold text-success-900">Master Jadwal Absensi</h1>
         <div class="flex justify-between items-center gap-4 mb-3">
-            <!-- Input Pencarian -->
             <div class="flex-1">
                 <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Jadwal..."
                     class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
             </div>
-            <!-- Tombol Tambah Jadwal -->
-            <a href="{{route('jadwal.create')}}"
+            <a href="{{ route('jadwal.create') }}"
                 class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                 + Tambah Jadwal
             </a>
         </div>
     </div>
+<!-- Filter Bulan & Tahun -->
+<div class="flex gap-4 mb-4">
+    <select wire:model.live="bulan" class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
+        @foreach(range(1,12) as $m)
+            <option value="{{ $m }}">{{ DateTime::createFromFormat('!m', $m)->format('F') }}</option>
+        @endforeach
+    </select>
+
+    <select wire:model.live="tahun" class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
+        @foreach(range(now()->year - 5, now()->year) as $y)
+            <option value="{{ $y }}">{{ $y }}</option>
+        @endforeach
+    </select>
+</div>
+
+
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-700">
             <thead class="text-sm uppercase bg-success-400 text-success-900">
                 <tr>
-                    <th scope="col" class="px-6 py-3">Nama User</th>
-                    <th scope="col" class="px-6 py-3">Shift</th>
-                    <th scope="col" class="px-6 py-3">Opsi Absen</th>
-                    <th scope="col" class="px-6 py-3">Tanggal</th>
-                    <th scope="col" class="px-6 py-3">Keterangan</th>
-                    <th scope="col" class="px-6 py-3">Action</th>
+                    <th class="px-4 py-3">Nama</th>
+                    <th class="px-4 py-3">Pendidikan</th>
+                    <th class="px-4 py-3">Tanggal Masuk</th>
+                    <th class="px-4 py-3">Lama Kerja</th>
+                    @foreach ($tanggalJadwal as $tanggal)
+                        <th class="px-2 py-3 text-center">{{ \Carbon\Carbon::parse($tanggal)->format('d') }}</th>
+                    @endforeach
                 </tr>
             </thead>
             <tbody>
-                @forelse ($jadwals as $jadwal)
+                @foreach ($jadwals as $user_id => $jadwalUser)
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
-                        <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
-                            {{ $jadwal['user']['name'] ?? '-' }}
+                        <td class="px-4 py-3 font-medium text-success-900 whitespace-nowrap">
+                            {{ optional(optional($jadwalUser)->first())->user->name ?? '-' }}
                         </td>
-                        <td class="px-6 py-4">{{ $jadwal['shift']['nama_shift'] ?? '-' }}</td>
-                        <td class="px-6 py-4">{{ $jadwal['opsi']['name'] ?? '-' }}</td>
-                        <td class="px-6 py-4">{{ $jadwal['tanggal_jadwal'] ?? '-'}}</td>
-                        <td class="px-6 py-4">{{ $jadwal['keterangan_absen'] ?? '-' }}</td>
-                        <td class="px-6 py-4">
-                            <a href="{{ route('jadwal.edit', $jadwal['id']) }}"
-                                class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
-                                data-tooltip-target="tooltip-jadwal-{{ $jadwal['id'] }}">
-                                <i class="fa-solid fa-pen"></i>
-                            </a>
-                            <div id="tooltip-jadwal-{{ $jadwal['id'] }}" role="tooltip"
-                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
-                                Ubah Jadwal
-                                <div class="tooltip-arrow" data-popper-arrow></div>
-                            </div>
-                        </td>
+                        <td class="px-4 py-3">{{ optional(optional($jadwalUser)->first())->user->pendidikan ?? '-' }}</td>
+                        <td class="px-4 py-3">{{ optional(optional($jadwalUser)->first())->user->tanggal_tetap ?? '-' }}</td>
+                        <td class="px-4 py-3">{{ optional(optional($jadwalUser)->first())->user->masa_kerja ?? '-' }} tahun</td>
+                        @foreach ($tanggalJadwal as $tanggal)
+                            <td class="px-2 py-3 text-center">
+                                {{ $filteredShifts[$user_id][$tanggal] ?? '-' }}
+                            </td>
+                        @endforeach
                     </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" class="text-center px-6 py-4">Tidak ada data Jadwal Absensi.</td>
-                    </tr>
-                @endforelse
+                @endforeach
             </tbody>
         </table>
     </div>

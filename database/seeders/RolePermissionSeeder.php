@@ -31,7 +31,8 @@ class RolePermissionSeeder extends Seeder
         $permissions = [
             'add-user',
             'timer',
-            'absensi',
+            'list-history',
+            'select-user',
             'tunjangan',
             'golongan',
             'gaji-pokok',
@@ -64,6 +65,20 @@ class RolePermissionSeeder extends Seeder
             // Kalau role-nya Super Admin, kasih semua permission
             if ($role == 'Super Admin') {
                 $roleModel->givePermissionTo(Permission::all());
+            }
+            // Kalau role-nya Administrator, kasih semua permission
+            if ($role == 'Administrator') {
+                $roleModel->givePermissionTo(Permission::all());
+            }
+
+            // Kalau role-nya Kepegawaian, kasih semua permission KECUALI 'view-keuangan'
+            if ($role === 'Kepegawaian') {
+                $allowedPermissions = Permission::where('name', '!=', 'view-keuangan')->get();
+                $roleModel->givePermissionTo($allowedPermissions);
+            }
+            // Kalau role-nya Staf, kasih hanya permission 'timer' dan 'list-history'
+            if ($role === 'Staf') {
+                $roleModel->givePermissionTo(['timer', 'list-history']);
             }
         }
     }

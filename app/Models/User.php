@@ -59,6 +59,10 @@ class User extends Authenticatable
     /**
      * Relasi ke MasterFungsi.
      */
+    public function golongan()
+    {
+        return $this->belongsTo(MasterGolongan::class, 'gol_id');
+    }
     public function fungsi()
     {
         return $this->belongsTo(MasterFungsi::class, 'fungsi_id');
@@ -129,5 +133,9 @@ class User extends Authenticatable
     public function unitKerja()
     {
         return $this->belongsTo(UnitKerja::class, 'unit_id');
+    }
+    public function absen()
+    {
+        return $this->hasMany(Absen::class, 'user_id');
     }
 }
