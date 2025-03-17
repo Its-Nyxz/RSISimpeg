@@ -170,13 +170,13 @@ class Timer extends Component
             }
 
             $startShift = Carbon::parse($shift->jam_masuk);
-            // $canStart = $this->timeIn->greaterThanOrEqualTo($startShift->subMinutes(15));
+            $canStart = $this->timeIn->greaterThanOrEqualTo($startShift->subMinutes(15));
 
-            // if (!$canStart) {
-            //     $this->dispatch('alert-error', message: 'Anda hanya bisa memulai timer 15 menit sebelum waktu shift dimulai.');
-            //     $this->isRunning = false;
-            //     return;
-            // }
+            if (!$canStart) {
+                $this->dispatch('alert-error', message: 'Anda hanya bisa memulai timer 15 menit sebelum waktu shift dimulai.');
+                $this->isRunning = false;
+                return;
+            }
 
             $selisih = $startShift->diffInSeconds($this->timeIn, false);
             $this->late = $selisih > 0;
@@ -231,8 +231,8 @@ class Timer extends Component
 
             // ✅ Hitung durasi shift dalam jam
             $shiftDuration = Carbon::parse($shift->jam_masuk)->diffInSeconds(Carbon::parse($shift->jam_keluar));
-            // $shiftHours = $shiftDuration / 3600;
-            $shiftHours = 5 / 3600;
+            $shiftHours = $shiftDuration / 3600;
+            // $shiftHours = 5 / 3600;
 
             // ✅ Tentukan apakah terjadi lembur
             $isOvertime = $jamKerja > $shiftHours;
