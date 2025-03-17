@@ -25,6 +25,8 @@ return new class extends Migration
             $table->text('deskripsi_in')->nullable();
             $table->text('deskripsi_out')->nullable();
             $table->text('deskripsi_lembur')->nullable();
+            $table->boolean('is_lembur')->nullable();
+            $table->boolean('approved_lembur')->nullable();
             $table->text('feedback')->nullable();
             $table->timestamps(0);
         });

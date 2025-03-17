@@ -11,30 +11,40 @@
             <!-- Unit Kerja -->
             <div class="col-span-2 relative">
                 <label for="unitkerja" class="block text-sm font-medium text-green-900">Unit Kerja</label>
-                <input type="text" id="unitkerja" wire:model="unit_kerja" 
-                    wire:focus="fetchSuggestions('unit_kerja', $event.target.value)"
-                    wire:input="fetchSuggestions('unit_kerja', $event.target.value)"
-                    class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" placeholder="Cari Unit Kerja..." />
+                @if ($unit_id)
+                    {{-- Jika unit_id dari user tersedia (non-editable) --}}
+                    <input type="text" id="unitkerja" value="{{ $unit_kerja }}"
+                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-gray-100 p-2.5"
+                        readonly />
+                @else
+                    {{-- Jika unit_id tidak tersedia, tampilkan dropdown untuk memilih unit --}}
+                    <input type="text" id="unitkerja" wire:model.live="unit_kerja"
+                        wire:focus="fetchSuggestions('unit_kerja', $event.target.value)"
+                        wire:input="fetchSuggestions('unit_kerja', $event.target.value)"
+                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
+                        placeholder="Cari Unit Kerja..." />
 
-                <!-- Dropdown -->
-                @if(!empty($unitKerjaOptions))
-                    <ul class="absolute w-full bg-white shadow-md rounded-lg mt-1 overflow-hidden z-10">
-                        @foreach ($unitKerjaOptions as $unit)
-                            <li class="p-2 hover:bg-green-200 cursor-pointer" wire:click="selectUnitKerja('{{ $unit->id }}', '{{ $unit->nama }}')">
-                                {{ $unit->nama }}
-                            </li>
-                        @endforeach
-                    </ul>
+                    {{-- Dropdown --}}
+                    @if (!empty($unitKerjaOptions))
+                        <ul class="absolute w-full bg-white shadow-md rounded-lg mt-1 overflow-hidden z-10">
+                            @foreach ($unitKerjaOptions as $unit)
+                                <li class="p-2 hover:bg-green-200 cursor-pointer"
+                                    wire:click="selectUnitKerja('{{ $unit->id }}', '{{ $unit->nama }}')">
+                                    {{ $unit->nama }}
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
                 @endif
 
                 @error('unit_id')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>
-            
+
             <!-- Nama Shift -->
             <div class="form-group col-span-2">
-                <label for="nama_shift" class="block text-sm font-medium text-green-900">Nama Shift</label>
+                <label for="nama_shift" class="block text-sm font-medium text-green-900">Kode Shift</label>
                 <input type="text" id="nama_shift" wire:model="nama_shift"
                     class="form-control @error('nama_shift') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" />
                 @error('nama_shift')

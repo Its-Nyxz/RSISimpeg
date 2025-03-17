@@ -21,6 +21,17 @@ class CreateShift extends Component
         'unit_id' => 'required|exists:unit_kerjas,id',
     ];
 
+    public function mount()
+    {
+        // Ambil unit_id dari user yang login
+        $this->unit_id = auth()->user()->unit_id ?? null;
+
+        // Jika unit_id tersedia, langsung set nama unit_kerja
+        if ($this->unit_id) {
+            $this->unit_kerja = UnitKerja::find($this->unit_id)?->nama;
+        }
+    }
+
     public function fetchSuggestions($field, $query)
     {
         $this->unitKerjaOptions = UnitKerja::where('nama', 'like', "%$query%")
@@ -37,7 +48,6 @@ class CreateShift extends Component
     // Method to store the shift
     public function store()
     {
-        // // Validation
         // $this->validate([
         //     'nama_shift' => 'required|string|max:255',
         //     'unit_id' => 'required|exists:unit_kerjas,id'

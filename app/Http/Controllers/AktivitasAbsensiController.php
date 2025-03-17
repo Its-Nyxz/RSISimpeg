@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use App\Models\User;
 use App\Models\Absen;
+use Illuminate\Http\Request;
+use App\Models\JadwalAbsensi;
 
 
 class AktivitasAbsensiController extends Controller
@@ -14,10 +16,28 @@ class AktivitasAbsensiController extends Controller
         return view('aktivitasabsensi.index');
     }
 
-    public function create()
+    public function create($user_id = null)
     {
-        return view('aktivitasabsensi.create');
+        $user = null;
+        $jadwal = null;
+
+        if ($user_id) {
+            $user = User::find($user_id);
+
+            if ($user) {
+                // Ambil jadwal terbaru berdasarkan user_id
+                $jadwal = JadwalAbsensi::where('user_id', $user_id)
+                    ->latest()
+                    ->first();
+            }
+        }
+
+        return view('aktivitasabsensi.create', [
+            'user' => $user,
+            'jadwal' => $jadwal,
+        ]);
     }
+
 
     public function edit($id)
     {
@@ -31,12 +51,11 @@ class AktivitasAbsensiController extends Controller
         $validatedData = $request->validate([
             'feedback' => 'required|string',
         ]);
-    
+
         $absen->update([
             'feedback' => $validatedData['feedback'],
         ]);
-    
+
         return redirect()->route('aktivitasabsensi.index')->with('success', 'Feedback absensi berhasil diperbarui.');
     }
-    
 }

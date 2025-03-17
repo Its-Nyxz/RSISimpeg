@@ -71,26 +71,60 @@ class AktivitasAbsensi extends Component
             $timeOut = $absensi?->time_out ? Carbon::parse($absensi->time_out) : null;
 
             // Default values
-            $duration = '-';
-            $overtime = '-';
+            $duration = '00.00.00';
+            $overtime = '00.00.00';
+            $keterangan = $absensi?->statusAbsen->nama ?? '-';
 
             if ($timeIn && $timeOut && $shiftStart && $shiftEnd) {
-                // **Hitung total jam kerja berdasarkan shift**
-                $shiftDuration = $shiftStart->diffInMinutes($shiftEnd);
+                // Hitung total jam kerja berdasarkan shift (dalam detik)
+                $shiftDuration = $shiftStart->diffInSeconds($shiftEnd);
+                // Debug: Tetapkan shift duration ke 5 detik untuk pengujian cepat
+                // $shiftDuration = 5; // 5 detik
 
-                // **Hitung total waktu kerja dari absensi**
-                $totalMinutes = $timeIn->diffInMinutes($timeOut);
 
-                // **Jam kerja hanya dihitung maksimal sesuai shift**
-                $workMinutes = min($totalMinutes, $shiftDuration);
-                $overtimeMinutes = max(0, $totalMinutes - $shiftDuration);
+                // Hitung total waktu kerja dari absensi (dalam detik)
+                $totalSeconds = $timeIn->diffInSeconds($timeOut);
 
-                // Format hasil
-                $duration = sprintf('%02d:%02d:%02d', intdiv($workMinutes, 60), $workMinutes % 60, 0);
-                if ($overtimeMinutes > 0) {
-                    $overtime = sprintf('%02d:%02d:%02d', intdiv($overtimeMinutes, 60), $overtimeMinutes % 60, 0);
+                // Jika total kerja melebihi shift, selisih dianggap lembur
+                if ($totalSeconds > $shiftDuration) {
+                    $workSeconds = $shiftDuration;
+                    $overtimeSeconds = $totalSeconds - $shiftDuration;
+                } else {
+                    $workSeconds = $totalSeconds;
+                    $overtimeSeconds = 0;
+                }
+
+                // Format hasil dalam HH:mm:ss (termasuk detik)
+                $duration = gmdate('H:i:s', $workSeconds);
+                $overtime = $overtimeSeconds > 0
+                    ? gmdate('H:i:s', $overtimeSeconds)
+                    : '00:00:00'; // Tetapkan default jika null
+            }
+
+            // ✅ Hitung Keterlambatan
+            $lateSeconds = 0;
+            $lateMinutes = 0;
+            $lateHours = 0;
+
+            if ($timeIn && $shiftStart) {
+                // Ambil selisih waktu (termasuk detik)
+                $diff = $shiftStart->diff($timeIn);
+
+                // Jika waktu masuk setelah shift start → Terlambat
+                if ($diff->invert == 0) {
+                    $lateSeconds = $diff->s; // Detik
+                    $lateMinutes = $diff->i; // Menit
+                    $lateHours = $diff->h;   // Jam
+
+                    // Gabungkan keterlambatan ke dalam keterangan
+                    if ($lateHours > 0 || $lateMinutes > 0 || $lateSeconds > 0) {
+                        $keterangan = "Terlambat {$lateHours} jam {$lateMinutes} menit {$lateSeconds} detik";
+                    }
+                } elseif ($timeIn->equalTo($shiftStart)) {
+                    $keterangan = "Tepat Waktu";
                 }
             }
+
 
             // Simpan data ke array
             $this->items[] = [
@@ -104,6 +138,7 @@ class AktivitasAbsensi extends Component
                 'laporan_lembur' => $absensi?->deskripsi_lembur ?? '-',
                 'feedback' => $absensi?->feedback ?? '-',
                 'is_holiday' => $this->isHoliday($date),
+                'keterangan' => $keterangan,
             ];
         }
     }

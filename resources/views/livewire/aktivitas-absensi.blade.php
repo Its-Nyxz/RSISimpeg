@@ -7,17 +7,18 @@
     <!-- Filter dan Tombol Tambah -->
     <div class="flex justify-between items-center mb-3">
         <div class="flex space-x-4">
-            @if ($isParent)
+            @can('list-history-user')
                 <select wire:model.live="selectedUserId" class="border-2 border-gray-700 rounded-md p-2">
                     @foreach ($subordinates as $id => $name)
                         <option value="{{ $id }}">{{ $name }}</option>
                     @endforeach
                 </select>
-            @endif
+            @endcan
 
             <select wire:model.live="month" class="border-2 border-gray-700 rounded-md p-2">
                 @foreach (range(1, 12) as $m)
-                    <option value="{{ $m }}">{{ \Carbon\Carbon::create(null, $m)->translatedFormat('F') }}</option>
+                    <option value="{{ $m }}">{{ \Carbon\Carbon::create(null, $m)->translatedFormat('F') }}
+                    </option>
                 @endforeach
             </select>
 
@@ -30,10 +31,10 @@
 
         <!-- Tombol Tambah -->
         @can('list-history-create')
-        <a href="{{ route('aktivitasabsensi.create') }}"
-            class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-            + Tambah
-        </a>
+            <a href="{{ route('aktivitasabsensi.create', ['user_id' => $selectedUserId]) }}"
+                class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                + Tambah
+            </a>
         @endcan
 
     </div>
@@ -66,7 +67,12 @@
                         <td class="px-6 py-4">{{ $item['tanggal'] }}</td>
                         <td class="px-6 py-4">{{ $item['jam_kerja'] }}</td>
                         <td class="px-6 py-4">{{ $item['rencana_kerja'] }}</td>
-                        <td class="px-6 py-4">{{ $item['laporan_kerja'] }}</td>
+                        <td class="px-6 py-4">
+                            {{ $item['laporan_kerja'] }}
+                            <div class="text-sm text-gray-600 mt-1"> <!-- Tambahkan div untuk keterangan -->
+                                <span class="font-medium">Keterangan:</span> {{ $item['keterangan'] ?? '-' }}
+                            </div>
+                        </td>
                         <th class="px-6 py-4">{{ $item['jam_lembur'] }}</th>
                         <th class="px-6 py-4">{{ $item['laporan_lembur'] }}</th>
                         <td class="px-6 py-4">{{ $item['feedback'] }}</td>

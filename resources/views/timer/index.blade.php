@@ -1,10 +1,10 @@
 <x-body>
-    @if ($jadwal_id)
-        {{-- Jika jadwal tersedia, tampilkan komponen timer --}}
-        <livewire:timer :jadwal_id="$jadwal_id" />
-    @else
-        {{-- Jika tidak ada jadwal, tampilkan pesan dengan Flowbite --}}
-        <div class="flex items-center p-4 mb-4 text-yellow-800 border border-yellow-300 rounded-lg bg-yellow-50"
+    {{-- @if ($jadwal_id) --}}
+    {{-- Jika jadwal tersedia, tampilkan komponen timer --}}
+    <livewire:timer :jadwal_id="$jadwal_id" />
+    {{-- @else --}}
+    {{-- Jika tidak ada jadwal, tampilkan pesan dengan Flowbite --}}
+    {{-- <div class="flex items-center p-4 mb-4 text-yellow-800 border border-yellow-300 rounded-lg bg-yellow-50"
             role="alert">
             <svg class="flex-shrink-0 w-6 h-6 text-yellow-800" xmlns="http://www.w3.org/2000/svg" fill="none"
                 viewBox="0 0 24 24" stroke="currentColor">
@@ -15,5 +15,5 @@
                 Tidak ada jadwal yang tersedia untuk hari ini. Silakan hubungi atasan atau admin jika ada kesalahan.
             </div>
         </div>
-    @endif
+    @endif --}}
 </x-body>

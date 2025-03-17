@@ -1,4 +1,4 @@
-<div wire:poll.1000ms="updateTimer">
+<div>
     <h1 class="text-2xl font-bold text-success-900">Timer</h1>
     <div class="p-4 text-left">
         {{-- Tanggal --}}
@@ -9,6 +9,16 @@
             {{-- {{ gmdate('H:i:s', abs($unixtimer)) }} --}}
             00:00:00
         </h1>
+
+        <div class="mb-6 text-center" id="lemburContainer" style="display: {{ $isLemburRunning ? 'block' : 'none' }}">
+            <h2 class="text-lg font-semibold text-gray-700">Waktu Lembur</h2>
+            <h1 id="lemburDisplay"
+                class="text-6xl font-bold text-center text-yellow-500 bg-gray-100 py-4 rounded-md shadow-md">
+                00:00:00
+            </h1>
+        </div>
+
+
         <div class="p-10 text-center">
             {{-- Tombol Mulai --}}
             <button id="startButton" wire:click="$set('showStartModal', true)"
@@ -31,7 +41,20 @@
             <button id="dinasKeluarButton" wire:click="$set('showDinasModal', true)"
                 class="px-6 py-2 font-bold rounded 
                 bg-blue-600 hover:bg-blue-700 text-white">
-                Dinas Keluar
+                Dinas Luar
+            </button>
+            {{-- Tombol Mulai Lembur --}}
+            <button wire:click="openLemburModal"
+                class="px-6 py-2 font-bold rounded bg-yellow-500 hover:bg-yellow-700 text-white"
+                style="display: {{ !$isLemburRunning ? 'inline-block' : 'none' }}">
+                Mulai Lembur
+            </button>
+
+            {{-- Tombol Selesai Lembur --}}
+            <button wire:click="stopLemburMandiri"
+                class="px-6 py-2 font-bold rounded bg-red-500 hover:bg-red-700 text-white"
+                style="display: {{ $isLemburRunning ? 'inline-block' : 'none' }}">
+                Selesai Lembur
             </button>
         </div>
 
@@ -57,12 +80,12 @@
             <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                 <div class="bg-white p-6 rounded-md w-96">
                     <h2 class="text-xl font-bold mb-4">Selesai Timer</h2>
-                    <textarea wire:model.live="deskripsi_out" class="w-full p-2 border rounded-md"
+                    <textarea wire:model.defer="deskripsi_out" class="w-full p-2 border rounded-md"
                         placeholder="Masukkan hasil pekerjaan..."></textarea>
                     <div class="mt-4 flex justify-end gap-2">
                         <button wire:click="$set('showStopModal', false)"
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
-                        <button wire:click="stopTimer"
+                        <button wire:click="openWorkReportModal"
                             class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Selesai</button>
                     </div>
                 </div>
@@ -81,6 +104,46 @@
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
                         <button wire:click="dinasKeluar"
                             class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Simpan</button>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        {{-- Modal untuk Lembur --}}
+        @if ($showOvertimeModal)
+            <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                <div class="bg-white p-6 rounded-md w-96">
+                    <h2 class="text-xl font-bold mb-4">Lembur</h2>
+                    <textarea wire:model.live="deskripsi_lembur" class="w-full p-2 border rounded-md"
+                        placeholder="Masukkan keterangan lembur..."></textarea>
+                    <div class="mt-4 flex justify-end gap-2">
+                        <button wire:click="$set('showOvertimeModal', false)"
+                            class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">
+                            Batal
+                        </button>
+                        <button wire:click="saveOvertime"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                            Simpan Lembur
+                        </button>
+                    </div>
+                </div>
+            </div>
+        @endif
+        @if ($showLemburModal)
+            <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                <div class="bg-white p-6 rounded-md w-96">
+                    <h2 class="text-xl font-bold mb-4">Mulai Lembur</h2>
+                    <textarea wire:model.defer="deskripsi_lembur" class="w-full p-2 border rounded-md"
+                        placeholder="Masukkan deskripsi lembur..."></textarea>
+                    <div class="mt-4 flex justify-end gap-2">
+                        <button wire:click="$set('showLemburModal', false)"
+                            class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">
+                            Batal
+                        </button>
+                        <button wire:click="startLemburMandiri"
+                            class="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-700">
+                            Simpan
+                        </button>
                     </div>
                 </div>
             </div>
@@ -111,6 +174,9 @@
             let isRunning = false;
             let isStopped = false;
 
+            let timerLembur;
+            let timeElapsedLembur = 0;
+            let isLemburRunning = false;
 
             function updateTimerDisplay() {
                 const days = Math.floor(timeElapsed / 86400); // 1 hari = 86400 detik
@@ -155,14 +221,25 @@
                 }
             }
 
-            // Jika timer sudah berhenti → Hitung selisih langsung di frontend
+            // Jika timer utama sudah berhenti → Hitung selisih langsung di frontend
             if (!@json($isRunning) && @json($timeOut)) {
                 const startTime = new Date(@json($timeIn) * 1000); // Konversi ke milidetik
                 const endTime = new Date(@json($timeOut) * 1000); // Konversi ke milidetik
 
-                // Hitung selisih dalam detik
+                // ✅ Hitung selisih kerja utama dalam detik
                 timeElapsed = Math.floor((endTime - startTime) / 1000);
-                console.log('Time Elapsed (Calculated):', timeElapsed);
+
+                // ✅ Jika ada lembur → Tambahkan ke hasil akhir
+                if (@json($timeInLembur) && @json($timeOutLembur)) {
+                    const lemburStart = new Date(@json($timeInLembur) * 1000);
+                    const lemburEnd = new Date(@json($timeOutLembur) * 1000);
+
+                    // Hitung selisih waktu lembur
+                    const lemburElapsed = Math.floor((lemburEnd - lemburStart) / 1000);
+
+                    // ✅ Gabungkan hasil lembur ke hasil utama
+                    timeElapsed += lemburElapsed;
+                }
 
                 isRunning = false;
                 isStopped = true;
@@ -174,9 +251,57 @@
                 display.classList.add('text-gray-600', 'opacity-50');
             }
 
+            function updateLemburDisplay() {
+                const hours = Math.floor(timeElapsedLembur / 3600).toString().padStart(2, '0');
+                const minutes = Math.floor((timeElapsedLembur % 3600) / 60).toString().padStart(2, '0');
+                const seconds = (timeElapsedLembur % 60).toString().padStart(2, '0');
+
+                const display = document.getElementById('lemburDisplay');
+                if (display) {
+                    display.innerText = `${hours}:${minutes}:${seconds}`;
+                }
+            }
+
+
+            function startLemburTimer(startTimestamp) {
+                if (!isLemburRunning) {
+                    isLemburRunning = true;
+
+                    // ✅ Hitung selisih waktu lembur dari `startTimestamp`
+                    timeElapsedLembur = startTimestamp ?
+                        Math.floor(Date.now() / 1000) - startTimestamp :
+                        0;
+
+                    updateLemburDisplay();
+
+                    // ✅ Jalankan timer lembur setiap detik
+                    timerLembur = setInterval(() => {
+                        timeElapsedLembur++;
+                        updateLemburDisplay();
+                    }, 1000);
+                }
+            }
+
+            if (!@json($isLemburRunning) && @json($timeOutLembur)) {
+                const lemburStart = new Date(@json($timeInLembur) * 1000);
+                const lemburEnd = new Date(@json($timeOutLembur) * 1000);
+                timeElapsedLembur = Math.floor((lemburEnd - lemburStart) / 1000);
+
+                updateLemburDisplay();
+            }
+
             // Tangkap event dari Livewire untuk memulai timer
             window.addEventListener('timer-started', (event) => {
                 startTimer(event.detail);
+            });
+
+            // Event untuk memulai timer lembur dari Livewire
+            window.addEventListener('timer-lembur-started', (event) => {
+                startLemburTimer(event.detail);
+            });
+
+            window.addEventListener('timer-lembur-stopped', () => {
+                stopLemburTimer();
             });
 
             // Jika sudah ada `timeIn` dan status berjalan → Mulai otomatis
@@ -184,9 +309,13 @@
                 // console.log('Timer Resumed:', @json($timeIn));
                 startTimer(@json($timeIn));
             }
+
+            // ✅ Jika timer lembur sudah berjalan → Mulai otomatis
+            if (@json($isLemburRunning) && @json($timeInLembur)) {
+                startLemburTimer(@json($timeInLembur));
+            }
         </script>
     @endpush
-
     {{-- Rencana Kerja --}}
     <h3 class="font-bold mt-4">RENCANA KERJA</h3>
     <p class="font-semibold text-gray-600">{{ $deskripsi_in ?? '-' }}</p>
@@ -197,4 +326,3 @@
         <p class="font-semibold text-gray-600">{{ $deskripsi_out ?? '-' }}</p>
     @endif
 </div>
-

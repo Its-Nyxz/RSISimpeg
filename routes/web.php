@@ -103,6 +103,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('jabatanperizinan', PerizinanJabatanController::class);
 
     Route::resource('absensi', MasterAbsensiController::class);
+    Route::get('/jadwal/template', [JadwalAbsensiController::class, 'export'])->name('jadwal.template');
     Route::resource('jadwal', JadwalAbsensiController::class);
     Route::resource('status', StatusAbsenController::class);
     Route::resource('kenaikan', KenaikanGolonganController::class);
@@ -136,7 +137,14 @@ Route::middleware('auth')->group(function () {
     Route::resource('cuti', CutiController::class);
     Route::resource('importgaji', ImportGajiController::class);
     Route::resource('approvalcuti', CutiController::class);
-    Route::resource('aktivitasabsensi', AktivitasAbsensiController::class);
+    // Hapus route 'create' bawaan dari resource
+    Route::resource('aktivitasabsensi', AktivitasAbsensiController::class)
+        ->except(['create']);
+
+    // Buat route custom untuk create dengan parameter user_id
+    Route::get('/aktivitasabsensi/create/{user_id?}', [AktivitasAbsensiController::class, 'create'])
+        ->name('aktivitasabsensi.create');
+
     Route::resource('katjab', KategoriJabatanController::class);
     Route::get('liburnasional/{tipe}/{holiday}', [HolidaysController::class, 'create']);
     Route::resource('liburnasional', HolidaysController::class);

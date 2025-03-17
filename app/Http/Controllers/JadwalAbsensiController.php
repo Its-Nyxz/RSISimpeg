@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\JadwalAbsensi;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Shift;
 use App\Models\OpsiAbsen;
+use Illuminate\Http\Request;
+use App\Models\JadwalAbsensi;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\JadwalTemplateExport;
 use App\Http\Requests\StoreJadwalAbsensiRequest;
 use App\Http\Requests\UpdateJadwalAbsensiRequest;
 
@@ -59,32 +63,32 @@ class JadwalAbsensiController extends Controller
     /**
      * Update the specified resource in storage.
      */
-/**
- * Update the specified resource in storage.
- */
-public function update(UpdateJadwalAbsensiRequest $request, JadwalAbsensi $jadwalAbsensi)
-{
-    // Validasi input data
-    $validatedData = $request->validate([
-        'user_id' => 'required|exists:users,id', // Validasi user
-        'shift_id' => 'required|exists:shifts,id', // Validasi shift
-        'opsi_id' => 'required|exists:opsi_absens,id', // Validasi opsi absensi
-        'tanggal_jadwal' => 'required|date', // Validasi tanggal
-        'keterangan_absen' => 'nullable|in:Cuti,Libur,Tugas,Ijin,Sakit', // Validasi keterangan
-    ]);
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateJadwalAbsensiRequest $request, JadwalAbsensi $jadwalAbsensi)
+    {
+        // Validasi input data
+        $validatedData = $request->validate([
+            'user_id' => 'required|exists:users,id', // Validasi user
+            'shift_id' => 'required|exists:shifts,id', // Validasi shift
+            'opsi_id' => 'required|exists:opsi_absens,id', // Validasi opsi absensi
+            'tanggal_jadwal' => 'required|date', // Validasi tanggal
+            'keterangan_absen' => 'nullable|in:Cuti,Libur,Tugas,Ijin,Sakit', // Validasi keterangan
+        ]);
 
-    // Update data Jadwal Absensi
-    $jadwalAbsensi->update([
-        'user_id' => $validatedData['user_id'],
-        'shift_id' => $validatedData['shift_id'],
-        'opsi_id' => $validatedData['opsi_id'],
-        'tanggal_jadwal' => $validatedData['tanggal_jadwal'],
-        'keterangan_absen' => $validatedData['keterangan_absen'],
-    ]);
+        // Update data Jadwal Absensi
+        $jadwalAbsensi->update([
+            'user_id' => $validatedData['user_id'],
+            'shift_id' => $validatedData['shift_id'],
+            'opsi_id' => $validatedData['opsi_id'],
+            'tanggal_jadwal' => $validatedData['tanggal_jadwal'],
+            'keterangan_absen' => $validatedData['keterangan_absen'],
+        ]);
 
-    // Flash message untuk notifikasi
-    return redirect()->route('absensi.index')->with('success', 'Jadwal berhasil diperbarui!');
-}
+        // Flash message untuk notifikasi
+        return redirect()->route('absensi.index')->with('success', 'Jadwal berhasil diperbarui!');
+    }
 
 
     /**
@@ -93,5 +97,28 @@ public function update(UpdateJadwalAbsensiRequest $request, JadwalAbsensi $jadwa
     public function destroy(JadwalAbsensi $jadwalAbsensi)
     {
         //
+    }
+
+    public function export(Request $request)
+    {
+        // Gunakan bulan dan tahun saat ini jika tidak ada request
+        $month = $request->month ?? now()->month;
+        $year = $request->year ?? now()->year;
+
+        // Ambil data shift berdasarkan unit kerja user
+        $shifts = Shift::where('unit_id', auth()->user()->unit_id)->get();
+
+        // Jika shift kosong, tampilkan alert dan hentikan proses export
+        if ($shifts->isEmpty()) {
+            return redirect()->back()->with('error', 'Data shift kosong. Silakan tambahkan data shift terlebih dahulu.');
+        }
+
+        // Format bulan ke dalam nama (contoh: Maret)
+        $monthName = Carbon::createFromDate($year, $month, 1)->format('F');
+
+        // Format nama file
+        $fileName = 'jadwal_template_' . auth()->user()->unitKerja->nama . '_' . $monthName . '_' . $year . '.xlsx';
+
+        return Excel::download(new JadwalTemplateExport($month, $year), $fileName);
     }
 }

@@ -8,6 +8,7 @@ use App\Models\GajiBruto;
 use App\Models\UnitKerja;
 use App\Models\MasterTrans;
 use App\Models\Penyesuaian;
+use Illuminate\Support\Str;
 use App\Models\MasterFungsi;
 use App\Models\MasterKhusus;
 use App\Models\JadwalAbsensi;
@@ -54,6 +55,20 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->slug = Str::slug($model->name);
+        });
+
+        // Jika ingin memperbarui slug saat nama berubah:
+        static::updating(function ($model) {
+            $model->slug = Str::slug($model->name);
+        });
     }
 
     /**
