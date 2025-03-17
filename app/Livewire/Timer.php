@@ -31,6 +31,9 @@ class Timer extends Component
     public $showLemburModal = false; // Modal lembur mandiri
     public $timeInLembur;
     public $timeOutLembur;
+    public $timeElapsedLembur;
+    public $deskripsiLembur;
+    public $absensiTanpaLembur;
     public $isLemburRunning = false;
 
     public function mount($jadwal_id)
@@ -41,6 +44,14 @@ class Timer extends Component
         $absensi = Absen::where('jadwal_id', $this->jadwal_id)
             ->where('user_id', Auth::id())
             ->get();
+
+        // Filter data absensi yang is_lembur false
+        $absensiTanpaLembur = $absensi->filter(function ($item) {
+            return !$item->is_lembur; // Hanya ambil yang is_lembur = false
+        });
+
+        // Kirimkan data absensi yang is_lembur false ke Blade
+        $this->absensiTanpaLembur = $absensiTanpaLembur;
 
         if ($absensi->count() > 0) {
             if ($absensi->count() === 1) {
@@ -62,12 +73,29 @@ class Timer extends Component
 
 
                 $this->keterangan = "Total waktu kerja: " . gmdate('H:i:s', $totalTimeOut - $totalTimeIn);
-                // dd($this->keterangan, $this->timeIn, $this->timeOut);
+
+                // Loop untuk menampilkan deskripsi_in, deskripsi_out atau deskripsi_lembur
+                $this->deskripsiLembur = [];
+                foreach ($absensi as $item) {
+                    if ($item->is_lembur) { // Cek apakah lembur
+                        $this->deskripsiLembur[] = [
+                            'deskripsi_in' => $item->deskripsi_in,
+                            'deskripsi_out' => $item->deskripsi_out,
+                            'deskripsi_lembur' => $item->deskripsi_lembur // Deskripsi lembur
+                        ];
+                    }
+                }
             }
 
             // ✅ Jika timer masih berjalan
             $this->isRunning = $this->timeIn && !$this->timeOut;
             $this->isLemburRunning = $this->checkIfLemburRunning();
+        }
+
+        // Jika lembur sedang berjalan, hitung durasi lembur dari waktu_in lembur terakhir
+        if ($this->isLemburRunning) {
+            $this->timeInLembur = $this->getLastLemburTimeIn();
+            $this->calculateLemburDuration();
         }
     }
 
@@ -83,6 +111,41 @@ class Timer extends Component
         return $dataLembur ? true : false; // If there's data, it's running
     }
 
+    private function getLastLemburTimeIn()
+    {
+        // Ambil `time_in` dari lembur terakhir yang belum selesai
+        $lastLembur = Absen::where('jadwal_id', $this->jadwal_id)
+            ->where('user_id', Auth::id())
+            ->where('is_lembur', true)
+            ->whereNull('time_out') // Lembur yang belum ada `time_out`
+            ->latest()
+            ->first();
+
+        // Jika ada lembur yang sedang berjalan, parse `time_in` dan kembalikan timestamp-nya
+        if ($lastLembur) {
+            $timeInLembur = Carbon::parse($lastLembur->time_in); // Mengubah `time_in` menjadi objek Carbon
+            return $timeInLembur->timestamp; // Mengambil timestamp dalam detik
+        }
+
+        return null; // Jika tidak ada lembur, kembalikan null
+    }
+    private function calculateLemburDuration()
+    {
+        // Pastikan $this->timeInLembur adalah objek Carbon
+        if ($this->timeInLembur) {
+            // Jika timeInLembur adalah timestamp (angka), maka parse menjadi objek Carbon
+            $timeInLembur = Carbon::parse($this->timeInLembur);
+
+            // Dapatkan waktu saat ini
+            $currentTime = Carbon::now();
+
+            // Hitung durasi lembur dalam detik
+            $durationInSeconds = $timeInLembur->diffInSeconds($currentTime);
+
+            // Set durasi lembur
+            $this->timeElapsedLembur = $durationInSeconds;
+        }
+    }
     public function openStartModal()
     {
         $this->showStartModal = true;
@@ -107,13 +170,13 @@ class Timer extends Component
             }
 
             $startShift = Carbon::parse($shift->jam_masuk);
-            $canStart = $this->timeIn->greaterThanOrEqualTo($startShift->subMinutes(15));
+            // $canStart = $this->timeIn->greaterThanOrEqualTo($startShift->subMinutes(15));
 
-            if (!$canStart) {
-                $this->dispatch('alert-error', message: 'Anda hanya bisa memulai timer 15 menit sebelum waktu shift dimulai.');
-                $this->isRunning = false;
-                return;
-            }
+            // if (!$canStart) {
+            //     $this->dispatch('alert-error', message: 'Anda hanya bisa memulai timer 15 menit sebelum waktu shift dimulai.');
+            //     $this->isRunning = false;
+            //     return;
+            // }
 
             $selisih = $startShift->diffInSeconds($this->timeIn, false);
             $this->late = $selisih > 0;
@@ -168,7 +231,8 @@ class Timer extends Component
 
             // ✅ Hitung durasi shift dalam jam
             $shiftDuration = Carbon::parse($shift->jam_masuk)->diffInSeconds(Carbon::parse($shift->jam_keluar));
-            $shiftHours = $shiftDuration / 3600;
+            // $shiftHours = $shiftDuration / 3600;
+            $shiftHours = 5 / 3600;
 
             // ✅ Tentukan apakah terjadi lembur
             $isOvertime = $jamKerja > $shiftHours;
@@ -348,6 +412,7 @@ class Timer extends Component
 
         $this->dispatch('timer-lembur-started', now()->timestamp);
         $this->dispatch('alert-success', message: 'Lembur telah dimulai.');
+        return redirect()->to('/timer');
     }
 
 
@@ -357,15 +422,18 @@ class Timer extends Component
             $this->dispatch('alert-error', message: 'Lembur belum dimulai.');
             return;
         }
-
-        $waktuMulaiLembur = $this->timeInLembur;
-        $waktuSelesaiLembur = now();
-        $durasiLembur = $waktuMulaiLembur->diffInSeconds($waktuSelesaiLembur);
+        // Waktu mulai lembur (timestamp) dan waktu selesai lembur (timestamp saat ini)
+        $waktuMulaiLembur = $this->timeInLembur;  // time_in lembur sebagai timestamp
+        $waktuSelesaiLembur = Carbon::now()->timestamp;  // Waktu selesai lembur menggunakan timestamp saat ini
+        // Menghitung durasi lembur dalam detik
+        $durasiLembur = $waktuSelesaiLembur - $waktuMulaiLembur; // Durasi dalam detik
 
         if ($durasiLembur <= 0) {
             $this->dispatch('alert-error', message: 'Durasi lembur tidak valid.');
             return;
         }
+
+        $time_out_lembur = now();
 
         // ✅ Perbarui absen lembur terakhir dengan `is_lembur = true`
         $lembur = Absen::where('jadwal_id', $this->jadwal_id)
@@ -376,8 +444,8 @@ class Timer extends Component
 
         if ($lembur) {
             $lembur->update([
-                'time_out' => $waktuSelesaiLembur,
-                'deskripsi_out' => 'Selesai lembur: ' . $waktuSelesaiLembur->format('H:i:s'),
+                'time_out' => $time_out_lembur,
+                'deskripsi_out' => 'Selesai lembur: ' . $time_out_lembur->format('H:i:s'),
                 'deskripsi_lembur' => $this->deskripsi_lembur ?: '-',
                 'keterangan' => "Total lembur: " . gmdate('H:i:s', $durasiLembur),
                 'status_absen_id' => StatusAbsen::where('nama', 'Lembur')->value('id'),
@@ -391,11 +459,13 @@ class Timer extends Component
             ->first();
 
         if ($absenUtama) {
-            $durasiKerjaSaatIni = Carbon::parse($absenUtama->time_out)
-                ->diffInSeconds(Carbon::parse($absenUtama->time_in));
+            // Menghitung durasi kerja utama dalam detik dengan menggunakan timestamp
+            $durasiKerjaSaatIni = $absenUtama->time_out - $absenUtama->time_in;
 
+            // Menambahkan durasi lembur ke durasi kerja utama
             $totalDurasi = $durasiKerjaSaatIni + $durasiLembur;
 
+            // Mengupdate keterangan dengan total waktu kerja + lembur
             $absenUtama->update([
                 'keterangan' => "Total waktu kerja + lembur: " . gmdate('H:i:s', $totalDurasi),
             ]);
@@ -406,6 +476,7 @@ class Timer extends Component
 
         $this->dispatch('timer-lembur-stopped');
         $this->dispatch('alert-success', message: 'Lembur berhasil dicatat.');
+        return redirect()->to('/timer');
     }
     public function render()
     {

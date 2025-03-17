@@ -69,8 +69,8 @@ class JadwalImport implements ToCollection
                 Log::error("Error saat import jadwal: " . $e->getMessage());
                 continue;
             }
-            // Redirect dengan notifikasi sukses jika tidak ada error
-            return redirect()->back()->with('success', 'Jadwal berhasil diimport!');
         }
+        // Redirect dengan notifikasi sukses jika tidak ada error
+        return redirect()->back()->with('success', 'Jadwal berhasil diimport!');
     }
 }

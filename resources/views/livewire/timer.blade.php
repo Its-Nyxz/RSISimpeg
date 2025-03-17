@@ -4,20 +4,21 @@
         {{-- Tanggal --}}
         <p class="text-gray-500">{{ now()->format('l, d F Y') }}</p>
 
-        {{-- Waktu Timer --}}
-        <h1 id="timerDisplay" class="text-8xl font-bold text-center ">
-            {{-- {{ gmdate('H:i:s', abs($unixtimer)) }} --}}
-            00:00:00
-        </h1>
+        <div id="mainTimerContainer" style="display: {{ $isLemburRunning ? 'none' : 'block' }};">
+            {{-- Timer Utama --}}
+            <h1 id="timerDisplay" class="text-8xl font-bold text-center">
+                {{-- Display timer utama --}}
+                00:00:00
+            </h1>
+        </div>
 
-        <div class="mb-6 text-center" id="lemburContainer" style="display: {{ $isLemburRunning ? 'block' : 'none' }}">
-            <h2 class="text-lg font-semibold text-gray-700">Waktu Lembur</h2>
+        <div id="lemburContainer" style="display: {{ $isLemburRunning ? 'block' : 'none' }};">
+            {{-- Timer Lembur --}}
             <h1 id="lemburDisplay"
                 class="text-6xl font-bold text-center text-yellow-500 bg-gray-100 py-4 rounded-md shadow-md">
                 00:00:00
             </h1>
         </div>
-
 
         <div class="p-10 text-center">
             {{-- Tombol Mulai --}}
@@ -46,7 +47,7 @@
             {{-- Tombol Mulai Lembur --}}
             <button wire:click="openLemburModal"
                 class="px-6 py-2 font-bold rounded bg-yellow-500 hover:bg-yellow-700 text-white"
-                style="display: {{ !$isLemburRunning ? 'inline-block' : 'none' }}">
+                style="display: {{ !$isLemburRunning && $timeOut ? 'inline-block' : 'none' }}">
                 Mulai Lembur
             </button>
 
@@ -158,6 +159,20 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
+                        text: message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                });
+
+                window.addEventListener('alert-success', event => {
+
+                    // Ambil langsung dari event.detail.message
+                    const message = event.detail.message;
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil...',
                         text: message,
                         showConfirmButton: false,
                         timer: 1500
@@ -282,12 +297,19 @@
                 }
             }
 
-            if (!@json($isLemburRunning) && @json($timeOutLembur)) {
-                const lemburStart = new Date(@json($timeInLembur) * 1000);
-                const lemburEnd = new Date(@json($timeOutLembur) * 1000);
-                timeElapsedLembur = Math.floor((lemburEnd - lemburStart) / 1000);
+            // Update timer lembur berdasarkan data `timeInLembur` dari backend
+            if (@json($isLemburRunning) && @json($timeInLembur)) {
+                const lemburStart = new Date(@json($timeInLembur) * 1000); // Convert from seconds to milliseconds
+                const currentTime = new Date();
+                const lemburDuration = Math.floor((currentTime - lemburStart) / 1000); // Calculate elapsed time
 
+                timeElapsedLembur = lemburDuration;
                 updateLemburDisplay();
+            }
+
+
+            function stopLemburTimer() {
+                isLemburRunning = false;
             }
 
             // Tangkap event dari Livewire untuk memulai timer
@@ -312,17 +334,34 @@
 
             // ✅ Jika timer lembur sudah berjalan → Mulai otomatis
             if (@json($isLemburRunning) && @json($timeInLembur)) {
+                console.log(@json($timeInLembur));
                 startLemburTimer(@json($timeInLembur));
             }
         </script>
     @endpush
     {{-- Rencana Kerja --}}
     <h3 class="font-bold mt-4">RENCANA KERJA</h3>
-    <p class="font-semibold text-gray-600">{{ $deskripsi_in ?? '-' }}</p>
+    <p class="font-semibold text-gray-600">{{ $this->absensiTanpaLembur->first()->deskripsi_in ?? '-' }}</p>
 
     {{-- kerja Selesai --}}
-    @if (!empty($deskripsi_out))
+    @if (!empty($this->absensiTanpaLembur->first()->deskripsi_out))
         <h3 class="font-bold mt-4">SELESAI KERJA</h3>
-        <p class="font-semibold text-gray-600">{{ $deskripsi_out ?? '-' }}</p>
+        <p class="font-semibold text-gray-600">{{ $this->absensiTanpaLembur->first()->deskripsi_out ?? '-' }}</p>
     @endif
+
+    {{-- <div>
+        <!-- Menampilkan deskripsi_in dan deskripsi_out jika is_lembur = false -->
+        @if ($this->absensiTanpaLembur->isNotEmpty())
+            <ul>
+                @foreach ($this->absensiTanpaLembur as $item)
+                    <li>
+                        <strong>Deskripsi In:</strong> {{ $item->deskripsi_in }} <br>
+                        <strong>Deskripsi Out:</strong> {{ $item->deskripsi_out }}
+                    </li>
+                @endforeach
+            </ul>
+        @else
+            <p>Tidak ada absensi yang tidak lembur.</p>
+        @endif
+    </div> --}}
 </div>

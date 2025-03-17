@@ -46,7 +46,7 @@ class AktivitasAbsensi extends Component
 
     public function loadData()
     {
-        $this->items = []; // Kosongkan dulu data sebelumnya
+        $this->items = []; // Kosongkan data sebelumnya
 
         $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
 
@@ -59,12 +59,19 @@ class AktivitasAbsensi extends Component
                 ->with(['absensi', 'shift'])
                 ->first();
 
-            $shift = $jadwal?->shift; // Ambil shift dari jadwal absensi
-            $absensi = $jadwal?->absensi->first(); // Ambil satu absensi pertama
+            // Jika jadwal tidak ditemukan, kita bisa setkan nilai default
+            if (!$jadwal) {
+                $shiftStart = null;
+                $shiftEnd = null;
+                $absensi = null;
+            } else {
+                $shift = $jadwal->shift; // Ambil shift dari jadwal absensi
+                $absensi = $jadwal->absensi->first(); // Ambil satu absensi pertama
 
-            // Ambil jam masuk dan keluar dari shift
-            $shiftStart = $shift ? Carbon::parse($shift->jam_masuk) : null;
-            $shiftEnd = $shift ? Carbon::parse($shift->jam_keluar) : null;
+                // Ambil jam masuk dan keluar dari shift
+                $shiftStart = $shift ? Carbon::parse($shift->jam_masuk) : null;
+                $shiftEnd = $shift ? Carbon::parse($shift->jam_keluar) : null;
+            }
 
             // Ambil jam masuk dan keluar dari absensi
             $timeIn = $absensi?->time_in ? Carbon::parse($absensi->time_in) : null;
@@ -75,55 +82,54 @@ class AktivitasAbsensi extends Component
             $overtime = '00.00.00';
             $keterangan = $absensi?->statusAbsen->nama ?? '-';
 
-            if ($timeIn && $timeOut && $shiftStart && $shiftEnd) {
-                // Hitung total jam kerja berdasarkan shift (dalam detik)
-                $shiftDuration = $shiftStart->diffInSeconds($shiftEnd);
-                // Debug: Tetapkan shift duration ke 5 detik untuk pengujian cepat
-                // $shiftDuration = 5; // 5 detik
+            // Jika ada absensi dan jadwal
+            if ($jadwal) {
+                $absensiItems = Absen::where('jadwal_id', $jadwal->id)
+                    ->where('user_id', $this->selectedUserId)
+                    ->get();
 
+                $totalOvertime = 0; // Inisialisasi total overtime
+                $totalWorkDuration = 0; // Inisialisasi total jam kerja
 
-                // Hitung total waktu kerja dari absensi (dalam detik)
-                $totalSeconds = $timeIn->diffInSeconds($timeOut);
+                // Iterasi semua absensi yang ada
+                foreach ($absensiItems as $item) {
+                    // Cek apakah absensi ini lembur atau tidak
+                    if ($item->is_lembur) {
+                        // Hitung durasi lembur
+                        $timeInLembur = Carbon::parse($item->time_in);
+                        $timeOutLembur = Carbon::parse($item->time_out);
 
-                // Jika total kerja melebihi shift, selisih dianggap lembur
-                if ($totalSeconds > $shiftDuration) {
-                    $workSeconds = $shiftDuration;
-                    $overtimeSeconds = $totalSeconds - $shiftDuration;
-                } else {
-                    $workSeconds = $totalSeconds;
-                    $overtimeSeconds = 0;
-                }
+                        if ($timeInLembur && $timeOutLembur) {
+                            $overtimeSeconds = $timeInLembur->diffInSeconds($timeOutLembur);
+                            $totalOvertime += $overtimeSeconds; // Tambah durasi lembur ke total
+                        }
+                    } else {
+                        // Hitung jam kerja untuk absensi yang bukan lembur
+                        $timeInAbsensi = Carbon::parse($item->time_in);
+                        $timeOutAbsensi = Carbon::parse($item->time_out);
 
-                // Format hasil dalam HH:mm:ss (termasuk detik)
-                $duration = gmdate('H:i:s', $workSeconds);
-                $overtime = $overtimeSeconds > 0
-                    ? gmdate('H:i:s', $overtimeSeconds)
-                    : '00:00:00'; // Tetapkan default jika null
-            }
+                        if ($timeInAbsensi && $timeOutAbsensi && $shiftStart && $shiftEnd) {
+                            // Hitung durasi kerja berdasarkan absensi
+                            $workSeconds = $timeInAbsensi->diffInSeconds($timeOutAbsensi);
+                            $shiftDuration = $shiftStart->diffInSeconds($shiftEnd); // Durasi shift dalam detik
 
-            // ✅ Hitung Keterlambatan
-            $lateSeconds = 0;
-            $lateMinutes = 0;
-            $lateHours = 0;
+                            // Jika durasi absensi lebih lama dari durasi shift, sisanya dianggap lembur
+                            if ($workSeconds > $shiftDuration) {
+                                $overtimeSeconds = $workSeconds - $shiftDuration;
+                                $totalOvertime += $overtimeSeconds; // Tambah lembur ke total overtime
+                                $workSeconds = $shiftDuration; // Jam kerja tetap dibatasi durasi shift
+                            }
 
-            if ($timeIn && $shiftStart) {
-                // Ambil selisih waktu (termasuk detik)
-                $diff = $shiftStart->diff($timeIn);
-
-                // Jika waktu masuk setelah shift start → Terlambat
-                if ($diff->invert == 0) {
-                    $lateSeconds = $diff->s; // Detik
-                    $lateMinutes = $diff->i; // Menit
-                    $lateHours = $diff->h;   // Jam
-
-                    // Gabungkan keterlambatan ke dalam keterangan
-                    if ($lateHours > 0 || $lateMinutes > 0 || $lateSeconds > 0) {
-                        $keterangan = "Terlambat {$lateHours} jam {$lateMinutes} menit {$lateSeconds} detik";
+                            $totalWorkDuration += $workSeconds; // Tambah durasi kerja ke total
+                        }
                     }
-                } elseif ($timeIn->equalTo($shiftStart)) {
-                    $keterangan = "Tepat Waktu";
                 }
+
+                // Format durasi lembur dan jam kerja
+                $overtime = gmdate('H:i:s', $totalOvertime);
+                $duration = gmdate('H:i:s', $totalWorkDuration);
             }
+
 
 
             // Simpan data ke array
@@ -131,8 +137,8 @@ class AktivitasAbsensi extends Component
                 'id' => $absensi ? $absensi->id : null,
                 'hari' => Carbon::parse($date)->locale('id')->isoFormat('dddd'),
                 'tanggal' => Carbon::parse($date)->translatedFormat('d F Y'),
-                'jam_kerja' => $duration,
-                'jam_lembur' => $overtime,
+                'jam_kerja' => $duration, // jam kerja normal (jika is_lembur = false)
+                'jam_lembur' => $overtime, // lembur (jika is_lembur = true)
                 'rencana_kerja' => $absensi?->deskripsi_in ?? '-',
                 'laporan_kerja' => $absensi?->deskripsi_out ?? '-',
                 'laporan_lembur' => $absensi?->deskripsi_lembur ?? '-',
@@ -142,6 +148,7 @@ class AktivitasAbsensi extends Component
             ];
         }
     }
+
 
     // Fungsi untuk menandai tanggal merah (libur nasional atau Minggu)
     public function isHoliday($date)
