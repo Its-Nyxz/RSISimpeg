@@ -115,10 +115,12 @@ class RolePermissionSeeder extends Seeder
         foreach ($roles as $role) {
             $roleModel = Role::firstOrCreate(['name' => $role]);
 
+
             // Beri permission jika ada dalam daftar rolePermissions
             if (isset($rolePermissions[$role])) {
                 $roleModel->givePermissionTo($rolePermissions[$role]);
             }
+
         }
     }
 }

@@ -11,21 +11,24 @@ use App\Models\MasterPendidikan;
 
 class EditProfile extends Component
 {
-    public $name, $jabatan_id, $tempat, $tanggal_lahir, $tanggal_tetap, $pendidikan_id, $pendidikan_penyesuaian, $tgl_penyesuaian, $pensiun;
+    public $user_id, $name, $nip, $no_ktp, $no_hp, $no_rek, $pendidikan, $institusi, $jenisKelamin, $alamat, $tempat_lahir, $tanggal_lahir;
     public $jabatans, $pendidikans;
 
     public function mount()
     {
         $user = Auth::user();
+        $this->user_id = $user->id;
         $this->name = $user->name;
-        $this->jabatan_id = $user->jabatan_id;
-        $this->tempat = $user->tempat;
+        $this->nip = $user->nip;
+        $this->no_ktp = $user->no_ktp;
+        $this->no_hp = $user->no_hp;
+        $this->no_rek = $user->no_rek;
+        $this->pendidikan = $user->pendidikan;
+        $this->institusi = $user->institusi;
+        $this->jenisKelamin = $user->jk;
+        $this->alamat = $user->alamat;
+        $this->tempat_lahir = $user->tempat;
         $this->tanggal_lahir = $user->tanggal_lahir;
-        $this->tanggal_tetap = $user->tanggal_tetap;
-        $this->pendidikan_id = $user->pendidikan;
-        $this->pendidikan_penyesuaian = $user->pendidikan_penyesuaian;
-        $this->tgl_penyesuaian = $user->tgl_penyesuaian;
-        $this->pensiun = $user->pensiun;
 
 
         $this->jabatans = KategoriJabatan::all();
@@ -35,28 +38,33 @@ class EditProfile extends Component
     public function updateProfile()
     {
         $this->validate([
-            'name' => 'required|string|max:255',
-            'jabatan_id' => 'nullable|exists:kategori_jabatans,id',
-            'tempat' => 'nullable|string|max:255',
+            'name' => 'nullable|string|max:255|unique:users,name,' . $this->user_id,
+            'nip' => 'nullable|max:50|unique:users,nip,' . $this->user_id,
+            'no_ktp' => 'nullable|string|max:50',
+            'no_hp' => 'nullable|string|max:15',
+            'no_rek' => 'nullable',
+            'pendidikan' => 'nullable|exists:master_pendidikan,id',
+            'institusi' => 'nullable|string|max:255',
+            'jenisKelamin' => 'nullable',
+            'alamat' => 'nullable|string|max:255',
+            'tempat_lahir' => 'nullable|string|max:255',
             'tanggal_lahir' => 'nullable|date',
-            'tanggal_tetap' => 'nullable|date',
-            'pendidikan_id' => 'nullable|max:255',
-            'pendidikan_penyesuaian' => 'nullable|string|max:255',
-            'tgl_penyesuaian' => 'nullable|date',
-            'pensiun' => 'nullable|date',
         ]);
 
         $user = Auth::user();
         $user->update([
-            'name' => $this->name,
-            'jabatan_id' => $this->jabatan_id,
-            'tempat' => $this->tempat,
-            'tanggal_lahir' => $this->tanggal_lahir,
-            'tanggal_tetap' => $this->tanggal_tetap,
-            'pendidikan' => $this->pendidikan_id,
-            'pendidikan_penyesuaian' => $this->pendidikan_penyesuaian,
-            'tgl_penyesuaian' => $this->tgl_penyesuaian,
-            'pensiun' => $this->pensiun,
+            'name' => $this->name ?? null,
+            'nip' => $this->nip ?? null,
+            'email' => $this->email ?? null,
+            'no_ktp' => $this->no_ktp ?? null,
+            'no_hp' => $this->no_hp ?? null,
+            'no_rek' => $this->no_rek ?? null,
+            'pendidikan' => $this->pendidikan ?? null,
+            'institusi' => $this->institusi ?? null,
+            'jk' => $this->jk ?? null,
+            'alamat' => $this->alamat ?? null,
+            'tempat' => $this->tempat ?? null,
+            'tanggal_lahir' => $this->tanggal_lahir ?? null,
         ]);
 
         return redirect()->route('userprofile.index')->with('success', 'Profile berhasil diupdate.');
