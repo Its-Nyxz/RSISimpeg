@@ -49,6 +49,8 @@ return new class extends Migration
             $table->dateTime('tgl_penyesuaian')->nullable();
             $table->integer('masa_kerja')->default(value: 0)->nullable();
             $table->integer('status')->nullable();
+            $table->integer('jatah_cuti_tahunan')->default(12); // Jatah cuti default
+            $table->integer('sisa_cuti_tahunan')->default(12); // Sisa cuti tahunan
             $table->timestamps();
 
             // $table->foreign('jabatan_id')->references('id')->on('master_jabatan');

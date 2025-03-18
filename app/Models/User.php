@@ -71,6 +71,31 @@ class User extends Authenticatable
         });
     }
 
+    // Mengurangi sisa cuti
+    public function kurangiCutiTahunan($jumlah)
+    {
+        if ($this->sisa_cuti_tahunan >= $jumlah) {
+            $this->sisa_cuti_tahunan -= $jumlah;
+            $this->save();
+            return true;
+        }
+
+        return false;
+    }
+
+    // Cek apakah sisa cuti tahunan masih mencukupi
+    public function cekSisaCutiTahunan($jumlah)
+    {
+        return $this->sisa_cuti_tahunan >= $jumlah;
+    }
+
+    // Reset cuti tahunan setiap tahun
+    public function resetCutiTahunan()
+    {
+        $this->sisa_cuti_tahunan = $this->jatah_cuti_tahunan;
+        $this->save();
+    }
+
     /**
      * Relasi ke MasterFungsi.
      */
