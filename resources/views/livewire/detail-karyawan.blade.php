@@ -1,10 +1,12 @@
 <div>
     <!-- Header -->
     <div class="flex justify-end mb-6">
+        @can('tambah-history')
         <a href="#"
             class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
             + Tambah History
         </a>
+        @endcan
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -41,12 +43,14 @@
                     </div>
                 </div>
                 <!-- Tombol Edit Karyawan -->
+                @can('edit-data-karyawan')
                 <div class="mt-4">
                     <a href="{{ route('editKaryawan.edit', ['id' => $user->id]) }}"
                         class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                         Edit Karyawan
                     </a>
                 </div>
+                @endcan
             </x-card>
         </div>
 

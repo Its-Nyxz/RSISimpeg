@@ -29,15 +29,15 @@
                             @endif
                         </div>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                            @foreach ($actions as $action)
+                            @foreach ($actions as $key => $value)
                                 <div class="flex items-center space-x-2">
                                     <input type="checkbox" 
-                                    id="{{ $action }}" 
+                                    id="{{ is_array($value) ? $key : $value }}" 
                                     wire:model.live="selectedPermissions" 
-                                    value="{{ $action }}" 
+                                    value="{{ is_array($value) ? $key : $value }}" 
                                     class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
-                                    <label for="{{ $action }}" class="text-sm text-gray-600">
-                                        {{ Str::title(str_replace('-', ' ', $action)) }}
+                                    <label for="{{ is_array($value) ? $key : $value }}" class="text-sm text-gray-600">
+                                        {{ is_array($value) ? $value : Str::title(str_replace('-', ' ', $value)) }}
                                     </label>
                                 </div>
                             @endforeach
