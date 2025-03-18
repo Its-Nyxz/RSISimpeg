@@ -14,13 +14,24 @@ class DetailJabatan extends Component
     public $selectedPermissions = [];
 
     protected $defaultPermissions = [
-        'Aktivitas Kerja' => ['timer', 'list-history', 'list-history-user', 'list-history-edit', 'list-history-create', 'absen'],
+        'Aktivitas Kerja' => [
+            'timer',
+            'list-history',
+            'list-history-user',
+            'list-history-edit',
+            'list-history-create',
+            'absen',
+            'template-jadwal',
+            'import-jadwal',
+            'tambah-jadwal',
+            'edit-jadwal',
+        ],
         'Master Data' => ['master-data', 'tunjangan', 'golongan', 'gaji-pokok', 'pendidikan', 'unit-kerja', 'potongan', 'tunjangan-kinerja', 'kategori-jabatan'],
-        'Kepegawaian' => ['create-data-karyawan', 'detail-data-karyawan','edit-data-karyawan','tambah-history', 'view-kepegawaian', 'view-kenaikan', 'notification-cuti', 'view-import-gaji', 'view-poin-peran', 'view-poin-penilaian'],
+        'Kepegawaian' => ['create-data-karyawan', 'detail-data-karyawan', 'edit-data-karyawan', 'tambah-history', 'view-kepegawaian', 'view-kenaikan', 'notification-cuti', 'view-import-gaji', 'view-poin-peran', 'view-poin-penilaian'],
         'Keuangan' => ['view-keuangan'],
         'Pengaturan' => ['hak-akses'],
     ];
-    
+
 
     public function mount($roleId)
     {
