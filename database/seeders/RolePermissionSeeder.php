@@ -60,6 +60,7 @@ class RolePermissionSeeder extends Seeder
             'view-keuangan',
             'view-kepegawaian',
             'hak-akses',
+
         ];
 
         // Tambah permission ke database
@@ -107,6 +108,44 @@ class RolePermissionSeeder extends Seeder
             // Kalau role-nya Staf, kasih hanya permission 'timer' dan 'list-history'
             if ($role === 'Staf') {
                 $roleModel->givePermissionTo(['timer', 'list-history']);
+            }
+
+            // Role Kepala Instalasi
+            if ($role === 'Kepala Instalasi') {
+                // Blokir akses
+                $restrictedPermissions = ['view-keuangan', 'hak-akses'];
+
+                // Ambil permission
+                $allowedPermissions = Permission::whereNotIn('name', $restrictedPermissions)->get();
+
+                $roleModel->givePermissionTo($allowedPermissions);
+            }
+
+            // Role Kepala Ruang
+            if ($role === 'Kepala Ruang') {
+                // Blokir akses
+                $restrictedPermissions = ['view-keuangan', 'hak-akses'];
+
+                // Ambil permission
+                $allowedPermissions = Permission::whereNotIn('name', $restrictedPermissions)->get();
+
+                $roleModel->givePermissionTo($allowedPermissions);
+            }
+
+            // Role Kepala Seksi
+            if ($role === 'Kepala Seksi') {
+                // Blokir akses
+                $restrictedPermissions = ['view-keuangan', 'hak-akses'];
+
+                // Ambil permission
+                $allowedPermissions = Permission::whereNotIn('name', $restrictedPermissions)->get();
+
+                $roleModel->givePermissionTo($allowedPermissions);
+            }
+
+            // Role Manager
+            if ($role === 'Manager') {
+                $roleModel->givePermissionTo(['timer', 'list-history', 'detail-data-karyawan']);
             }
         }
     }
