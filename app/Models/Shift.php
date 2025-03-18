@@ -19,4 +19,9 @@ class Shift extends Model
     {
         return $this->hasMany(JadwalAbsensi::class, 'shift_id');
     }
+
+    public function unitKerja()
+    {
+        return $this->belongsTo(UnitKerja::class, 'unit_id');
+    }
 }

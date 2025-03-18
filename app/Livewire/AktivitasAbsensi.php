@@ -7,9 +7,7 @@ use App\Models\User;
 use App\Models\Absen;
 use App\Models\Holidays;
 use Livewire\Component;
-
 use App\Models\JadwalAbsensi;
-
 
 class AktivitasAbsensi extends Component
 {
@@ -48,37 +46,110 @@ class AktivitasAbsensi extends Component
 
     public function loadData()
     {
-        $this->items = []; // Kosongkan dulu data sebelumnya
+        $this->items = []; // Kosongkan data sebelumnya
 
         $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
 
         for ($day = 1; $day <= $daysInMonth; $day++) {
             $date = Carbon::create($this->year, $this->month, $day)->format('Y-m-d');
 
-            // Ambil data jadwal di tanggal tersebut (kalau ada)
+            // Ambil data jadwal di tanggal tersebut
             $jadwal = JadwalAbsensi::where('user_id', $this->selectedUserId)
                 ->whereDate('tanggal_jadwal', $date)
-                ->with('absensi')
+                ->with(['absensi', 'shift'])
                 ->first();
 
-            $absensi = $jadwal?->absensi->first();
+            // Jika jadwal tidak ditemukan, kita bisa setkan nilai default
+            if (!$jadwal) {
+                $shiftStart = null;
+                $shiftEnd = null;
+                $absensi = null;
+            } else {
+                $shift = $jadwal->shift; // Ambil shift dari jadwal absensi
+                $absensi = $jadwal->absensi->first(); // Ambil satu absensi pertama
+
+                // Ambil jam masuk dan keluar dari shift
+                $shiftStart = $shift ? Carbon::parse($shift->jam_masuk) : null;
+                $shiftEnd = $shift ? Carbon::parse($shift->jam_keluar) : null;
+            }
+
+            // Ambil jam masuk dan keluar dari absensi
             $timeIn = $absensi?->time_in ? Carbon::parse($absensi->time_in) : null;
             $timeOut = $absensi?->time_out ? Carbon::parse($absensi->time_out) : null;
-            $duration = $timeIn && $timeOut
-                ? $timeIn->diff($timeOut)->format('%H:%I:%S')
-                : '-';
+
+            // Default values
+            $duration = '00.00.00';
+            $overtime = '00.00.00';
+            $keterangan = $absensi?->statusAbsen->nama ?? '-';
+
+            // Jika ada absensi dan jadwal
+            if ($jadwal) {
+                $absensiItems = Absen::where('jadwal_id', $jadwal->id)
+                    ->where('user_id', $this->selectedUserId)
+                    ->get();
+
+                $totalOvertime = 0; // Inisialisasi total overtime
+                $totalWorkDuration = 0; // Inisialisasi total jam kerja
+
+                // Iterasi semua absensi yang ada
+                foreach ($absensiItems as $item) {
+                    // Cek apakah absensi ini lembur atau tidak
+                    if ($item->is_lembur) {
+                        // Hitung durasi lembur
+                        $timeInLembur = Carbon::parse($item->time_in);
+                        $timeOutLembur = Carbon::parse($item->time_out);
+
+                        if ($timeInLembur && $timeOutLembur) {
+                            $overtimeSeconds = $timeInLembur->diffInSeconds($timeOutLembur);
+                            $totalOvertime += $overtimeSeconds; // Tambah durasi lembur ke total
+                        }
+                    } else {
+                        // Hitung jam kerja untuk absensi yang bukan lembur
+                        $timeInAbsensi = Carbon::parse($item->time_in);
+                        $timeOutAbsensi = Carbon::parse($item->time_out);
+
+                        if ($timeInAbsensi && $timeOutAbsensi && $shiftStart && $shiftEnd) {
+                            // Hitung durasi kerja berdasarkan absensi
+                            $workSeconds = $timeInAbsensi->diffInSeconds($timeOutAbsensi);
+                            $shiftDuration = $shiftStart->diffInSeconds($shiftEnd); // Durasi shift dalam detik
+
+                            // Jika durasi absensi lebih lama dari durasi shift, sisanya dianggap lembur
+                            if ($workSeconds > $shiftDuration) {
+                                $overtimeSeconds = $workSeconds - $shiftDuration;
+                                $totalOvertime += $overtimeSeconds; // Tambah lembur ke total overtime
+                                $workSeconds = $shiftDuration; // Jam kerja tetap dibatasi durasi shift
+                            }
+
+                            $totalWorkDuration += $workSeconds; // Tambah durasi kerja ke total
+                        }
+                    }
+                }
+
+                // Format durasi lembur dan jam kerja
+                $overtime = gmdate('H:i:s', $totalOvertime);
+                $duration = gmdate('H:i:s', $totalWorkDuration);
+            }
+
+
+
+            // Simpan data ke array
             $this->items[] = [
+                'id' => $absensi ? $absensi->id : null,
                 'hari' => Carbon::parse($date)->locale('id')->isoFormat('dddd'),
                 'tanggal' => Carbon::parse($date)->translatedFormat('d F Y'),
-                'jam_kerja' => $duration, // Jika tidak ada jadwal, tampilkan '-'
+                'jam_kerja' => $duration, // jam kerja normal (jika is_lembur = false)
+                'jam_lembur' => $overtime, // lembur (jika is_lembur = true)
                 'rencana_kerja' => $absensi?->deskripsi_in ?? '-',
                 'laporan_kerja' => $absensi?->deskripsi_out ?? '-',
+                'laporan_lembur' => $absensi?->deskripsi_lembur ?? '-',
                 'feedback' => $absensi?->feedback ?? '-',
                 'is_holiday' => $this->isHoliday($date),
+                'keterangan' => $keterangan,
             ];
-
         }
     }
+
+
     // Fungsi untuk menandai tanggal merah (libur nasional atau Minggu)
     public function isHoliday($date)
     {

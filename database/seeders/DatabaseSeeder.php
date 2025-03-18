@@ -57,6 +57,8 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class, // Tambahkan ini
             RolePermissionSeeder::class,
             HolidaysSeeder::class,
+            JenisCutiSeeder::class,
+            StatusCutiSeeder::class,
         ]);
     }
 }
