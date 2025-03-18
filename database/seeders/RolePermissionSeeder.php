@@ -44,80 +44,83 @@ class RolePermissionSeeder extends Seeder
             'gaji-pokok',
             'pendidikan',
             'absen',
+            'template-jadwal',
+            'import-jadwal',
+            'tambah-jadwal',
+            'edit-jadwal',
             'unit-kerja',
             'potongan',
             'tunjangan-kinerja',
             'kategori-jabatan',
-            'create',
-            'detail',
+            'create-data-karyawan',
+            'detail-data-karyawan',
+            'edit-data-karyawan',
+            'tambah-history',
             'view-kenaikan',
-            'notification',
-            'view-gaji',
-            'view-peran',
-            'view-pekerja',
+            'notification-cuti',
+            'view-import-gaji',
+            'view-poin-peran',
+            'view-poin-penilaian',
             'view-keuangan',
             'view-kepegawaian',
             'hak-akses',
+
         ];
 
-        // Tambah permission ke database
+        // Tambahkan permission ke database
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission]);
         }
 
-        // Tambah role & assign permission
+        // Aturan permission berdasarkan role
+        $rolePermissions = [
+            'Super Admin' => Permission::all(),
+            'Administrator' => Permission::all(),
+            'Kepala Seksi Kepegawaian' => Permission::where('name', '!=', 'view-keuangan')->get(),
+            'Staf Kepegawaian' => Permission::whereNotIn('name', [
+                'view-keuangan',
+                'master-data',
+                'hak-akses',
+                'absen',
+                'list-history-user',
+                'list-history-create',
+                'list-history-edit',
+                'template-jadwal',
+                'import-jadwal',
+                'tambah-jadwal',
+                'edit-jadwal'
+            ])->get(),
+            'Kepala Seksi Keuangan' => Permission::where('name', '!=', 'view-kepegawaian')->get(),
+            'Staf Keuangan' => Permission::whereNotIn('name', [
+                'view-kepegawaian',
+                'master-data',
+                'hak-akses',
+                'absen',
+                'list-history-user',
+                'list-history-create',
+                'list-history-edit',
+                'template-jadwal',
+                'import-jadwal',
+                'tambah-jadwal',
+                'edit-jadwal'
+            ])->get(),
+            'Staf' => Permission::whereIn('name', ['timer', 'list-history'])->get(),
+            'Kepala Instalasi' => Permission::whereNotIn('name', ['view-keuangan', 'hak-akses', 'master-data', 'create-data-karyawan'])->get(),
+            'Kepala Ruang' => Permission::whereNotIn('name', ['view-keuangan', 'hak-akses', 'master-data', 'create-data-karyawan'])->get(),
+            'Kepala Seksi' => Permission::whereNotIn('name', ['view-keuangan', 'hak-akses', 'master-data', 'create-data-karyawan'])->get(),
+            'Manager' => Permission::whereIn('name', ['timer', 'list-history', 'detail-data-karyawan'])->get(),
+        ];
+
+        // Tambahkan role ke database dan atur permission
         foreach ($roles as $role) {
             $roleModel = Role::firstOrCreate(['name' => $role]);
 
-            // Kalau role-nya Super Admin, kasih semua permission
-            if ($role == 'Super Admin') {
-                $roleModel->givePermissionTo(Permission::all());
-            }
-            // Kalau role-nya Administrator, kasih semua permission
-            if ($role == 'Administrator') {
-                $roleModel->givePermissionTo(Permission::all());
+
+            // Beri permission jika ada dalam daftar rolePermissions
+            if (isset($rolePermissions[$role])) {
+                $roleModel->givePermissionTo($rolePermissions[$role]);
             }
 
-            // Role Kepala Seksi Kepegawaian
-            if ($role === 'Kepala Seksi Kepegawaian') {
-                // Hanya blokir 'view-keuangan' untuk Kepala Seksi Kepegawaian
-                $allowedPermissions = Permission::where('name', '!=', 'view-keuangan')->get();
-                $roleModel->givePermissionTo($allowedPermissions);
-            }
-
-            // Role Staf Kepegawaian
-            if ($role === 'Staf Kepegawaian') {
-                // Blokir akses ke 'view-keuangan', 'masterdata', dan 'hak-akses' untuk Staf Kepegawaian
-                $restrictedPermissions = ['view-keuangan', 'master-data', 'hak-akses', 'absen', 'list-history-user', 'list-history-create', 'list-history-edit'];
-
-                // Ambil permission yang **tidak termasuk dalam restrictedPermissions**
-                $allowedPermissions = Permission::whereNotIn('name', $restrictedPermissions)->get();
-
-                $roleModel->givePermissionTo($allowedPermissions);
-            }
-
-            // Role Keuangan
-            if (in_array($role, ['Kepala Seksi Keuangan', 'Staf Keuangan'])) {
-                $allowedPermissions = Permission::where('name', '!=', 'view-kepegawaian')->get();
-                $roleModel->givePermissionTo($allowedPermissions);
-            }
-
-            // Kalau role-nya Staf, kasih hanya permission 'timer' dan 'list-history'
-            if ($role === 'Staf') {
-                $roleModel->givePermissionTo(['timer', 'list-history']);
-            }
-
-            // Kalau role-nya Kepala Unit
-            if ($role === 'Kepala Unit') {
-                $allowedPermissions = ['timer', 'list-history', 'absen', 'view-kepegawaian', 'detail', 'create'];
-                $roleModel->givePermissionTo($allowedPermissions);
-            }
-
-            // Kalau role-nya Kepala Ruang
-            if ($role === 'Kepala Ruang') {
-                $allowedPermissions = ['timer', 'list-history', 'absen', 'view-kepegawaian', 'detail', 'create'];
-                $roleModel->givePermissionTo($allowedPermissions);
-            }
         }
     }
 }

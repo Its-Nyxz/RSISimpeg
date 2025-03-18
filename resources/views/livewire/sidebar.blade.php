@@ -94,11 +94,11 @@
                                 ? ['title' => 'Kenaikan', 'href' => '/kenaikan']
                                 : null,
                             ['title' => 'Approval Cuti', 'href' => '/approvalcuti'],
-                            auth()->user()->can('view-gaji') ? ['title' => 'Import Gaji', 'href' => '#'] : null,
-                            auth()->user()->can('view-peran')
+                            auth()->user()->can('view-import-gaji') ? ['title' => 'Import Gaji', 'href' => '#'] : null,
+                            auth()->user()->can('view-poin-peran')
                                 ? ['title' => 'Poin Peran Fungsional', 'href' => '/peranfungsional']
                                 : null,
-                            auth()->user()->can('view-pekerja')
+                            auth()->user()->can('view-poin-penilaian')
                                 ? ['title' => 'Poin Penilaian Pekerja', 'href' => '/penilaian']
                                 : null,
                         ])" />

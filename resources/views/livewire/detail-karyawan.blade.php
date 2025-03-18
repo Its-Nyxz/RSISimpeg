@@ -1,10 +1,12 @@
 <div>
     <!-- Header -->
     <div class="flex justify-end mb-6">
+        @can('tambah-history')
         <a href="#"
             class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 mr-2 transition duration-200">
             + Tambah History
         </a>
+        @endcan
         <a href="{{ route('datakaryawan.index') }}"
             class="bg-green-700 text-white hover:bg-success-800 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
             Kembali
@@ -45,6 +47,7 @@
                     </div>
                 </div>
                 <!-- Tombol Edit Karyawan -->
+                @can('edit-data-karyawan')
                 <div class="mt-4">
                     <a href="{{ route('editKaryawan.edit', ['id' => $user->id]) }}"
                         class="bg-green-700 text-white hover:bg-success-800 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 mr-2 transition duration-200">
@@ -59,6 +62,7 @@
                         @endif
                     </button>
                 </div>
+                @endcan
             </x-card>
         </div>
 

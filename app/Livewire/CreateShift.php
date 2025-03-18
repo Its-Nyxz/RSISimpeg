@@ -71,7 +71,7 @@ class CreateShift extends Component
         ]);
 
         // Reset input setelah simpan
-        session()->flash('success', 'Gaji Pokok berhasil ditambahkan!');
+        session()->flash('success', 'Shift berhasil ditambahkan!');
         return redirect()->route('shift.index');
     }
 

@@ -1,18 +1,20 @@
 <div>
     <div class="flex justify-between py-2 mb-3">
-        <h1 class="text-2xl font-bold text-success-900">Master Jadwal Absensi</h1>
+        {{-- <h1 class="text-2xl font-bold text-success-900">Master Jadwal Absensi</h1> --}}
         <div class="flex justify-between items-center gap-4 mb-3">
             <!-- Input Pencarian -->
             <div class="flex-1">
-                <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Jadwal..."
+                <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Nama..."
                     class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
             </div>
 
-            <!-- Tombol Tambah Jadwal -->
-            <a href="{{ route('jadwal.create') }}"
-                class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                + Tambah Jadwal
-            </a>
+            @can('tambah-jadwal')
+                <!-- Tombol Tambah Jadwal -->
+                <a href="{{ route('jadwal.create') }}"
+                    class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                    + Tambah Jadwal
+                </a>
+            @endcan
 
 
         </div>
@@ -34,52 +36,56 @@
             @endforeach
         </select>
 
-        <!-- Tombol Download Template -->
-        <a href="{{ route('jadwal.template', ['month' => now()->month, 'year' => now()->year]) }}"
-            class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-            <i class="fas fa-download"></i> Download Template
-        </a>
-        <!-- Input untuk Import -->
-        <input type="file" wire:model="file" class="hidden" id="uploadFile">
-        <button type="button" onclick="document.getElementById('uploadFile').click();"
-            class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-            <i class="fas fa-file-excel"></i> Import Excel
-        </button>
+        @can('template-jadwal')
+            <!-- Tombol Download Template -->
+            <a href="{{ route('jadwal.template', ['month' => now()->month, 'year' => now()->year]) }}"
+                class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                <i class="fas fa-download"></i> Download Template
+            </a>
+        @endcan
+        @can('import-jadwal')
+            <!-- Input untuk Import -->
+            <input type="file" wire:model="file" class="hidden" id="uploadFile">
+            <button type="button" onclick="document.getElementById('uploadFile').click();"
+                class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                <i class="fas fa-file-excel"></i> Import Excel
+            </button>
 
-        <!-- Menampilkan Nama File -->
-        @if ($file)
-            <div class="mt-2 flex items-center space-x-2">
-                <span class="text-sm text-green-700 font-medium">{{ $file->getClientOriginalName() }}</span>
+            <!-- Menampilkan Nama File -->
+            @if ($file)
+                <div class="mt-2 flex items-center space-x-2">
+                    <span class="text-sm text-green-700 font-medium">{{ $file->getClientOriginalName() }}</span>
 
-                <!-- Tombol Hapus File -->
-                <button type="button" wire:click="$set('file', null)"
-                    class="text-red-500 hover:text-red-700 font-medium text-sm">
-                    <i class="fas fa-times-circle"></i>
-                </button>
-            </div>
-        @endif
+                    <!-- Tombol Hapus File -->
+                    <button type="button" wire:click="$set('file', null)"
+                        class="text-red-500 hover:text-red-700 font-medium text-sm">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                </div>
+            @endif
 
-        <!-- Menampilkan Progress Upload -->
-        <div wire:loading wire:target="file" class="mt-2">
-            <div class="w-full bg-gray-200 rounded-full">
-                <div class="bg-green-500 text-xs leading-none py-1 text-center text-white" style="width: 0%;"
-                    x-data="{ progress: 0 }" x-init="$watch('progress', value => {
-                        setInterval(() => {
-                            if (progress < 100) progress += 10;
-                        }, 200);
-                    })">
-                    Loading...
+            <!-- Menampilkan Progress Upload -->
+            <div wire:loading wire:target="file" class="mt-2">
+                <div class="w-full bg-gray-200 rounded-full">
+                    <div class="bg-green-500 text-xs leading-none py-1 text-center text-white" style="width: 0%;"
+                        x-data="{ progress: 0 }" x-init="$watch('progress', value => {
+                            setInterval(() => {
+                                if (progress < 100) progress += 10;
+                            }, 200);
+                        })">
+                        Loading...
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Tombol Submit Import -->
-        @if ($file)
-            <button type="button" wire:click="import"
-                class="mt-2 text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                Submit Import
-            </button>
-        @endif
+            <!-- Tombol Submit Import -->
+            @if ($file)
+                <button type="button" wire:click="import"
+                    class="mt-2 text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                    Submit Import
+                </button>
+            @endif
+        @endcan
 
     </div>
     @error('file')
@@ -103,6 +109,9 @@
                             {{ \Carbon\Carbon::parse($tanggal)->format('d') }}
                         </th>
                     @endforeach
+                    @can('edit-jadwal')
+                        <th class="px-4 py-3">Aksi</th>
+                    @endcan
                 </tr>
             </thead>
             <tbody>
@@ -129,6 +138,21 @@
                                 {{ $filteredShifts[$user_id][$tanggal] ?? '-' }}
                             </td>
                         @endforeach
+                        @can('edit-jadwal')
+                            <td class="px-4 py-3">
+                                <a href="{{ route('jadwal.edit', optional(optional($jadwalUser)->first())->user->id) }}"
+                                    class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
+                                    data-tooltip-target="tooltip-jadwalUser-{{ optional(optional($jadwalUser)->first())->user->id }}">
+                                    <i class="fa-solid fa-pen"></i>
+                                </a>
+                                <div id="tooltip-jadwalUser-{{ optional(optional($jadwalUser)->first())->user->id }}"
+                                    role="tooltip"
+                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                                    Ubah Data Jadwal Absensi
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            </td>
+                        @endcan
                     </tr>
                 @endforeach
             </tbody>
