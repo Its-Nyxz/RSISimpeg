@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
+            $table->string('slug')->nullable()->unique(); // tambahkan slug yang unik dan nullable
             $table->string('username')->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
@@ -48,6 +49,8 @@ return new class extends Migration
             $table->dateTime('tgl_penyesuaian')->nullable();
             $table->integer('masa_kerja')->default(value: 0)->nullable();
             $table->integer('status')->nullable();
+            $table->integer('jatah_cuti_tahunan')->default(12); // Jatah cuti default
+            $table->integer('sisa_cuti_tahunan')->default(12); // Sisa cuti tahunan
             $table->timestamps();
 
             // $table->foreign('jabatan_id')->references('id')->on('master_jabatan');

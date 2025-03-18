@@ -8,6 +8,7 @@ use App\Models\GajiBruto;
 use App\Models\UnitKerja;
 use App\Models\MasterTrans;
 use App\Models\Penyesuaian;
+use Illuminate\Support\Str;
 use App\Models\MasterFungsi;
 use App\Models\MasterKhusus;
 use App\Models\JadwalAbsensi;
@@ -54,6 +55,45 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->slug = Str::slug($model->name);
+        });
+
+        // Jika ingin memperbarui slug saat nama berubah:
+        static::updating(function ($model) {
+            $model->slug = Str::slug($model->name);
+        });
+    }
+
+    // Mengurangi sisa cuti
+    public function kurangiCutiTahunan($jumlah)
+    {
+        if ($this->sisa_cuti_tahunan >= $jumlah) {
+            $this->sisa_cuti_tahunan -= $jumlah;
+            $this->save();
+            return true;
+        }
+
+        return false;
+    }
+
+    // Cek apakah sisa cuti tahunan masih mencukupi
+    public function cekSisaCutiTahunan($jumlah)
+    {
+        return $this->sisa_cuti_tahunan >= $jumlah;
+    }
+
+    // Reset cuti tahunan setiap tahun
+    public function resetCutiTahunan()
+    {
+        $this->sisa_cuti_tahunan = $this->jatah_cuti_tahunan;
+        $this->save();
     }
 
     /**
@@ -133,5 +173,9 @@ class User extends Authenticatable
     public function unitKerja()
     {
         return $this->belongsTo(UnitKerja::class, 'unit_id');
+    }
+    public function absen()
+    {
+        return $this->hasMany(Absen::class, 'user_id');
     }
 }

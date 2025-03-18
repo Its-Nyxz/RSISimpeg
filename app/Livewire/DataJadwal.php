@@ -3,46 +3,74 @@
 namespace App\Livewire;
 
 use App\Models\JadwalAbsensi;
-use App\Models\OpsiAbsen;
-use App\Models\Shift;
 use Livewire\Component;
+use Livewire\WithFileUploads;
+use App\Imports\JadwalImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DataJadwal extends Component
 {
-    public $search = ''; // Properti untuk menyimpan nilai input pencarian
+    use WithFileUploads;
+    public $search = '';
+    public $bulan, $tahun;
     public $jadwals = [];
+    public $tanggalJadwal = [];
+    public $filteredShifts = [];
+    public $file;
 
     public function mount()
     {
+        $this->bulan = now()->month;
+        $this->tahun = now()->year;
         $this->loadData();
     }
 
     public function loadData()
     {
-        $this->jadwals = JadwalAbsensi::with('user', 'shift', 'opsi') // Eager load relationships
-            ->when($this->search, function ($query) {
-                $query->where('tanggal_jadwal', 'like', '%' . $this->search . '%')
-                    ->orWhere('keterangan_absen', 'like', '%' . $this->search . '%')
-                    ->orWhereHas('user', function ($q) {
-                        $q->where('name', 'like', '%' . $this->search . '%');
-                    })
-                    ->orWhereHas('shift', function ($q) {
-                        $q->where('nama_shift', 'like', '%' . $this->search . '%');
-                    })
-                    ->orWhereHas('opsi', function ($q) {
-                        $q->where('name', 'like', '%' . $this->search . '%');
-                    });
-            })
-            ->get()
+        $this->bulan = (int) $this->bulan;
+        $this->tahun = (int) $this->tahun;
+
+        $this->tanggalJadwal = collect(range(1, cal_days_in_month(CAL_GREGORIAN, $this->bulan, $this->tahun)))
+            ->map(fn($day) => sprintf('%04d-%02d-%02d', $this->tahun, $this->bulan, $day))
             ->toArray();
+
+        $jadwalData = JadwalAbsensi::with(['user', 'shift'])
+            ->whereYear('tanggal_jadwal', $this->tahun)
+            ->whereMonth('tanggal_jadwal', $this->bulan)
+            ->when($this->search, function ($query) {
+                $query->whereHas('user', function ($q) {
+                    $q->where('name', 'like', "%{$this->search}%");
+                });
+            })
+            ->get();
+
+        $this->jadwals = $jadwalData->groupBy('user_id')->map(fn($items) => $items->values());
+
+        $this->filteredShifts = [];
+        foreach ($jadwalData as $jadwal) {
+            $this->filteredShifts[$jadwal->user_id][$jadwal->tanggal_jadwal] = optional($jadwal->shift)->nama_shift ?? '-';
+        }
     }
-    
-    
-    public function updateSearch($value)
+
+    public function import()
     {
-        $this->search = $value;
-        $this->loadData();
+        $this->validate([
+            'file' => 'required|mimes:xlsx,csv|max:2048', // Validasi file
+        ]);
+
+        Excel::import(new JadwalImport, $this->file);
+
+        session()->flash('success', 'Jadwal berhasil diimport!');
+        $this->loadData(); // Refresh data setelah import
     }
+
+    public function updated($propertyName)
+    {
+        if (in_array($propertyName, ['bulan', 'tahun'])) {
+            $this->loadData();
+        }
+    }
+
     public function render()
     {
         return view('livewire.data-jadwal');

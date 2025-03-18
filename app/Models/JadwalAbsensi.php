@@ -31,8 +31,8 @@ class JadwalAbsensi extends Model
         return $this->belongsTo(Shift::class, 'shift_id');
     }
 
-    public function opsi()
-    {
-        return $this->belongsTo( OpsiAbsen::class,'opsi_id');
-    }
+    // public function opsi()
+    // {
+    //     return $this->belongsTo( OpsiAbsen::class,'opsi_id');
+    // }
 }

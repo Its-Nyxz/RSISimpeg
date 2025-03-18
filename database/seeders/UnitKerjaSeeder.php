@@ -66,6 +66,7 @@ class UnitKerjaSeeder extends Seeder
             ['name' => 'PENGELOLAAN LINEN', 'kode' => 'LINEN', 'keterangan' => 'Pengelolaan Linen'],
             ['name' => 'HUMAS & PROG RS', 'kode' => 'HUMAS', 'keterangan' => 'Humas dan Program RS'],
             ['name' => 'SDM', 'kode' => 'SDM', 'keterangan' => 'Sumber Daya Manusia'],
+            ['name' => 'KEPEGAWAIAN', 'kode' => 'PGW', 'keterangan' => 'Kepegawaian'],
             ['name' => 'AKUNTANSI', 'kode' => 'AKUN', 'keterangan' => 'Akuntansi'],
             ['name' => 'KEUANGAN', 'kode' => 'KEU', 'keterangan' => 'Keuangan'],
             ['name' => 'KASIR', 'kode' => 'KASIR', 'keterangan' => 'Kasir'],

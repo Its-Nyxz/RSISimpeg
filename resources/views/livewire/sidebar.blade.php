@@ -24,65 +24,92 @@
                 <!-- Navigation -->
                 <ul class="space-y-2 border-t pt-4">
                     <livewire:side-link href="/dashboard" title="Home" icon="fa-solid fa-house" />
-                    @can('add-user')
+                    {{-- @can('add-user')
                     <livewire:side-link href="/users" title="Add User" icon="fa-solid fa-user-plus" />
-                        @endcan
-                        <livewire:side-link title="Aktivitas Kerja" icon="fa-solid fa-user" :child="array_filter([
+                        @endcan --}}
+                    <livewire:side-link title="Aktivitas Kerja" icon="fa-solid fa-user" :child="array_filter([
                         auth()->user()->can('timer') ? ['title' => 'Timer', 'href' => '/timer'] : null,
-                        auth()->user()->can('absensi') ? ['title' => 'Absensi', 'href' => 'aktivitasabsensi'] : null,
+                        auth()->user()->can('list-history')
+                            ? ['title' => 'History Absensi', 'href' => '/aktivitasabsensi']
+                            : null,
+                        auth()->user()->can('absen')
+                            ? [
+                                'title' => 'Absensi',
+                                'href' => '/#',
+                                'child' => [
+                                    ['title' => 'Jadwal Absensi', 'href' => '/jadwal'],
+                                    ['title' => 'Shift', 'href' => '/shift'],
+                                    ['title' => 'Opsi', 'href' => '/opsi'],
+                                    ['title' => 'Status', 'href' => '/status'],
+                                    ['title' => 'Hari Libur Nasional', 'href' => '/liburnasional'],
+                                ],
+                            ]
+                            : null,
                     ])" />
-                    <livewire:side-link title="Master Data" icon="fa-regular fa-address-book" :child="array_filter([
-                        auth()->user()->can('tunjangan') ?[
-                            'title' => 'Tunjangan',
-                            'child' => [
-                                ['title' => 'Tunjangan Jabatan', 'href' => '/jabatan'],
-                                ['title' => 'Tunjangan Fungsional', 'href' => '/fungsional'],
-                                ['title' => 'Tunjangan Umum', 'href' => '/umum'],
-                                ['title' => 'Tunjangan Khusus', 'href' => '/khusus'],
-                                ['title' => 'Tunjangan Tidak Tetap', 'href' => '/trans'],
-                            ],
-                        ] : null,
-                        auth()->user()->can('golongan') ?['title' => 'Golongan', 'href' => '/golongan'] : null,
-                        auth()->user()->can('gaji-pokok') ?['title' => 'Gaji Pokok', 'href' => '/gapok'] :null,
-                        auth()->user()->can('pendidikan') ?['title' => 'Pendidikan', 'href' => '/pendidikan'] :null,
-                        auth()->user()->can('absen') ?[
-                            'title' => 'Absensi',
-                            'href' => '/#',
-                            'child' => [
-                                ['title' => 'Jadwal Absensi', 'href' => '/jadwal'],
-                                ['title' => 'Shift', 'href' => '/shift'],
-                                ['title' => 'Opsi', 'href' => '/opsi'],
-                                ['title' => 'Status', 'href' => '/status'],
-                            ],
-                        ] : null,
-                        auth()->user()->can('unit-kerja') ?['title' => 'Unit Kerja', 'href' => '/unitkerja']:null,
-                        auth()->user()->can('potongan') ?['title' => 'Potongan', 'href' => '/potongan']:null,
-                        auth()->user()->can('tunjangan-kinerja') ?[
-                            'title' => 'Tunjangan Kinerja',
-                            'href' => '/#',
-                            'child' => [
-                                ['title' => 'Masa Kerja', 'href' => '/masakerja'],
-                                ['title' => 'Level Unit', 'href' => '/levelunit'],
-                                ['title' => 'Proposionaltias Poin', 'href' => '/proposionalitas'],
-                                ['title' => 'Poin Peran Fungsionalitas', 'href' => '/poinperan'],
-                                ['title' => 'Tunjangan Kinerja Jabatan', 'href' => '/tukinjabatan'],
-                            ],
-                        ]:null,
-                        auth()->user()->can('kategori-jabatan') ?['title' => 'Kategori Jabatan', 'href' => '/katjab']:null,
-                    ])" />
-                    <livewire:side-link title="Kepegawaian" icon="fa-solid fa-people-group" :child="array_filter([
-                        ['title' => 'Data Karyawan', 'href' => '/datakaryawan'],
-                        auth()->user()->can('view-kenaikan') ?['title' => 'Kenaikan', 'href' => '/kenaikan'] : null,
-                        ['title' => 'Approval Cuti', 'href' => '/approvalcuti'],
-                        auth()->user()->can('view-gaji') ?['title' => 'Import Gaji', 'href' => '#']:null,
-                        auth()->user()->can('view-peran') ?['title' => 'Poin Peran Fungsional', 'href' => '/peranfungsional'] : null,
-                        auth()->user()->can('view-pekerja') ?['title' => 'Poin Penilaian Pekerja', 'href' => '/penilaian'] : null,
-                    ])" />
+                    @can('master-data')
+                        <livewire:side-link title="Master Data" icon="fa-regular fa-address-book" :child="array_filter([
+                            auth()->user()->can('tunjangan')
+                                ? [
+                                    'title' => 'Tunjangan',
+                                    'child' => [
+                                        ['title' => 'Tunjangan Jabatan', 'href' => '/jabatan'],
+                                        ['title' => 'Tunjangan Fungsional', 'href' => '/fungsional'],
+                                        ['title' => 'Tunjangan Umum', 'href' => '/umum'],
+                                        ['title' => 'Tunjangan Khusus', 'href' => '/khusus'],
+                                        ['title' => 'Tunjangan Tidak Tetap', 'href' => '/trans'],
+                                    ],
+                                ]
+                                : null,
+                            auth()->user()->can('golongan') ? ['title' => 'Golongan', 'href' => '/golongan'] : null,
+                            auth()->user()->can('gaji-pokok') ? ['title' => 'Gaji Pokok', 'href' => '/gapok'] : null,
+                            auth()->user()->can('pendidikan')
+                                ? ['title' => 'Pendidikan', 'href' => '/pendidikan']
+                                : null,
+                            auth()->user()->can('unit-kerja')
+                                ? ['title' => 'Unit Kerja', 'href' => '/unitkerja']
+                                : null,
+                            auth()->user()->can('potongan') ? ['title' => 'Potongan', 'href' => '/potongan'] : null,
+                            auth()->user()->can('tunjangan-kinerja')
+                                ? [
+                                    'title' => 'Tunjangan Kinerja',
+                                    'href' => '/#',
+                                    'child' => [
+                                        ['title' => 'Masa Kerja', 'href' => '/masakerja'],
+                                        ['title' => 'Level Unit', 'href' => '/levelunit'],
+                                        ['title' => 'Proposionaltias Poin', 'href' => '/proposionalitas'],
+                                        ['title' => 'Poin Peran Fungsionalitas', 'href' => '/poinperan'],
+                                        ['title' => 'Tunjangan Kinerja Jabatan', 'href' => '/tukinjabatan'],
+                                    ],
+                                ]
+                                : null,
+                            auth()->user()->can('kategori-jabatan')
+                                ? ['title' => 'Kategori Jabatan', 'href' => '/katjab']
+                                : null,
+                        ])" />
+                    @endcan
+                    @can('view-kepegawaian')
+                        <livewire:side-link title="Kepegawaian" icon="fa-solid fa-people-group" :child="array_filter([
+                            ['title' => 'Data Karyawan', 'href' => '/datakaryawan'],
+                            auth()->user()->can('view-kenaikan')
+                                ? ['title' => 'Kenaikan', 'href' => '/kenaikan']
+                                : null,
+                            ['title' => 'Approval Cuti', 'href' => '/approvalcuti'],
+                            auth()->user()->can('view-gaji') ? ['title' => 'Import Gaji', 'href' => '#'] : null,
+                            auth()->user()->can('view-peran')
+                                ? ['title' => 'Poin Peran Fungsional', 'href' => '/peranfungsional']
+                                : null,
+                            auth()->user()->can('view-pekerja')
+                                ? ['title' => 'Poin Penilaian Pekerja', 'href' => '/penilaian']
+                                : null,
+                        ])" />
+                    @endcan
                     @can('view-keuangan')
-                    <livewire:side-link href="/keuangan" title="Keuangan" icon="fa-solid fa-money-bills" />
+                        <livewire:side-link href="/keuangan" title="Keuangan" icon="fa-solid fa-money-bills" />
                     @endcan
                     <livewire:side-link title="Pengaturan" icon="fa-solid fa-gear" :child="array_filter([
-                        auth()->user()->can('hak-akses') ?['title' => 'Hak Akses & Perizinan', 'href' => '/jabatanperizinan'] :null,
+                        auth()->user()->can('hak-akses')
+                            ? ['title' => 'Hak Akses & Perizinan', 'href' => '/jabatanperizinan']
+                            : null,
                         ['title' => 'User', 'href' => '/userprofile'],
                     ])" />
                 </ul>
