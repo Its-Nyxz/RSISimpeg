@@ -240,30 +240,30 @@ class UserSeeder extends Seeder
 
         // Data untuk unit IGD
         $igdMembers = [
-            ['name' => 'Suyatno', 'role' => 'Kepala Unit', 'jabatan' => 'Karu IGD'],
-            ['name' => 'Gilang Yoga Sulistyo Utomo', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Majid Prasetya.,S.Kep Ns', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Yuli Ratnasari, S.Kep.Ns', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Dika Ari Utomo', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Aryadi Harko', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Galuh Rimba N', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Aris Cahyono', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Novian Hardiyono.,A.Md Kep', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Sabar Tiono.,A.Md Kep', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Soleh Ahmad R', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Mahful.,S.Kep Ns', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Yustika Dwi A', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Brian Sanada', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Dinar Kurniadi.,S.Kep Ns', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Adib Rofiudin Izza', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Indarto', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Albetias Pangestuti', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Swasti Jamalina', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Ajeng Bara Saputri.,A.Md Kep', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Syaeful Fadlan A.,S.Kep Ns', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Hanung Maulana.,A.Md Kep', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Tony Adam', 'jabatan' => 'Pekarya Kesehatan'],
-            ['name' => 'Aris Aji Pangestu', 'jabatan' => 'Pekarya Kesehatan'],
+            ['name' => 'Suyatno', 'role' => 'Kepala Unit', 'nip' => '02090001', 'jabatan' => 'Karu IGD'],
+            ['name' => 'Gilang Yoga Sulistyo Utomo', 'nip' => '02090002', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Majid Prasetya.,S.Kep Ns', 'nip' => '02090003', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Yuli Ratnasari, S.Kep.Ns', 'nip' => '02090004', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Dika Ari Utomo', 'nip' => '02090005', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Aryadi Harko', 'nip' => '02090006', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Galuh Rimba N', 'nip' => '02090007', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Aris Cahyono', 'nip' => '02090008', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Novian Hardiyono.,A.Md Kep', 'nip' => '02090009', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Sabar Tiono.,A.Md Kep', 'nip' => '02090010', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Soleh Ahmad R', 'nip' => '02090011', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Mahful.,S.Kep Ns', 'nip' => '02090012', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Yustika Dwi A', 'nip' => '02090013', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Brian Sanada', 'nip' => '02090014', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Dinar Kurniadi.,S.Kep Ns', 'nip' => '02090015', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Adib Rofiudin Izza', 'nip' => '02090016', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Indarto', 'nip' => '02090017', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Albetias Pangestuti', 'nip' => '02090018', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Swasti Jamalina', 'nip' => '02090019', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Ajeng Bara Saputri.,A.Md Kep', 'nip' => '02090020', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Syaeful Fadlan A.,S.Kep Ns', 'nip' => '02090021', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Hanung Maulana.,A.Md Kep', 'nip' => '02090022', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Tony Adam', 'nip' => '02090023', 'jabatan' => 'Pekarya Kesehatan'],
+            ['name' => 'Aris Aji Pangestu', 'nip' => '02090024', 'jabatan' => 'Pekarya Kesehatan'],
         ];
 
         // Cari unit IGD
@@ -280,6 +280,8 @@ class UserSeeder extends Seeder
                 ['email' => $this->emailFormat($member['name'])],
                 [
                     'name' => $member['name'],
+                    'nip' => $member['nip'] ?? null,
+                    'username' => $this->usernameFormat($member['name']),
                     'password' => Hash::make('123'), // Password default
                     'unit_id' => $igdUnit->id,
                     'jabatan_id' => $KategoriJabatan,
@@ -569,23 +571,22 @@ class UserSeeder extends Seeder
 
         // Data untuk unit AT TAQWA
         $atTaqwaMembers = [
-            ['name' => 'Susilo Rudatin', 'role' => 'Kepala Ruang', 'jabatan' => 'Karu At Taqwa'],
-            ['name' => 'Imam Waizun', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Wahyu Nur Fitriyani.,S.Kep Ns', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Andika Susetyo Kaisar Putra.,S.Kep Ns', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Erdika Retno Wulandari.,A.Md Kep', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Badi Nur Waluyo, S.Kep.Ns.', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Yuyun Purwanti', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Slamet Uji Kurniawan.,S.Kep Ns', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Putri Puja Pangesti.,A.Md Kep', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Jodi Fajar Wiguna.,A.Md Kep', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Ahmad Sukro Hidayat', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Tri Mutmainah.,A.Md Kep', 'jabatan' => 'Perawat Pelaksana'],
-            ['name' => 'Yuda Valentino.,S.Kep Ns', 'jabatan' => 'Perawat Pelaksana'], //kontrak
-            ['name' => 'Rozaul Muta\'ali', 'jabatan' => 'Perawat Pelaksana'], //kontrak
-            ['name' => 'Slamet Nikmat', 'jabatan' => 'Pekarya Kesehatan'],
-            ['name' => 'Prana Sakti Ibnu Oetomo', 'jabatan' => 'Pekarya Kesehatan'], //kontrak
-            // ['name' => 'Wahidatun Toyibah'],
+            ['name' => 'Susilo Rudatin', 'role' => 'Kepala Ruang', 'nip' => '02092001', 'jabatan' => 'Karu At Taqwa'],
+            ['name' => 'Imam Waizun', 'nip' => '02092002', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Wahyu Nur Fitriyani.,S.Kep Ns', 'nip' => '02092003', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Andika Susetyo Kaisar Putra.,S.Kep Ns', 'nip' => '02092004', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Erdika Retno Wulandari.,A.Md Kep', 'nip' => '02092005', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Badi Nur Waluyo, S.Kep.Ns.', 'nip' => '02092006', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Yuyun Purwanti', 'nip' => '02092007', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Slamet Uji Kurniawan.,S.Kep Ns', 'nip' => '02092008', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Putri Puja Pangesti.,A.Md Kep', 'nip' => '02092009', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Jodi Fajar Wiguna.,A.Md Kep', 'nip' => '02092010', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Ahmad Sukro Hidayat', 'nip' => '02092011', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Tri Mutmainah.,A.Md Kep', 'nip' => '02092012', 'jabatan' => 'Perawat Pelaksana'],
+            ['name' => 'Yuda Valentino.,S.Kep Ns', 'nip' => '02092013', 'jabatan' => 'Perawat Pelaksana'], //kontrk
+            ['name' => 'Rozaul Muta\'ali', 'nip' => '02092014', 'jabatan' => 'Perawat Pelaksana'],  //kontrak
+            ['name' => 'Prana Sakti Ibnu Oetomo', 'nip' => '02092015', 'jabatan' => 'Pekarya Kesehatan'], //kontrak
+            ['name' => 'Slamet Nikmat', 'nip' => '02092016', 'jabatan' => 'Pekarya Kesehatan'],
         ];
 
         // Cari unit AT TAQWA
@@ -602,6 +603,8 @@ class UserSeeder extends Seeder
                 ['email' => $this->emailFormat($member['name'])],
                 [
                     'name' => $member['name'],
+                    'nip' => $member['nip'] ?? null,
+                    'username' => $this->usernameFormat($member['name']),
                     'password' => Hash::make('123'), // Password default
                     'unit_id' => $atTaqwaUnit->id,
                     'jabatan_id' => $KategoriJabatan,
@@ -991,26 +994,26 @@ class UserSeeder extends Seeder
 
         // Data untuk unit INST REKAM MEDIK
         $rekamMedikMembers = [
-            ['name' => 'Wigati', 'role' => 'Kepala Instalasi', 'jabatan' => 'Ka. Instalasi Rekam Medik'],
-            ['name' => 'Deka Prasetiyanti', 'jabatan' => 'Staf Instalasi Rekam Medik'],
-            ['name' => 'Lina Sandyasari', 'jabatan' => 'Asembling'],
-            ['name' => 'Lina Afiyanti', 'jabatan' => 'Koding'],
-            ['name' => 'Meiga Kencana Putri.,A.Md', 'jabatan' => 'Koding'],
-            ['name' => 'Andi Gunawan', 'jabatan' => 'Informasi + Filling'],
-            ['name' => 'Eric Setiawan', 'jabatan' => 'Informasi + Filling'],
-            ['name' => 'Kavi Nurul Firdaus', 'jabatan' => 'Pendaftaran'],
-            ['name' => 'Gayuh Prasetyo', 'jabatan' => 'Pendaftaran'],
-            ['name' => 'Agus Waluyo', 'jabatan' => 'Pendaftaran'],
-            ['name' => 'Suci Rahmawati', 'jabatan' => 'Pendaftaran'],
-            ['name' => 'Rifka Winda Listanti', 'jabatan' => 'Pendaftaran'],
-            ['name' => 'Novi Purbasari', 'jabatan' => 'Pendaftaran'],
-            ['name' => 'Angga Putra Pratama', 'jabatan' => 'Pendaftaran'],
-            ['name' => 'Wagianto', 'jabatan' => 'Pendaftaran'],
-            ['name' => 'Nurul Fatiah', 'jabatan' => 'Pendaftaran'],
-            ['name' => 'Zulfa Nurmutaqin', 'jabatan' => 'Pendaftaran'],
-            ['name' => 'Hamid Badawi Hasan', 'jabatan' => 'Pendaftaran'],
-            ['name' => 'Dzaky Arhiska Daffa', 'jabatan' => 'Pendaftaran'],
-            ['name' => 'Puji Lestari', 'jabatan' => 'Petugas Entry SKU'],
+            ['name' => 'Wigati', 'role' => 'Kepala Instalasi', 'nip' => '02091001', 'jabatan' => 'Ka. Instalasi Rekam Medik'],
+            ['name' => 'Deka Prasetiyanti', 'nip' => '02091002', 'jabatan' => 'Staf Instalasi Rekam Medik'],
+            ['name' => 'Lina Sandyasari', 'nip' => '02091003', 'jabatan' => 'Asembling'],
+            ['name' => 'Lina Afiyanti', 'nip' => '02091004', 'jabatan' => 'Koding'],
+            ['name' => 'Meiga Kencana Putri.,A.Md', 'nip' => '02091005', 'jabatan' => 'Koding'],
+            ['name' => 'Andi Gunawan', 'nip' => '02091006', 'jabatan' => 'Informasi + Filling'],
+            ['name' => 'Eric Setiawan', 'nip' => '02091007', 'jabatan' => 'Informasi + Filling'],
+            ['name' => 'Kavi Nurul Firdaus', 'nip' => '02091008', 'jabatan' => 'Pendaftaran'],
+            ['name' => 'Gayuh Prasetyo', 'nip' => '02091009', 'jabatan' => 'Pendaftaran'],
+            ['name' => 'Agus Waluyo', 'nip' => '02091010', 'jabatan' => 'Pendaftaran'],
+            ['name' => 'Suci Rahmawati', 'nip' => '02091011', 'jabatan' => 'Pendaftaran'],
+            ['name' => 'Rifka Winda Listanti', 'nip' => '02091012', 'jabatan' => 'Pendaftaran'],
+            ['name' => 'Novi Purbasari', 'nip' => '02091013', 'jabatan' => 'Pendaftaran'],
+            ['name' => 'Angga Putra Pratama', 'nip' => '02091014', 'jabatan' => 'Pendaftaran'],
+            ['name' => 'Wagianto', 'nip' => '02091015', 'jabatan' => 'Pendaftaran'],
+            ['name' => 'Nurul Fatiah', 'nip' => '02091016', 'jabatan' => 'Pendaftaran'],
+            ['name' => 'Zulfa Nurmutaqin', 'nip' => '02091017', 'jabatan' => 'Pendaftaran'],
+            ['name' => 'Hamid Badawi Hasan', 'nip' => '02091018', 'jabatan' => 'Pendaftaran'],
+            ['name' => 'Dzaky Arhiska Daffa', 'nip' => '02091019', 'jabatan' => 'Pendaftaran'],
+            ['name' => 'Puji Lestari', 'nip' => '02091020', 'jabatan' => 'Petugas Entry SKU'],
         ];
 
         // Cari unit INST REKAM MEDIK
@@ -1027,6 +1030,8 @@ class UserSeeder extends Seeder
                 ['email' => $this->emailFormat($member['name'])],
                 [
                     'name' => $member['name'],
+                    'nip' => $member['nip'] ?? null,
+                    'username' => $this->usernameFormat($member['name']),
                     'password' => Hash::make('123'), // Password default
                     'unit_id' => $rekamMedikUnit->id,
                     'jabatan_id' => $KategoriJabatan,
@@ -1038,6 +1043,7 @@ class UserSeeder extends Seeder
         }
 
         $this->command->info('Seeder user INST REKAM MEDIK berhasil dijalankan.');
+
 
         // Data untuk unit FARMASI
         $farmasiMembers = [
@@ -1614,9 +1620,9 @@ class UserSeeder extends Seeder
 
         // Data untuk unit Kepegawaian
         $kepegawaianMembers = [
-            ['name' => 'Mister', 'nip' => '02090274', 'role' => 'Kepala Seksi Kepegawaian', 'jabatan' => 'Ka. Seksi Kepegawaian'],
-            ['name' => 'Diana Melisawati', 'nip' => '03160444', 'role' => 'Staf Kepegawaian', 'jabatan' => 'Staf Seksi Kepegawaian'],
-            ['name' => 'Dyah Novita Sari', 'nip' => '03170456', 'role' => 'Staf Kepegawaian', 'jabatan' => 'Staf Seksi Kepegawaian'],
+            ['name' => 'Mister', 'nip' => '02090274', 'role' => 'Kepala Seksi Kepegawaian', 'jabatan' => 'Ka. Seksi Kepegawaian',],
+            ['name' => 'Diana Melisawati', 'nip' => '03160444', 'role' => 'Staf Kepegawaian', 'jabatan' => 'Staf Seksi Kepegawaian',],
+            ['name' => 'Dyah Novita Sari', 'nip' => '03170456', 'role' => 'Staf Kepegawaian', 'jabatan' => 'Staf Seksi Kepegawaian',],
         ];
 
         // Cari unit SDM
@@ -1629,22 +1635,12 @@ class UserSeeder extends Seeder
 
         foreach ($kepegawaianMembers as $member) {
             $KategoriJabatan = KategoriJabatan::where('nama', $member['jabatan'])->value('id');
-
-            // Regex untuk menghapus gelar di awal (Dr., Prof., Ir., H., drg., dll) dan di akhir (Sp.An, S.Ked, M.T, Gaji, dll)
-            $cleanName = preg_replace('/^(Dr\.|Prof\.|Ir\.|H\.|Gaji|S\.|A\.|drg\.)\s+|\s*,?\s*(Sp\.\w+|S\.\w+|M\.\w+|Gaji|A\.\w+|H\.\w+|Ir\.\w+|Dr\.\w+|Prof\.\w+|drg\.\w+)$/', '', $member['name']);
-
-            // Hilangkan double space yang mungkin tersisa
-            $cleanName = preg_replace('/\s+/', ' ', $cleanName);
-
-            // Hapus spasi dan ubah ke lowercase untuk username
-            $username = isset($member['nip']) ? strtolower(str_replace(' ', '', $cleanName)) : null;
-
             $user = User::firstOrCreate(
                 ['email' => $this->emailFormat($member['name'])],
                 [
                     'name' => $member['name'],
                     'nip' => $member['nip'] ?? null,
-                    'username' => $username,
+                    'username' => $this->usernameFormat($member['name']),
                     'password' => Hash::make('123'), // Password default
                     'unit_id' => $kepegawaianUnit->id,
                     'jabatan_id' => $KategoriJabatan,
