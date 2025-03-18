@@ -103,6 +103,7 @@
                             {{ \Carbon\Carbon::parse($tanggal)->format('d') }}
                         </th>
                     @endforeach
+                    <th class="px-4 py-3">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -129,6 +130,19 @@
                                 {{ $filteredShifts[$user_id][$tanggal] ?? '-' }}
                             </td>
                         @endforeach
+                        <td class="px-4 py-3">
+                            <a href="{{ route('jadwal.edit', optional(optional($jadwalUser)->first())->user->id) }}"
+                                class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
+                                data-tooltip-target="tooltip-jadwalUser-{{ optional(optional($jadwalUser)->first())->user->id }}">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>
+                            <div id="tooltip-jadwalUser-{{ optional(optional($jadwalUser)->first())->user->id }}"
+                                role="tooltip"
+                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                                Ubah Data Jadwal Absensi
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
+                        </td>
                     </tr>
                 @endforeach
             </tbody>

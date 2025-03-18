@@ -26,9 +26,9 @@ class JadwalAbsensiController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create($tipe, $id = 0)
     {
-        return view('jadwalAbsensi.create');
+        return view('jadwalAbsensi.create', compact('tipe', 'id'));
     }
 
     /**
