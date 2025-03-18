@@ -7,15 +7,16 @@ use App\Models\User;
 use Livewire\Component;
 use App\Models\UnitKerja;
 use App\Models\MasterUmum;
-use App\Models\MasterFungsi;
-use App\Models\JenisKaryawan;
-use App\Models\KategoriJabatan;
 use App\Models\Kategoripph;
+use App\Models\MasterFungsi;
+use App\Models\MasterKhusus;
+use App\Models\JenisKaryawan;
 use App\Models\MasterJabatan;
 use App\Models\MasterGolongan;
-use App\Models\MasterKhusus;
+use App\Models\KategoriJabatan;
 use App\Models\MasterPendidikan;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Hash;
 
 class KaryawanForm extends Component
 {
@@ -229,7 +230,7 @@ class KaryawanForm extends Component
             $this->khusus = $user->khusus_id;
             $this->selectedPph = $user->kategori_id;
             $this->selectedRoles = $user->roles->pluck('id')->toArray();
-            $this->typeShift = $user->type_sift;
+            $this->typeShift = $user->type_shift;
         }
 
         $this->units = UnitKerja::all();
@@ -307,12 +308,14 @@ class KaryawanForm extends Component
             'khusus_id' => $this->khusus ?? null,
             'kategori_id' => $this->selectedPph ?? null,
             'type_shift' => $this->typeShift ?? null,
+            'password' => Hash::make('123'),
         ]);
 
 
         // Update roles jika user baru dibuat atau diperbarui
-        if ($this->selectedRoles) {
-            $user->syncRoles($this->selectedRoles);
+        if (!empty($this->selectedRoles)) {
+            $roles = Role::whereIn('id', (array) $this->selectedRoles)->pluck('name')->toArray();
+            $user->syncRoles($roles);
         }
         return redirect()->route('datakaryawan.index')->with('success', 'Karyawan berhasil diTambah.');
     }

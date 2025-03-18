@@ -491,8 +491,10 @@
                                     <select id="type_shift" wire:model.live="typeShift"
                                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 ">
                                         <option value="">Pilih Shift</option>
-                                        <option value="1">Shift</option>
-                                        <option value="0">Non Shift</option>
+                                        <option value="1" {{ $typeShift == '1' ? 'selected' : '' }}>Shift
+                                        </option>
+                                        <option value="0" {{ $typeShift == '0' ? 'selected' : '' }}>Non Shift
+                                        </option>
                                     </select>
                                 </div>
                             </td>

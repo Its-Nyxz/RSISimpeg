@@ -90,7 +90,15 @@ class RolePermissionSeeder extends Seeder
                 'tambah-jadwal',
                 'edit-jadwal'
             ])->get(),
-            'Kepala Seksi Keuangan' => Permission::where('name', '!=', 'view-kepegawaian')->get(),
+            'Kepala Seksi Keuangan' => Permission::whereNotIn('name', [
+                'view-kenaikan',
+                'hak-akses',
+                'notification-cuti',
+                'create-data-karyawan',
+                'tambah-history',
+                'view-poin-peran',
+                'view-poin-penilaian',
+            ])->get(),
             'Staf Keuangan' => Permission::whereNotIn('name', [
                 'view-kepegawaian',
                 'master-data',
@@ -120,7 +128,6 @@ class RolePermissionSeeder extends Seeder
             if (isset($rolePermissions[$role])) {
                 $roleModel->givePermissionTo($rolePermissions[$role]);
             }
-
         }
     }
 }

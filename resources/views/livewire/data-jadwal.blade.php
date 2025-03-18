@@ -1,5 +1,5 @@
 <div>
-    <div class="flex justify-between py-2 mb-3">
+    <div class="flex justify-end py-2 mb-3">
         {{-- <h1 class="text-2xl font-bold text-success-900">Master Jadwal Absensi</h1> --}}
         <div class="flex justify-between items-center gap-4 mb-3">
             <!-- Input Pencarian -->
