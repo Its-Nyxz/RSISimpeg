@@ -2,10 +2,10 @@
     <!-- Header -->
     <div class="flex justify-end mb-6">
         @can('tambah-history')
-        <a href="#"
-            class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 mr-2 transition duration-200">
-            + Tambah History
-        </a>
+            <a href="#"
+                class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 mr-2 transition duration-200">
+                + Tambah History
+            </a>
         @endcan
         <a href="{{ route('datakaryawan.index') }}"
             class="bg-green-700 text-white hover:bg-success-800 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
@@ -15,53 +15,51 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="w-full">
-            <x-card title="{{ $user->no_ktp ?? '-' }}" class="mb-6 text-success-900">
+            <x-card title="No KTP : {{ $user->no_ktp ?? '-' }}" class="mb-6 text-success-900">
                 <div style="font-family: 'Gilroy-Regular', sans-serif; font-size: 14px;">
                     <div class="mb-4">
-                        <strong>Nama</strong>: {{ $user->name ?? '-' }}
+                        <strong>Nama</strong> : {{ $user->name ?? '-' }}
                     </div>
                     <div class="mb-4">
-                        <strong>Jabatan</strong>: {{ $user->kategorijabatan->nama ?? '-' }}
+                        <strong>Jabatan</strong> : {{ $user->kategorijabatan->nama ?? '-' }}
                     </div>
                     <div class="mb-4">
-                        <strong>Tempat, Tanggal Lahir</strong>: {{ $user->tempat ?? '-' }},
+                        <strong>Tempat, Tanggal Lahir</strong> : {{ $user->tempat ?? '-' }},
                         {{ $user->tanggal_lahir ? formatDate($user->tanggal_lahir) : '-' }}
                     </div>
-                    <div class="mb-4">
-                        <strong>Tanggal Tetap</strong>:
-                        {{ $user->tanggal_tetap ? formatDate($user->tanggal_tetap) : '-' }}
+                     <div class="mb-4">
+                        <strong>No Rek</strong> : {{ $user->no_rek ?? '-' }}
                     </div>
                     <div class="mb-4">
-                        <strong>Pendidikan Awal</strong>: {{ $user->pendidikanUser->deskripsi ?? '-' }}
+                        <strong>Pendidikan</strong> : {{ $user->pendidikanUser->deskripsi ?? '-' }}
                     </div>
                     <div class="mb-4">
-                        <strong>Pendidikan Penyesuaian</strong>: {{ $user->pendidikan_penyesuaian ?? '-' }}
+                        <strong>Institusi</strong> : {{ $user->institusi ?? '-' }}
                     </div>
                     <div class="mb-4">
-                        <strong>Tanggal Penyesuaian</strong>:
-                        {{ $user->tgl_penyesuaian ? formatDate($user->tgl_penyesuaian) : '-' }}
+                        <strong class="font-semibold">Jenis Kelamin</strong> :
+                        {{ $user->jk === null ? '-' : ($user->jk == 1 ? 'Laki-Laki' : 'Perempuan') }}
                     </div>
                     <div class="mb-4">
-                        <strong>Informasi Pensiun</strong>:
-                        {{ $user->pensiun ? formatDate($user->pensiun) : '-' }}
+                        <strong class="font-semibold">Alamat</strong> : {{ $user->alamat ?? '-' }}
                     </div>
                 </div>
                 <!-- Tombol Edit Karyawan -->
                 @can('edit-data-karyawan')
-                <div class="mt-4">
-                    <a href="{{ route('editKaryawan.edit', ['id' => $user->id]) }}"
-                        class="bg-green-700 text-white hover:bg-success-800 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 mr-2 transition duration-200">
-                        Edit Karyawan
-                    </a>
-                    <button x-on:click="$dispatch('open-modal', 'modal-resign')"
-                        class="text-{{ $statusKaryawan == 1 ? 'success-900' : 'black' }} bg-{{ $statusKaryawan == 1 ? 'success' : 'red' }}-100 hover:bg-{{ $statusKaryawan == 1 ? 'success' : 'red' }}-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 mr-2 transition duration-200">
-                        @if ($statusKaryawan == 1)
-                            Resign Kerja
-                        @else
-                            Kembali Kerja
-                        @endif
-                    </button>
-                </div>
+                    <div class="mt-4">
+                        <a href="{{ route('editKaryawan.edit', ['id' => $user->id]) }}"
+                            class="bg-green-700 text-white hover:bg-success-800 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 mr-2 transition duration-200">
+                            Edit Karyawan
+                        </a>
+                        <button x-on:click="$dispatch('open-modal', 'modal-resign')"
+                            class="text-{{ $statusKaryawan == 1 ? 'success-900' : 'black' }} bg-{{ $statusKaryawan == 1 ? 'success' : 'red' }}-100 hover:bg-{{ $statusKaryawan == 1 ? 'success' : 'red' }}-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 mr-2 transition duration-200">
+                            @if ($statusKaryawan == 1)
+                                Resign Kerja
+                            @else
+                                Kembali Kerja
+                            @endif
+                        </button>
+                    </div>
                 @endcan
             </x-card>
         </div>
