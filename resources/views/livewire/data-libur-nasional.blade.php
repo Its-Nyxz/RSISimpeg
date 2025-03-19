@@ -22,6 +22,7 @@
     </select>
 </div>
 
+
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-700">
             <thead class="text-sm uppercase bg-success-400 text-success-900">
@@ -43,8 +44,12 @@
                         <td class="px-6 py-4">
                             <a href="{{ route('liburnasional.edit', $holiday['id']) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300">
-                                <i class="fa-solid fa-pen"></i>
+                                <i class="fa-solid fa-pen" style="margin-right: 30px;"></i>
                             </a>
+                            <button wire:click="confirmDelete({{ $holiday['id'] }})"
+                                class="text-red-600 px-3 py-2 rounded-md border border-red-600 hover:bg-red-600 hover:text-white">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
                         </td>
                     </tr>
                 @empty
@@ -55,4 +60,19 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Modal Konfirmasi Hapus -->
+    @if ($holidayIdToDelete)
+        <div class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+            <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                <h2 class="text-lg font-semibold text-gray-900">Apakah Anda yakin ingin menghapus data ini?</h2>
+                <div class="mt-4 flex justify-center gap-4">
+                    <button wire:click="deleteHoliday"
+                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Ya, Hapus</button>
+                    <button wire:click="$set('holidayIdToDelete', null)"
+                        class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400">Batal</button>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
