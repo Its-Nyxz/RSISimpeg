@@ -31,30 +31,29 @@
                     </div>
                 </div>
                 <div class="grid grid-cols-2">
-                    <div class="font-semibold">Tanggal Tetap</div>
-                    <div>:
-                        {{ $userprofile->tanggal_tetap ? formatDate($userprofile->tanggal_tetap) : '-' }}
-                    </div>
+                    <div class="font-semibold">No KTP</div>
+                    <div>: {{ $userprofile->no_ktp ?? '-' }}</div>
                 </div>
                 <div class="grid grid-cols-2">
-                    <div class="font-semibold">Pendidikan Awal</div>
+                    <div class="font-semibold">No Rek</div>
+                    <div>: {{ $userprofile->no_rek ?? '-' }}</div>
+                </div>
+                <div class="grid grid-cols-2">
+                    <div class="font-semibold">Pendidikan</div>
                     <div>: {{ $userprofile->pendidikanUser->deskripsi ?? '-' }}</div>
                 </div>
                 <div class="grid grid-cols-2">
-                    <div class="font-semibold">Pendidikan Penyesuaian</div>
-                    <div>: {{ $userprofile->pendidikan_penyesuaian ?? '-' }}</div>
+                    <div class="font-semibold">Institusi</div>
+                    <div>: {{ $userprofile->institusi ?? '-' }}</div>
                 </div>
                 <div class="grid grid-cols-2">
-                    <div class="font-semibold">Tanggal Penyesuaian</div>
-                    <div>:
-                        {{ $userprofile->tgl_penyesuaian ? formatDate($userprofile->tgl_penyesuaian) : '-' }}
+                    <div class="font-semibold">Jenis Kelamin</div>
+                    <div>: {{ $userprofile->jk === null ? '-' : ($userprofile->jk == 1 ? 'Laki-Laki' : 'Perempuan') }}
                     </div>
                 </div>
                 <div class="grid grid-cols-2">
-                    <div class="font-semibold">Informasi Pensiun</div>
-                    <div>:
-                        {{ $userprofile->pensiun ? formatDate($userprofile->pensiun) : '-' }}
-                    </div>
+                    <div class="font-semibold">Alamat</div>
+                    <div>: {{ $userprofile->alamat ?? '-' }}</div>
                 </div>
             </div>
 

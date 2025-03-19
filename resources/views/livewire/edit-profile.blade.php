@@ -74,15 +74,15 @@
 
             {{-- Pendidikan --}}
             <div class="form-group col-span-2 md:col-span-1">
-                <label for="pendidikan_id" class="text-sm font-medium text-green-700">Pendidikan</label>
-                <select id="pendidikan_id" wire:model="pendidikan_id"
-                    class="form-control @error('pendidikan_id') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
+                <label for="pendidikan" class="text-sm font-medium text-green-700">Pendidikan</label>
+                <select id="pendidikan" wire:model="pendidikan"
+                    class="form-control @error('pendidikan') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
                     <option value="">-- Pilih Pendidikan --</option>
                     @foreach ($pendidikans as $pendidikan)
                         <option value="{{ $pendidikan->id }}">{{ $pendidikan->nama }}</option>
                     @endforeach
                 </select>
-                @error('pendidikan_id')
+                @error('pendidikan')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>
