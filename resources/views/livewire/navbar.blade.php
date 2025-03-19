@@ -18,7 +18,7 @@
             </div>
             <div>
                 <div class="hidden sm:flex items-center lg:order-2">
-                    <a href="#">
+                    <a href="{{ route('userprofile.index') }}">
                         <span class="font-medium text-success-950 me-2"
                             style="text-transform: capitalize;">{{ auth()->user()->name }}</span>
                         <span class="text-white bg-success-950 rounded-full me-2 hover:bg-success-700 px-3 py-2">
