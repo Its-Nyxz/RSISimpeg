@@ -17,6 +17,8 @@ class CreateJadwal extends Component
     // public $opsi_nama;     // Menyimpan nama opsi absensi (hanya untuk tampilan)
     // public $opsi_id;       // Menyimpan ID opsi absensi untuk database
     public $tanggal;       // Tanggal jadwal
+    public $tipe;       // Tanggal jadwal
+    public $id;       // Tanggal jadwal
 
     //public $keterangan;    // Keterangan absensi
 
@@ -51,7 +53,6 @@ class CreateJadwal extends Component
                 ->get();
         } elseif ($field === 'shift') {
             $this->shifts = Shift::where('nama_shift', 'like', "%$query%")->get();
-
         }
         // elseif ($field === 'opsi') {
 
@@ -62,26 +63,43 @@ class CreateJadwal extends Component
 
 
 
-    // public function mount()
-    // {
-    //     $this->users = User::all();
-    //     $this->shifts = Shift::all();
-    //     $this->opsis = OpsiAbsen::all();
-    // }
+    public function mount($id = null, $tipe = null)
+    {
+        if ($id) {
+            $jadwal = JadwalAbsensi::find($id);
+
+            if ($jadwal) {
+                $this->user_id = $jadwal->user_id;
+                $this->nama = $jadwal->user->name;
+                $this->shift_id = $jadwal->shift_id;
+                $this->shift_nama = $jadwal->shift->nama_shift;
+                $this->tanggal = $jadwal->tanggal_jadwal;
+            }
+        }
+
+        // Jika id adalah 'edit', cari nilai berdasarkan tipe
+        if ($id === 'edit' && $tipe) {
+            $user = User::find($tipe);
+            if ($user) {
+                $this->user_id = $user->id;
+                $this->nama = $user->name;
+            }
+        }
+    }
 
     public function store()
     {
         $this->validate();
 
-        JadwalAbsensi::create([
-            'user_id' => $this->user_id,
-            'shift_id' => $this->shift_id,
-            // 'opsi_id' => $this->opsi_id,
-            'tanggal_jadwal' => $this->tanggal,
-            // 'keterangan_absen' => $this->keterangan,
-
-
-        ]);
+        JadwalAbsensi::updateOrCreate(
+            [
+                'user_id' => $this->user_id,
+                'tanggal_jadwal' => $this->tanggal,
+            ],
+            [
+                'shift_id' => $this->shift_id,
+            ]
+        );
 
         session()->flash('success', 'Jadwal Absensi berhasil ditambahkan!');
         return redirect()->route('jadwal.index');
@@ -89,6 +107,7 @@ class CreateJadwal extends Component
     // Method untuk memilih user
     public function selectUser($id, $name)
     {
+        if ($this->id) return;
         $this->user_id = $id;
         $this->nama = $name;
         $this->users = [];

@@ -9,23 +9,38 @@ use Livewire\Component;
 class DetailKaryawan extends Component
 {
     public $user;
-    public $namaJabatan;
-    public $tanggal_lahir;
-    public $tanggal_tetap;
-    public $tgl_penyesuaian;
-    public $pensiun;
-    public $deskripsiPendidikan;
+    public $user_id;
+    public $alasanResign;
+    public $statusKaryawan;
 
     public function mount($user)
     {
         // Mendapatkan data user
         $this->user = $user;
+        $this->user_id = $user->id;
+        $this->statusKaryawan = $user->status_karyawan;
+        $this->alasanResign = $user->alasan_resign;
+    }
 
-        // Mendapatkan nama jabatan berdasarkan jabatan_id
-        $this->namaJabatan = $user->kategorijabatan->nama ?? '-';
+    public function resignKerja()
+    {
+        $this->validate(['alasanResign' => 'required|string|max:255']);
+        $user = User::findOrFail($this->user_id);
+        $user->update([
+            'status_karyawan' => 0,
+            'alasan_resign' => $this->alasanResign
+        ]);
+        return redirect()->route('detailkaryawan.show', $this->user_id)->with('success', 'Karyawan berhasil dinonaktifkan.');
+    }
 
-        // Mendapatkan deskripsi pendidikan berdasarkan pendidikan_id
-        $this->deskripsiPendidikan = $user->pendidikanUser->deskripsi ?? '-';
+    public function kembali()
+    {
+        $user = User::findOrFail($this->user_id);
+        $user->update([
+            'status_karyawan' => 1,
+            'alasan_resign' => $this->alasanResign
+        ]);
+        return redirect()->route('detailkaryawan.show', $this->user_id)->with('success', 'Karyawan berhasil diaktifkan.');
     }
 
     public function render()

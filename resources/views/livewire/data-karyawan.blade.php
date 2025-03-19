@@ -1,19 +1,36 @@
 <div class="mb-4">
-    <div class="flex justify-between py-2 mb-3">
+    <div class="py-2 mb-3">
         <h1 class="text-2xl font-bold text-success-900">Data Karyawan</h1>
-        <div class="flex justify-between items-center gap-4 mb-3">
-            <div class="flex-1">
-                <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Karyawan..."
-                    class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
-            </div>
-            @can('create')
-            <a href="{{ route('datakaryawan.create') }}"
-                class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                + Tambah Karyawan
-            </a>
+    </div>
+    <div class="flex flex-col md:flex-row justify-between items-center md:gap-4 space-y-3 md:space-y-0 mb-3">
+        <!-- Bagian Dropdown -->
+        <div id="1" class="flex space-x-4 w-full md:w-auto justify-center md:justify-start">
+            <select wire:model.live="selectedUserAktif" class="border-2 border-gray-700 rounded-md p-2">
+                <option value="1">Aktif</option>
+                <option value="0">Non Aktif</option>
+            </select>
+            <select wire:model.live="selectedUnit" class="border-2 border-gray-700 rounded-md p-2">
+                <option value="">-- Pilih Unit --</option>
+                @foreach ($units as $item)
+                    <option value="{{ $item->id }}">{{ $item->nama }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <!-- Bagian Search dan Tambah (Tetap dalam satu baris) -->
+        <div id="2" class="flex w-full md:w-auto items-center gap-3 md:gap-4">
+            <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Karyawan..."
+                class="flex-1 md:w-auto rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
+           @can('create-data-karyawan')
+                <a href="{{ route('datakaryawan.create') }}"
+                    class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200 whitespace-nowrap">
+                    + Tambah Karyawan
+                </a>
+
             @endcan
         </div>
     </div>
+
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-center text-gray-700">
             <thead class="text-sm uppercase bg-success-400 text-success-900">
@@ -37,11 +54,11 @@
                         <td class="px-6 py-4">{{ $user->kategorijabatan->nama ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $user->unitKerja->nama ?? '-' }}</td>
                         <td class="px-6 py-4">
-                            @can('detail')
-                            <a href="{{ route('detailkaryawan.show', ['detailkaryawan' => $user->id]) }}"
-                                class="flex items-center justify-center bg-green-700 text-white font-medium rounded-md px-3 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
-                                <i class="fa-solid fa-magnifying-glass"></i>
-                            </a>
+                             @can('detail-data-karyawan')
+                                <a href="{{ route('detailkaryawan.show', ['detailkaryawan' => $user->id]) }}"
+                                    class="bg-green-700 text-white font-medium rounded-md px-3 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </a>
                             @endcan
                         </td>
                     </tr>
