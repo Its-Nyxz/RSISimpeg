@@ -1,5 +1,5 @@
 <x-body>
-    <h1 class="text-2xl font-bold text-success-900 mb-4">Dashboard {{ Auth::user()->unitKerja->nama ?? ' ' }}</h1>
+    <h1 class="text-2xl font-bold text-success-900 mb-4">DASHBOARD {{ Auth::user()->unitKerja->nama ?? ' ' }}</h1>
     {{-- <livewire:data-absen type="absen" /> --}}
     {{-- <x-card-tanpa-title class="max-w-md">
         <div class="flex flex-col" style="margin-left: 30px;">
@@ -63,7 +63,7 @@
             </x-card>
         </div>
 
-        @if (Auth::user()->unitKerja->nama == 'KEPEGAWAIAN')
+        @if (Auth::user()->unitKerja?->nama == 'KEPEGAWAIAN')
             <!-- Kolom Kanan -->
             <div class="md:col-span-1">
                 <x-card title="Total Karyawan" class="mb-4">
