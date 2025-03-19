@@ -64,6 +64,7 @@ class RolePermissionSeeder extends Seeder
             'view-keuangan',
             'view-kepegawaian',
             'hak-akses',
+            'resign-kerja'
 
         ];
 
@@ -88,7 +89,7 @@ class RolePermissionSeeder extends Seeder
                 'template-jadwal',
                 'import-jadwal',
                 'tambah-jadwal',
-                'edit-jadwal'
+                'edit-jadwal',
             ])->get(),
             'Kepala Seksi Keuangan' => Permission::where('name', '!=', 'view-kepegawaian')->get(),
             'Staf Keuangan' => Permission::whereNotIn('name', [
@@ -102,12 +103,14 @@ class RolePermissionSeeder extends Seeder
                 'template-jadwal',
                 'import-jadwal',
                 'tambah-jadwal',
-                'edit-jadwal'
+                'edit-jadwal',
+                'resign-kerja'
             ])->get(),
             'Staf' => Permission::whereIn('name', ['timer', 'list-history'])->get(),
-            'Kepala Instalasi' => Permission::whereNotIn('name', ['view-keuangan', 'hak-akses', 'master-data', 'create-data-karyawan'])->get(),
-            'Kepala Ruang' => Permission::whereNotIn('name', ['view-keuangan', 'hak-akses', 'master-data', 'create-data-karyawan'])->get(),
-            'Kepala Seksi' => Permission::whereNotIn('name', ['view-keuangan', 'hak-akses', 'master-data', 'create-data-karyawan'])->get(),
+            'Kepala Instalasi' => Permission::whereNotIn('name', ['view-keuangan', 'hak-akses', 'master-data', 'create-data-karyawan', 'resign-kerja'])->get(),
+            'Kepala Ruang' => Permission::whereNotIn('name', ['view-keuangan', 'hak-akses', 'master-data', 'create-data-karyawan', 'resign-kerja'])->get(),
+            'Kepala Unit' => Permission::whereNotIn('name', ['view-keuangan', 'hak-akses', 'master-data', 'create-data-karyawan', 'resign-kerja'])->get(),
+            'Kepala Seksi' => Permission::whereNotIn('name', ['view-keuangan', 'hak-akses', 'master-data', 'create-data-karyawan', 'resign-kerja'])->get(),
             'Manager' => Permission::whereIn('name', ['timer', 'list-history', 'detail-data-karyawan'])->get(),
         ];
 
@@ -120,7 +123,6 @@ class RolePermissionSeeder extends Seeder
             if (isset($rolePermissions[$role])) {
                 $roleModel->givePermissionTo($rolePermissions[$role]);
             }
-
         }
     }
 }

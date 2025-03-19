@@ -5,11 +5,13 @@
     <div class="flex flex-col md:flex-row justify-between items-center md:gap-4 space-y-3 md:space-y-0 mb-3">
         <!-- Bagian Dropdown -->
         <div id="1" class="flex space-x-4 w-full md:w-auto justify-center md:justify-start">
-            <select wire:model.live="selectedUserAktif" class="border-2 border-gray-700 rounded-md p-2">
+            <select wire:model.live="selectedUserAktif"
+                class="rounded-lg px-2 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
                 <option value="1">Aktif</option>
                 <option value="0">Non Aktif</option>
             </select>
-            <select wire:model.live="selectedUnit" class="border-2 border-gray-700 rounded-md p-2">
+            <select wire:model.live="selectedUnit"
+                class="rounded-lg px-2 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
                 <option value="">-- Pilih Unit --</option>
                 @foreach ($units as $item)
                     <option value="{{ $item->id }}">{{ $item->nama }}</option>
@@ -21,12 +23,11 @@
         <div id="2" class="flex w-full md:w-auto items-center gap-3 md:gap-4">
             <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Karyawan..."
                 class="flex-1 md:w-auto rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
-           @can('create-data-karyawan')
+            @can('create-data-karyawan')
                 <a href="{{ route('datakaryawan.create') }}"
                     class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200 whitespace-nowrap">
                     + Tambah Karyawan
                 </a>
-
             @endcan
         </div>
     </div>
@@ -54,7 +55,7 @@
                         <td class="px-6 py-4">{{ $user->kategorijabatan->nama ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $user->unitKerja->nama ?? '-' }}</td>
                         <td class="px-6 py-4">
-                             @can('detail-data-karyawan')
+                            @can('detail-data-karyawan')
                                 <a href="{{ route('detailkaryawan.show', ['detailkaryawan' => $user->id]) }}"
                                     class="bg-green-700 text-white font-medium rounded-md px-3 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
                                     <i class="fa-solid fa-magnifying-glass"></i>

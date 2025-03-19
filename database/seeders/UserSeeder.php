@@ -66,6 +66,7 @@ class UserSeeder extends Seeder
         // Super Admin
         $superAdmin = User::create([
             'name' => 'Super Admin',
+            'username' => 'superadmin',
             'email' => 'superadmin@gmail.com',
             'password' => Hash::make('123'), // Password default
             'unit_id' => null, // Tidak terkait dengan unit
@@ -240,7 +241,7 @@ class UserSeeder extends Seeder
 
         // Data untuk unit IGD
         $igdMembers = [
-            ['name' => 'Suyatno', 'role' => 'Kepala Unit', 'nip' => '02090001', 'jabatan' => 'Karu IGD'],
+            ['name' => 'Suyatno', 'role' => 'Kepala Ruang', 'nip' => '02090001', 'jabatan' => 'Karu IGD'],
             ['name' => 'Gilang Yoga Sulistyo Utomo', 'nip' => '02090002', 'jabatan' => 'Perawat Pelaksana'],
             ['name' => 'Majid Prasetya.,S.Kep Ns', 'nip' => '02090003', 'jabatan' => 'Perawat Pelaksana'],
             ['name' => 'Yuli Ratnasari, S.Kep.Ns', 'nip' => '02090004', 'jabatan' => 'Perawat Pelaksana'],
