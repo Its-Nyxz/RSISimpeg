@@ -201,6 +201,7 @@ class Timer extends Component
 
             $this->dispatch('timer-started', now()->timestamp);
             $this->showStartModal = false;
+            return redirect()->to('/timer');
         }
     }
 

@@ -30,6 +30,8 @@ class DataJadwal extends Component
         $this->bulan = (int) $this->bulan;
         $this->tahun = (int) $this->tahun;
 
+        $unitId = auth()->user()->unit_id;
+
         $this->tanggalJadwal = collect(range(1, cal_days_in_month(CAL_GREGORIAN, $this->bulan, $this->tahun)))
             ->map(fn($day) => sprintf('%04d-%02d-%02d', $this->tahun, $this->bulan, $day))
             ->toArray();
@@ -37,10 +39,8 @@ class DataJadwal extends Component
         $jadwalData = JadwalAbsensi::with(['user', 'shift'])
             ->whereYear('tanggal_jadwal', $this->tahun)
             ->whereMonth('tanggal_jadwal', $this->bulan)
-            ->when($this->search, function ($query) {
-                $query->whereHas('user', function ($q) {
-                    $q->where('name', 'like', "%{$this->search}%");
-                });
+            ->whereHas('user', function ($query) use ($unitId) {
+                $query->where('unit_id', $unitId);
             })
             ->get();
 
