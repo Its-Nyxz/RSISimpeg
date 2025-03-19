@@ -2,14 +2,15 @@
 
 namespace App\Exports;
 
+use DateTime;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Shift;
 use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Concerns\FromArray;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
-use Carbon\Carbon;
+use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
 {
@@ -39,7 +40,7 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
                 $index + 1,
                 $user->name ?? '-',
                 $user->pendidikan ?? '-',
-                $user->tmt ? $user->tmt->format('d/m/Y') : '-',
+                $user->tmt ? (new DateTime($user->tmt))->format('d/m/Y') : '-',
                 $user->lama_kerja ?? 0,
             ];
 
