@@ -55,7 +55,6 @@ class EditProfile extends Component
         $user->update([
             'name' => $this->name ?? null,
             'nip' => $this->nip ?? null,
-            'email' => $this->email ?? null,
             'no_ktp' => $this->no_ktp ?? null,
             'no_hp' => $this->no_hp ?? null,
             'no_rek' => $this->no_rek ?? null,
