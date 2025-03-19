@@ -7,31 +7,30 @@ use Livewire\Component;
 
 class DataLiburNasional extends Component
 {
-    public $search = ''; // Properti untuk menyimpan nilai input pencarian
-    public $holidays = [];
+    public $search = ''; 
+    public $tahun;
 
     public function mount()
     {
-        $this->loadData();
+        $this->tahun = request()->query('tahun', now()->year);
     }
 
-    public function loadData()
+    public function updatedTahun()
     {
-        $this->holidays = Holidays::when($this->search, function ($query) {
-            $query->where('description', 'like', '%' . $this->search . '%');
-        })
-            ->get()
-            ->toArray();
-    }
-
-    public function updateSearch($value)
-    {
-        $this->search = $value;
-        $this->loadData();
+        return redirect()->route('liburnasional.index', ['tahun' => $this->tahun]);
     }
 
     public function render()
     {
-        return view('livewire.data-libur-nasional');
+        $holidays = Holidays::when($this->search, function ($query) {
+            $query->where('description', 'like', '%' . $this->search . '%');
+        })
+        ->when($this->tahun, function ($query) {
+            $query->whereYear('date', $this->tahun);
+        })
+        ->orderBy('date', 'asc')
+        ->get();
+
+        return view('livewire.data-libur-nasional', compact('holidays'));
     }
 }
