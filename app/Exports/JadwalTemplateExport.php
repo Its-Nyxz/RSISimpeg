@@ -31,7 +31,9 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
         $data = [];
 
         // Ambil semua user berdasarkan unit_id
-        $users = User::where('unit_id', $this->unitId)->get();
+        $users = User::where('unit_id', $this->unitId)
+            ->orderBy('name', 'asc') // Mengurutkan berdasarkan nama (ascending)
+            ->get();
 
         $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
 
