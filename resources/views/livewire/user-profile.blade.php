@@ -136,7 +136,7 @@
 
 
     @php
-        $roles = ['Super Admin', 'Kepegawaian', 'Administrator'];
+        $roles = ['Super Admin', 'Kepala Seksi Kepegawaian', 'Staf Kepegawaian', 'Administrator'];
     @endphp
 
     @if (Auth::user()->hasAnyRole($roles))

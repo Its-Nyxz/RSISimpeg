@@ -104,6 +104,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('absensi', MasterAbsensiController::class);
     Route::get('/jadwal/template', [JadwalAbsensiController::class, 'export'])->name('jadwal.template');
+    Route::get('jadwal/{tipe}/{id}', [JadwalAbsensiController::class, 'create']);
     Route::resource('jadwal', JadwalAbsensiController::class);
     Route::resource('status', StatusAbsenController::class);
     Route::resource('kenaikan', KenaikanGolonganController::class);

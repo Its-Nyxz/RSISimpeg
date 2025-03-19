@@ -12,6 +12,7 @@ use App\Models\MasterPendidikan;
 class EditProfile extends Component
 {
     public $user_id, $name, $nip, $no_ktp, $no_hp, $no_rek, $pendidikan, $institusi, $jk, $alamat, $tempat, $tanggal_lahir;
+
     public $jabatans, $pendidikans;
 
     public function mount()

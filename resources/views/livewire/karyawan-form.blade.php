@@ -12,7 +12,7 @@
                             <td>
                                 <input type="text" id="nama" wire:model.live="nama"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
-                                    placeholder="Nama Pegawai" required />
+                                    placeholder="Nama Pegawai" />
                                 @error('nama')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
@@ -26,7 +26,7 @@
                             <td>
                                 <input type="text" id="nip" wire:model.live="nip"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
-                                    placeholder="NIP" required />
+                                    placeholder="NIP" />
                                 @error('nip')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
@@ -40,7 +40,7 @@
                             <td>
                                 <input type="text" id="email" wire:model.live="email"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
-                                    placeholder="Email Pegawai" required />
+                                    placeholder="Email Pegawai" />
                                 @error('email')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
@@ -54,7 +54,7 @@
                             <td>
                                 <input type="text" id="no_ktp" wire:model.live="no_ktp"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
-                                    placeholder="No KTP" required />
+                                    placeholder="No KTP" />
                                 @error('no_ktp')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
@@ -68,7 +68,7 @@
                             <td>
                                 <input type="text" id="no_hp" wire:model.live="no_hp"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
-                                    placeholder="No HP" required />
+                                    placeholder="No HP" />
                                 @error('no_hp')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
@@ -82,7 +82,7 @@
                             <td>
                                 <input type="text" id="no_rek" wire:model.live="no_rek"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
-                                    placeholder="No Rek" required />
+                                    placeholder="No Rek" />
                                 @error('no_rek')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
@@ -96,8 +96,7 @@
                             <td>
                                 <select id="pendidikans" wire:model.live="selectedPendidikan"
                                     wire:input='selectGolongan'
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
-                                    required>
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5">
                                     <option value="">Pilih Pendidikan</option>
                                     @foreach ($pendidikans as $pendidikan)
                                         <option value="{{ $pendidikan->id }}">
@@ -118,7 +117,7 @@
                             <td>
                                 <input type="text" id="namapendidikan" wire:model.live="namapendidikan"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
-                                    placeholder="Pendidikan Pegawai" required />
+                                    placeholder="Pendidikan Pegawai" />
                                 @error('namapendidikan')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
@@ -132,7 +131,7 @@
                             <td>
                                 <input type="text" id="institusi" wire:model.live="institusi"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
-                                    placeholder="Institusi Pegawai" required />
+                                    placeholder="Institusi Pegawai" />
                                 @error('institusi')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
@@ -167,7 +166,7 @@
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 "
                                     placeholder="Masukkan alamat" rows="3"></textarea>
                                 @error('alamat')
-                                    <span class="text-sm text-red-500 font-semibold">{{ the_message }}</span>
+                                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
                             </td>
                         </tr>
@@ -179,7 +178,7 @@
                             <td>
                                 <input type="text" id="tempat" wire:model.live="tempat"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
-                                    placeholder="Tempat Lahir" required />
+                                    placeholder="Tempat Lahir" />
                                 @error('tempat')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
@@ -194,7 +193,7 @@
                             <td>
                                 <input type="date" id="tanggal_lahir" wire:model.live="tanggal_lahir"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
-                                    required placeholder="Pilih tanggal">
+                                    placeholder="Pilih tanggal">
                                 @error('tanggal_lahir')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
@@ -246,7 +245,8 @@
                                     wire:focus="fetchSuggestions('unit', $event.target.value)"
                                     wire:input="fetchSuggestions('unit', $event.target.value)"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-700 focus:border-blue-700 block w-full p-2.5"
-                                    placeholder="Cari Unit Kerja..." wire:blur="hideSuggestions('unit')" required>
+                                    placeholder="Cari Unit Kerja..." wire:blur="hideSuggestions('unit')"
+                                    autocomplete="off">
 
                                 @if ($suggestions['unit'])
                                     <ul
@@ -272,7 +272,8 @@
                                     wire:focus="fetchSuggestions('jabatan', $event.target.value)"
                                     wire:input="fetchSuggestions('jabatan', $event.target.value)"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-700 focus:border-green-700 block w-full p-2.5"
-                                    placeholder="Cari Jabatan..." wire:blur="hideSuggestions('jabatan')" required>
+                                    placeholder="Cari Jabatan..." wire:blur="hideSuggestions('jabatan')"
+                                    autocomplete="off">
 
                                 @if (!empty($suggestions['jabatan']))
                                     <ul
@@ -319,7 +320,7 @@
                             <td>
                                 <input type="date" id="tmt" wire:model.live="tmt"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
-                                    required placeholder="Pilih tanggal">
+                                    placeholder="Pilih tanggal">
                                 @error('tmt')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
@@ -423,8 +424,7 @@
                             </td>
                             <td>
                                 <select id="khusus" wire:model.live="khusus"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
-                                    required>
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5">
                                     <option value="">Pilih Tunjangan Khusus</option>
                                     @foreach ($filteredKhusus as $khus)
                                         <option value="{{ $khus->id }}">
@@ -476,6 +476,25 @@
                                                 {{ ucwords(str_replace('_', ' ', $role->name)) }}
                                             </option>
                                         @endforeach
+                                    </select>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 40%">
+                                <label for="type_shift" class="block mb-2 text-sm font-medium text-gray-900">
+                                    Shift <span class="text-sm text-red-500">*</span>
+                                </label>
+                            </td>
+                            <td>
+                                <div>
+                                    <select id="type_shift" wire:model.live="typeShift"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 ">
+                                        <option value="">Pilih Shift</option>
+                                        <option value="1" {{ $typeShift == '1' ? 'selected' : '' }}>Shift
+                                        </option>
+                                        <option value="0" {{ $typeShift == '0' ? 'selected' : '' }}>Non Shift
+                                        </option>
                                     </select>
                                 </div>
                             </td>
