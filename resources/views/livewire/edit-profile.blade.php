@@ -77,7 +77,7 @@
                 <label for="pendidikan" class="text-sm font-medium text-green-700">Pendidikan</label>
                 <select id="pendidikan" wire:model="pendidikan"
                     class="form-control @error('pendidikan') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
-                    <option value="">-- Pilih Pendidikan --</option>
+                    <option value="null">-- Pilih Pendidikan --</option>
                     @foreach ($pendidikans as $pendidikan)
                         <option value="{{ $pendidikan->id }}">{{ $pendidikan->nama }}</option>
                     @endforeach

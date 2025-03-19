@@ -48,11 +48,11 @@
                 </div>
                 <div class="grid grid-cols-2">
                     <div class="font-semibold">Institusi</div>
-                    <div>: {{ $userprofile->no_ktp }}</div>
+                    <div>: {{ $userprofile->institusi }}</div>
                 </div>
                 <div class="grid grid-cols-2">
                     <div class="font-semibold">Jenis Kelamin</div>
-                    <div>: {{ $userprofile->jk == 1 ? 'Laki-laki' : 'Perempuan' }}</div>
+                <div> : {{ $userprofile->jk === null ? '-' : ($userprofile->jk == 1 ? 'Laki-Laki' : 'Perempuan') }} </div>
                 </div>
                 <div class="grid grid-cols-2">
                     <div class="font-semibold">Alamat</div>
