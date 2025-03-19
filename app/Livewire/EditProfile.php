@@ -11,7 +11,8 @@ use App\Models\MasterPendidikan;
 
 class EditProfile extends Component
 {
-    public $user_id, $name, $nip, $no_ktp, $no_hp, $no_rek, $pendidikan, $institusi, $jenisKelamin, $alamat, $tempat_lahir, $tanggal_lahir;
+    public $user_id, $name, $nip, $no_ktp, $no_hp, $no_rek, $pendidikan, $institusi, $jk, $alamat, $tempat, $tanggal_lahir;
+
     public $jabatans, $pendidikans;
 
     public function mount()
@@ -25,9 +26,9 @@ class EditProfile extends Component
         $this->no_rek = $user->no_rek;
         $this->pendidikan = $user->pendidikan;
         $this->institusi = $user->institusi;
-        $this->jenisKelamin = $user->jk;
+        $this->jk = $user->jk;
         $this->alamat = $user->alamat;
-        $this->tempat_lahir = $user->tempat;
+        $this->tempat = $user->tempat;
         $this->tanggal_lahir = $user->tanggal_lahir;
 
 
@@ -45,9 +46,9 @@ class EditProfile extends Component
             'no_rek' => 'nullable',
             'pendidikan' => 'nullable|exists:master_pendidikan,id',
             'institusi' => 'nullable|string|max:255',
-            'jenisKelamin' => 'nullable',
+            'jk' => 'nullable',
             'alamat' => 'nullable|string|max:255',
-            'tempat_lahir' => 'nullable|string|max:255',
+            'tempat' => 'nullable|string|max:255',
             'tanggal_lahir' => 'nullable|date',
         ]);
 

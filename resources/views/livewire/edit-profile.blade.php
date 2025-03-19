@@ -54,10 +54,10 @@
 
             {{-- Tempat Lahir --}}
             <div class="form-group">
-                <label for="tempat_lahir" class="text-sm font-medium text-green-700">Tempat Lahir</label>
-                <input type="text" id="tempat_lahir" wire:model="tempat_lahir"
-                    class="form-control @error('tempat_lahir') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
-                @error('tempat_lahir')
+                <label for="tempat" class="text-sm font-medium text-green-700">Tempat Lahir</label>
+                <input type="text" id="tempat" wire:model="tempat"
+                    class="form-control @error('tempat') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
+                @error('tempat')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>
@@ -74,15 +74,15 @@
 
             {{-- Pendidikan --}}
             <div class="form-group col-span-2 md:col-span-1">
-                <label for="pendidikan_id" class="text-sm font-medium text-green-700">Pendidikan</label>
-                <select id="pendidikan_id" wire:model="pendidikan_id"
-                    class="form-control @error('pendidikan_id') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
+                <label for="pendidikan" class="text-sm font-medium text-green-700">Pendidikan</label>
+                <select id="pendidikan" wire:model="pendidikan"
+                    class="form-control @error('pendidikan') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
                     <option value="">-- Pilih Pendidikan --</option>
                     @foreach ($pendidikans as $pendidikan)
                         <option value="{{ $pendidikan->id }}">{{ $pendidikan->nama }}</option>
                     @endforeach
                 </select>
-                @error('pendidikan_id')
+                @error('pendidikan')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>
@@ -99,12 +99,12 @@
 
             {{-- Jenis Kelamin --}}
             <div class="form-group col-span-2">
-                <label for="jenisKelamin" class="text-sm font-medium text-green-700">Jenis Kelamin</label>
+                <label for="jk" class="text-sm font-medium text-green-700">Jenis Kelamin</label>
                 <label class="flex items-center gap-4">
-                    <input type="radio" name="jenisKelamin" id="laki" wire:model.live="jenisKelamin"
+                    <input type="radio" name="jk" id="laki" wire:model.live="jk"
                         value="1" class="form-radio h-4 w-4 text-green-600 border-gray-300 focus:ring-green-500">
                     <span class="ml-1 text-gray-900">Laki-laki</span>
-                    <input type="radio" name="jenisKelamin" id="perempuan" wire:model.live="jenisKelamin"
+                    <input type="radio" name="jk" id="perempuan" wire:model.live="jk"
                         value="0" class="form-radio h-4 w-4 text-green-600 border-gray-300 focus:ring-green-500">
                     <span class="ml-1 text-gray-900">Perempuan</span>
                 </label>
