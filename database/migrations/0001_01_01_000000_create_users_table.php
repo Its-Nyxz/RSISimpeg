@@ -54,6 +54,7 @@ return new class extends Migration
             $table->string('status_karyawan')->default(1)->nullable();
             $table->string('alasan_resign')->nullable();
             $table->string('type_shift')->nullable();
+            $table->string('photo')->nullable();
             $table->timestamps();
 
             // $table->foreign('jabatan_id')->references('id')->on('master_jabatan');

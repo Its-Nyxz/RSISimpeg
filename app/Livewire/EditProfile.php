@@ -2,17 +2,19 @@
 
 namespace App\Livewire;
 
-use App\Models\KategoriJabatan;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use App\Models\MasterJabatan;
+use App\Models\KategoriJabatan;
 use App\Models\MasterPendidikan;
 
 class EditProfile extends Component
 {
-    public $user_id, $name, $nip, $no_ktp, $no_hp, $no_rek, $pendidikan, $institusi, $jk, $alamat, $tempat, $tanggal_lahir;
+    use WithFileUploads;
 
+    public $user_id, $name, $nip, $no_ktp, $no_hp, $no_rek, $pendidikan, $institusi, $jk, $alamat, $tempat, $tanggal_lahir;
+    public $photo, $currentPhoto;
     public $jabatans, $pendidikans;
 
     public function mount()
@@ -30,7 +32,7 @@ class EditProfile extends Component
         $this->alamat = $user->alamat;
         $this->tempat = $user->tempat;
         $this->tanggal_lahir = $user->tanggal_lahir;
-
+        $this->currentPhoto = $user->photo;
 
         $this->jabatans = KategoriJabatan::all();
         $this->pendidikans = MasterPendidikan::all();
@@ -50,9 +52,16 @@ class EditProfile extends Component
             'alamat' => 'nullable|string|max:255',
             'tempat' => 'nullable|string|max:255',
             'tanggal_lahir' => 'nullable|date',
+            'photo' => 'nullable|image|max:2048',
         ]);
 
         $user = Auth::user();
+
+        if ($this->photo) {
+            $fileName = $this->photo->store('photos', 'public');
+            $user->photo = basename($fileName);
+        }
+
         $user->update([
             'name' => $this->name ?? null,
             'nip' => $this->nip ?? null,

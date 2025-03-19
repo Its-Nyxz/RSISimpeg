@@ -13,10 +13,10 @@ class DataLiburNasional extends Component
 
     public function mount()
     {
-        $this->loadData();
+        $this->tahun = request()->query('tahun', now()->year);
     }
 
-    public function loadData()
+    public function updatedTahun()
     {
         $this->holidays = Holidays::when($this->search, function ($query) {
             $query->where('description', 'like', '%' . $this->search . '%');
@@ -49,6 +49,15 @@ class DataLiburNasional extends Component
 
     public function render()
     {
-        return view('livewire.data-libur-nasional');
+        $holidays = Holidays::when($this->search, function ($query) {
+            $query->where('description', 'like', '%' . $this->search . '%');
+        })
+        ->when($this->tahun, function ($query) {
+            $query->whereYear('date', $this->tahun);
+        })
+        ->orderBy('date', 'asc')
+        ->get();
+
+        return view('livewire.data-libur-nasional', compact('holidays'));
     }
 }

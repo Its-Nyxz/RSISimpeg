@@ -18,7 +18,9 @@
             <div class="flex items-center space-x-6">
                 <!-- Foto Profile -->
                 <div class="w-32 h-32 flex-shrink-0 overflow-hidden rounded-full border-2 border-gray-300">
-                    <img src="{{ $userprofile->foto_profile ?? 'https://via.placeholder.com/150' }}" alt="Foto Profile" class="w-full h-full object-cover">
+                <img src="{{ $userprofile->photo ? asset('storage/photos/' . $userprofile->photo) : 'https://via.placeholder.com/150' }}" 
+    alt="Foto Profile" class="w-full h-full object-cover">
+
                 </div>
                 
                 <!-- Data Profile -->
