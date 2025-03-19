@@ -20,10 +20,10 @@
                     <div class="font-semibold">Nama</div>
                     <div>: {{ $userprofile->name }}</div>
                 </div>
-                <div class="grid grid-cols-2">
+                {{-- <div class="grid grid-cols-2">
                     <div class="font-semibold">Jabatan</div>
                     <div>: {{ $userprofile->kategorijabatan->nama ?? '-' }}</div>
-                </div>
+                </div> --}}
                 <div class="grid grid-cols-2">
                     <div class="font-semibold">Tempat, Tanggal Lahir</div>
                     <div>: {{ $userprofile->tempat ?? '-' }},
@@ -31,14 +31,38 @@
                     </div>
                 </div>
                 <div class="grid grid-cols-2">
+                    <div class="font-semibold">No. KTP</div>
+                    <div>: {{ $userprofile->no_ktp }}</div>
+                </div>
+                <div class="grid grid-cols-2">
+                    <div class="font-semibold">No. HP</div>
+                    <div>: {{ $userprofile->no_hp }}</div>
+                </div>
+                <div class="grid grid-cols-2">
+                    <div class="font-semibold">No. Rekening</div>
+                    <div>: {{ $userprofile->no_rek }}</div>
+                </div>
+                <div class="grid grid-cols-2">
+                    <div class="font-semibold">Pendidikan </div>
+                    <div>: {{ $userprofile->pendidikanUser->deskripsi ?? '-' }}</div>
+                </div>
+                <div class="grid grid-cols-2">
+                    <div class="font-semibold">Institusi</div>
+                    <div>: {{ $userprofile->no_ktp }}</div>
+                </div>
+                <div class="grid grid-cols-2">
+                    <div class="font-semibold">Jenis Kelamin</div>
+                    <div>: {{ $userprofile->jk == 1 ? 'Laki-laki' : 'Perempuan' }}</div>
+                </div>
+                <div class="grid grid-cols-2">
+                    <div class="font-semibold">Alamat</div>
+                    <div>: {{ $userprofile->alamat }}</div>
+                </div>
+                {{-- <div class="grid grid-cols-2">
                     <div class="font-semibold">Tanggal Tetap</div>
                     <div>:
                         {{ $userprofile->tanggal_tetap ? formatDate($userprofile->tanggal_tetap) : '-' }}
                     </div>
-                </div>
-                <div class="grid grid-cols-2">
-                    <div class="font-semibold">Pendidikan Awal</div>
-                    <div>: {{ $userprofile->pendidikanUser->deskripsi ?? '-' }}</div>
                 </div>
                 <div class="grid grid-cols-2">
                     <div class="font-semibold">Pendidikan Penyesuaian</div>
@@ -55,7 +79,7 @@
                     <div>:
                         {{ $userprofile->pensiun ? formatDate($userprofile->pensiun) : '-' }}
                     </div>
-                </div>
+                </div> --}}
             </div>
 
             <!-- Tombol Edit Profile -->
@@ -71,7 +95,13 @@
         <x-card :title="'Login dan Keamanan'">
             <div class="text-sm text-gray-700 space-y-3">
                 <div class="flex items-center justify-between">
-                    <p><strong>NIP:</strong> @if ($showNip) {{ $userprofile->nip ?? '-' }} @else •••••••• @endif</p>
+                    <p><strong>NIP:</strong>
+                        @if ($showNip)
+                            {{ $userprofile->nip ?? '-' }}
+                        @else
+                            ••••••••
+                        @endif
+                    </p>
                     <button wire:click="toggleNip"
                         class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                         <i class="{{ $showNip ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash' }}"></i>

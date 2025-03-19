@@ -16,9 +16,9 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->string('slug')->nullable()->unique(); // tambahkan slug yang unik dan nullable
             $table->string('username')->nullable();
-            $table->string('email')->unique();
+            $table->string('email')->nullable()->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->rememberToken();
             $table->foreignId('unit_id')->nullable()->constrained('unit_kerjas')->onDelete('cascade');
             $table->foreignId('jabatan_id')->nullable()->constrained('kategori_jabatans')->onDelete('cascade');
@@ -38,19 +38,22 @@ return new class extends Migration
             $table->string('tempat')->nullable();
             $table->dateTime('tanggal_lahir')->nullable();
             $table->string('alamat')->nullable();
-            $table->integer('no_rek')->nullable();
+            $table->string('no_rek')->nullable();
             // $table->integer('pend_awal')->nullable();
             $table->dateTime('tanggal_tetap')->nullable();
             $table->foreignId('pendidikan')->nullable()->constrained('master_pendidikan');
-            $table->string('pendidikan_penyesuaian')->nullable();
+            $table->string('institusi')->nullable();
+            // $table->string('pendidikan_penyesuaian')->nullable();
             $table->foreignId('kategori_id')->nullable()->constrained('kategoripphs')->onDelete('cascade');
             // $table->integer('pend_penyesuaian')->nullable();
             // $table->string('pendidikan')->nullable();
             $table->dateTime('tgl_penyesuaian')->nullable();
             $table->integer('masa_kerja')->default(value: 0)->nullable();
-            $table->integer('status')->nullable();
-            $table->integer('jatah_cuti_tahunan')->default(12); // Jatah cuti default
-            $table->integer('sisa_cuti_tahunan')->default(12); // Sisa cuti tahunan
+            $table->integer('jatah_cuti_tahunan')->nullable()->default(12); // Jatah cuti default
+            $table->integer('sisa_cuti_tahunan')->nullable()->default(12); // Sisa cuti tahunan
+            $table->string('status_karyawan')->default(1)->nullable();
+            $table->string('alasan_resign')->nullable();
+            $table->string('type_shift')->nullable();
             $table->timestamps();
 
             // $table->foreign('jabatan_id')->references('id')->on('master_jabatan');

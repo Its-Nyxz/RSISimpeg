@@ -88,7 +88,7 @@ class RolePermissionSeeder extends Seeder
             // Role Staf Kepegawaian
             if ($role === 'Staf Kepegawaian') {
                 // Blokir akses ke 'view-keuangan', 'masterdata', dan 'hak-akses' untuk Staf Kepegawaian
-                $restrictedPermissions = ['view-keuangan', 'master-data', 'hak-akses', 'absen','list-history-user','list-history-create','list-history-edit'];
+                $restrictedPermissions = ['view-keuangan', 'master-data', 'hak-akses', 'absen', 'list-history-user', 'list-history-create', 'list-history-edit'];
 
                 // Ambil permission yang **tidak termasuk dalam restrictedPermissions**
                 $allowedPermissions = Permission::whereNotIn('name', $restrictedPermissions)->get();
@@ -105,6 +105,18 @@ class RolePermissionSeeder extends Seeder
             // Kalau role-nya Staf, kasih hanya permission 'timer' dan 'list-history'
             if ($role === 'Staf') {
                 $roleModel->givePermissionTo(['timer', 'list-history']);
+            }
+
+            // Kalau role-nya Kepala Unit
+            if ($role === 'Kepala Unit') {
+                $allowedPermissions = ['timer', 'list-history', 'absen', 'view-kepegawaian', 'detail', 'create'];
+                $roleModel->givePermissionTo($allowedPermissions);
+            }
+
+            // Kalau role-nya Kepala Ruang
+            if ($role === 'Kepala Ruang') {
+                $allowedPermissions = ['timer', 'list-history', 'absen', 'view-kepegawaian', 'detail', 'create'];
+                $roleModel->givePermissionTo($allowedPermissions);
             }
         }
     }

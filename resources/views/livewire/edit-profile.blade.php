@@ -1,8 +1,8 @@
 <div>
-   
+
     <form wire:submit.prevent="updateProfile">
         <div class="grid grid-cols-2 gap-4 bg-green-100 border border-green-200 rounded-lg shadow-lg p-6">
-             {{-- Nama --}}
+            {{-- Nama --}}
             <div class="form-group col-span-2">
                 <label for="name" class="text-sm font-medium text-green-700">Nama</label>
                 <input type="text" id="name" wire:model="name"
@@ -12,24 +12,49 @@
                 @enderror
             </div>
 
-             {{-- Jabatan  --}}
-            <div class="form-group col-span-2">
-                <label for="jabatan_id" class="text-sm font-medium text-green-700">Jabatan</label>
-                <select id="jabatan_id" wire:model="jabatan_id"
-                    class="form-control @error('jabatan_id') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
-                    <option value="">-- Pilih Jabatan --</option>
-                    @foreach ($jabatans as $jabatan)
-                        <option value="{{ $jabatan->id }}">{{ $jabatan->nama }}</option>
-                    @endforeach
-                </select>
-                @error('jabatan_id')
+            {{-- NIP --}}
+            <div class="form-group col-span-2 md:col-span-1">
+                <label for="nip" class="text-sm font-medium text-green-700">NIP (Nomor Induk Pegawai)</label>
+                <input type="text" id="nip" wire:model="nip"
+                    class="form-control @error('nip') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
+                @error('nip')
+                    <span class="text-danger text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+
+            {{-- No KTP --}}
+            <div class="form-group col-span-2 md:col-span-1">
+                <label for="no_ktp" class="text-sm font-medium text-green-700">No KTP</label>
+                <input type="text" id="no_ktp" wire:model="no_ktp"
+                    class="form-control @error('no_ktp') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
+                @error('no_ktp')
+                    <span class="text-danger text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+
+            {{-- No Hp --}}
+            <div class="form-group col-span-2 md:col-span-1">
+                <label for="no_hp" class="text-sm font-medium text-green-700">No. Hp</label>
+                <input type="text" id="no_hp" wire:model="no_hp"
+                    class="form-control @error('no_hp') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
+                @error('no_hp')
+                    <span class="text-danger text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+
+            {{-- No Rekening --}}
+            <div class="form-group col-span-2 md:col-span-1">
+                <label for="no_rek" class="text-sm font-medium text-green-700">No Rekening</label>
+                <input type="text" id="no_rek" wire:model="no_rek"
+                    class="form-control @error('no_rek') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
+                @error('no_rek')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>
 
             {{-- Tempat Lahir --}}
             <div class="form-group">
-                <label for="tempat" class="text-sm font-medium text-green-700">Tempat</label>
+                <label for="tempat" class="text-sm font-medium text-green-700">Tempat Lahir</label>
                 <input type="text" id="tempat" wire:model="tempat"
                     class="form-control @error('tempat') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
                 @error('tempat')
@@ -47,59 +72,52 @@
                 @enderror
             </div>
 
-            {{-- Tanggal Tetap --}}
-            <div class="form-group col-span-2 ">
-                <label for="tanggal_tetap" class="text-sm font-medium text-green-700">Tanggal Tetap</label>
-                <input type="date" id="tanggal_tetap" wire:model="tanggal_tetap"
-                    class="form-control @error('tanggal_tetap') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
-                @error('tanggal_tetap')
-                    <span class="text-danger text-sm">{{ $message }}</span>
-                @enderror
-            </div>
-
-            {{-- Pend awal --}}
+            {{-- Pendidikan --}}
             <div class="form-group col-span-2 md:col-span-1">
-                <label for="pendidikan_id" class="text-sm font-medium text-green-700">Pendidikan Awal</label>
-                <select id="pendidikan_id" wire:model="pendidikan_id"
-                    class="form-control @error('pendidikan_id') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
+                <label for="pendidikan" class="text-sm font-medium text-green-700">Pendidikan</label>
+                <select id="pendidikan" wire:model="pendidikan"
+                    class="form-control @error('pendidikan') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
                     <option value="">-- Pilih Pendidikan --</option>
                     @foreach ($pendidikans as $pendidikan)
                         <option value="{{ $pendidikan->id }}">{{ $pendidikan->nama }}</option>
                     @endforeach
                 </select>
-                @error('pendidikan_id')
+                @error('pendidikan')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>
 
-            {{-- end penyesuaian --}}
+            {{-- Institusi --}}
             <div class="form-group col-span-2 md:col-span-1">
-                <label for="pendidikan_penyesuaian" class="text-sm font-medium text-green-700">Pendidikan
-                    Penyesuaian</label>
-                <input type="text" id="pendidikan_penyesuaian" wire:model="pendidikan_penyesuaian"
-                    class="form-control @error('pendidikan_penyesuaian') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
-                @error('pendidikan_penyesuaian')
+                <label for="institusi" class="text-sm font-medium text-green-700">Institusi</label>
+                <input type="text" id="institusi" wire:model="institusi"
+                    class="form-control @error('institusi') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
+                @error('institusi')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>
 
-            {{-- Tanggal Penyesuaian  --}}
+            {{-- Jenis Kelamin --}}
             <div class="form-group col-span-2">
-                <label for="tgl_penyesuaian" class="text-sm font-medium text-green-700">Tanggal Penyesuaian</label>
-                <input type="date" id="tgl_penyesuaian" wire:model="tgl_penyesuaian"
-                    class="form-control @error('tgl_penyesuaian') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
-                @error('tgl_penyesuaian')
-                    <span class="text-danger text-sm">{{ $message }}</span>
-                @enderror
+                <label for="jk" class="text-sm font-medium text-green-700">Jenis Kelamin</label>
+                <label class="flex items-center gap-4">
+                    <input type="radio" name="jk" id="laki" wire:model.live="jk"
+                        value="1" class="form-radio h-4 w-4 text-green-600 border-gray-300 focus:ring-green-500">
+                    <span class="ml-1 text-gray-900">Laki-laki</span>
+                    <input type="radio" name="jk" id="perempuan" wire:model.live="jk"
+                        value="0" class="form-radio h-4 w-4 text-green-600 border-gray-300 focus:ring-green-500">
+                    <span class="ml-1 text-gray-900">Perempuan</span>
+                </label>
             </div>
 
-            {{-- pensiun --}}
+            {{-- Alamat --}}
             <div class="form-group col-span-2">
-                <label for="pensiun" class="text-sm font-medium text-green-700">Informasi Pensiun</label>
-                <input type="date" id="pensiun" wire:model="pensiun"
-                    class="form-control @error('pensiun') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
-                @error('pensiun')
-                    <span class="text-danger text-sm">{{ $message }}</span>
+                <label for="alamat" class="text-sm font-medium text-green-700">Alamat</label>
+                <textarea id="alamat" wire:model.live="alamat"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 "
+                    placeholder="Masukkan alamat" rows="3"></textarea>
+                @error('alamat')
+                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                 @enderror
             </div>
         </div>
