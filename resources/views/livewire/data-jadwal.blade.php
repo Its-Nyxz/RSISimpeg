@@ -29,9 +29,15 @@
             <div class="flex justify-end">
                 <div>
                     <a href="{{ route('jadwal.index') }}"
-                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                        Pengaturan Jadwal
+                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200"
+                        data-tooltip-target="tooltip-pengaturan">
+                        <i class="fa-solid fa-gear"></i>
                     </a>
+                    <div id="tooltip-pengaturan" role="tooltip"
+                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                        Pengaturan Jadwal Absensi
+                        <div class="tooltip-arrow" data-popper-arrow></div>
+                    </div>
                 </div>
             </div>
         @endif
