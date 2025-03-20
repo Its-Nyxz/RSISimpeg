@@ -128,14 +128,18 @@ class AktivitasAbsensi extends Component
                 // Format durasi lembur dan jam kerja
                 $overtime = gmdate('H:i:s', $totalOvertime);
                 $duration = gmdate('H:i:s', $totalWorkDuration);
-            }
 
-            // Ambil semua deskripsi lembur dari absensiItems jika is_lembur = true
-            $deskripsiLembur = $absensiItems
-                ->where('is_lembur', true)
-                ->pluck('deskripsi_lembur') // Ambil semua deskripsi lembur
-                ->filter() // Buang data null/kosong
-                ->implode('<br>'); // Gabungkan dengan line break untuk tampilan HTML
+                $deskripsiLembur = $absensiItems->isNotEmpty()
+                    ? $absensiItems
+                    ->where('is_lembur', true)
+                    ->pluck('deskripsi_lembur')
+                    ->filter()
+                    ->implode('<br>')
+                    : '-';
+            } else {
+                $deskripsiLembur = '-'; // ✅ Nilai default jika tidak ada data lembur
+                $totalOvertime = null; // ✅ Nilai default jika tidak ada data lembur
+            }
 
 
             // Simpan data ke array
@@ -147,7 +151,7 @@ class AktivitasAbsensi extends Component
                 'jam_lembur' => $overtime, // lembur (jika is_lembur = true)
                 'rencana_kerja' => $absensi?->deskripsi_in ?? '-',
                 'laporan_kerja' => $absensi?->deskripsi_out ?? '-',
-                'laporan_lembur' => $deskripsiLembur ?: '-',
+                'laporan_lembur' => $deskripsiLembur ?? '-',
                 'feedback' => $absensi?->feedback ?? '-',
                 'is_holiday' => $this->isHoliday($date),
                 'keterangan' => $keterangan,
