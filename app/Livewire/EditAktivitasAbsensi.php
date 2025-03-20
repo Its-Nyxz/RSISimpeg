@@ -13,7 +13,8 @@ class EditAktivitasAbsensi extends Component
     public function mount($id)
     {
         // Ambil data absen sekaligus relasi user
-        $absen = Absen::with('user')->findOrFail($id);
+        $absen = Absen::with('user', 'jadwalAbsen')->findOrFail($id);
+        
         // Set nilai ke properti komponen
         $this->absen_id = $absen->id;
         $this->user_id = $absen->user_id;
@@ -21,11 +22,9 @@ class EditAktivitasAbsensi extends Component
         $this->time_in = $absen->time_in
             ? Carbon::parse($absen->time_in)->setTimezone('Asia/Jakarta')->format('H:i:s')
             : '-';
-
         $this->time_out = $absen->time_out
             ? Carbon::parse($absen->time_out)->setTimezone('Asia/Jakarta')->format('H:i:s')
             : '-';
-
         $this->deskripsi_in = $absen->deskripsi_in ?? '-';
         $this->deskripsi_out = $absen->deskripsi_out ?? '-';
         $this->keterangan = $absen->keterangan ?? '-';
@@ -46,15 +45,15 @@ class EditAktivitasAbsensi extends Component
         session()->flash('success', 'Feedback berhasil ditambahkan!');
         return redirect()->route('aktivitasabsensi.index');
     }
+
     public function setApproval($status)
-{
-    Absen::where('id', $this->absen_id)->update([
-        'is_lembur' => $status,
-    ]);
+    {
+        Absen::where('id', $this->absen_id)->update([
+            'is_lembur' => $status,
+        ]);
 
-    session()->flash('success', $status ? 'Lembur disetujui!' : 'Lembur tidak disetujui.');
-}
-
+        session()->flash('approval_message', $status ? 'Lembur disetujui!' : 'Lembur tidak disetujui.');
+    }
 
     public function render()
     {
