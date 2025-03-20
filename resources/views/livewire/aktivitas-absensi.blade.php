@@ -60,7 +60,13 @@
             <tbody>
                 @forelse ($items as $item)
                     <tr
-                        class="{{ $item['is_holiday'] ? 'bg-red-200' : ($loop->even ? 'bg-green-100' : 'bg-green-50') }} border-b border-green-300 hover:bg-green-200">
+                        class="{{ $item['is_holiday']
+                            ? 'bg-red-200'
+                            : ($item['is_lembur']
+                                ? 'bg-yellow-200'
+                                : ($loop->even
+                                    ? 'bg-green-100'
+                                    : 'bg-green-50')) }}  border-b border-green-300 hover:bg-green-200">
                         <td class="px-6 py-4 font-medium text-green-900 whitespace-nowrap">
                             {{ $item['hari'] }}
                         </td>
@@ -74,7 +80,7 @@
                             </div>
                         </td>
                         <th class="px-6 py-4">{{ $item['jam_lembur'] }}</th>
-                        <th class="px-6 py-4">{{ $item['laporan_lembur'] }}</th>
+                        <th class="px-6 py-4"> {!! $item['laporan_lembur'] !!}</th>
                         <td class="px-6 py-4">{{ $item['feedback'] }}</td>
                         @can('list-history-edit')
                             <td class="px-6 py-4">

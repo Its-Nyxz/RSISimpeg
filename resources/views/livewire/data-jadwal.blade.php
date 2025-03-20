@@ -25,6 +25,16 @@
                 </select>
             @endif
         </div>
+        @if ($routeIsDashboard)
+            <div class="flex justify-end">
+                <div>
+                    <a href="{{ route('jadwal.index') }}"
+                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                        Pengaturan Jadwal
+                    </a>
+                </div>
+            </div>
+        @endif
         @if (!$routeIsDashboard)
             <div class="flex justify-end">
                 <div>
@@ -57,6 +67,8 @@
                 <option value="{{ $y }}">{{ $y }}</option>
             @endforeach
         </select>
+
+
 
         @if (!$routeIsDashboard)
 
@@ -146,7 +158,7 @@
                             {{ optional(optional($jadwalUser)->first())->user->name ?? '-' }}
                         </td>
                         <td class="px-4 py-3">
-                            {{ optional(optional($jadwalUser)->first())->user->pendidikan ?? '-' }}
+                            {{ optional(optional($jadwalUser)->first())->user->pendidikanUser->nama ?? '-' }}
                         </td>
                         <td class="px-4 py-3">
                             {{ optional(optional($jadwalUser)->first())->user->tanggal_tetap ?? '-' }}

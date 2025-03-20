@@ -18,11 +18,17 @@
             <div class="flex items-center space-x-6">
                 <!-- Foto Profile -->
                 <div class="w-32 h-32 flex-shrink-0 overflow-hidden rounded-full border-2 border-gray-300">
-                <img src="{{ $userprofile->photo ? asset('storage/photos/' . $userprofile->photo) : 'https://via.placeholder.com/150' }}" 
-    alt="Foto Profile" class="w-full h-full object-cover">
-
+                    {!! $userprofile->photo
+                        ? '<img src="' .
+                            asset('storage/photos/' . $userprofile->photo) .
+                            '" 
+                                                     alt="User Profile" 
+                                                     class="w-full h-full object-cover">'
+                        : '<div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500">
+                                                    <i class="fa-solid fa-user text-5xl"></i>
+                                               </div>' !!}
                 </div>
-                
+
                 <!-- Data Profile -->
                 <div class="text-sm text-gray-700 space-y-3 flex-1">
                     <div class="grid grid-cols-2">
