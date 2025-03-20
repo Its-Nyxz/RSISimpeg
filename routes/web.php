@@ -52,6 +52,7 @@ use App\Http\Controllers\ImportGajiController;
 use App\Http\Controllers\AktivitasAbsensiController;
 use App\Http\Controllers\HolidaysController;
 use App\Http\Controllers\KategoriJabatanController;
+use App\Http\Controllers\PengajuanController;
 use App\Livewire\UserProfile;
 
 Route::get('/', function () {
@@ -149,6 +150,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('katjab', KategoriJabatanController::class);
     Route::get('liburnasional/{tipe}/{holiday}', [HolidaysController::class, 'create']);
     Route::resource('liburnasional', HolidaysController::class);
+    Route::get('pengajuan/{tipe}', [PengajuanController::class, 'create']);
+    Route::get('pengajuan', [PengajuanController::class, 'index']);
 });
 
 require __DIR__ . '/auth.php';

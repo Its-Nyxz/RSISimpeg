@@ -63,9 +63,9 @@
             </x-card>
         </div>
 
-        @if (Auth::user()->unitKerja?->nama == 'KEPEGAWAIAN')
-            <!-- Kolom Kanan -->
-            <div class="md:col-span-1">
+        <!-- Kolom Kanan -->
+        <div class="md:col-span-1">
+            @if (Auth::user()->unitKerja?->nama == 'KEPEGAWAIAN')
                 <x-card title="Total Karyawan" class="mb-4">
                     <div class="flex flex-col items-left" style="margin-left: 30px;">
                         <div class="flex items-left gap-6 mb-4">
@@ -105,8 +105,42 @@
                         </div>
                     </div>
                 </x-card>
-            </div>
-        @endif
+            @endif
+            <x-card title="Pengajuan" class="mb-4">
+                <div class="flex flex-row items-left gap-x-4 overflow-x-auto" style="margin-left: 30px;">
+                    <!-- ✅ Tombol Cuti -->
+                    <div class="text-left">
+                        <a href="/pengajuan/cuti"
+                            class="inline-flex items-center px-5 py-3 text-white font-medium rounded-full shadow-md
+                                bg-green-500 hover:bg-green-400 transition-all duration-300 transform hover:-translate-y-1">
+                            Cuti
+                            <i class="fa-solid fa-circle-chevron-right ml-2" style="color: #ffffff;"></i>
+                        </a>
+                    </div>
+
+                    <!-- ✅ Tombol Ijin -->
+                    <div class="text-left">
+                        <a href="/pengajuan/ijin"
+                            class="inline-flex items-center px-5 py-3 text-white font-medium rounded-full shadow-md
+                                bg-blue-500 hover:bg-blue-400 transition-all duration-300 transform hover:-translate-y-1">
+                            Ijin
+                            <i class="fa-solid fa-circle-chevron-right ml-2" style="color: #ffffff;"></i>
+                        </a>
+                    </div>
+
+                    <!-- ✅ Tombol Tukar Jadwal -->
+                    <div class="text-left">
+                        <a href="/pengajuan/tukar_jadwal"
+                            class="inline-flex items-center px-5 py-3 text-white font-medium rounded-full shadow-md
+                                bg-yellow-500 hover:bg-yellow-400 transition-all duration-300 transform hover:-translate-y-1">
+                            Tukar Jadwal
+                            <i class="fa-solid fa-circle-chevron-right ml-2" style="color: #ffffff;"></i>
+                        </a>
+                    </div>
+                </div>
+            </x-card>
+        </div>
+
     </div>
     <div>
         <x-card title="Jadwal Absen">
