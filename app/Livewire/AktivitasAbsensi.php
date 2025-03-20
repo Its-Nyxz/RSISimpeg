@@ -5,9 +5,10 @@ namespace App\Livewire;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Absen;
-use App\Models\Holidays;
 use Livewire\Component;
+use App\Models\Holidays;
 use App\Models\JadwalAbsensi;
+use Illuminate\Support\Facades\Auth;
 
 class AktivitasAbsensi extends Component
 {
@@ -17,7 +18,7 @@ class AktivitasAbsensi extends Component
     public $year;
     public $isParent = false;
     public $selectedUserId;
-    public $subordinates = [];
+    public $subordinates;
 
     public function mount()
     {
@@ -28,8 +29,12 @@ class AktivitasAbsensi extends Component
         $this->isParent = User::where('unit_id', auth()->user()->unit_id)
             ->where('id', '!=', auth()->id())
             ->exists();
+        $isKepala = collect(Auth::user()->roles()->pluck('name'))->filter(function ($name) {
+            return str_starts_with($name, 'Kepala');
+        })->count();
+        // dd($isKepala);
 
-        if ($this->isParent) {
+        if ($isKepala) {
             // Jika user adalah parent, ambil daftar user bawahannya berdasarkan unit_id
             $this->subordinates = User::where('unit_id', auth()->user()->unit_id)
                 ->pluck('name', 'id');
@@ -38,7 +43,7 @@ class AktivitasAbsensi extends Component
             $this->selectedUserId = $this->subordinates->keys()->first();
         } else {
             // Jika bukan parent, gunakan ID user yang login
-            $this->selectedUserId = auth()->user()->id();
+            $this->selectedUserId = Auth::user()->id;
         }
 
         $this->loadData();
@@ -72,7 +77,6 @@ class AktivitasAbsensi extends Component
                 $shiftStart = $shift ? Carbon::parse($shift->jam_masuk) : null;
                 $shiftEnd = $shift ? Carbon::parse($shift->jam_keluar) : null;
             }
-
             // Ambil jam masuk dan keluar dari absensi
             $timeIn = $absensi?->time_in ? Carbon::parse($absensi->time_in) : null;
             $timeOut = $absensi?->time_out ? Carbon::parse($absensi->time_out) : null;
@@ -80,7 +84,7 @@ class AktivitasAbsensi extends Component
             // Default values
             $duration = '00.00.00';
             $overtime = '00.00.00';
-            $keterangan = $absensi?->statusAbsen->nama ?? '-';
+            // $keterangan = $absensi?->statusAbsen->nama ?? '-';
 
             // Jika ada absensi dan jadwal
             if ($jadwal) {
@@ -154,8 +158,9 @@ class AktivitasAbsensi extends Component
                 'laporan_lembur' => $deskripsiLembur ?? '-',
                 'feedback' => $absensi?->feedback ?? '-',
                 'is_holiday' => $this->isHoliday($date),
-                'keterangan' => $keterangan,
+                // 'keterangan' => $keterangan,
                 'is_lembur' => $totalOvertime > 0,
+                'is_dinas' => $absensi?->is_dinas,
             ];
         }
     }
