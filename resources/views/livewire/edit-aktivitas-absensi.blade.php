@@ -59,6 +59,18 @@
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>
+
+            <div class="form-group col-span-2">
+                <label class="block text-sm font-medium text-green-900">Persetujuan Lembur</label>
+                <div class="mt-2">
+                    <button wire:click="setApproval(true)" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                        Ya
+                    </button>
+                    <button wire:click="setApproval(false)" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 ml-2">
+                        Tidak
+                    </button>
+                </div>            
+            </div>
         </div>
 
         <!-- Tombol Submit -->
