@@ -46,6 +46,15 @@ class EditAktivitasAbsensi extends Component
         session()->flash('success', 'Feedback berhasil ditambahkan!');
         return redirect()->route('aktivitasabsensi.index');
     }
+    public function setApproval($status)
+{
+    Absen::where('id', $this->absen_id)->update([
+        'is_lembur' => $status,
+    ]);
+
+    session()->flash('success', $status ? 'Lembur disetujui!' : 'Lembur tidak disetujui.');
+}
+
 
     public function render()
     {
