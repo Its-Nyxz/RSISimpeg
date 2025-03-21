@@ -5,9 +5,12 @@ namespace App\Livewire;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Absen;
-use App\Models\Holidays;
 use Livewire\Component;
+use App\Models\Holidays;
+use Illuminate\Support\Str;
 use App\Models\JadwalAbsensi;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
 
 class AktivitasAbsensi extends Component
 {
@@ -24,21 +27,20 @@ class AktivitasAbsensi extends Component
         // Default ke bulan dan tahun saat ini
         $this->month = now()->month;
         $this->year = now()->year;
+
         // Cari apakah ada user lain dengan unit_id yang sama → Menentukan sebagai parent
-        $this->isParent = User::where('unit_id', auth()->user()->unit_id)
-            ->where('id', '!=', auth()->id())
-            ->exists();
+        $role = Auth::user()->roles->first()->name ?? '';
+        $this->isParent = User::where('unit_id', Auth::user()->unit_id)->where('id', '!=', Auth::user()->id)->exists();
 
         if ($this->isParent) {
-            // Jika user adalah parent, ambil daftar user bawahannya berdasarkan unit_id
-            $this->subordinates = User::where('unit_id', auth()->user()->unit_id)
-                ->pluck('name', 'id');
+            $this->subordinates = User::where('unit_id', Auth::user()->unit_id)->pluck('name', 'id');
+        }
 
-            // Default pilih user pertama jika ada
+        // Cek apakah role mengandung kata "Kepala" dan juga memiliki role Super Admin atau Administrator
+        if (Str::contains($role, 'Kepala') && Auth::user()->hasAnyRole(['Super Admin', 'Administrator'])) {
             $this->selectedUserId = $this->subordinates->keys()->first();
         } else {
-            // Jika bukan parent, gunakan ID user yang login
-            $this->selectedUserId = auth()->id();
+            $this->selectedUserId = Auth::user()->id;
         }
 
         $this->loadData();
@@ -176,6 +178,23 @@ class AktivitasAbsensi extends Component
             $this->loadData(); // Panggil ulang loadData jika bulan/tahun berubah
         }
     }
+
+    public function exportPdfHistory()
+    {
+        $month = Carbon::createFromFormat('m', $this->month)->locale('id')->translatedFormat('F');
+        $year = $this->year;
+        $user = User::where('id', $this->selectedUserId)->first();
+        $title = "Bulan " . $month . " Tahun " . $year;
+        $items = $this->items;
+
+        $pdf = Pdf::loadView('pdf.laporan-absensi-pdf', compact('items', 'title', 'user'));
+
+        return response()->streamDownload(
+            fn() => print($pdf->output()),
+            "laporan Absensi {$user->name} Bulan {$month} Tahun {$year}.pdf"
+        );
+    }
+
     public function render()
     {
         return view('livewire.aktivitas-absensi', [
