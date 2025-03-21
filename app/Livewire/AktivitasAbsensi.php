@@ -30,7 +30,9 @@ class AktivitasAbsensi extends Component
             ->where('id', '!=', auth()->id())
             ->exists();
         $isKepala = collect(Auth::user()->roles()->pluck('name'))->filter(function ($name) {
-            return str_starts_with($name, 'Kepala');
+            return str_starts_with($name, 'Kepala') ||
+                str_starts_with($name, 'Super') ||
+                str_starts_with($name, 'Administrator');
         })->count();
         // dd($isKepala);
 

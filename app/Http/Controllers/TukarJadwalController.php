@@ -2,34 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Pengajuan;
-use Illuminate\Http\Request;
+use App\Models\TukarJadwal;
+use App\Http\Requests\StoreTukarJadwalRequest;
+use App\Http\Requests\UpdateTukarJadwalRequest;
 
-class PengajuanController extends Controller
+class TukarJadwalController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return view('pengajuan.index');
+        //
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create($tipe)
+    public function create()
     {
-        if (!in_array($tipe, ['cuti', 'ijin', 'tukar_jadwal'])) {
-            abort(404);
-        }
-
-        return view('pengajuan.create', compact('tipe'));
+        //
     }
+
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreTukarJadwalRequest $request)
     {
         //
     }
@@ -37,7 +35,7 @@ class PengajuanController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Pengajuan $pengajuan)
+    public function show(TukarJadwal $tukarJadwal)
     {
         //
     }
@@ -45,7 +43,7 @@ class PengajuanController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Pengajuan $pengajuan)
+    public function edit(TukarJadwal $tukarJadwal)
     {
         //
     }
@@ -53,7 +51,7 @@ class PengajuanController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Pengajuan $pengajuan)
+    public function update(UpdateTukarJadwalRequest $request, TukarJadwal $tukarJadwal)
     {
         //
     }
@@ -61,7 +59,7 @@ class PengajuanController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Pengajuan $pengajuan)
+    public function destroy(TukarJadwal $tukarJadwal)
     {
         //
     }
