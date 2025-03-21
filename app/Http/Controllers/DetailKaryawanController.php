@@ -10,7 +10,7 @@ class DetailKaryawanController extends Controller
     public function show($id)
     {
         // Ambil data user berdasarkan id
-        $user = User::findOrFail($id);
+        $user = User::with('pendidikanUser')->findOrFail($id);
 
         // Kirim data user ke tampilan datakaryawan.detail
         return view('datakaryawan.detail', compact('user'));
