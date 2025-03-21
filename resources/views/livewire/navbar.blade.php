@@ -16,19 +16,31 @@
                             BANJARNEGARA</span></span>
                 </a>
             </div>
-            <div>
-                <div class="hidden sm:flex items-center lg:order-2">
-                    <a href="{{ route('userprofile.index') }}">
-                        <span class="font-medium text-success-950 me-2"
-                            style="text-transform: capitalize;">{{ auth()->user()->name }}</span>
-                        <span class="text-white bg-success-950 rounded-full me-2 hover:bg-success-700 px-3 py-2">
-                            <i class="fa-solid fa-user"></i>
-                        </span>
+            <div class="flex items-center">
+                <div class="hidden sm:flex items-center">
+                    <!-- Nama Profil -->
+                    <span class="font-medium text-success-950 me-2" style="text-transform: capitalize;">
+                        {{ Auth::user()->name }}
+                    </span>
+
+                    <!-- Foto Profil -->
+                    <a href="{{ route('userprofile.index') }}"
+                        class="text-white bg-success-950 rounded-full me-2 hover:bg-success-700 px-1 py-1">
+                        @if (Auth::user()->photo)
+                            <img src="{{ asset('storage/photos/' . Auth::user()->photo) }}" alt="Profile"
+                                class="w-8 h-8 rounded-full object-cover border border-gray-300">
+                        @else
+                            <div
+                                class="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full border border-gray-300">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                        @endif
                     </a>
-                    <a href="{{ route('logout') }}">
-                        <span class="text-white bg-success-950 rounded-full hover:bg-success-700 px-3 py-2">
-                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                        </span>
+                </div>
+                <div class="flex items-center">
+                    <a href="{{ route('logout') }}"
+                        class="text-white bg-success-950 rounded-full hover:bg-success-700 px-3 py-2">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     </a>
                 </div>
             </div>

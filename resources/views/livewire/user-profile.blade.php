@@ -15,45 +15,66 @@
     <div class="grid md:grid-cols-2 gap-6">
         <!-- Profile Card -->
         <x-card :title="'Profile'">
-            <div class="text-sm text-gray-700 space-y-3">
-                <div class="grid grid-cols-2">
-                    <div class="font-semibold">Nama</div>
-                    <div>: {{ $userprofile->name }}</div>
+            <div class="flex items-center space-x-6">
+                <!-- Foto Profile -->
+                <div class="w-32 h-32 flex-shrink-0 overflow-hidden rounded-full border-2 border-gray-300">
+                    @if ($userprofile->photo)
+                        <img src="{{ asset('storage/photos/' . $userprofile->photo) }}" alt="User Profile"
+                            class="w-full h-full object-cover">
+                    @else
+                        <div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500">
+                            <i class="fa-solid fa-user text-5xl"></i>
+                        </div>
+                    @endif
                 </div>
-                <div class="grid grid-cols-2">
-                    <div class="font-semibold">Jabatan</div>
-                    <div>: {{ $userprofile->kategorijabatan->nama ?? '-' }}</div>
-                </div>
-                <div class="grid grid-cols-2">
-                    <div class="font-semibold">Tempat, Tanggal Lahir</div>
-                    <div>: {{ $userprofile->tempat ?? '-' }},
-                        {{ $userprofile->tanggal_lahir ? formatDate($userprofile->tanggal_lahir) : '-' }}
+                <!-- Data Profile -->
+                <div class="text-sm text-gray-700 space-y-3 flex-1">
+                    <div class="text-sm text-gray-700 space-y-3">
+                        <div class="grid grid-cols-2">
+                            <div class="font-semibold">Nama</div>
+                            <div>: {{ $userprofile->name }}</div>
+                        </div>
+                        <div class="grid grid-cols-2">
+                            <div class="font-semibold">Jabatan</div>
+                            <div>: {{ $userprofile->kategorijabatan->nama ?? '-' }}</div>
+                        </div>
+                        <div class="grid grid-cols-2">
+                            <div class="font-semibold">Tempat, Tanggal Lahir</div>
+                            <div>: {{ $userprofile->tempat ?? '-' }},
+                                {{ $userprofile->tanggal_lahir ? formatDate($userprofile->tanggal_lahir) : '-' }}
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2">
+                            <div class="font-semibold">No KTP</div>
+                            <div>: {{ $userprofile->no_ktp ?? '-' }}</div>
+                        </div>
+                        <div class="grid grid-cols-2">
+                            <div class="font-semibold">No Rek</div>
+                            <div>: {{ $userprofile->no_rek ?? '-' }}</div>
+                        </div>
+                        <div class="grid grid-cols-2">
+                            <div class="font-semibold">Kategori Pendidikan</div>
+                            <div>: {{ $userprofile->pendidikanUser->deskripsi ?? '-' }}</div>
+                        </div>
+                        <div class="grid grid-cols-2">
+                            <div class="font-semibold">Pendidikan</div>
+                            <div>: {{ $userprofile->pendidikan ?? '-' }}</div>
+                        </div>
+                        <div class="grid grid-cols-2">
+                            <div class="font-semibold">Institusi</div>
+                            <div>: {{ $userprofile->institusi ?? '-' }}</div>
+                        </div>
+                        <div class="grid grid-cols-2">
+                            <div class="font-semibold">Jenis Kelamin</div>
+                            <div>:
+                                {{ $userprofile->jk === null ? '-' : ($userprofile->jk == 1 ? 'Laki-Laki' : 'Perempuan') }}
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2">
+                            <div class="font-semibold">Alamat</div>
+                            <div>: {{ $userprofile->alamat ?? '-' }}</div>
+                        </div>
                     </div>
-                </div>
-                <div class="grid grid-cols-2">
-                    <div class="font-semibold">No KTP</div>
-                    <div>: {{ $userprofile->no_ktp ?? '-' }}</div>
-                </div>
-                <div class="grid grid-cols-2">
-                    <div class="font-semibold">No Rek</div>
-                    <div>: {{ $userprofile->no_rek ?? '-' }}</div>
-                </div>
-                <div class="grid grid-cols-2">
-                    <div class="font-semibold">Pendidikan</div>
-                    <div>: {{ $userprofile->pendidikanUser->deskripsi ?? '-' }}</div>
-                </div>
-                <div class="grid grid-cols-2">
-                    <div class="font-semibold">Institusi</div>
-                    <div>: {{ $userprofile->institusi ?? '-' }}</div>
-                </div>
-                <div class="grid grid-cols-2">
-                    <div class="font-semibold">Jenis Kelamin</div>
-                    <div>: {{ $userprofile->jk === null ? '-' : ($userprofile->jk == 1 ? 'Laki-Laki' : 'Perempuan') }}
-                    </div>
-                </div>
-                <div class="grid grid-cols-2">
-                    <div class="font-semibold">Alamat</div>
-                    <div>: {{ $userprofile->alamat ?? '-' }}</div>
                 </div>
             </div>
 
@@ -111,6 +132,14 @@
                     <a href="{{ route('userprofile.editpassword') }}"
                         class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                         <i class="fa-solid fa-pen"></i>
+                    </a>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <p><strong>Hak Akses :</strong> {{ Auth::user()->roles->first()->name ?? '-' }}</p>
+                    <a href="#"
+                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                        <i class="fa-solid fa-minus"></i>
                     </a>
                 </div>
             </div>

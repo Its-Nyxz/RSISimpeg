@@ -8,10 +8,14 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\MasterJabatan;
 use App\Models\MasterPendidikan;
+use Livewire\WithFileUploads;
 
 class EditProfile extends Component
 {
-    public $user_id, $name, $nip, $no_ktp, $no_hp, $no_rek, $pendidikan, $institusi, $jenisKelamin, $alamat, $tempat_lahir, $tanggal_lahir;
+    use WithFileUploads;
+
+    public $user_id, $name, $nip, $no_ktp, $no_hp, $no_rek, $kategori_pendidikan, $pendidikan, $institusi, $jenisKelamin, $alamat, $tempat_lahir, $tanggal_lahir;
+    public $photo, $currentPhoto;
     public $jabatans, $pendidikans;
 
     public function mount()
@@ -23,12 +27,14 @@ class EditProfile extends Component
         $this->no_ktp = $user->no_ktp;
         $this->no_hp = $user->no_hp;
         $this->no_rek = $user->no_rek;
+        $this->kategori_pendidikan = $user->kategori_pendidikan;
         $this->pendidikan = $user->pendidikan;
         $this->institusi = $user->institusi;
         $this->jenisKelamin = $user->jk;
         $this->alamat = $user->alamat;
         $this->tempat_lahir = $user->tempat;
         $this->tanggal_lahir = $user->tanggal_lahir;
+        $this->currentPhoto = $user->photo;
 
 
         $this->jabatans = KategoriJabatan::all();
@@ -43,21 +49,29 @@ class EditProfile extends Component
             'no_ktp' => 'nullable|string|max:50',
             'no_hp' => 'nullable|string|max:15',
             'no_rek' => 'nullable',
-            'pendidikan' => 'nullable|exists:master_pendidikan,id',
+            'kategori_pendidikan' => 'nullable|exists:master_pendidikan,id',
             'institusi' => 'nullable|string|max:255',
             'jenisKelamin' => 'nullable',
             'alamat' => 'nullable|string|max:255',
             'tempat_lahir' => 'nullable|string|max:255',
             'tanggal_lahir' => 'nullable|date',
+            'photo' => 'nullable|image|max:2048',
         ]);
 
         $user = Auth::user();
+
+        if ($this->photo) {
+            $fileName = $this->photo->store('photos', 'public');
+            $user->photo = basename($fileName);
+        }
+
         $user->update([
             'name' => $this->name ?? null,
             'nip' => $this->nip ?? null,
             'no_ktp' => $this->no_ktp ?? null,
             'no_hp' => $this->no_hp ?? null,
             'no_rek' => $this->no_rek ?? null,
+            'kategori_pendidikan' => $this->kategori_pendidikan ?? null,
             'pendidikan' => $this->pendidikan ?? null,
             'institusi' => $this->institusi ?? null,
             'jk' => $this->jenisKelamin ?? null,
