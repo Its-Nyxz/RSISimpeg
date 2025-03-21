@@ -8,7 +8,9 @@ use App\Models\Absen;
 use Livewire\Component;
 use App\Models\Holidays;
 use App\Models\JadwalAbsensi;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
+use Request;
 
 class AktivitasAbsensi extends Component
 {
@@ -192,6 +194,46 @@ class AktivitasAbsensi extends Component
             $this->loadData(); // Panggil ulang loadData jika bulan/tahun berubah
         }
     }
+
+    public function exportPdf()
+    {
+        $month = $this->month;
+        $year = $this->year;
+        $userId = $this->selectedUserId;
+    
+        $daysInMonth = Carbon::create($year, $month)->daysInMonth;
+        $items = [];
+    
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $date = Carbon::create($year, $month, $day)->format('Y-m-d');
+            $jadwal = JadwalAbsensi::where('user_id', $userId)
+                ->whereDate('tanggal_jadwal', $date)
+                ->with(['absensi', 'shift'])
+                ->first();
+    
+            if (!$jadwal) continue;
+    
+            $absensi = $jadwal->absensi->first();
+            $items[] = [
+                'hari' => Carbon::parse($date)->locale('id')->isoFormat('dddd'),
+                'tanggal' => Carbon::parse($date)->translatedFormat('d F Y'),
+                'jam_kerja' => $absensi?->time_in ?? '-',
+                'jam_lembur' => $absensi?->time_out ?? '-',
+                'rencana_kerja' => $absensi?->deskripsi_in ?? '-',
+                'laporan_kerja' => $absensi?->deskripsi_out ?? '-',
+                'feedback' => $absensi?->feedback ?? '-',
+            ];
+        }
+    
+        $pdf = Pdf::loadView('pdf.aktivitas_absensi', compact('items', 'month', 'year'));
+    
+        return response()->streamDownload(
+            fn () => print($pdf->output()),
+            "aktivitas_absensi_{$month}_{$year}.pdf"
+        );
+    }
+    
+    
     public function render()
     {
         return view('livewire.aktivitas-absensi', [

@@ -27,6 +27,10 @@
                     <option value="{{ $y }}">{{ $y }}</option>
                 @endforeach
             </select>
+            <a href="#" wire:click="exportPdf"
+        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+        Export PDF
+    </a>
         </div>
 
         <!-- Tombol Tambah -->
