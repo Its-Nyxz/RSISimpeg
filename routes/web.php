@@ -149,6 +149,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('katjab', KategoriJabatanController::class);
     Route::get('liburnasional/{tipe}/{holiday}', [HolidaysController::class, 'create']);
     Route::resource('liburnasional', HolidaysController::class);
+    Route::get('/aktivitas-absensi/export-pdf', [AktivitasAbsensiController::class, 'exportPDF'])
+    ->name('aktivitasabsensi.export-pdf');
+
 });
 
 require __DIR__ . '/auth.php';
