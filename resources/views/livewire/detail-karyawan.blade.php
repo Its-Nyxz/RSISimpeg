@@ -81,14 +81,15 @@
                         {{ $viewPendAwal?->tanggal_penyesuaian ? formatDate($viewPendAwal?->tanggal_penyesuaian) : '-' }}
                     </div>
                     <div class="mb-4">
-                        <strong>Naik Berkala</strong>: -
+                        <strong>Naik Golongan</strong> : -
                     </div>
                     <div class="mb-4">
-                        <strong>Naik Golongan</strong>: -
+                        <strong>Hak akses</strong> : {{ implode(', ', $roles) }}
                     </div>
                 </div>
             </x-card>
         </div>
+
 
         <x-modal name="modal-resign" maxWidth="lg" :show="false">
             <form class="mx-5 py-5" wire:submit.prevent="{{ $statusKaryawan == 1 ? 'resignKerja' : 'kembaliKerja' }}">
@@ -176,4 +177,50 @@
             </form>
         </x-modal>
     </div>
+    <div class="w-full">
+        <x-card title="History Cuti Tahunan" class="mb-6 text-success-900">
+            <div style="font-family: 'Gilroy-Regular', sans-serif; font-size: 18px;">
+                <div class="mb-6 grid grid-cols-1 lg:grid-cols-1 justify-items-end">
+                    <strong></strong>
+                    <strong class="mb-3">Stok Cuti : <span
+                            class=" bg-green-700 text-white hover:bg-success-800 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                            {{ $user->jatah_cuti_tahunan ?? '-' }} </span></strong>
+                    <strong class="mt-3">Cuti Digunakan : <span
+                            class=" bg-green-700 text-white hover:bg-success-800 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                            {{ $user->sisa_cuti_tahunan ?? '-' }} </span></strong>
+                </div>
+            </div>
+            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <table class="w-full text-sm text-center text-gray-700">
+                    <thead class="text-sm uppercase bg-success-400 text-success-900">
+                        <tr>
+
+                            <th scope="col" class="px-6 py-3">No.</th>
+                            <th scope="col" class="px-6 py-3">Tanggal Mulai Cuti</th>
+                            <th scope="col" class="px-6 py-3">Tanggal Berakhir Cuti</th>
+                            <th scope="col" class="px-6 py-3">Jenis Cuti</th>
+                            <th scope="col" class="px-6 py-3">Keterangan</th>
+                            <th scope="col" class="px-6 py-3">Status Cuti</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
+                            <td class="px-6 py-4">1</td>
+                            <td class="px-6 py-4">1</td>
+                            <td class="px-6 py-4">1</td>
+                            <td class="px-6 py-4">Nikahan</td>
+                            <td class="px-6 py-4">-</td>
+                            <td class="px-6 py-4">ACC</td>
+                        </tr>
+                        {{-- <tr>
+                            <td colspan="7" class="text-center px-6 py-4">Tidak ada data Cuti Karyawan.</td>
+                        </tr> --}}
+                    </tbody>
+                </table>
+            </div>
+        </x-card>
+    </div>
+
+
 </div>

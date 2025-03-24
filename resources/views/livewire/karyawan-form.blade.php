@@ -290,7 +290,43 @@
                                         @endforeach
                                     </ul>
                                 @endif
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        Livewire.on('confirmJabatanChange', () => {
+                                            Swal.fire({
+                                                title: "Perubahan Jabatan",
+                                                text: "Jabatan berubah, jangan lupa untuk mengelola hak akses agar tetap sesuai.",
+                                                icon: "warning",
+                                                showCancelButton: true,
+                                                confirmButtonColor: "#3085d6",
+                                                cancelButtonColor: "#d33",
+                                                confirmButtonText: "Ya, lanjutkan!",
+                                                cancelButtonText: "Batal"
+                                            }).then((result) => {
+                                                if (result.isConfirmed) {
+                                                    setTimeout(() => {
+                                                        document.getElementById('roles')?.focus();
+                                                    }, 300);
+                                                    Livewire.emit('savekaryawan');
+                                                } else {
+                                                    Swal.fire({
+                                                        title: "Perubahan Dibatalkan",
+                                                        text: "Anda membatalkan perubahan jabatan, periksa lagi jabatan anda.",
+                                                        icon: "info",
+                                                        confirmButtonColor: "#3085d6",
+                                                        confirmButtonText: "OK"
+                                                    });
+                                                }
+                                            });
+                                        });
+                                    });
+                                </script>
+
+
+
+
                             </td>
+
                         </tr>
                         <tr>
                             <td style="width: 40%">
@@ -445,7 +481,7 @@
                                 <select id="khusus" wire:model.live="khusus"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5">
                                     <option value="">Pilih Tunjangan Khusus</option>
-                                    @foreach ($filteredKhusus as $khus)
+                                    @foreach ($khususList as $khus)
                                         <option value="{{ $khus->id }}">
                                             {{ $khus->nama }}
                                         </option>

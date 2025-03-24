@@ -7,6 +7,8 @@ use App\Models\MasterPenyesuaian;
 use Carbon\Carbon;
 use App\Models\User;
 use Livewire\Component;
+use Illuminate\Support\Facades\DB;
+
 
 class DetailKaryawan extends Component
 {
@@ -99,6 +101,8 @@ class DetailKaryawan extends Component
 
     public function render()
     {
-        return view('livewire.detail-karyawan');
+        return view('livewire.detail-karyawan', [
+            'roles' => $this->roles // Kirim ke view
+        ]);
     }
 }
