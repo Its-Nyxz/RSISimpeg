@@ -203,18 +203,23 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr
-                            class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
-                            <td class="px-6 py-4">1</td>
-                            <td class="px-6 py-4">1</td>
-                            <td class="px-6 py-4">1</td>
-                            <td class="px-6 py-4">Nikahan</td>
-                            <td class="px-6 py-4">-</td>
-                            <td class="px-6 py-4">ACC</td>
-                        </tr>
-                        {{-- <tr>
-                            <td colspan="7" class="text-center px-6 py-4">Tidak ada data Cuti Karyawan.</td>
-                        </tr> --}}
+                        @forelse ($cutis as $index => $cuti)
+                            <tr
+                                class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
+                                <td class="px-6 py-4">
+                                    {{ $index + 1 }}
+                                </td>
+                                <td class="px-6 py-4">{{ $cuti->tanggal_mulai }}</td>
+                                <td class="px-6 py-4">{{ $cuti->tanggal_selesai }}</td>
+                                <td class="px-6 py-4">{{ $cuti->jenisCuti->nama_cuti ?? '-' }}</td>
+                                <td class="px-6 py-4">{{ $cuti->keterangan }}</td>
+                                <td class="px-6 py-4">{{ $cuti->statusCuti->nama_status ?? '-' }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center px-6 py-4">Tidak ada data Cuti Karyawan.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

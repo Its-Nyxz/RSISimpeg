@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\MasterPendidikan;
 use App\Models\MasterPenyesuaian;
+use App\Models\CutiKaryawan;
 use Carbon\Carbon;
 use App\Models\User;
 use Livewire\Component;
@@ -21,6 +22,7 @@ class DetailKaryawan extends Component
     public $pend_awal_id;
     public $roles;
     public $viewPendAwal;
+    public $cutis;
 
     public function mount($user)
     {
@@ -41,6 +43,12 @@ class DetailKaryawan extends Component
 
         $this->viewPendAwal = MasterPenyesuaian::with('pendidikanAwal', 'pendidikanPenyesuaian')->where('user_id', $this->user_id)->where('status_penyesuaian', 1)->first();
         // dd($this->viewPendAwal);
+
+        $this->cutis = CutiKaryawan::where('user_id', $this->user_id)
+            ->with(['jenisCuti', 'statusCuti'])
+            ->get();
+
+        // dd($this->cutis);
     }
 
     public function resignKerja()
@@ -108,7 +116,8 @@ class DetailKaryawan extends Component
     public function render()
     {
         return view('livewire.detail-karyawan', [
-            'roles' => $this->roles // Kirim ke view
+            'roles' => $this->roles,
+            'cutis' => $this->cutis,
         ]);
     }
 }
