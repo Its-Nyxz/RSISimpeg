@@ -93,11 +93,4 @@
             </button>
         </div>
     </form>
-
-    <!-- Notifikasi -->
-    @if (session()->has('message'))
-        <div class="alert alert-success mt-3 p-4 bg-green-200 text-green-800 rounded-lg">
-            {{ session('message') }}
-        </div>
-    @endif
 </div>

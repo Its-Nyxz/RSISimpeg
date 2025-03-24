@@ -1574,7 +1574,7 @@ class UserSeeder extends Seeder
             ['name' => 'Silih Prasetya', 'nip' => '03230610', 'jabatan' => 'Staf Manajer SDM'],
             ['name' => 'Riris Afianto', 'role' => 'Kepala Seksi', 'jabatan' => 'Ka. Seksi Pendidikan, Pelatihan dan Pengembangan SDM'],
             ['name' => 'Barkah Setiyani', 'nip' => '03200574', 'jabatan' => 'Staf Seksi Pendidikan, Pelatihan dan Pengembangan SDM'],
-            ['name' => 'Eko Santoso', 'nip' => 'Eko Santosa', 'jabatan' => 'Staf Seksi Kajian dan Budaya Islam'],
+            ['name' => 'Eko Santoso', 'nip' => '08212183', 'jabatan' => 'Staf Seksi Kajian dan Budaya Islam'],
 
             // ['name' => 'Barkah Setiyani', 'jabatan' => 'Staf Seksi Pendidikan, Pelatihan dan Pengembangan SDM'],      // data seeder asli
             // ['name' => 'Eko Santoso', 'jabatan' => 'Staf Seksi Kajian dan Budaya Islam'],

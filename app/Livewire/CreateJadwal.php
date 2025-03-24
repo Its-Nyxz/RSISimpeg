@@ -7,6 +7,9 @@ use App\Models\User;
 use App\Models\Shift;
 // use App\Models\OpsiAbsen;
 use App\Models\JadwalAbsensi;
+use App\Models\TukarJadwal;
+use App\Notifications\UserNotification;
+use Illuminate\Support\Facades\Notification;
 
 class CreateJadwal extends Component
 {
@@ -26,7 +29,7 @@ class CreateJadwal extends Component
     public $users = [];    // Daftar user
     public $shifts = [];   // Daftar shift
     // public $opsis = [];    // Daftar opsi absensi
-
+    public $isPergantianJadwal = false;
     // Aturan validasi
     protected $rules = [
         'user_id' => 'required|exists:users,id',
@@ -101,7 +104,35 @@ class CreateJadwal extends Component
             ]
         );
 
-        session()->flash('success', 'Jadwal Absensi berhasil ditambahkan!');
+        if ($this->isPergantianJadwal) {
+
+            // Update status is_approved pada tabel TukarJadwal
+            TukarJadwal::where('user_id', $this->user_id)
+                ->where('tanggal_jadwal', $this->tanggal)
+                ->update(['is_approved' => 1]);
+
+            $user = auth()->user();
+
+            $nama_shift = Shift::where('id', $this->shift_id)->value('nama_shift');
+
+            $message = 'Pergantian Tukar Jadwal atau Shift oleh ' . $user->name .
+                ' <span class="font-bold">' . $this->tanggal .
+                '</span> ke ' . ($nama_shift ? $nama_shift : 'Tidak Diketahui') .
+                ' untuk Anda diubah.';
+
+            $url = "/jadwal";
+
+            $nextUser = User::find($this->user_id);
+            if ($nextUser) {
+                Notification::send($nextUser, new UserNotification($message, $url));
+            }
+        }
+
+        if ($this->id) {
+            session()->flash('success', 'Jadwal Absensi berhasil diubah!');
+        } else {
+            session()->flash('success', 'Jadwal Absensi berhasil ditambahkan!');
+        }
         return redirect()->route('jadwal.index');
     }
     // Method untuk memilih user

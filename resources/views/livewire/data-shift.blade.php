@@ -36,7 +36,7 @@
                         <td class="px-6 py-4">{{ $shift['jam_masuk'] }}</td>
                         <td class="px-6 py-4">{{ $shift['jam_keluar'] }}</td>
                         <td class="px-6 py-4">{{ $shift['keterangan'] }}</td>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 flex gap-2">
                             <a href="{{ route('shift.edit', $shift['id']) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                 data-tooltip-target="tooltip-shift-{{ $shift['id'] }}">
@@ -45,6 +45,22 @@
                             <div id="tooltip-shift-{{ $shift['id'] }}" role="tooltip"
                                 class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
                                 Ubah Shift
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
+                            <!-- Tombol Hapus -->
+                            <button type="button"
+                                onclick="confirmAlert('Yakin ingin menghapus shift ini?', 'Ya, hapus!', () => @this.call('destroy', {{ $shift['id'] }}))"
+                                class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300 relative group">
+                                <i class="fa-solid fa-trash"></i>
+                                <div id="tooltip-destroy-{{ $shift['id'] }}"
+                                    class="absolute z-10 hidden group-hover:block bottom-full mb-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-md">
+                                    Hapus Shift
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            </button>
+                            <div id="tooltip-destroy-{{ $shift['id'] }}" role="tooltip"
+                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                                Hapus Shift
                                 <div class="tooltip-arrow" data-popper-arrow></div>
                             </div>
                         </td>

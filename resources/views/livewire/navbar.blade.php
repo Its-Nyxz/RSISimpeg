@@ -17,26 +17,32 @@
                 </a>
             </div>
             <div class="flex items-center">
-                <div class="hidden sm:flex items-center">
+                <!-- ✅ Nama dan Foto Profil Disembunyikan di Mobile -->
+                <div class="hidden sm:flex items-center ">
                     <!-- Nama Profil -->
-                    <span class="font-medium text-success-950 me-2" style="text-transform: capitalize;">
-                        {{ Auth::user()->name }}
-                    </span>
+                    <span class="font-medium text-success-950 me-2"
+                        style="text-transform: capitalize;">{{ auth()->user()->name }}</span>
 
                     <!-- Foto Profil -->
                     <a href="{{ route('userprofile.index') }}"
                         class="text-white bg-success-950 rounded-full me-2 hover:bg-success-700 px-1 py-1">
-                        @if (Auth::user()->photo)
-                            <img src="{{ asset('storage/photos/' . Auth::user()->photo) }}" alt="Profile"
-                                class="w-8 h-8 rounded-full object-cover border border-gray-300">
-                        @else
-                            <div
-                                class="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full border border-gray-300">
-                                <i class="fa-solid fa-user"></i>
-                            </div>
-                        @endif
+                        {!! auth()->user()->photo
+                            ? '<img src="' .
+                                asset('storage/photos/' . auth()->user()->photo) .
+                                '" 
+                                                                                                                                                                                                                                                                                                                                alt="Profile" 
+                                                                                                                                                                                                                                                                                                                                class="w-8 h-8 rounded-full object-cover border border-gray-300">'
+                            : '<div class="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full border border-gray-300">
+                                                                                                                                <i class="fa-solid fa-user"></i>
+                                                                                                                                </div>' !!}
                     </a>
                 </div>
+
+                <div class="relative inline-block mr-2">
+                    <livewire:notification />
+                </div>
+
+                <!-- ✅ Tombol Logout Tetap Muncul di Mobile -->
                 <div class="flex items-center">
                     <a href="{{ route('logout') }}"
                         class="text-white bg-success-950 rounded-full hover:bg-success-700 px-3 py-2">

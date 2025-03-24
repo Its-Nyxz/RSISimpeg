@@ -54,10 +54,10 @@
 
             {{-- Tempat Lahir --}}
             <div class="form-group">
-                <label for="tempat_lahir" class="text-sm font-medium text-green-700">Tempat Lahir</label>
-                <input type="text" id="tempat_lahir" wire:model="tempat_lahir"
-                    class="form-control @error('tempat_lahir') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
-                @error('tempat_lahir')
+                <label for="tempat" class="text-sm font-medium text-green-700">Tempat Lahir</label>
+                <input type="text" id="tempat" wire:model="tempat"
+                    class="form-control @error('tempat') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
+                @error('tempat')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>
@@ -82,7 +82,7 @@
                         <option value="{{ $pendidikan->id }}">{{ $pendidikan->nama }}</option>
                     @endforeach
                 </select>
-                @error('kategori_pendidikan')
+                @error('pendidikan')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>
@@ -109,12 +109,12 @@
 
             {{-- Jenis Kelamin --}}
             <div class="form-group col-span-2">
-                <label for="jenisKelamin" class="text-sm font-medium text-green-700">Jenis Kelamin</label>
+                <label for="jk" class="text-sm font-medium text-green-700">Jenis Kelamin</label>
                 <label class="flex items-center gap-4">
-                    <input type="radio" name="jenisKelamin" id="laki" wire:model.live="jenisKelamin"
+                    <input type="radio" name="jk" id="laki" wire:model.live="jk"
                         value="1" class="form-radio h-4 w-4 text-green-600 border-gray-300 focus:ring-green-500">
                     <span class="ml-1 text-gray-900">Laki-laki</span>
-                    <input type="radio" name="jenisKelamin" id="perempuan" wire:model.live="jenisKelamin"
+                    <input type="radio" name="jk" id="perempuan" wire:model.live="jk"
                         value="0" class="form-radio h-4 w-4 text-green-600 border-gray-300 focus:ring-green-500">
                     <span class="ml-1 text-gray-900">Perempuan</span>
                 </label>
@@ -131,20 +131,19 @@
                 @enderror
             </div>
             <div class="form-group col-span-2">
-                <label for="photo" class="text-sm font-medium text-green-700">Foto Profil</label>
-                <input type="file" id="photo" wire:model="photo"
-                    class="form-control @error('photo') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
-                @error('photo')
-                    <span class="text-danger text-sm">{{ $message }}</span>
-                @enderror
+    <label for="photo" class="text-sm font-medium text-green-700">Foto Profil</label>
+    <input type="file" id="photo" wire:model="photo"
+        class="form-control @error('photo') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
+    @error('photo')
+        <span class="text-danger text-sm">{{ $message }}</span>
+    @enderror
 
-                @if ($photo)
-                    <img src="{{ $photo->temporaryUrl() }}" class="mt-2 w-32 h-32 object-cover rounded-lg">
-                @elseif ($currentPhoto)
-                    <img src="{{ asset('storage/photos/' . $currentPhoto) }}"
-                        class="mt-2 w-32 h-32 object-cover rounded-lg">
-                @endif
-            </div>
+    @if ($photo)
+        <img src="{{ $photo->temporaryUrl() }}" class="mt-2 w-32 h-32 object-cover rounded-lg">
+    @elseif ($currentPhoto)
+        <img src="{{ asset('storage/photos/'.$currentPhoto) }}" class="mt-2 w-32 h-32 object-cover rounded-lg">
+    @endif
+</div>
         </div>
 
         {{-- button sumbit --}}

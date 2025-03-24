@@ -20,7 +20,7 @@ class AktivitasAbsensi extends Component
     public $year;
     public $isParent = false;
     public $selectedUserId;
-    public $subordinates = [];
+    public $subordinates;
 
     public function mount()
     {
@@ -28,18 +28,26 @@ class AktivitasAbsensi extends Component
         $this->month = now()->month;
         $this->year = now()->year;
 
-        // Cari apakah ada user lain dengan unit_id yang sama → Menentukan sebagai parent
-        $role = Auth::user()->roles->first()->name ?? '';
-        $this->isParent = User::where('unit_id', Auth::user()->unit_id)->where('id', '!=', Auth::user()->id)->exists();
+        $this->isParent = User::where('unit_id', auth()->user()->unit_id)
+            ->where('id', '!=', auth()->id())
+            ->exists();
+        $isKepala = collect(Auth::user()->roles()->pluck('name'))->filter(function ($name) {
+            return str_starts_with($name, 'Kepala') ||
+                str_starts_with($name, 'Super') ||
+                str_starts_with($name, 'Administrator');
+        })->count();
+        // dd($isKepala);
 
-        if ($this->isParent) {
-            $this->subordinates = User::where('unit_id', Auth::user()->unit_id)->pluck('name', 'id');
-        }
+        if ($isKepala) {
+            // Jika user adalah parent, ambil daftar user bawahannya berdasarkan unit_id
+            $this->subordinates = User::where('unit_id', auth()->user()->unit_id)
+                ->pluck('name', 'id');
 
         // Cek apakah role mengandung kata "Kepala" dan juga memiliki role Super Admin atau Administrator
         if (Str::contains($role, 'Kepala') && Auth::user()->hasAnyRole(['Super Admin', 'Administrator'])) {
             $this->selectedUserId = $this->subordinates->keys()->first();
         } else {
+            // Jika bukan parent, gunakan ID user yang login
             $this->selectedUserId = Auth::user()->id;
         }
 
@@ -74,7 +82,6 @@ class AktivitasAbsensi extends Component
                 $shiftStart = $shift ? Carbon::parse($shift->jam_masuk) : null;
                 $shiftEnd = $shift ? Carbon::parse($shift->jam_keluar) : null;
             }
-
             // Ambil jam masuk dan keluar dari absensi
             $timeIn = $absensi?->time_in ? Carbon::parse($absensi->time_in) : null;
             $timeOut = $absensi?->time_out ? Carbon::parse($absensi->time_out) : null;
@@ -82,7 +89,7 @@ class AktivitasAbsensi extends Component
             // Default values
             $duration = '00.00.00';
             $overtime = '00.00.00';
-            $keterangan = $absensi?->statusAbsen->nama ?? '-';
+            // $keterangan = $absensi?->statusAbsen->nama ?? '-';
 
             // Jika ada absensi dan jadwal
             if ($jadwal) {
@@ -113,14 +120,14 @@ class AktivitasAbsensi extends Component
                         if ($timeInAbsensi && $timeOutAbsensi && $shiftStart && $shiftEnd) {
                             // Hitung durasi kerja berdasarkan absensi
                             $workSeconds = $timeInAbsensi->diffInSeconds($timeOutAbsensi);
-                            $shiftDuration = $shiftStart->diffInSeconds($shiftEnd); // Durasi shift dalam detik
+                            // $shiftDuration = $shiftStart->diffInSeconds($shiftEnd); // Durasi shift dalam detik
 
-                            // Jika durasi absensi lebih lama dari durasi shift, sisanya dianggap lembur
-                            if ($workSeconds > $shiftDuration) {
-                                $overtimeSeconds = $workSeconds - $shiftDuration;
-                                $totalOvertime += $overtimeSeconds; // Tambah lembur ke total overtime
-                                $workSeconds = $shiftDuration; // Jam kerja tetap dibatasi durasi shift
-                            }
+                            // // Jika durasi absensi lebih lama dari durasi shift, sisanya dianggap lembur
+                            // if ($workSeconds > $shiftDuration) {
+                            //     $overtimeSeconds = $workSeconds - $shiftDuration;
+                            //     $totalOvertime += $overtimeSeconds; // Tambah lembur ke total overtime
+                            // }
+                            //     $workSeconds = $shiftDuration; // Jam kerja tetap dibatasi durasi shift
 
                             $totalWorkDuration += $workSeconds; // Tambah durasi kerja ke total
                         }
@@ -130,8 +137,18 @@ class AktivitasAbsensi extends Component
                 // Format durasi lembur dan jam kerja
                 $overtime = gmdate('H:i:s', $totalOvertime);
                 $duration = gmdate('H:i:s', $totalWorkDuration);
-            }
 
+                $deskripsiLembur = $absensiItems->isNotEmpty()
+                    ? $absensiItems
+                    ->where('is_lembur', true)
+                    ->pluck('deskripsi_lembur')
+                    ->filter()
+                    ->implode('<br>')
+                    : '-';
+            } else {
+                $deskripsiLembur = '-'; // ✅ Nilai default jika tidak ada data lembur
+                $totalOvertime = null; // ✅ Nilai default jika tidak ada data lembur
+            }
 
 
             // Simpan data ke array
@@ -143,10 +160,12 @@ class AktivitasAbsensi extends Component
                 'jam_lembur' => $overtime, // lembur (jika is_lembur = true)
                 'rencana_kerja' => $absensi?->deskripsi_in ?? '-',
                 'laporan_kerja' => $absensi?->deskripsi_out ?? '-',
-                'laporan_lembur' => $absensi?->deskripsi_lembur ?? '-',
+                'laporan_lembur' => $deskripsiLembur ?? '-',
                 'feedback' => $absensi?->feedback ?? '-',
                 'is_holiday' => $this->isHoliday($date),
-                'keterangan' => $keterangan,
+                // 'keterangan' => $keterangan,
+                'is_lembur' => $totalOvertime > 0,
+                'is_dinas' => $absensi?->is_dinas,
             ];
         }
     }

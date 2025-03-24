@@ -312,6 +312,25 @@
                                 @enderror
                             </td>
                         </tr>
+                        <tr>
+                            <td style="width: 40%">
+                                <label for="type_shift" class="block mb-2 text-sm font-medium text-gray-900">
+                                    Shift <span class="text-sm text-red-500">*</span>
+                                </label>
+                            </td>
+                            <td>
+                                <div>
+                                    <select id="type_shift" wire:model.live="typeShift"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 ">
+                                        <option value="">Pilih Shift</option>
+                                        <option value="1" {{ $typeShift == '1' ? 'selected' : '' }}>Shift
+                                        </option>
+                                        <option value="0" {{ $typeShift == '0' ? 'selected' : '' }}>Non Shift
+                                        </option>
+                                    </select>
+                                </div>
+                            </td>
+                        </tr>
                         <tr wire:ignore>
                             <td class="w-1/3">
                                 <label for="tmt" class="block mb-2 text-sm font-medium text-gray-900">TMT
@@ -480,23 +499,7 @@
                                 </div>
                             </td>
                         </tr>
-                        <tr>
-                            <td style="width: 40%">
-                                <label for="type_shift" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Shift <span class="text-sm text-red-500">*</span>
-                                </label>
-                            </td>
-                            <td>
-                                <div>
-                                    <select id="type_shift" wire:model.live="typeShift"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 ">
-                                        <option value="">Pilih Shift</option>
-                                        <option value="1">Shift</option>
-                                        <option value="0">Non Shift</option>
-                                    </select>
-                                </div>
-                            </td>
-                        </tr>
+
                     </table>
                 </x-card>
             </div>
