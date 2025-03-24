@@ -42,12 +42,11 @@ class AktivitasAbsensi extends Component
             // Jika user adalah parent, ambil daftar user bawahannya berdasarkan unit_id
             $this->subordinates = User::where('unit_id', auth()->user()->unit_id)
                 ->pluck('name', 'id');
-
+        }
         // Cek apakah role mengandung kata "Kepala" dan juga memiliki role Super Admin atau Administrator
-        if (Str::contains($role, 'Kepala') && Auth::user()->hasAnyRole(['Super Admin', 'Administrator'])) {
+        if (Str::contains(Auth::user()->roles->first()->name, 'Kepala') && Auth::user()->hasAnyRole(['Super Admin', 'Administrator'])) {
             $this->selectedUserId = $this->subordinates->keys()->first();
         } else {
-            // Jika bukan parent, gunakan ID user yang login
             $this->selectedUserId = Auth::user()->id;
         }
 
@@ -82,6 +81,7 @@ class AktivitasAbsensi extends Component
                 $shiftStart = $shift ? Carbon::parse($shift->jam_masuk) : null;
                 $shiftEnd = $shift ? Carbon::parse($shift->jam_keluar) : null;
             }
+
             // Ambil jam masuk dan keluar dari absensi
             $timeIn = $absensi?->time_in ? Carbon::parse($absensi->time_in) : null;
             $timeOut = $absensi?->time_out ? Carbon::parse($absensi->time_out) : null;
