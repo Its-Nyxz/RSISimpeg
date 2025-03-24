@@ -10,6 +10,7 @@ use App\Models\JadwalAbsensi;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 
+
 class AktivitasAbsensiController extends Controller
 {
     public function index()
