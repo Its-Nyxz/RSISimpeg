@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\KategoriJabatan;
 use App\Models\MasterPendidikan;
-use Livewire\WithFileUploads;
 
 class EditProfile extends Component
 {
