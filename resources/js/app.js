@@ -33,7 +33,7 @@ window.feedback = function (title, message, icon) {
         title: title,
         html: message,
         icon: icon,
-        timer: 1500,
+        timer: 3000,
         timerProgressBar: true,
         showConfirmButton: false,
         willClose: () => {

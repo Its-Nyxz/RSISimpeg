@@ -54,17 +54,23 @@
                         <div>: {{ $userprofile->no_rek }}</div>
                     </div>
                     <div class="grid grid-cols-2">
-                        <div class="font-semibold">Pendidikan </div>
-                        <div>: {{ $userprofile->pendidikanUser->deskripsi ?? '-' }}</div>
-                    </div>
+                            <div class="font-semibold">Kategori Pendidikan</div>
+                            <div>: {{ $userprofile->pendidikanUser->deskripsi ?? '-' }}</div>
+                        </div>
+                        <div class="grid grid-cols-2">
+                            <div class="font-semibold">Pendidikan</div>
+                            <div>: {{ $userprofile->pendidikan ?? '-' }}</div>
+                        </div>
                     <div class="grid grid-cols-2">
                         <div class="font-semibold">Institusi</div>
                         <div>: {{ $userprofile->no_ktp }}</div>
                     </div>
-                    <div class="grid grid-cols-2">
-                        <div class="font-semibold">Jenis Kelamin</div>
-                        <div>: {{ $userprofile->jk == 1 ? 'Laki-laki' : 'Perempuan' }}</div>
-                    </div>
+                   <div class="grid grid-cols-2">
+                            <div class="font-semibold">Jenis Kelamin</div>
+                            <div>:
+                                {{ $userprofile->jk === null ? '-' : ($userprofile->jk == 1 ? 'Laki-Laki' : 'Perempuan') }}
+                            </div>
+                        </div>
                     <div class="grid grid-cols-2">
                         <div class="font-semibold">Alamat</div>
                         <div>: {{ $userprofile->alamat }}</div>
@@ -85,7 +91,7 @@
         <x-card :title="'Login dan Keamanan'">
             <div class="text-sm text-gray-700 space-y-3">
                 <div class="flex items-center justify-between">
-                    <p><strong>NIP:</strong>
+                    <p><strong>NIP :</strong>
                         @if ($showNip)
                             {{ $userprofile->nip ?? '-' }}
                         @else
@@ -98,7 +104,7 @@
                     </button>
                 </div>
                 <div class="flex items-center justify-between">
-                    <p><strong>No. WhatsApp:</strong> {{ $userprofile->no_hp ?? '-' }}</p>
+                    <p><strong>No. WhatsApp :</strong> {{ $userprofile->no_hp ?? '-' }}</p>
                     <a href="{{ route('userprofile.editnomor') }}"
                         class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                         <i class="fa-solid fa-pen"></i>
@@ -106,7 +112,7 @@
                 </div>
 
                 <div class="flex items-center justify-between">
-                    <p><strong>Email:</strong> {{ $userprofile->email ?? '-' }}</p>
+                    <p><strong>Email :</strong> {{ $userprofile->email ?? '-' }}</p>
                     <a href="{{ route('userprofile.editemail') }}"
                         class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                         <i class="fa-solid fa-pen"></i>
@@ -114,10 +120,26 @@
                 </div>
 
                 <div class="flex items-center justify-between">
-                    <p><strong>Password:</strong> ************</p>
+                    <p><strong>Username :</strong> {{ $userprofile->username ?? '-' }}</p>
+                    <a href="#"
+                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                        <i class="fa-solid fa-minus"></i>
+                    </a>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <p><strong>Password :</strong> ************</p>
                     <a href="{{ route('userprofile.editpassword') }}"
                         class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                         <i class="fa-solid fa-pen"></i>
+                    </a>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <p><strong>Hak Akses :</strong> {{ Auth::user()->roles->first()->name ?? '-' }}</p>
+                    <a href="#"
+                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                        <i class="fa-solid fa-minus"></i>
                     </a>
                 </div>
             </div>

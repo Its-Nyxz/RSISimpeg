@@ -50,7 +50,7 @@
 
     <x-modal name="edit-modal" maxWidth="lg" :show="false">
 
-        <form style="margin: 10px; 20px; 30px; 40px;" wire:submit.prevent="updateJabatan">
+        <form class="mx-5 py-5" wire:submit.prevent="updateJabatan">
 
             <h2 class="text-lg font-semibold mb-4">Edit Jabatan</h2>
 
