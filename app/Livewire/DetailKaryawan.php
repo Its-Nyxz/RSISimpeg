@@ -19,6 +19,7 @@ class DetailKaryawan extends Component
     public $pend_awal, $pend_penyesuaian, $tanggal_penyesuaian, $tmt;
     public $pendidikans;
     public $pend_awal_id;
+    public $roles;
     public $viewPendAwal;
 
     public function mount($user)
@@ -31,6 +32,11 @@ class DetailKaryawan extends Component
         $this->tmt = $user->tmt ? formatDate($user->tmt) : null;
         $this->statusKaryawan = $user->status_karyawan;
         $this->alasanResign = $user->alasan_resign;
+        $this->roles = DB::table('roles')
+            ->join('model_has_roles', 'roles.id', '=', 'model_has_roles.role_id')
+            ->where('model_has_roles.model_id', $this->user_id)
+            ->pluck('roles.name')
+            ->toArray();
         $this->pendidikans = MasterPendidikan::all();
 
         $this->viewPendAwal = MasterPenyesuaian::with('pendidikanAwal', 'pendidikanPenyesuaian')->where('user_id', $this->user_id)->where('status_penyesuaian', 1)->first();

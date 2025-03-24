@@ -194,7 +194,6 @@
                 <table class="w-full text-sm text-center text-gray-700">
                     <thead class="text-sm uppercase bg-success-400 text-success-900">
                         <tr>
-
                             <th scope="col" class="px-6 py-3">No.</th>
                             <th scope="col" class="px-6 py-3">Tanggal Mulai Cuti</th>
                             <th scope="col" class="px-6 py-3">Tanggal Berakhir Cuti</th>
