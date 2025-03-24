@@ -1,43 +1,40 @@
-<div>
-    <h2 class="text-2xl font-bold mb-4">
-        List Pengajuan {{ ucfirst(str_replace('_', ' ', $tipe)) }}
-    </h2>
+<div class="relative">
+    <div class="flex justify-between py-2 mb-3">
+        <h2 class="text-2xl font-bold text-success-900">History {{ ucfirst(str_replace('_', ' ', $tipe)) }}</h2>
+    </div>
 
-    <table class="w-full border-collapse border border-gray-300">
-        <thead>
-            <tr class="bg-gray-100">
-                <th class="border border-gray-300 p-2">Tanggal</th>
-                <th class="border border-gray-300 p-2">Alasan</th>
-                @if ($tipe === 'tukar_jadwal')
-                    <th class="border border-gray-300 p-2">Shift</th>
-                @endif
-                <th class="border border-gray-300 p-2">Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($dataPengajuan as $pengajuan)
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <table class="w-full text-sm text-center text-gray-700">
+            <thead class="text-sm uppercase bg-success-400 text-success-900">
                 <tr>
-                    <td class="border border-gray-300 p-2">{{ $pengajuan->tanggal }}</td>
-                    <td class="border border-gray-300 p-2">{{ $pengajuan->alasan }}</td>
+                    <th scope="col" class="px-6 py-3">Tanggal</th>
+                    <th scope="col" class="px-6 py-3">Alasan</th>
                     @if ($tipe === 'tukar_jadwal')
-                        <td class="border border-gray-300 p-2">
-                            {{ $pengajuan->shift ?? '-' }}
-                        </td>
+                        <th scope="col" class="px-6 py-3">Shift</th>
                     @endif
-                    <td class="border border-gray-300 p-2">
-                        <button wire:click="delete({{ $pengajuan->id }})"
-                            class="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-700">
-                            Hapus
-                        </button>
-                    </td>
+                    <th scope="col" class="px-6 py-3">Status</th>
                 </tr>
-            @empty
-                <tr>
-                    <td colspan="{{ $tipe === 'tukar_jadwal' ? 4 : 3 }}" class="text-center py-4">
-                        Tidak ada pengajuan {{ $tipe }} ditemukan.
-                    </td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @forelse ($dataPengajuan as $pengajuan)
+                    <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
+                        <td class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">{{ $pengajuan->tanggal }}</td>
+                        <td class="px-6 py-4">{{ $pengajuan->keterangan }}</td>
+                        @if ($tipe === 'tukar_jadwal')
+                            <td class="px-6 py-4">{{ $pengajuan->shift->nama_shift ?? '-' }}</td>
+                        @endif
+                        <td class="px-6 py-4">
+                            {{ $pengajuan->statusCuti->nama_status ?? "-"}}
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="{{ $tipe === 'tukar_jadwal' ? 4 : 3 }}" class="text-center px-6 py-4">
+                            Tidak ada pengajuan {{ $tipe }} ditemukan.
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>

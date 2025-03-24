@@ -20,16 +20,22 @@
                     class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 p-2.5" />
             </div>
 
-            <div class="form-group col-span-1">
-                <label class="block text-sm font-medium text-green-900">Jam Masuk</label>
-                <input type="text" wire:model="time_in" disabled
-                    class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 p-2.5" />
+            <div class="form-group col-span-2">
+                <label for="time_in" class="block text-sm font-medium text-green-900">Jam Masuk</label>
+                <input type="time" id="time_in" wire:model="time_in" step="60"
+                    class="form-control @error('time_in') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" />
+                @error('time_in')
+                    <span class="text-danger text-sm">{{ $message }}</span>
+                @enderror
             </div>
 
-            <div class="form-group col-span-1">
-                <label class="block text-sm font-medium text-green-900">Jam Keluar</label>
-                <input type="text" wire:model="time_out" disabled
-                    class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 p-2.5" />
+            <div class="form-group col-span-2">
+                <label for="time_out" class="block text-sm font-medium text-green-900">Jam Keluar</label>
+                <input type="time" id="time_out" wire:model="time_out" step="60"
+                    class="form-control @error('time_out') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" />
+                @error('time_out')
+                    <span class="text-danger text-sm">{{ $message }}</span>
+                @enderror
             </div>
 
             <div class="form-group col-span-2">

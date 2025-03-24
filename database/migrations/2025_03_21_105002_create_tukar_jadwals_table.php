@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('shift_id')->nullable()->constrained('shifts')->onDelete('cascade');
+            $table->foreignId('status_cuti_id')->nullable()->constrained('status_cutis')->onDelete('cascade');
             $table->date('tanggal')->nullable();
             $table->text('keterangan')->nullable();
             $table->boolean('is_approved')->nullable();
