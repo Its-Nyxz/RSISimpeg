@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use App\Models\JadwalAbsensi;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
+use Request;
 
 class AktivitasAbsensi extends Component
 {
@@ -213,7 +214,6 @@ class AktivitasAbsensi extends Component
             "laporan Absensi {$user->name} Bulan {$month} Tahun {$year}.pdf"
         );
     }
-
     public function render()
     {
         return view('livewire.aktivitas-absensi', [

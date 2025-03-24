@@ -59,4 +59,20 @@ class AktivitasAbsensiController extends Controller
 
         return redirect()->route('aktivitasabsensi.index')->with('success', 'Feedback absensi berhasil diperbarui.');
     }
+
+    public function exportPDF()
+    {
+        $absensi = Absen::all(); // Ambil semua data absensi
+        
+        $pdf = Pdf::loadView('pdf.aktivitas_absensi', compact('absensi'));
+        return $pdf->download('laporan-absensi.pdf');
+    }
+    
+
+    public function show($id)
+{
+    $data = Absen::findOrFail($id);
+    return view('aktivitasabsensi.show', compact('data'));
+}
+
 }
