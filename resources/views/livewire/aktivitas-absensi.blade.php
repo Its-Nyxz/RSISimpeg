@@ -73,9 +73,11 @@
                                 ? 'bg-yellow-200'
                                 : ($item['is_dinas']
                                     ? 'bg-blue-200'
-                                    : ($loop->even
-                                        ? 'bg-green-100'
-                                        : 'bg-green-50'))) }} border-b border-green-300 hover:bg-green-200">
+                                    : ($item['late']
+                                        ? 'bg-red-400'
+                                        : ($loop->even
+                                            ? 'bg-green-100'
+                                            : 'bg-green-50')))) }} border-b border-green-300 hover:bg-green-200">
                         <td class="px-6 py-4 font-medium text-green-900 whitespace-nowrap">
                             {{ $item['hari'] }}
                         </td>

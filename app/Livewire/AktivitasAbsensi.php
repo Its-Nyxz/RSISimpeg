@@ -165,6 +165,7 @@ class AktivitasAbsensi extends Component
                 // 'keterangan' => $keterangan,
                 'is_lembur' => $totalOvertime > 0,
                 'is_dinas' => $absensi?->is_dinas,
+                'late' => $absensi?->late,
             ];
         }
     }

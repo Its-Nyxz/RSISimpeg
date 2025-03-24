@@ -158,7 +158,7 @@ class Timer extends Component
     {
         if (!$this->isRunning) {
             $this->isRunning = true;
-            $this->timeIn = now();
+            $this->timeIn = now()->timestamp;
 
             $jadwal = JadwalAbsensi::find($this->jadwal_id);
             if (!$jadwal) {
@@ -173,7 +173,9 @@ class Timer extends Component
             }
 
             $startShift = Carbon::parse($shift->jam_masuk);
-            $canStart = $this->timeIn->greaterThanOrEqualTo($startShift->subMinutes(15));
+            $currentTime = Carbon::createFromTimestamp($this->timeIn);
+
+            $canStart = $currentTime->greaterThanOrEqualTo($startShift->subMinutes(15));
 
             if (!$canStart) {
                 $this->dispatch('alert-error', message: 'Anda hanya bisa memulai timer 15 menit sebelum waktu shift dimulai.');
@@ -181,7 +183,7 @@ class Timer extends Component
                 return;
             }
 
-            $selisih = $startShift->diffInSeconds($this->timeIn, false);
+            $selisih = $startShift->diffInSeconds($currentTime, false);
             $this->late = $selisih > 0;
             $this->keterangan = $this->late
                 ? "Terlambat " . gmdate('H:i:s', abs($selisih))
@@ -213,10 +215,14 @@ class Timer extends Component
     public function openWorkReportModal()
     {
         if ($this->isRunning) {
-            $this->timeOut = now();
+            $this->timeOut = now()->timestamp;
             $this->isRunning = false;
 
-            $selisih = Carbon::parse($this->timeIn)->diffInSeconds($this->timeOut);
+            $timeIn = Carbon::createFromTimestamp($this->timeIn);
+            $timeOut = Carbon::createFromTimestamp($this->timeOut);
+
+            // ✅ Hitung selisih waktu dalam detik
+            $selisih = $timeIn->diffInSeconds($timeOut);
             $jamKerja = $selisih / 3600;
 
             $absensi = Absen::where('jadwal_id', $this->jadwal_id)
@@ -261,7 +267,14 @@ class Timer extends Component
     {
         if (!$this->timeOut) return;
 
-        $selisih = Carbon::parse($this->timeIn)->diffInSeconds($this->timeOut);
+        $timeIn = Carbon::createFromTimestamp($this->timeIn);
+        $timeOut = Carbon::createFromTimestamp($this->timeOut);
+
+        if ($timeOut->lessThan($timeIn)) {
+            $timeOut->addDay(); // Tambahkan satu hari jika waktu keluar lebih kecil dari waktu masuk
+        }
+
+        $selisih = $timeIn->diffInSeconds($timeOut);
         $jamKerja = $selisih / 3600;
 
         $absensi = Absen::where('jadwal_id', $this->jadwal_id)
@@ -407,7 +420,7 @@ class Timer extends Component
             $this->dispatch('alert-error', message: 'Lembur sudah berjalan.');
             return;
         }
-        $this->timeInLembur = now();
+        $this->timeInLembur = now()->timestamp;
         $this->isLemburRunning = true;
 
         // ✅ Simpan data lembur sebagai record baru
@@ -415,7 +428,7 @@ class Timer extends Component
             'jadwal_id' => $this->jadwal_id,
             'user_id' => Auth::id(),
             'time_in' => $this->timeInLembur,
-            'deskripsi_in' => 'Mulai lembur: ' . $this->timeInLembur->format('H:i:s'),
+            'deskripsi_in' => 'Mulai lembur: ' .  Carbon::createFromTimestamp($this->timeInLembur)->format('H:i:s'),
             'deskripsi_lembur' => $this->deskripsi_lembur ?: '-',
             'status_absen_id' => StatusAbsen::where('nama', 'Lembur')->value('id') ?? null,
             'present' => 1,
@@ -441,6 +454,12 @@ class Timer extends Component
         // Waktu mulai lembur (timestamp) dan waktu selesai lembur (timestamp saat ini)
         $waktuMulaiLembur = $this->timeInLembur;  // time_in lembur sebagai timestamp
         $waktuSelesaiLembur = Carbon::now()->timestamp;  // Waktu selesai lembur menggunakan timestamp saat ini
+
+        if ($waktuSelesaiLembur < $waktuMulaiLembur) {
+            // ✅ Jika waktu selesai lebih kecil → berarti sudah melewati tengah malam
+            $waktuSelesaiLembur += 86400; // Tambahkan 1 hari dalam detik (24 jam * 60 menit * 60 detik)
+        }
+
         // Menghitung durasi lembur dalam detik
         $durasiLembur = $waktuSelesaiLembur - $waktuMulaiLembur; // Durasi dalam detik
 
@@ -449,7 +468,7 @@ class Timer extends Component
             return;
         }
 
-        $time_out_lembur = now();
+        $time_out_lembur = now()->timestamp;
 
         // ✅ Perbarui absen lembur terakhir dengan `is_lembur = true`
         $lembur = Absen::where('jadwal_id', $this->jadwal_id)
@@ -461,7 +480,7 @@ class Timer extends Component
         if ($lembur) {
             $lembur->update([
                 'time_out' => $time_out_lembur,
-                'deskripsi_out' => 'Selesai lembur: ' . $time_out_lembur->format('H:i:s'),
+                'deskripsi_out' => 'Selesai lembur: ' . Carbon::createFromTimestamp($time_out_lembur)->format('H:i:s'),
                 'keterangan' => "Total lembur: " . gmdate('H:i:s', $durasiLembur),
                 'status_absen_id' => StatusAbsen::where('nama', 'Lembur')->value('id'),
             ]);
@@ -495,6 +514,10 @@ class Timer extends Component
             ? redirect()->route('dashboard') // Jika diakses dari dashboard
             : redirect()->to('/timer'); // Jika diakses dari route lain
     }
+
+
+
+
     public function render()
     {
         return view('livewire.timer');

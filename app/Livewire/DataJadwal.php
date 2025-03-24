@@ -115,7 +115,7 @@ class DataJadwal extends Component
     public function import()
     {
         $this->validate([
-            'file' => 'required|mimes:xlsx,csv|max:2048', // Validasi file
+            'file' => 'required|mimes:xlsx,csv,xls|max:2048', // Validasi file
         ]);
 
         Excel::import(new JadwalImport, $this->file);

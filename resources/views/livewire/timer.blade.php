@@ -323,7 +323,15 @@
 
             // Tangkap event dari Livewire untuk memulai timer
             window.addEventListener('timer-started', (event) => {
-                startTimer(event.detail);
+                const startTimestamp = event.detail;
+
+                if (!isRunning) {
+                    timeElapsed = Math.floor(Date.now() / 1000) - startTimestamp;
+                    timer = setInterval(() => {
+                        timeElapsed++;
+                        updateTimerDisplay();
+                    }, 1000);
+                }
             });
 
             // Event untuk memulai timer lembur dari Livewire
@@ -358,19 +366,4 @@
         <p class="font-semibold text-gray-600">{{ $this->absensiTanpaLembur->first()->deskripsi_out ?? '-' }}</p>
     @endif
 
-    {{-- <div>
-        <!-- Menampilkan deskripsi_in dan deskripsi_out jika is_lembur = false -->
-        @if ($this->absensiTanpaLembur->isNotEmpty())
-            <ul>
-                @foreach ($this->absensiTanpaLembur as $item)
-                    <li>
-                        <strong>Deskripsi In:</strong> {{ $item->deskripsi_in }} <br>
-                        <strong>Deskripsi Out:</strong> {{ $item->deskripsi_out }}
-                    </li>
-                @endforeach
-            </ul>
-        @else
-            <p>Tidak ada absensi yang tidak lembur.</p>
-        @endif
-    </div> --}}
 </div>
