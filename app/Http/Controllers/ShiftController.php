@@ -68,7 +68,7 @@ class ShiftController extends Controller
             'keterangan' => $validatedData['keterangan'],
         ]);
 
-        return redirect()->route('absensi.index')->with('success', 'Shift berhasil diperbarui!');
+        // return redirect()->route('absensi.index')->with('success', 'Shift berhasil diperbarui!');
     }
 
     /**

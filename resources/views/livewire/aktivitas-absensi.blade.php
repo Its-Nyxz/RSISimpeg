@@ -29,13 +29,19 @@
             </select>
         </div>
 
-        <!-- Tombol Tambah -->
-        @can('list-history-create')
-            <a href="{{ route('aktivitasabsensi.create', ['user_id' => $selectedUserId]) }}"
+        <div class="space-x-2">
+            <button wire:click="exportPdfHistory"
                 class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                + Tambah
-            </a>
-        @endcan
+                <i class="fas fa-download"></i> Export
+            </button>
+            <!-- Tombol Tambah -->
+            @can('list-history-create')
+                <a href="{{ route('aktivitasabsensi.create', ['user_id' => $selectedUserId]) }}"
+                    class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                    + Tambah
+                </a>
+            @endcan
+        </div>
 
     </div>
 
@@ -60,7 +66,15 @@
             <tbody>
                 @forelse ($items as $item)
                     <tr
-                        class="{{ $item['is_holiday'] ? 'bg-red-200' : ($loop->even ? 'bg-green-100' : 'bg-green-50') }} border-b border-green-300 hover:bg-green-200">
+                        class="{{ $item['is_holiday']
+                            ? 'bg-red-200'
+                            : ($item['is_lembur']
+                                ? 'bg-yellow-200'
+                                : ($item['is_dinas']
+                                    ? 'bg-blue-200'
+                                    : ($loop->even
+                                        ? 'bg-green-100'
+                                        : 'bg-green-50'))) }} border-b border-green-300 hover:bg-green-200">
                         <td class="px-6 py-4 font-medium text-green-900 whitespace-nowrap">
                             {{ $item['hari'] }}
                         </td>
@@ -69,12 +83,12 @@
                         <td class="px-6 py-4">{{ $item['rencana_kerja'] }}</td>
                         <td class="px-6 py-4">
                             {{ $item['laporan_kerja'] }}
-                            <div class="text-sm text-gray-600 mt-1"> <!-- Tambahkan div untuk keterangan -->
+                            {{-- <div class="text-sm text-gray-600 mt-1"> <!-- Tambahkan div untuk keterangan -->
                                 <span class="font-medium">Keterangan:</span> {{ $item['keterangan'] ?? '-' }}
-                            </div>
+                            </div> --}}
                         </td>
                         <th class="px-6 py-4">{{ $item['jam_lembur'] }}</th>
-                        <th class="px-6 py-4">{{ $item['laporan_lembur'] }}</th>
+                        <th class="px-6 py-4"> {!! $item['laporan_lembur'] !!}</th>
                         <td class="px-6 py-4">{{ $item['feedback'] }}</td>
                         @can('list-history-edit')
                             <td class="px-6 py-4">

@@ -10,6 +10,7 @@ use App\Models\StatusAbsen;
 use App\Models\JadwalAbsensi;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 
 class Timer extends Component
 {
@@ -35,10 +36,12 @@ class Timer extends Component
     public $deskripsiLembur;
     public $absensiTanpaLembur;
     public $isLemburRunning = false;
+    public $routeIsDashboard;
 
     public function mount($jadwal_id)
     {
         $this->jadwal_id = $jadwal_id;
+        $this->routeIsDashboard = Request::routeIs('dashboard');
 
         // ✅ Ambil semua data absensi berdasarkan jadwal_id
         $absensi = Absen::where('jadwal_id', $this->jadwal_id)
@@ -201,6 +204,9 @@ class Timer extends Component
 
             $this->dispatch('timer-started', now()->timestamp);
             $this->showStartModal = false;
+            return $this->routeIsDashboard
+                ? redirect()->route('dashboard') // Jika diakses dari dashboard
+                : redirect()->to('/timer'); // Jika diakses dari route lain
         }
     }
 
@@ -235,13 +241,13 @@ class Timer extends Component
             // $shiftHours = 5 / 3600;
 
             // ✅ Tentukan apakah terjadi lembur
-            $isOvertime = $jamKerja > $shiftHours;
+            // $isOvertime = $jamKerja > $shiftHours;
 
-            if ($isOvertime) {
-                // ✅ Jika lembur → Tampilkan modal konfirmasi
-                $this->showOvertimeModal = true;
-                return;
-            }
+            // if ($isOvertime) {
+            //     // ✅ Jika lembur → Tampilkan modal konfirmasi
+            //     $this->showOvertimeModal = true;
+            //     return;
+            // }
 
             // ✅ Jika tidak lembur → Langsung simpan hasil kerja
             $this->completeWorkReport();
@@ -293,14 +299,14 @@ class Timer extends Component
         }
 
         // ✅ Cek apakah lembur terjadi
-        $isOvertime = $jamKerja > $shiftHours;
+        // $isOvertime = $jamKerja > $shiftHours;
 
         // ✅ Simpan data ke database
         $absensi->update([
             'time_out' => $this->timeOut,
             'deskripsi_out' => $this->deskripsi_out,
             'keterangan' => "Total waktu bekerja: " . gmdate('H:i:s', $selisih),
-            'deskripsi_lembur' => $isOvertime ? $this->deskripsi_lembur : null,
+            // 'deskripsi_lembur' => $isOvertime ? $this->deskripsi_lembur : null,
             'status_absen_id' => $statusAbsenId // ✅ Simpan status absen ke database
         ]);
 
@@ -309,10 +315,12 @@ class Timer extends Component
         $this->showStopModal = false;
         $this->showOvertimeModal = false;
         $this->deskripsi_out = null;
-        $this->deskripsi_lembur = null;
+        // $this->deskripsi_lembur = null;
 
         // ✅ Redirect ke halaman utama
-        return redirect()->to('/timer');
+        return $this->routeIsDashboard
+            ? redirect()->route('dashboard') // Jika diakses dari dashboard
+            : redirect()->to('/timer'); // Jika diakses dari route lain
     }
 
 
@@ -342,7 +350,9 @@ class Timer extends Component
         $this->showOvertimeModal = false;
 
         $this->dispatch('timer-stopped');
-        return redirect()->to('/timer');
+        return $this->routeIsDashboard
+            ? redirect()->route('dashboard') // Jika diakses dari dashboard
+            : redirect()->to('/timer'); // Jika diakses dari route lain
     }
 
     public function dinasKeluar()
@@ -370,16 +380,19 @@ class Timer extends Component
             [
                 'time_in' => Carbon::parse($shift->jam_masuk),
                 'time_out' => Carbon::parse($shift->jam_keluar),
-                'deskripsi_in' => $this->deskripsi_dinas,
+                'deskripsi_out' => $this->deskripsi_dinas,
                 'status_absen_id' => 1,
                 'present' => 1,
+                'is_dinas' => true,
                 'keterangan' => "Dinas Keluar Terhitung Hadir dan 8 Jam kerja",
             ]
         );
 
         $this->deskripsi_dinas = null;
         $this->showDinasModal = false;
-        return redirect()->to('/timer');
+        return $this->routeIsDashboard
+            ? redirect()->route('dashboard') // Jika diakses dari dashboard
+            : redirect()->to('/timer'); // Jika diakses dari route lain
     }
 
     public function openLemburModal()
@@ -403,6 +416,7 @@ class Timer extends Component
             'user_id' => Auth::id(),
             'time_in' => $this->timeInLembur,
             'deskripsi_in' => 'Mulai lembur: ' . $this->timeInLembur->format('H:i:s'),
+            'deskripsi_lembur' => $this->deskripsi_lembur ?: '-',
             'status_absen_id' => StatusAbsen::where('nama', 'Lembur')->value('id') ?? null,
             'present' => 1,
             'is_lembur' => true // ✅ Tandai ini sebagai absen lembur
@@ -412,7 +426,9 @@ class Timer extends Component
 
         $this->dispatch('timer-lembur-started', now()->timestamp);
         $this->dispatch('alert-success', message: 'Lembur telah dimulai.');
-        return redirect()->to('/timer');
+        return $this->routeIsDashboard
+            ? redirect()->route('dashboard') // Jika diakses dari dashboard
+            : redirect()->to('/timer'); // Jika diakses dari route lain
     }
 
 
@@ -446,7 +462,6 @@ class Timer extends Component
             $lembur->update([
                 'time_out' => $time_out_lembur,
                 'deskripsi_out' => 'Selesai lembur: ' . $time_out_lembur->format('H:i:s'),
-                'deskripsi_lembur' => $this->deskripsi_lembur ?: '-',
                 'keterangan' => "Total lembur: " . gmdate('H:i:s', $durasiLembur),
                 'status_absen_id' => StatusAbsen::where('nama', 'Lembur')->value('id'),
             ]);
@@ -476,7 +491,9 @@ class Timer extends Component
 
         $this->dispatch('timer-lembur-stopped');
         $this->dispatch('alert-success', message: 'Lembur berhasil dicatat.');
-        return redirect()->to('/timer');
+        return $this->routeIsDashboard
+            ? redirect()->route('dashboard') // Jika diakses dari dashboard
+            : redirect()->to('/timer'); // Jika diakses dari route lain
     }
     public function render()
     {

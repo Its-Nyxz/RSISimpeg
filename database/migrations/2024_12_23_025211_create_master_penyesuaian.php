@@ -13,11 +13,15 @@ return new class extends Migration
     {
         Schema::create('master_penyesuaian', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('pendidikan_awal')->nullable();
             $table->unsignedBigInteger('pendidikan_penyesuaian')->nullable();
             $table->string('masa_kerja')->nullable();
+            $table->date('tanggal_penyesuaian')->nullable();
+            $table->string('status_penyesuaian')->nullable();
             $table->timestamps(0);
 
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             // $table->foreign('pendidikan_awal')->references('id')->on('master_pendidikan');
             // $table->foreign('pendidikan_penyesuaian')->references('id')->on('master_pendidikan');
         });

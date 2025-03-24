@@ -7,31 +7,57 @@ use Livewire\Component;
 
 class DataLiburNasional extends Component
 {
-    public $search = ''; // Properti untuk menyimpan nilai input pencarian
+    public $search = ''; 
     public $holidays = [];
+    public $holidayIdToDelete = null; // Menyimpan ID yang akan dihapus
 
     public function mount()
     {
-        $this->loadData();
+        $this->tahun = request()->query('tahun', now()->year);
     }
 
-    public function loadData()
+    public function updatedTahun()
     {
         $this->holidays = Holidays::when($this->search, function ($query) {
             $query->where('description', 'like', '%' . $this->search . '%');
-        })
-            ->get()
-            ->toArray();
+        })->get()->toArray();
     }
 
-    public function updateSearch($value)
+    // Menampilkan modal konfirmasi
+    public function confirmDelete($id)
     {
-        $this->search = $value;
+        $this->holidayIdToDelete = $id;
+    }
+
+    // Hapus data jika user konfirmasi
+    public function deleteHoliday()
+    {
+        if ($this->holidayIdToDelete) {
+            $holiday = Holidays::find($this->holidayIdToDelete);
+            if ($holiday) {
+                $holiday->delete();
+                session()->flash('message', 'Hari libur berhasil dihapus.');
+            } else {
+                session()->flash('error', 'Data tidak ditemukan.');
+            }
+        }
+
+        // Reset properti ID setelah delete
+        $this->holidayIdToDelete = null;
         $this->loadData();
     }
 
     public function render()
     {
-        return view('livewire.data-libur-nasional');
+        $holidays = Holidays::when($this->search, function ($query) {
+            $query->where('description', 'like', '%' . $this->search . '%');
+        })
+        ->when($this->tahun, function ($query) {
+            $query->whereYear('date', $this->tahun);
+        })
+        ->orderBy('date', 'asc')
+        ->get();
+
+        return view('livewire.data-libur-nasional', compact('holidays'));
     }
 }

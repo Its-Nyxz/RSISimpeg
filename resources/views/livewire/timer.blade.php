@@ -6,7 +6,10 @@
 
         <div id="mainTimerContainer" style="display: {{ $isLemburRunning ? 'none' : 'block' }};">
             {{-- Timer Utama --}}
-            <h1 id="timerDisplay" class="text-8xl font-bold text-center">
+            <h1 id="timerDisplay"
+                class="font-bold text-center 
+                    text-4xl sm:text-6xl lg:text-8xl   {{-- Ukuran lebih kecil di mobile --}}
+                    py-2 sm:py-4">
                 {{-- Display timer utama --}}
                 00:00:00
             </h1>
@@ -15,7 +18,13 @@
         <div id="lemburContainer" style="display: {{ $isLemburRunning ? 'block' : 'none' }};">
             {{-- Timer Lembur --}}
             <h1 id="lemburDisplay"
-                class="text-6xl font-bold text-center text-yellow-500 bg-gray-100 py-4 rounded-md shadow-md">
+                class="font-bold text-center 
+                    text-3xl sm:text-5xl lg:text-6xl {{-- Ukuran lembur lebih kecil di mobile --}}
+                    text-yellow-500 
+                    bg-gray-100 
+                    py-2 sm:py-4 
+                    rounded-md 
+                    shadow-md">
                 00:00:00
             </h1>
         </div>

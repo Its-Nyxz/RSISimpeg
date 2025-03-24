@@ -225,8 +225,8 @@ class KaryawanForm extends Component
             $this->no_ktp = $user->no_ktp;
             $this->no_hp = $user->no_hp;
             $this->no_rek = $user->no_rek;
-            $this->selectedPendidikan = $user->pendidikan;
-            // $this->pendidikan = $user->pendidikan;
+            $this->selectedPendidikan = $user->kategori_pendidikan;
+            $this->namapendidikan = $user->pendidikan;
             $this->institusi = $user->institusi;
             $this->jk = $user->jk;
             $this->alamat = $user->alamat;
@@ -256,7 +256,7 @@ class KaryawanForm extends Component
         $this->fungsis = MasterFungsi::all();
         $this->umums = MasterUmum::all();
         $this->katjab = KategoriJabatan::all();
-        $this->filteredKhusus = MasterKhusus::where('nama', 'like', '%Tenaga Kesehatan%')->get();
+        $this->filteredKhusus = MasterKhusus::all();
 
         // Pisahkan antara Parent dan Child PPH
         $this->parentPphs = Kategoripph::whereNull('parent_id')->get();
@@ -277,6 +277,7 @@ class KaryawanForm extends Component
             'no_hp' => 'nullable|string|max:15',
             'no_rek' => 'nullable',
             'selectedPendidikan' => 'nullable|exists:master_pendidikan,id',
+            'namapendidikan' => 'nullable',
             'institusi' => 'nullable|string|max:255',
             'alamat' => 'nullable|string|max:255',
             'tempat' => 'nullable|string|max:255',
@@ -308,7 +309,8 @@ class KaryawanForm extends Component
             'no_ktp' => $this->no_ktp ?? null,
             'no_hp' => $this->no_hp ?? null,
             'no_rek' => $this->no_rek ?? null,
-            'pendidikan' => $this->selectedPendidikan ?? null,
+            'kategori_pendidikan' => $this->selectedPendidikan ?? null,
+            'pendidikan' => $this->namapendidikan ?? null,
             'institusi' => $this->institusi ?? null,
             'jk' => $this->jk ?? null,
             'alamat' => $this->alamat ?? null,
@@ -348,6 +350,7 @@ class KaryawanForm extends Component
             'no_hp' => 'nullable|string|max:15',
             'no_rek' => 'nullable',
             'selectedPendidikan' => 'nullable|exists:master_pendidikan,id',
+            'namapendidikan' => 'nullable',
             'institusi' => 'nullable|string|max:255',
             'alamat' => 'nullable|string|max:255',
             'tempat' => 'nullable|string|max:255',
@@ -379,7 +382,8 @@ class KaryawanForm extends Component
             'no_ktp' => $this->no_ktp ?? null,
             'no_hp' => $this->no_hp ?? null,
             'no_rek' => $this->no_rek ?? null,
-            'pendidikan' => $this->selectedPendidikan ?? null,
+            'kategori_pendidikan' => $this->selectedPendidikan ?? null,
+            'pendidikan' => $this->namapendidikan ?? null,
             'institusi' => $this->institusi ?? null,
             'jk' => $this->jk ?? null,
             'alamat' => $this->alamat ?? null,

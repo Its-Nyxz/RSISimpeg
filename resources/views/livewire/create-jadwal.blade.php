@@ -101,6 +101,17 @@
                 @enderror
             </div> --}}
 
+            @if ($id === 'edit')
+                <div class="col-span-2">
+                    <label for="pergantian" class="block text-sm font-medium text-green-900">Pergantian Jadwal</label>
+                    <select id="pergantian" wire:model="isPergantianJadwal"
+                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
+                        <option value="">Pilih Opsi</option>
+                        <option value="0">Bukan Pergantian Jadwal</option>
+                        <option value="1">Pergantian Jadwal</option>
+                    </select>
+                </div>
+            @endif
         </div>
 
         <!-- Tombol Submit -->

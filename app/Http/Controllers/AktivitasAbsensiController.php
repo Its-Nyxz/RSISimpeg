@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Absen;
 use Illuminate\Http\Request;
 use App\Models\JadwalAbsensi;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 class AktivitasAbsensiController extends Controller

@@ -34,6 +34,27 @@ class DataShift extends Component
             ->toArray();
     }
 
+    public function destroy($id)
+    {
+        $shift = Shift::find($id);
+
+        if (!$shift) {
+            session()->flash('error', 'Shift tidak ditemukan.');
+            return;
+        }
+
+        try {
+            $shift->delete();
+
+            // Refresh data setelah penghapusan
+            $this->loadData();
+
+            return redirect()->route('shift.index')->with('success', 'Shift berhasil Dihapus');
+        } catch (\Exception $e) {
+            return redirect()->route('shift.index')->with('error', 'Terjadi kesalahan saat Shift dihapus');
+        }
+    }
+
     public function updateSearch($value)
     {
         $this->search = $value;

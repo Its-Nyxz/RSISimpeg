@@ -41,7 +41,8 @@ return new class extends Migration
             $table->string('no_rek')->nullable();
             // $table->integer('pend_awal')->nullable();
             $table->dateTime('tanggal_tetap')->nullable();
-            $table->foreignId('pendidikan')->nullable()->constrained('master_pendidikan');
+            $table->foreignId('kategori_pendidikan')->nullable()->constrained('master_pendidikan');
+            $table->string('pendidikan')->nullable();
             $table->string('institusi')->nullable();
             // $table->string('pendidikan_penyesuaian')->nullable();
             $table->foreignId('kategori_id')->nullable()->constrained('kategoripphs')->onDelete('cascade');
@@ -54,6 +55,7 @@ return new class extends Migration
             $table->string('status_karyawan')->default(1)->nullable();
             $table->string('alasan_resign')->nullable();
             $table->string('type_shift')->nullable();
+            $table->string('photo')->nullable();
             $table->timestamps();
 
             // $table->foreign('jabatan_id')->references('id')->on('master_jabatan');

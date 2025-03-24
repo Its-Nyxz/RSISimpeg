@@ -15,7 +15,7 @@
             </a>
         </div>
     </div>
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg mb-6">
         <table class="w-full text-sm text-left text-gray-700">
             <thead class="text-sm uppercase bg-success-400 text-success-900">
                 <tr>
