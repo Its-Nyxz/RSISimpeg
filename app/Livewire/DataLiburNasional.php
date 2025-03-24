@@ -7,57 +7,64 @@ use Livewire\Component;
 
 class DataLiburNasional extends Component
 {
-    public $search = ''; 
+    public $search = ''; // Properti untuk menyimpan nilai input pencarian
+    public $year;
     public $holidays = [];
-    public $holidayIdToDelete = null; // Menyimpan ID yang akan dihapus
 
     public function mount()
     {
-        $this->tahun = request()->query('tahun', now()->year);
-    }
-
-    public function updatedTahun()
-    {
-        $this->holidays = Holidays::when($this->search, function ($query) {
-            $query->where('description', 'like', '%' . $this->search . '%');
-        })->get()->toArray();
-    }
-
-    // Menampilkan modal konfirmasi
-    public function confirmDelete($id)
-    {
-        $this->holidayIdToDelete = $id;
-    }
-
-    // Hapus data jika user konfirmasi
-    public function deleteHoliday()
-    {
-        if ($this->holidayIdToDelete) {
-            $holiday = Holidays::find($this->holidayIdToDelete);
-            if ($holiday) {
-                $holiday->delete();
-                session()->flash('message', 'Hari libur berhasil dihapus.');
-            } else {
-                session()->flash('error', 'Data tidak ditemukan.');
-            }
-        }
-
-        // Reset properti ID setelah delete
-        $this->holidayIdToDelete = null;
+        $this->year = now()->year; // Set tahun default ke tahun sekarang
         $this->loadData();
     }
 
-    public function render()
+    public function loadData()
     {
-        $holidays = Holidays::when($this->search, function ($query) {
+        $this->holidays = Holidays::when($this->search, function ($query) {
             $query->where('description', 'like', '%' . $this->search . '%');
         })
-        ->when($this->tahun, function ($query) {
-            $query->whereYear('date', $this->tahun);
-        })
-        ->orderBy('date', 'asc')
-        ->get();
+            ->when($this->year, function ($query) {
+                $query->whereYear('date', $this->year);
+            })
+            ->get()
+            ->toArray();
+    }
 
-        return view('livewire.data-libur-nasional', compact('holidays'));
+    public function updateSearch($value)
+    {
+        $this->search = $value;
+        $this->loadData();
+    }
+
+    public function updateYear($value)
+    {
+        $this->year = $value;
+        $this->loadData();
+    }
+
+
+    public function destroy($id)
+    {
+        $holidays = Holidays::find($id);
+
+        if (!$holidays) {
+            return redirect()->route('liburnasional.index')->with('error', 'Hari Libur Nasional Tidak Ditemukan');
+        }
+
+        try {
+            $holidays->delete();
+
+            // Refresh data setelah penghapusan
+            $this->loadData();
+
+            return redirect()->route('liburnasional.index')->with('success', 'Hari Libur Nasional berhasil Dihapus');
+        } catch (\Exception $e) {
+            return redirect()->route('liburnasional.index')->with('error', 'Terjadi kesalahan saat Hari Libur Nasional dihapus');
+        }
+    }
+
+
+    public function render()
+    {
+        return view('livewire.data-libur-nasional');
     }
 }

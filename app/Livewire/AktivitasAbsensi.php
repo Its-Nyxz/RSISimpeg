@@ -44,14 +44,12 @@ class AktivitasAbsensi extends Component
             $this->subordinates = User::where('unit_id', auth()->user()->unit_id)
                 ->pluck('name', 'id');
 
-        // Cek apakah role mengandung kata "Kepala" dan juga memiliki role Super Admin atau Administrator
-        if (Str::contains($role, 'Kepala') && Auth::user()->hasAnyRole(['Super Admin', 'Administrator'])) {
+            // Default pilih user pertama jika ada
             $this->selectedUserId = $this->subordinates->keys()->first();
         } else {
             // Jika bukan parent, gunakan ID user yang login
-            $this->selectedUserId = Auth::user()->id;
+            $this->selectedUserId = auth()->user()->id();
         }
-
         $this->loadData();
     }
 
