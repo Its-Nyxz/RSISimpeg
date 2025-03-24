@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('shift_id')->nullable()->constrained('shifts')->onDelete('cascade');
             $table->date('tanggal')->nullable();
             $table->text('keterangan')->nullable();
+            $table->boolean('is_approved')->nullable();
             $table->timestamps();
         });
     }

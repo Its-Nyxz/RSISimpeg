@@ -10,9 +10,13 @@ class PengajuanController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($tipe)
     {
-        return view('pengajuan.index');
+        if (!in_array($tipe, ['cuti', 'ijin', 'tukar_jadwal'])) {
+            abort(404);
+        }
+
+        return view('pengajuan.index', compact('tipe'));
     }
 
     /**

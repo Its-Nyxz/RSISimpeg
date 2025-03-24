@@ -22,11 +22,11 @@
                         ? '<img src="' .
                             asset('storage/photos/' . $userprofile->photo) .
                             '" 
-                                                                         alt="User Profile" 
-                                                                         class="w-full h-full object-cover">'
+                                                                                             alt="User Profile" 
+                                                                                             class="w-full h-full object-cover">'
                         : '<div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500">
-                                                                        <i class="fa-solid fa-user text-5xl"></i>
-                                                                   </div>' !!}
+                                                                                            <i class="fa-solid fa-user text-5xl"></i>
+                                                                                       </div>' !!}
                 </div>
 
                 <!-- Data Profile -->
@@ -125,7 +125,7 @@
     </div>
 
     @php
-        $roles = ['Super Admin', 'Kepegawaian', 'Administrator'];
+        $roles = ['Super Admin', 'Kepala Seksi Kepegawaian', 'Staf Seksi Kepegawaian', 'Administrator'];
     @endphp
 
     @if (Auth::user()->hasAnyRole($roles))

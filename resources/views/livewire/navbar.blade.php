@@ -30,12 +30,16 @@
                             ? '<img src="' .
                                 asset('storage/photos/' . auth()->user()->photo) .
                                 '" 
-                                                                                                                                                        alt="Profile" 
-                                                                                                                                                        class="w-8 h-8 rounded-full object-cover border border-gray-300">'
+                                                                                                                                                                                                                                                                                                                                alt="Profile" 
+                                                                                                                                                                                                                                                                                                                                class="w-8 h-8 rounded-full object-cover border border-gray-300">'
                             : '<div class="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full border border-gray-300">
-                                                                                                                                                        <i class="fa-solid fa-user"></i>
-                                                                                                                                                    </div>' !!}
+                                                                                                                                <i class="fa-solid fa-user"></i>
+                                                                                                                                </div>' !!}
                     </a>
+                </div>
+
+                <div class="relative inline-block mr-2">
+                    <livewire:notification />
                 </div>
 
                 <!-- ✅ Tombol Logout Tetap Muncul di Mobile -->

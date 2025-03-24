@@ -25,6 +25,7 @@ class EditJadwal extends Component
     public $shifts = [];
     public $opsis = [];
 
+
     public function mount($jadwalId)
     {
         $jadwal = JadwalAbsensi::findOrFail($jadwalId);
@@ -64,6 +65,9 @@ class EditJadwal extends Component
             'tanggal_jadwal' => $this->tanggal_jadwal,
             'keterangan_absen' => $this->keterangan_absen,
         ]);
+
+        
+
 
         session()->flash('success', 'Jadwal absensi berhasil diperbarui!');
         return redirect()->route('jadwal.index');

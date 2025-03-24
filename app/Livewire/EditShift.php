@@ -63,8 +63,7 @@ class EditShift extends Component
             'unit_id' => $this->unit_id,
         ]);
 
-        session()->flash('success', 'Shift berhasil diperbarui!');
-        return redirect()->route('shift.index');
+        return redirect()->route('shift.index')->with('success', 'Shift berhasil diperbarui');
     }
 
     public function render()

@@ -70,9 +70,7 @@ class CreateShift extends Component
             'keterangan' => $this->keterangan,
         ]);
 
-        // Reset input setelah simpan
-        session()->flash('success', 'Shift berhasil ditambahkan!');
-        return redirect()->route('shift.index');
+        return redirect()->route('shift.index')->with('success', 'Shift berhasil ditambahkan');
     }
 
     // Method to render the component view

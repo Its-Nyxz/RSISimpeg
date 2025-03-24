@@ -2,11 +2,14 @@
 
 namespace App\Livewire;
 
+use App\Models\User;
 use App\Models\Shift;
 use Livewire\Component;
 use App\Models\JenisCuti;
 use App\Models\TukarJadwal;
 use App\Models\CutiKaryawan;
+use App\Notifications\UserNotification;
+use Illuminate\Support\Facades\Notification;
 
 class PengajuanForm extends Component
 {
@@ -113,7 +116,7 @@ class PengajuanForm extends Component
             // ✅ Hitung jumlah hari cuti
             $jumlah_hari = (strtotime($this->tanggal_selesai) - strtotime($this->tanggal_mulai)) / 86400 + 1;
             // ✅ Simpan pengajuan cuti ke database
-            CutiKaryawan::create([
+            $cutikaryawan = CutiKaryawan::create([
                 'user_id' => auth()->id(),
                 'jenis_cuti_id' => $this->jenis_cuti_id,
                 'status_cuti_id' => 3, // Status default: Menunggu
@@ -122,6 +125,27 @@ class PengajuanForm extends Component
                 'jumlah_hari' => $jumlah_hari,
                 'keterangan' => $this->keterangan,
             ]);
+
+
+            $user = auth()->user();
+            // Ambil nama shift berdasarkan shift_id
+            $jenis_cuti = JenisCuti::find($this->jenis_cuti_id)->first();
+
+            // Cari kepala unit berdasarkan unit_id
+            $nextUser = User::where('unit_id', $user->unit_id)
+                ->whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Kepala%'))
+                ->first();
+
+            $message = 'Pengajuan Cuti' . auth()->user()->name .
+                'mulai <span class="font-bold">' . $this->tanggal_mulai . 'sampai' .  $this->tanggal_selesai .
+                '</span> ' .
+                ($jenis_cuti ? $jenis_cuti->nama_cuti : 'Tidak Diketahui') .
+                'dengan keterangan' . $this->keterangan . ' membutuhkan persetujuan Anda.';
+
+            $url = "/pengajuan/cutikaryawan/{$cutikaryawan->id}";
+            if ($nextUser) {
+                Notification::send($nextUser, new UserNotification($message, $url));
+            }
 
             session()->flash('message', 'Pengajuan cuti berhasil diajukan.');
         } elseif ($this->tipe === 'ijin') {
@@ -148,14 +172,37 @@ class PengajuanForm extends Component
                 'keterangan' => 'nullable|string|max:255',
 
             ]);
+
             // ✅ Simpan pengajuan tukar jadwal ke database (jika ada model khusus untuk tukar jadwal)
             // Contoh:
-            TukarJadwal::create([
+            $tukarJadwal = TukarJadwal::create([
                 'user_id' => auth()->id(),
                 'shift_id' => $this->shift_id,
                 'tanggal' => $this->tanggal,
                 'keterangan' => $this->keterangan,
             ]);
+
+            $user = auth()->user();
+            // Ambil nama shift berdasarkan shift_id
+            $nama_shift = Shift::where('unit_id', $user->unit_id)
+                ->where('id', $this->shift_id)
+                ->first();
+
+            // Cari kepala unit berdasarkan unit_id
+            $nextUser = User::where('unit_id', $user->unit_id)
+                ->whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Kepala%'))
+                ->first();
+
+            $message = 'Pengajuan Tukar Jadwal atau Shift' . auth()->user()->name .
+                ' <span class="font-bold">' . $this->tanggal .
+                '</span> ke ' .
+                ($nama_shift ? $nama_shift->nama_shift : 'Tidak Diketahui') .
+                'dengan keterangan' . $this->keterangan . ' membutuhkan persetujuan Anda.';
+
+            $url = "/pengajuan/tukarjadwal/{$tukarJadwal->id}";
+            if ($nextUser) {
+                Notification::send($nextUser, new UserNotification($message, $url));
+            }
 
             session()->flash('message', 'Pengajuan tukar jadwal berhasil diajukan.');
         }

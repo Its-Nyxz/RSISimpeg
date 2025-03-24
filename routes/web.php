@@ -151,7 +151,7 @@ Route::middleware('auth')->group(function () {
     Route::get('liburnasional/{tipe}/{holiday}', [HolidaysController::class, 'create']);
     Route::resource('liburnasional', HolidaysController::class);
     Route::get('pengajuan/create/{tipe}', [PengajuanController::class, 'create'])->name('pengajuan.create');
-    Route::get('pengajuan', [PengajuanController::class, 'index'])->name('pengajuan.index');
+    Route::get('pengajuan/{tipe}', [PengajuanController::class, 'index'])->name('pengajuan.index');
 });
 
 require __DIR__ . '/auth.php';

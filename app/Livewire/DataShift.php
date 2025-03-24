@@ -49,9 +49,9 @@ class DataShift extends Component
             // Refresh data setelah penghapusan
             $this->loadData();
 
-            session()->flash('success', 'Shift berhasil dihapus.');
+            return redirect()->route('shift.index')->with('success', 'Shift berhasil Dihapus');
         } catch (\Exception $e) {
-            session()->flash('error', 'Terjadi kesalahan saat menghapus shift.');
+            return redirect()->route('shift.index')->with('error', 'Terjadi kesalahan saat Shift dihapus');
         }
     }
 
