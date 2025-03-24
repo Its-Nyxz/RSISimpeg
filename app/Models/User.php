@@ -133,7 +133,7 @@ class User extends Authenticatable
     }
     public function pendidikanUser()
     {
-        return $this->belongsTo(MasterPendidikan::class, 'pendidikan');
+        return $this->belongsTo(MasterPendidikan::class, 'kategori_pendidikan');
     }
     public function jenis()
     {

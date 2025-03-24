@@ -70,6 +70,11 @@ class JadwalImport implements ToCollection
                 continue;
             }
         }
+
+        // Redirect dengan notifikasi jika ada error
+        if (!empty($errors)) {
+            return redirect()->back()->with('error', implode('<br>', $errors));
+        }
         // Redirect dengan notifikasi sukses jika tidak ada error
         return redirect()->back()->with('success', 'Jadwal berhasil diimport!');
     }

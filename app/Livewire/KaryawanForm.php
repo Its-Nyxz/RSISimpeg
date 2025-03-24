@@ -17,6 +17,7 @@ use App\Models\KategoriJabatan;
 use App\Models\MasterPendidikan;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB; // sementara
 
 class KaryawanForm extends Component
 {
@@ -66,12 +67,18 @@ class KaryawanForm extends Component
     public $filteredKhusus = [];
     public $selectedGolongan; // ID golongan yang dipilih otomatis
     public string $selectedGolonganNama; // Nama golongan yang ditampilkan di input
-    public $jabatan; // Input untuk jabatan
+    public $jabatan;
+    public $jabatanAwal;
+    public $jabatanChanged = false;
     public $unit; // Input untuk unit kerja
     public $suggestions = [
         'jabatan' => [],
         'unit' => [],
     ];
+    protected $listeners = ['savekaryawan'];
+    public $khususList; //sementara
+
+
 
     public function fetchSuggestions($field, $value)
     {
@@ -94,12 +101,17 @@ class KaryawanForm extends Component
     public function selectSuggestion($field, $value)
     {
         if ($field === 'jabatan') {
+            if ($this->jabatanAwal !== $value) {
+                $this->dispatch('confirmJabatanChange');
+            }
             $this->jabatan = $value;
         } elseif ($field === 'unit') {
             $this->unit = $value;
         }
+
         $this->suggestions[$field] = [];
     }
+
 
     public function hideSuggestions($field)
     {
@@ -213,8 +225,8 @@ class KaryawanForm extends Component
             $this->no_ktp = $user->no_ktp;
             $this->no_hp = $user->no_hp;
             $this->no_rek = $user->no_rek;
-            $this->selectedPendidikan = $user->pendidikan;
-            // $this->pendidikan = $user->pendidikan;
+            $this->selectedPendidikan = $user->kategori_pendidikan;
+            $this->namapendidikan = $user->pendidikan;
             $this->institusi = $user->institusi;
             $this->jk = $user->jk;
             $this->alamat = $user->alamat;
@@ -222,6 +234,8 @@ class KaryawanForm extends Component
             $this->tanggal_lahir = $user->tanggal_lahir;
             $this->unit = $user->unitKerja->nama ?? '';
             $this->jabatan = $user->kategorijabatan->nama ?? null;
+            $this->jabatanAwal = $this->jabatan; // Simpan nilai awal jabatan
+            $this->jabatanChanged = false;
             $this->selectedJenisKaryawan = $user->jenis_id;
             $this->tmt = $user->tmt;
             $this->masakerja = $user->masa_kerja;
@@ -231,6 +245,7 @@ class KaryawanForm extends Component
             $this->selectedPph = $user->kategori_id;
             $this->selectedRoles = $user->roles->pluck('id')->toArray();
             $this->typeShift = $user->type_shift;
+            $this->khususList = DB::table('master_khusus')->get(); //sementara
         }
 
         $this->units = UnitKerja::all();
@@ -241,7 +256,7 @@ class KaryawanForm extends Component
         $this->fungsis = MasterFungsi::all();
         $this->umums = MasterUmum::all();
         $this->katjab = KategoriJabatan::all();
-        $this->filteredKhusus = MasterKhusus::where('nama', 'like', '%Tenaga Kesehatan%')->get();
+        $this->filteredKhusus = MasterKhusus::all();
 
         // Pisahkan antara Parent dan Child PPH
         $this->parentPphs = Kategoripph::whereNull('parent_id')->get();
@@ -262,6 +277,7 @@ class KaryawanForm extends Component
             'no_hp' => 'nullable|string|max:15',
             'no_rek' => 'nullable',
             'selectedPendidikan' => 'nullable|exists:master_pendidikan,id',
+            'namapendidikan' => 'nullable',
             'institusi' => 'nullable|string|max:255',
             'alamat' => 'nullable|string|max:255',
             'tempat' => 'nullable|string|max:255',
@@ -293,7 +309,8 @@ class KaryawanForm extends Component
             'no_ktp' => $this->no_ktp ?? null,
             'no_hp' => $this->no_hp ?? null,
             'no_rek' => $this->no_rek ?? null,
-            'pendidikan' => $this->selectedPendidikan ?? null,
+            'kategori_pendidikan' => $this->selectedPendidikan ?? null,
+            'pendidikan' => $this->namapendidikan ?? null,
             'institusi' => $this->institusi ?? null,
             'jk' => $this->jk ?? null,
             'alamat' => $this->alamat ?? null,
@@ -320,8 +337,11 @@ class KaryawanForm extends Component
         return redirect()->route('datakaryawan.index')->with('success', 'Karyawan berhasil diTambah.');
     }
 
+
+
     public function updateKaryawan()
     {
+     
         $this->validate([
             'nama' => 'nullable|string|max:255',
             'nip' => 'nullable|max:50|unique:users,nip,' .  ($this->user_id ?? 'NULL'),
@@ -330,6 +350,7 @@ class KaryawanForm extends Component
             'no_hp' => 'nullable|string|max:15',
             'no_rek' => 'nullable',
             'selectedPendidikan' => 'nullable|exists:master_pendidikan,id',
+            'namapendidikan' => 'nullable',
             'institusi' => 'nullable|string|max:255',
             'alamat' => 'nullable|string|max:255',
             'tempat' => 'nullable|string|max:255',
@@ -361,7 +382,8 @@ class KaryawanForm extends Component
             'no_ktp' => $this->no_ktp ?? null,
             'no_hp' => $this->no_hp ?? null,
             'no_rek' => $this->no_rek ?? null,
-            'pendidikan' => $this->selectedPendidikan ?? null,
+            'kategori_pendidikan' => $this->selectedPendidikan ?? null,
+            'pendidikan' => $this->namapendidikan ?? null,
             'institusi' => $this->institusi ?? null,
             'jk' => $this->jk ?? null,
             'alamat' => $this->alamat ?? null,
@@ -383,9 +405,26 @@ class KaryawanForm extends Component
             $user->syncRoles($roles);
         }
 
-        return redirect()->route('detailkaryawan.show', $this->user_id)->with('success', 'Karyawan berhasil diupdate.');
+        return redirect()->route('detailkaryawan.show', $this->user_id)
+            ->with('success', 'Karyawan berhasil diupdate.');
     }
 
+    public function savekaryawan()
+    {
+        if ($this->jabatan !== $this->jabatanAwal) {
+            $this->dispatch('confirmJabatanChange'); // Panggil event ke browser
+            return; // Hentikan eksekusi agar tidak langsung menyimpan sebelum konfirmasi
+        }
+        $this->updateKaryawan();
+    }
+    public function updateKaryawanConfirmed()
+    {
+        $this->jabatanChanged = false; // Reset perubahan
+        $this->jabatanAwal = $this->jabatan; // Update nilai awal agar tidak terdeteksi perubahan lagi
+
+        // Lanjutkan proses update karyawan seperti di updateKaryawan()
+        $this->updateKaryawan();
+    }
 
     public function render()
     {

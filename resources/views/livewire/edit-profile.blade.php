@@ -72,11 +72,11 @@
                 @enderror
             </div>
 
-            {{-- Pendidikan --}}
+            {{-- Kategori Pendidikan --}}
             <div class="form-group col-span-2 md:col-span-1">
-                <label for="pendidikan" class="text-sm font-medium text-green-700">Pendidikan</label>
-                <select id="pendidikan" wire:model="pendidikan"
-                    class="form-control @error('pendidikan') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
+                <label for="kategori_pendidikan" class="text-sm font-medium text-green-700">Kategori Pendidikan</label>
+                <select id="kategori_pendidikan" wire:model="kategori_pendidikan"
+                    class="form-control @error('kategori_pendidikan') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
                     <option value="">-- Pilih Pendidikan --</option>
                     @foreach ($pendidikans as $pendidikan)
                         <option value="{{ $pendidikan->id }}">{{ $pendidikan->nama }}</option>
@@ -87,8 +87,18 @@
                 @enderror
             </div>
 
-            {{-- Institusi --}}
+            {{-- Pendidikan --}}
             <div class="form-group col-span-2 md:col-span-1">
+                <label for="pendidikan" class="text-sm font-medium text-green-700">Pendidikan</label>
+                <input type="text" id="pendidikan" wire:model="pendidikan"
+                    class="form-control @error('pendidikan') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
+                @error('pendidikan')
+                    <span class="text-danger text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+
+            {{-- Institusi --}}
+            <div class="form-group col-span-2">
                 <label for="institusi" class="text-sm font-medium text-green-700">Institusi</label>
                 <input type="text" id="institusi" wire:model="institusi"
                     class="form-control @error('institusi') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
@@ -134,7 +144,6 @@
         <img src="{{ asset('storage/photos/'.$currentPhoto) }}" class="mt-2 w-32 h-32 object-cover rounded-lg">
     @endif
 </div>
-
         </div>
 
         {{-- button sumbit --}}

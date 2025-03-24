@@ -8,12 +8,13 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\KategoriJabatan;
 use App\Models\MasterPendidikan;
+use Livewire\WithFileUploads;
 
 class EditProfile extends Component
 {
     use WithFileUploads;
 
-    public $user_id, $name, $nip, $no_ktp, $no_hp, $no_rek, $pendidikan, $institusi, $jk, $alamat, $tempat, $tanggal_lahir;
+    public $user_id, $name, $nip, $no_ktp, $no_hp, $no_rek, $kategori_pendidikan, $pendidikan, $institusi, $jenisKelamin, $alamat, $tempat_lahir, $tanggal_lahir;
     public $photo, $currentPhoto;
     public $jabatans, $pendidikans;
 
@@ -26,6 +27,7 @@ class EditProfile extends Component
         $this->no_ktp = $user->no_ktp;
         $this->no_hp = $user->no_hp;
         $this->no_rek = $user->no_rek;
+        $this->kategori_pendidikan = $user->kategori_pendidikan;
         $this->pendidikan = $user->pendidikan;
         $this->institusi = $user->institusi;
         $this->jk = $user->jk;
@@ -46,7 +48,7 @@ class EditProfile extends Component
             'no_ktp' => 'nullable|string|max:50',
             'no_hp' => 'nullable|string|max:15',
             'no_rek' => 'nullable',
-            'pendidikan' => 'nullable|exists:master_pendidikan,id',
+            'kategori_pendidikan' => 'nullable|exists:master_pendidikan,id',
             'institusi' => 'nullable|string|max:255',
             'jk' => 'nullable',
             'alamat' => 'nullable|string|max:255',
@@ -68,11 +70,12 @@ class EditProfile extends Component
             'no_ktp' => $this->no_ktp ?? null,
             'no_hp' => $this->no_hp ?? null,
             'no_rek' => $this->no_rek ?? null,
+            'kategori_pendidikan' => $this->kategori_pendidikan ?? null,
             'pendidikan' => $this->pendidikan ?? null,
             'institusi' => $this->institusi ?? null,
-            'jk' => $this->jk ?? null,
+            'jk' => $this->jenisKelamin ?? null,
             'alamat' => $this->alamat ?? null,
-            'tempat' => $this->tempat ?? null,
+            'tempat' => $this->tempat_lahir ?? null,
             'tanggal_lahir' => $this->tanggal_lahir ?? null,
         ]);
 
