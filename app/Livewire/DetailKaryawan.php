@@ -2,9 +2,13 @@
 
 namespace App\Livewire;
 
+use App\Models\MasterPendidikan;
+use App\Models\MasterPenyesuaian;
 use Carbon\Carbon;
 use App\Models\User;
 use Livewire\Component;
+use Illuminate\Support\Facades\DB;
+
 
 class DetailKaryawan extends Component
 {
@@ -12,14 +16,25 @@ class DetailKaryawan extends Component
     public $user_id;
     public $alasanResign;
     public $statusKaryawan;
+    public $pend_awal, $pend_penyesuaian, $tanggal_penyesuaian, $tmt;
+    public $pendidikans;
+    public $pend_awal_id;
+    public $viewPendAwal;
 
     public function mount($user)
     {
         // Mendapatkan data user
         $this->user = $user;
         $this->user_id = $user->id;
+        $this->pend_awal_id = $user->kategori_pendidikan;
+        $this->pend_awal = $user->pendidikanUser->deskripsi ?? null;
+        $this->tmt = $user->tmt ? formatDate($user->tmt) : null;
         $this->statusKaryawan = $user->status_karyawan;
         $this->alasanResign = $user->alasan_resign;
+        $this->pendidikans = MasterPendidikan::all();
+
+        $this->viewPendAwal = MasterPenyesuaian::with('pendidikanAwal', 'pendidikanPenyesuaian')->where('user_id', $this->user_id)->where('status_penyesuaian', 1)->first();
+        // dd($this->viewPendAwal);
     }
 
     public function resignKerja()
@@ -33,7 +48,7 @@ class DetailKaryawan extends Component
         return redirect()->route('detailkaryawan.show', $this->user_id)->with('success', 'Karyawan berhasil dinonaktifkan.');
     }
 
-    public function kembali()
+    public function kembaliKerja()
     {
         $user = User::findOrFail($this->user_id);
         $user->update([
@@ -43,8 +58,51 @@ class DetailKaryawan extends Component
         return redirect()->route('detailkaryawan.show', $this->user_id)->with('success', 'Karyawan berhasil diaktifkan.');
     }
 
+    public function tambahHistory()
+    {
+        $this->validate([
+            'tmt' => 'required',
+            'pend_awal' => 'required',
+            'pend_penyesuaian' => 'required',
+            'tanggal_penyesuaian' => 'required',
+        ], [
+            'tmt.required' => 'Tanggal Mulai Kerja tidak boleh kosong, Silakan isi dulu melalui Edit Karyawan.',
+            'pend_awal.required' => 'Pendidikan Awal tidak boleh kosong, Silakan isi dulu melalui Edit Karyawan.',
+            'tanggal_penyesuaian.required' => 'Tanggal Penyesuaian tidak boleh kosong',
+            'pend_penyesuaian.required' => 'Penyesuaian pendidikan tidak boleh kosong',
+        ]);
+        if ($this->pend_penyesuaian == $this->pend_awal_id) {
+            return redirect()->route('detailkaryawan.show', $this->user_id)->with('error', 'Penyesuaian Pendidikan dan Pendidikan Awal tidak boleh sama.');
+        } else {
+            $cekMasterPenyesuaian = MasterPenyesuaian::where('pendidikan_awal', $this->pend_awal_id)->where('pendidikan_penyesuaian', $this->pend_penyesuaian)->where('user_id', $this->user_id)->exists();
+            if (!$cekMasterPenyesuaian) {
+                $existingPenyesuaian = MasterPenyesuaian::where('user_id', $this->user_id)->where('status_penyesuaian', 1)->first();
+                // Jika ada, ubah status_penyesuaian menjadi non aktif
+                if ($existingPenyesuaian) {
+                    $existingPenyesuaian->update(['status_penyesuaian' => 0]);
+                }
+                MasterPenyesuaian::create([
+                    'user_id' => $this->user_id,
+                    'pendidikan_awal' => $this->pend_awal_id,
+                    'pendidikan_penyesuaian' => $this->pend_penyesuaian,
+                    'masa_kerja' => 'coming soon',
+                    'tanggal_penyesuaian' => $this->tanggal_penyesuaian,
+                    'status_penyesuaian' => 1
+                ]);
+                User::findOrFail($this->user_id)->update([
+                    'kategori_pendidikan' => $this->pend_penyesuaian
+                ]);
+                return redirect()->route('detailkaryawan.show', $this->user_id)->with('success', 'History berhasil di tambahkan.');
+            } else {
+                return redirect()->route('detailkaryawan.show', $this->user_id)->with('error', 'History sudah ada sebelumnya.');
+            }
+        }
+    }
+
     public function render()
     {
-        return view('livewire.detail-karyawan');
+        return view('livewire.detail-karyawan', [
+            'roles' => $this->roles // Kirim ke view
+        ]);
     }
 }

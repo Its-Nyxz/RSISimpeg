@@ -95,7 +95,7 @@
                             </td>
                             <td>
                                 <select id="pendidikans" wire:model.live="selectedPendidikan"
-                                    wire:input='selectGolongan'
+                                    wire:input='selectedPendidikan'
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5">
                                     <option value="">Pilih Pendidikan</option>
                                     @foreach ($pendidikans as $pendidikan)
@@ -109,7 +109,7 @@
                                 @enderror
                             </td>
                         </tr>
-                        {{-- <tr>
+                        <tr>
                             <td style="width: 40%">
                                 <label for="namapendidikan" class="block mb-2 text-sm font-medium text-gray-900">
                                     Pendidikan <span class="text-sm text-red-500">*</span></label>
@@ -122,7 +122,7 @@
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
                             </td>
-                        </tr> --}}
+                        </tr>
                         <tr>
                             <td style="width: 40%">
                                 <label for="institusi" class="block mb-2 text-sm font-medium text-gray-900">
@@ -290,7 +290,43 @@
                                         @endforeach
                                     </ul>
                                 @endif
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        Livewire.on('confirmJabatanChange', () => {
+                                            Swal.fire({
+                                                title: "Perubahan Jabatan",
+                                                text: "Jabatan berubah, jangan lupa untuk mengelola hak akses agar tetap sesuai.",
+                                                icon: "warning",
+                                                showCancelButton: true,
+                                                confirmButtonColor: "#3085d6",
+                                                cancelButtonColor: "#d33",
+                                                confirmButtonText: "Ya, lanjutkan!",
+                                                cancelButtonText: "Batal"
+                                            }).then((result) => {
+                                                if (result.isConfirmed) {
+                                                    setTimeout(() => {
+                                                        document.getElementById('roles')?.focus();
+                                                    }, 300);
+                                                    Livewire.emit('savekaryawan');
+                                                } else {
+                                                    Swal.fire({
+                                                        title: "Perubahan Dibatalkan",
+                                                        text: "Anda membatalkan perubahan jabatan, periksa lagi jabatan anda.",
+                                                        icon: "info",
+                                                        confirmButtonColor: "#3085d6",
+                                                        confirmButtonText: "OK"
+                                                    });
+                                                }
+                                            });
+                                        });
+                                    });
+                                </script>
+
+
+
+
                             </td>
+
                         </tr>
                         <tr>
                             <td style="width: 40%">
@@ -310,6 +346,25 @@
                                 @error('selectedJenisKaryawan')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 40%">
+                                <label for="type_shift" class="block mb-2 text-sm font-medium text-gray-900">
+                                    Shift <span class="text-sm text-red-500">*</span>
+                                </label>
+                            </td>
+                            <td>
+                                <div>
+                                    <select id="type_shift" wire:model.live="typeShift"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 ">
+                                        <option value="">Pilih Shift</option>
+                                        <option value="1" {{ $typeShift == '1' ? 'selected' : '' }}>Shift
+                                        </option>
+                                        <option value="0" {{ $typeShift == '0' ? 'selected' : '' }}>Non Shift
+                                        </option>
+                                    </select>
+                                </div>
                             </td>
                         </tr>
                         <tr wire:ignore>
@@ -426,7 +481,7 @@
                                 <select id="khusus" wire:model.live="khusus"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5">
                                     <option value="">Pilih Tunjangan Khusus</option>
-                                    @foreach ($filteredKhusus as $khus)
+                                    @foreach ($khususList as $khus)
                                         <option value="{{ $khus->id }}">
                                             {{ $khus->nama }}
                                         </option>
@@ -480,25 +535,7 @@
                                 </div>
                             </td>
                         </tr>
-                        <tr>
-                            <td style="width: 40%">
-                                <label for="type_shift" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Shift <span class="text-sm text-red-500">*</span>
-                                </label>
-                            </td>
-                            <td>
-                                <div>
-                                    <select id="type_shift" wire:model.live="typeShift"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 ">
-                                        <option value="">Pilih Shift</option>
-                                        <option value="1" {{ $typeShift == '1' ? 'selected' : '' }}>Shift
-                                        </option>
-                                        <option value="0" {{ $typeShift == '0' ? 'selected' : '' }}>Non Shift
-                                        </option>
-                                    </select>
-                                </div>
-                            </td>
-                        </tr>
+
                     </table>
                 </x-card>
             </div>
@@ -510,7 +547,7 @@
                     <i class="fa-solid fa-paper-plane mr-2"></i> Simpan
                 </button>
             @else
-                <button type="button" wire:click="updateKaryawan()"
+                <button type="button" id="confimAlertJabatan" wire:click="updateKaryawan()"
                     class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
                     <i class="fa-solid fa-pen mr-2"></i> Edit
                 </button>

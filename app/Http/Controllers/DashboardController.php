@@ -21,9 +21,15 @@ class DashboardController extends Controller
         $jadwal_id = $jadwal ? $jadwal->id : null;
         // dd($jadwal_id);
         $totalKaryawan = User::count();
+        $jumlahKaryawanShift = User::where('type_shift', 1)
+            ->orWhere('type_shift', null)
+            ->where('id', '!=', 1) // Kecuali user dengan id = 1
+            ->count();
+        $jumlahKaryawanNonShift = User::where('type_shift', 0)
+            ->where('id', '!=', 1) // Kecuali user dengan id = 1
+            ->count();
         $totalKaryawanAktif = User::where('status', 0)
             ->where('id', '!=', 1) // Kecuali user dengan id = 1
-            ->where('role', '!=', 'superadmin') // Kecuali superadmin
             ->count();
         $totalKaryawanNonAktif = User::where('status', 1)->count();
         // Hitung jumlah karyawan berdasarkan jenis_id
@@ -34,10 +40,10 @@ class DashboardController extends Controller
             ->groupBy('jenis_id')
             ->get()
             ->map(function ($item) {
-                $item->nama = $item->jenis->nama ?? '-';
+                $item->nama = $item->jenis->nama ?? ' ';
                 return $item;
             });
 
-        return view('dashboard.index', compact('jadwal_id', 'totalKaryawan', 'totalKaryawanAktif', 'totalKaryawanNonAktif', 'jumlahKaryawan'));
+        return view('dashboard.index', compact('jadwal_id', 'totalKaryawan', 'jumlahKaryawanShift', 'jumlahKaryawanNonShift', 'jumlahKaryawan'));
     }
 }

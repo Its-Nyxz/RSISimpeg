@@ -32,6 +32,9 @@
                         auth()->user()->can('list-history')
                             ? ['title' => 'History Absensi', 'href' => '/aktivitasabsensi']
                             : null,
+                        ['title' => 'History Tukar Jadwal', 'href' => route('pengajuan.index', 'tukar_jadwal')],
+                        ['title' => 'History Cuti', 'href' => route('pengajuan.index', 'cuti')],
+                    
                         auth()->user()->can('absen')
                             ? [
                                 'title' => 'Absensi',

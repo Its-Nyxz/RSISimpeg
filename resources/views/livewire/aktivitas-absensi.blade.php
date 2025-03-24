@@ -27,19 +27,26 @@
                     <option value="{{ $y }}">{{ $y }}</option>
                 @endforeach
             </select>
+
             <a href="#" wire:click="exportPdf"
-        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-        Export PDF
-    </a>
+                class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                Export PDF
+            </a>
         </div>
 
-        <!-- Tombol Tambah -->
-        @can('list-history-create')
-            <a href="{{ route('aktivitasabsensi.create', ['user_id' => $selectedUserId]) }}"
+        <div class="space-x-2">
+            <button wire:click="exportPdfHistory"
                 class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                + Tambah
-            </a>
-        @endcan
+                <i class="fas fa-download"></i> Export
+            </button>
+            <!-- Tombol Tambah -->
+            @can('list-history-create')
+                <a href="{{ route('aktivitasabsensi.create', ['user_id' => $selectedUserId]) }}"
+                    class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                    + Tambah
+                </a>
+            @endcan
+        </div>
 
     </div>
 

@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Absen;
 use Livewire\Component;
 use App\Models\Holidays;
+use Illuminate\Support\Str;
 use App\Models\JadwalAbsensi;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
@@ -27,12 +28,14 @@ class AktivitasAbsensi extends Component
         // Default ke bulan dan tahun saat ini
         $this->month = now()->month;
         $this->year = now()->year;
-        // Cari apakah ada user lain dengan unit_id yang sama → Menentukan sebagai parent
+
         $this->isParent = User::where('unit_id', auth()->user()->unit_id)
             ->where('id', '!=', auth()->id())
             ->exists();
         $isKepala = collect(Auth::user()->roles()->pluck('name'))->filter(function ($name) {
-            return str_starts_with($name, 'Kepala');
+            return str_starts_with($name, 'Kepala') ||
+                str_starts_with($name, 'Super') ||
+                str_starts_with($name, 'Administrator');
         })->count();
         // dd($isKepala);
 
@@ -41,7 +44,8 @@ class AktivitasAbsensi extends Component
             $this->subordinates = User::where('unit_id', auth()->user()->unit_id)
                 ->pluck('name', 'id');
 
-            // Default pilih user pertama jika ada
+        // Cek apakah role mengandung kata "Kepala" dan juga memiliki role Super Admin atau Administrator
+        if (Str::contains($role, 'Kepala') && Auth::user()->hasAnyRole(['Super Admin', 'Administrator'])) {
             $this->selectedUserId = $this->subordinates->keys()->first();
         } else {
             // Jika bukan parent, gunakan ID user yang login
@@ -195,45 +199,21 @@ class AktivitasAbsensi extends Component
         }
     }
 
-    public function exportPdf()
+    public function exportPdfHistory()
     {
-        $month = $this->month;
+        $month = Carbon::createFromFormat('m', $this->month)->locale('id')->translatedFormat('F');
         $year = $this->year;
-        $userId = $this->selectedUserId;
-    
-        $daysInMonth = Carbon::create($year, $month)->daysInMonth;
-        $items = [];
-    
-        for ($day = 1; $day <= $daysInMonth; $day++) {
-            $date = Carbon::create($year, $month, $day)->format('Y-m-d');
-            $jadwal = JadwalAbsensi::where('user_id', $userId)
-                ->whereDate('tanggal_jadwal', $date)
-                ->with(['absensi', 'shift'])
-                ->first();
-    
-            if (!$jadwal) continue;
-    
-            $absensi = $jadwal->absensi->first();
-            $items[] = [
-                'hari' => Carbon::parse($date)->locale('id')->isoFormat('dddd'),
-                'tanggal' => Carbon::parse($date)->translatedFormat('d F Y'),
-                'jam_kerja' => $absensi?->time_in ?? '-',
-                'jam_lembur' => $absensi?->time_out ?? '-',
-                'rencana_kerja' => $absensi?->deskripsi_in ?? '-',
-                'laporan_kerja' => $absensi?->deskripsi_out ?? '-',
-                'feedback' => $absensi?->feedback ?? '-',
-            ];
-        }
-    
-        $pdf = Pdf::loadView('pdf.aktivitas_absensi', compact('items', 'month', 'year'));
-    
+        $user = User::where('id', $this->selectedUserId)->first();
+        $title = "Bulan " . $month . " Tahun " . $year;
+        $items = $this->items;
+
+        $pdf = Pdf::loadView('pdf.laporan-absensi-pdf', compact('items', 'title', 'user'));
+
         return response()->streamDownload(
-            fn () => print($pdf->output()),
-            "aktivitas_absensi_{$month}_{$year}.pdf"
+            fn() => print($pdf->output()),
+            "laporan Absensi {$user->name} Bulan {$month} Tahun {$year}.pdf"
         );
     }
-    
-    
     public function render()
     {
         return view('livewire.aktivitas-absensi', [
