@@ -102,7 +102,6 @@ class DetailKaryawan extends Component
     public function render()
     {
         return view('livewire.detail-karyawan', [
-            'roles' => $this->roles // Kirim ke view
         ]);
     }
 }

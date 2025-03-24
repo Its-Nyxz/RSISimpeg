@@ -42,16 +42,23 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        // Tentukan apakah input 'login' adalah email, nip, atau username
-        $fieldType = filter_var($this->input('login'), FILTER_VALIDATE_EMAIL)
-            ? 'email'
-            : (is_numeric($this->input('login')) ? 'nip' : 'username');
+        $loginInput = $this->input('login');
 
-        // Cari user berdasarkan field yang sesuai
-        $user = User::where($fieldType, $this->input('login'))->first();
+        // Menentukan tipe login berdasarkan input
+        if (filter_var($loginInput, FILTER_VALIDATE_EMAIL)) {
+            $fieldType = 'email';
+        } elseif (is_numeric($loginInput) && strlen($loginInput) >= 10) {
+            $fieldType = 'no_hp'; 
+        } elseif (is_numeric($loginInput)) {
+            $fieldType = 'nip';
+        } else {
+            $fieldType = 'username';
+        }
 
-        // Jika user tidak ditemukan
-        if (! $user) {
+        // Cari user berdasarkan salah satu field
+        $user = User::where($fieldType, $loginInput)->first();
+
+        if (!$user) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -59,13 +66,12 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        // Coba autentikasi user
-        if (! Auth::attempt([$fieldType => $this->input('login'), 'password' => $this->input('password')], $this->boolean('remember'))) {
+        // Proses login
+        if (!Auth::attempt([$fieldType => $loginInput, 'password' => $this->input('password')], $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
                 'password' => __('auth.password_incorrect'),
-
             ]);
         }
 
@@ -79,7 +85,7 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 
@@ -100,6 +106,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('login')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('login')) . '|' . $this->ip());
     }
 }

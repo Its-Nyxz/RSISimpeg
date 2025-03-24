@@ -32,7 +32,7 @@
                         {{ $user->jk === null ? '-' : ($user->jk == 1 ? 'Laki-Laki' : 'Perempuan') }}
                     </div>
                     <div class="mb-4"><strong>Alamat</strong> : {{ $user->alamat ?? '-' }}</div>
-                    <div class="mb-4"><strong>Hak Akses</strong> : {{ $user->roles->first()->name ?? '-' }}</div>
+                    {{-- <div class="mb-4"><strong>Hak Akses</strong> : {{ $user->roles->first()->name ?? '-' }}</div> --}}
                 </div>
 
                 <!-- Tombol Edit Karyawan -->
@@ -84,7 +84,7 @@
                         <strong>Naik Golongan</strong> : -
                     </div>
                     <div class="mb-4">
-                        <strong>Hak akses</strong> : {{ implode(', ', $roles) }}
+                        {{-- <strong>Hak akses</strong> : {{ implode(', ', $roles) }} --}}
                     </div>
                 </div>
             </x-card>
