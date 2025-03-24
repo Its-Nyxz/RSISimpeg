@@ -39,8 +39,7 @@ class DataShift extends Component
         $shift = Shift::find($id);
 
         if (!$shift) {
-            session()->flash('error', 'Shift tidak ditemukan.');
-            return;
+            return redirect()->route('shift.index')->with('error', 'Shift tidak ditemukan.');
         }
 
         try {

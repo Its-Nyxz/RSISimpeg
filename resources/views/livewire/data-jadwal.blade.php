@@ -167,7 +167,7 @@
                             {{ optional(optional($jadwalUser)->first())->user->pendidikanUser->nama ?? '-' }}
                         </td>
                         <td class="px-4 py-3">
-                            {{ optional(optional($jadwalUser)->first())->user->tanggal_tetap ?? '-' }}
+                            {{ optional(optional($jadwalUser)->first())->user->tmt ? \Carbon\Carbon::parse(optional(optional($jadwalUser)->first())->user->tmt)->format('d M Y') : '-' }}
                         </td>
                         <td class="px-4 py-3">
                             {{ optional(optional($jadwalUser)->first())->user->masa_kerja ?? '-' }}

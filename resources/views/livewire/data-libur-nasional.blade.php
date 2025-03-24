@@ -1,10 +1,18 @@
 <div>
     <div class="flex justify-between py-2 mb-3">
-        <h1 class="text-2xl font-bold text-success-900">Master Status Absensi</h1>
+        <h1 class="text-2xl font-bold text-success-900">Master Hari Libur Nasional</h1>
         <div class="flex justify-between items-center gap-4 mb-3">
+            <div>
+                <select wire:model="year" wire:change="updateYear($event.target.value)"
+                    class="rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600">
+                    @foreach (range(now()->year - 3, now()->year) as $year)
+                        <option value="{{ $year }}">{{ $year }}</option>
+                    @endforeach
+                </select>
+            </div>
             <div class="flex-1">
-                <input type="text" wire:model="search" placeholder="Cari Status..."
-                    class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600" />
+                <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Hari..."
+                    class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
             </div>
             <a href="{{ route('liburnasional.create') }}"
                 class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
@@ -12,16 +20,6 @@
             </a>
         </div>
     </div>
-<!-- Filter Tahun -->
-<div class="mb-4">
-    <select wire:model.live="tahun"
-        class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
-        @foreach (range(now()->year - 5, now()->year) as $y)
-            <option value="{{ $y }}">{{ $y }}</option>
-        @endforeach
-    </select>
-</div>
-
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-700">
@@ -36,20 +34,37 @@
                 @forelse ($holidays as $holiday)
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
                         <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
-                            {{ \Carbon\Carbon::parse($holiday['date'])->translatedFormat('d F Y') ?? '-' }}
+                            {{ $holiday['date'] ? \Carbon\Carbon::parse($holiday['date'])->translatedFormat('d F Y') : '-' }}
                         </td>
                         <td class="px-6 py-4">
                             {{ $holiday['description'] ?? '-' }}
                         </td>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 flex gap-2">
                             <a href="{{ route('liburnasional.edit', $holiday['id']) }}"
-                                class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300">
-                                <i class="fa-solid fa-pen" style="margin-right: 30px;"></i>
+                                class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
+                                data-tooltip-target="tooltip-holiday-{{ $holiday['id'] }}">
+                                <i class="fa-solid fa-pen"></i>
                             </a>
-                            <button wire:click="confirmDelete({{ $holiday['id'] }})"
-                                class="text-red-600 px-3 py-2 rounded-md border border-red-600 hover:bg-red-600 hover:text-white">
+                            <div id="tooltip-holiday-{{ $holiday['id'] }}" role="tooltip"
+                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                                Ubah Data Libur Nasional
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
+                            <button type="button"
+                                onclick="confirmAlert('Yakin ingin menghapus Hari Libur ini?', 'Ya, hapus!', () => @this.call('destroy', {{ $holiday['id'] }}))"
+                                class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300 relative group">
                                 <i class="fa-solid fa-trash"></i>
+                                <div id="tooltip-destroy-{{ $holiday['id'] }}"
+                                    class="absolute z-10 hidden group-hover:block bottom-full mb-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-md">
+                                    Hapus Hari Libur ini
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
                             </button>
+                            <div id="tooltip-destroy-{{ $holiday['id'] }}" role="tooltip"
+                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                                Hapus Hari Libur ini
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
                         </td>
                     </tr>
                 @empty
@@ -61,18 +76,4 @@
         </table>
     </div>
 
-    <!-- Modal Konfirmasi Hapus -->
-    @if ($holidayIdToDelete)
-        <div class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-            <div class="bg-white p-6 rounded-lg shadow-lg text-center">
-                <h2 class="text-lg font-semibold text-gray-900">Apakah Anda yakin ingin menghapus data ini?</h2>
-                <div class="mt-4 flex justify-center gap-4">
-                    <button wire:click="deleteHoliday"
-                        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Ya, Hapus</button>
-                    <button wire:click="$set('holidayIdToDelete', null)"
-                        class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400">Batal</button>
-                </div>
-            </div>
-        </div>
-    @endif
 </div>
