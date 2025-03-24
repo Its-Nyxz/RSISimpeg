@@ -54,23 +54,23 @@
                         <div>: {{ $userprofile->no_rek }}</div>
                     </div>
                     <div class="grid grid-cols-2">
-                            <div class="font-semibold">Kategori Pendidikan</div>
-                            <div>: {{ $userprofile->pendidikanUser->deskripsi ?? '-' }}</div>
-                        </div>
-                        <div class="grid grid-cols-2">
-                            <div class="font-semibold">Pendidikan</div>
-                            <div>: {{ $userprofile->pendidikan ?? '-' }}</div>
-                        </div>
+                        <div class="font-semibold">Kategori Pendidikan</div>
+                        <div>: {{ $userprofile->pendidikanUser->deskripsi ?? '-' }}</div>
+                    </div>
+                    <div class="grid grid-cols-2">
+                        <div class="font-semibold">Pendidikan</div>
+                        <div>: {{ $userprofile->pendidikan ?? '-' }}</div>
+                    </div>
                     <div class="grid grid-cols-2">
                         <div class="font-semibold">Institusi</div>
                         <div>: {{ $userprofile->no_ktp }}</div>
                     </div>
-                   <div class="grid grid-cols-2">
-                            <div class="font-semibold">Jenis Kelamin</div>
-                            <div>:
-                                {{ $userprofile->jk === null ? '-' : ($userprofile->jk == 1 ? 'Laki-Laki' : 'Perempuan') }}
-                            </div>
+                    <div class="grid grid-cols-2">
+                        <div class="font-semibold">Jenis Kelamin</div>
+                        <div>:
+                            {{ $userprofile->jk === null ? '-' : ($userprofile->jk == 1 ? 'Laki-Laki' : 'Perempuan') }}
                         </div>
+                    </div>
                     <div class="grid grid-cols-2">
                         <div class="font-semibold">Alamat</div>
                         <div>: {{ $userprofile->alamat }}</div>
@@ -121,9 +121,9 @@
 
                 <div class="flex items-center justify-between">
                     <p><strong>Username :</strong> {{ $userprofile->username ?? '-' }}</p>
-                    <a href="#"
+                    <a href="{{ route('userprofile.editusername') }}"
                         class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                        <i class="fa-solid fa-minus"></i>
+                        <i class="fa-solid fa-pen"></i>
                     </a>
                 </div>
 
