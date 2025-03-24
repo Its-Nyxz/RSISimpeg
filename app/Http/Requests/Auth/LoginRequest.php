@@ -42,10 +42,18 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        // Tentukan apakah input 'login' adalah email, nip, atau username
-        $fieldType = filter_var($this->input('login'), FILTER_VALIDATE_EMAIL)
-            ? 'email'
-            : (is_numeric($this->input('login')) ? 'nip' : 'username');
+        $loginInput = $this->input('login');
+
+        // Deteksi apakah input adalah email, nomor HP, NIP, atau username
+        if (filter_var($loginInput, FILTER_VALIDATE_EMAIL)) {
+            $fieldType = 'email';
+        } elseif (preg_match('/^\+?\d{10,15}$/', $loginInput)) { // Nomor HP (10-15 digit, bisa pakai +62)
+            $fieldType = 'no_hp';
+        } elseif (is_numeric($loginInput)) {
+            $fieldType = 'nip';
+        } else {
+            $fieldType = 'username';
+        }
 
         // Cari user berdasarkan field yang sesuai
         $user = User::where($fieldType, $this->input('login'))->first();
@@ -100,6 +108,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('login')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('login')) . '|' . $this->ip());
     }
 }
