@@ -59,6 +59,7 @@ class DatabaseSeeder extends Seeder
             HolidaysSeeder::class,
             JenisCutiSeeder::class,
             StatusCutiSeeder::class,
+            JenisIzinSeeder::class,
         ]);
     }
 }

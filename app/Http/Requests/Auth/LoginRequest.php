@@ -44,11 +44,11 @@ class LoginRequest extends FormRequest
 
         $loginInput = $this->input('login');
 
-        // Menentukan tipe login berdasarkan input
+        // Deteksi apakah input adalah email, nomor HP, NIP, atau username
         if (filter_var($loginInput, FILTER_VALIDATE_EMAIL)) {
             $fieldType = 'email';
-        } elseif (is_numeric($loginInput) && strlen($loginInput) >= 10) {
-            $fieldType = 'no_hp'; 
+        } elseif (preg_match('/^\+?\d{10,15}$/', $loginInput)) { // Nomor HP (10-15 digit, bisa pakai +62)
+            $fieldType = 'no_hp';
         } elseif (is_numeric($loginInput)) {
             $fieldType = 'nip';
         } else {

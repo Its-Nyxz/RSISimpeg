@@ -16,6 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             // $table->unsignedBigInteger('gol_id');
             $table->unsignedBigInteger('penyesuaian_id');
+            $table->date('tanggal_penyesuaian')->nullable();
+            $table->string('status_penyesuaian')->nullable();
             $table->timestamps(0);
 
             $table->foreign('user_id')->references('id')->on('users');

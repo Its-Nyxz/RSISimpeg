@@ -57,24 +57,25 @@
             <x-card title="No recent" class="mb-6 text-success-900">
                 <div style="font-family: 'Gilroy-Regular', sans-serif; font-size: 14px;">
                     <div class="mb-4">
-                        <strong>Nama</strong>: {{ $user->name ?? '-' }}
+                        <strong>Nama</strong>: {{ $viewPendAwal?->user?->name ?? '-' }}
                     </div>
                     <div class="mb-4">
-                        <strong>Jabatan</strong>: {{ $user->kategorijabatan->nama ?? '-' }}
+                        <strong>Jabatan</strong>: {{ $viewPendAwal?->user?->kategorijabatan?->nama ?? '-' }}
                     </div>
                     <div class="mb-4">
-                        <strong>Tempat Tanggal Lahir</strong>:
-                        {{ $user->tanggal_lahir ? formatDate($user->tanggal_lahir) : '-' }}
+                        <strong>Tempat Tanggal Lahir</strong>: {{ $viewPendAwal?->user?->tempat ?? '-' }},
+                        {{ $viewPendAwal?->user?->tanggal_lahir ? formatDate($viewPendAwal?->user?->tanggal_lahir) : '-' }}
                     </div>
                     <div class="mb-4">
                         <strong>Tanggal Tetap</strong>: {{ $user->tmt ? formatDate($user->tmt) : '-' }}
                     </div>
                     <div class="mb-4">
-                        <strong>Pendidikan Awal</strong>: {{ $viewPendAwal->pendidikanAwal->nama ?? '-' }}
+                        <strong>Pendidikan Awal</strong>:
+                        {{ $viewPendAwal?->penyesuaian?->pendidikanAwal?->nama ?? '-' }}
                     </div>
                     <div class="mb-4">
                         <strong>Pendidikan Penyesuaian</strong>:
-                        {{ $viewPendAwal->pendidikanPenyesuaian->nama ?? '-' }}
+                        {{ $viewPendAwal?->penyesuaian?->pendidikanPenyesuaian?->nama ?? '-' }}
                     </div>
                     <div class="mb-4">
                         <strong>Tanggal Penyesuaian</strong>:
