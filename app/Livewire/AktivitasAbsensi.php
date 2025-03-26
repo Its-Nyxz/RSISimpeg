@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use App\Models\JadwalAbsensi;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
+use Request;
 
 class AktivitasAbsensi extends Component
 {
@@ -42,14 +43,12 @@ class AktivitasAbsensi extends Component
             // Jika user adalah parent, ambil daftar user bawahannya berdasarkan unit_id
             $this->subordinates = User::where('unit_id', auth()->user()->unit_id)
                 ->pluck('name', 'id');
-        }
-        // Cek apakah role mengandung kata "Kepala" dan juga memiliki role Super Admin atau Administrator
-        if (Str::contains(Auth::user()->roles->first()->name, 'Kepala') && Auth::user()->hasAnyRole(['Super Admin', 'Administrator'])) {
+            // Default pilih user pertama jika ada
             $this->selectedUserId = $this->subordinates->keys()->first();
         } else {
-            $this->selectedUserId = Auth::user()->id;
+            // Jika bukan parent, gunakan ID user yang login
+            $this->selectedUserId = auth()->user()->id();
         }
-
         $this->loadData();
     }
 
@@ -213,7 +212,6 @@ class AktivitasAbsensi extends Component
             "laporan Absensi {$user->name} Bulan {$month} Tahun {$year}.pdf"
         );
     }
-
     public function render()
     {
         return view('livewire.aktivitas-absensi', [

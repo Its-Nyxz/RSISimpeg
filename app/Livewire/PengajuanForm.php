@@ -150,7 +150,8 @@ class PengajuanForm extends Component
                 ($jenis_cuti ? $jenis_cuti->nama_cuti : 'Tidak Diketahui') .
                 'dengan keterangan' . $this->keterangan . ' membutuhkan persetujuan Anda.';
 
-            $url = "/pengajuan/cutikaryawan/{$cutikaryawan->id}";
+            // $url = "/approvalcuti/{$cutikaryawan->id}"; //ganti approvel
+            $url = "/approvalcuti"; //ganti approvel
             if ($nextUser) {
                 Notification::send($nextUser, new UserNotification($message, $url));
             }

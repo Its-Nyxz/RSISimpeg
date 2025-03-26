@@ -55,11 +55,10 @@ class LoginRequest extends FormRequest
             $fieldType = 'username';
         }
 
-        // Cari user berdasarkan field yang sesuai
-        $user = User::where($fieldType, $this->input('login'))->first();
+        // Cari user berdasarkan salah satu field
+        $user = User::where($fieldType, $loginInput)->first();
 
-        // Jika user tidak ditemukan
-        if (! $user) {
+        if (!$user) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -67,13 +66,12 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        // Coba autentikasi user
-        if (! Auth::attempt([$fieldType => $this->input('login'), 'password' => $this->input('password')], $this->boolean('remember'))) {
+        // Proses login
+        if (!Auth::attempt([$fieldType => $loginInput, 'password' => $this->input('password')], $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
                 'password' => __('auth.password_incorrect'),
-
             ]);
         }
 
@@ -87,7 +85,7 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 
