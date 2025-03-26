@@ -47,8 +47,8 @@ class PengajuanForm extends Component
             $this->deskripsi = 'Silakan isi form untuk mengajukan cuti.';
             $this->jenis_cutis = JenisCuti::all();
         } elseif ($tipe === 'ijin') {
-            $this->judul = 'Pengajuan Ijin';
-            $this->deskripsi = 'Silakan isi form untuk mengajukan ijin.';
+            $this->judul = 'Pengajuan Izin';
+            $this->deskripsi = 'Silakan isi form untuk mengajukan izin.';
             $this->jenis_izins = JenisIzin::all();
         } elseif ($tipe === 'tukar_jadwal') {
             $this->judul = 'Pengajuan Tukar Jadwal';
@@ -144,19 +144,19 @@ class PengajuanForm extends Component
                 ->whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Kepala%'))
                 ->first();
 
-            $message = 'Pengajuan Cuti' . auth()->user()->name .
-                'mulai <span class="font-bold">' . $this->tanggal_mulai . 'sampai' .  $this->tanggal_selesai .
+            $message = 'Pengajuan Cuti ' . auth()->user()->name .
+                'mulai <span class="font-bold">' . $this->tanggal_mulai . ' sampai ' .  $this->tanggal_selesai .
                 '</span> ' .
                 ($jenis_cuti ? $jenis_cuti->nama_cuti : 'Tidak Diketahui') .
-                'dengan keterangan' . $this->keterangan . ' membutuhkan persetujuan Anda.';
+                ' dengan keterangan ' . $this->keterangan . ' membutuhkan persetujuan Anda.';
 
-            // $url = "/approvalcuti/{$cutikaryawan->id}"; //ganti approvel
             $url = "/approvalcuti"; //ganti approvel
             if ($nextUser) {
                 Notification::send($nextUser, new UserNotification($message, $url));
             }
 
             session()->flash('message', 'Pengajuan cuti berhasil diajukan.');
+            return redirect()->route('pengajuan.index', 'cuti')->with('success', 'Pengajuan Izin berhasil di ajukan!');
         } elseif ($this->tipe === 'ijin') {
             // ✅ Validasi untuk ijin
             $this->validate([
@@ -198,8 +198,6 @@ class PengajuanForm extends Component
             if ($nextUser) {
                 Notification::send($nextUser, new UserNotification($message, $url));
             }
-            // session()->flash('message', 'Pengajuan ijin berhasil diajukan.');
-            // return redirect()->route('dashboard')->with('success', 'Pengajuan ijin berhasil diajukan.');
             return redirect()->route('pengajuan.index', 'ijin')->with('success', 'Pengajuan Izin berhasil di ajukan!');
         } elseif ($this->tipe === 'tukar_jadwal') {
             // ✅ Validasi untuk tukar jadwal

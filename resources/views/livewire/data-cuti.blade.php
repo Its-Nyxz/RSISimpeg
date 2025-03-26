@@ -55,6 +55,7 @@
                     <th scope="col" class="px-6 py-3">Jabatan</th>
                     <th scope="col" class="px-6 py-3">Tanggal Mulai</th>
                     <th scope="col" class="px-6 py-3">Tanggal Selesai</th>
+                    <th scope="col" class="px-6 py-3">Jumlah Hari</th>
                     <th scope="col" class="px-6 py-3">Jenis Cuti</th>
                     <th scope="col" class="px-6 py-3">Status</th>
                     <th scope="col" class="px-6 py-3">Aksi</th>
@@ -62,15 +63,17 @@
             </thead>
             <tbody>
                 @forelse ($users as $cuti)
-                    <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
+                    <tr
+                        class="{{ $cuti->status_cuti_id == 2 ? 'bg-red-200' : 'odd:bg-success-50 even:bg-success-100' }} border-b border-success-300 hover:bg-success-300">
                         <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
                             {{ $loop->iteration }}
                         </td>
-                    
+
                         <td class="px-6 py-4"> {{ $cuti->user->name ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $cuti->user->kategorijabatan->nama ?? '-' }}</td>
                         <td class="px-6 py-4">{{ formatDate($cuti->tanggal_mulai) ?? '-' }}</td>
                         <td class="px-6 py-4">{{ formatDate($cuti->tanggal_selesai) ?? '-' }}</td>
+                        <td class="px-6 py-4">{{ $cuti->jumlah_hari ?? '-' }} Hari</td>
                         <td class="px-6 py-4">{{ $cuti->jeniscuti->nama_cuti ?? '-' }}</td>
                         <td
                             class="px-6 py-4 font-extrabold whitespace-nowrap {{ $cuti->status_cuti_id == 1 ? 'text-green-900' : ($cuti->status_cuti_id == 2 ? 'text-red-900' : 'text-gray-900') }}">
@@ -79,12 +82,14 @@
                         <td class="px-6 py-4 text-center">
                             <div class="flex justify-center gap-2">
                                 @if ($cuti->status_cuti_id == 3)
-                                    <button wire:click="approveCuti({{ $cuti->id }}, {{ $cuti->user->id }})"
+                                    <button
+                                        onclick="confirmAlert('Ingin menyetujui cuti ini?', 'Ya, Setujui!', () => @this.call('approveCuti', {{ $cuti->id }}, {{ $cuti->user->id }}))"
                                         class="bg-green-600 text-white px-3 py-1 rounded-lg flex items-center gap-2">
                                         <i class="fa-solid fa-check"></i> Disetujui
                                     </button>
 
-                                    <button wire:click="rejectCuti({{ $cuti->id }}, {{ $cuti->user->id }})"
+                                    <button
+                                        onclick="confirmAlert('Ingin menolak cuti ini?', 'Ya, Setujui!', () => @this.call('rejectCuti', {{ $cuti->id }}, {{ $cuti->user->id }}))"
                                         class="bg-red-600 text-white px-3 py-1 rounded-lg flex items-center gap-2">
                                         <i class="fa-solid fa-xmark"></i> Ditolak
                                     </button>
