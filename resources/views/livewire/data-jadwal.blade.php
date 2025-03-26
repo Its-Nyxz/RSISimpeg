@@ -136,7 +136,7 @@
     @enderror
     <div class="relative overflow-auto max-h-full shadow-md rounded-lg">
         <table class="w-full text-sm text-left text-gray-700">
-            <thead class="text-sm uppercase bg-success-400 text-success-900 ">
+            <thead class="text-sm uppercase bg-success-400 text-success-900">
                 <tr>
                     <th class="px-4 py-3">Nama</th>
                     <th class="px-4 py-3">Pendidikan</th>
@@ -144,12 +144,13 @@
                     <th class="px-4 py-3">Lama Kerja</th>
                     @foreach ($tanggalJadwal as $tanggal)
                         @php
-                            $hari = \Carbon\Carbon::parse($tanggal)->format('l'); // Nama Hari
+                            $carbonDate = \Carbon\Carbon::parse($tanggal);
+                            $hari = $carbonDate->format('l'); // Nama Hari
+                            $isHoliday = $this->isHoliday($tanggal);
                         @endphp
-                        <th
-                            class="px-2 py-3 text-center
-                            {{ $hari === 'Sunday' ? 'bg-red-500 text-white' : '' }}">
-                            {{ \Carbon\Carbon::parse($tanggal)->format('d') }}
+                        <th class="px-2 py-3 text-center
+                            {{ $isHoliday ? 'bg-red-500 text-white' : '' }}">
+                            {{ $carbonDate->format('d') }}
                         </th>
                     @endforeach
                     @can('edit-jadwal')
@@ -157,6 +158,7 @@
                     @endcan
                 </tr>
             </thead>
+            
             <tbody>
                 @foreach ($jadwals as $user_id => $jadwalUser)
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
