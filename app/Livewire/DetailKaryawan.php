@@ -6,7 +6,9 @@ use App\Models\MasterPendidikan;
 use App\Models\MasterPenyesuaian;
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\CutiKaryawan;
 use Livewire\Component;
+
 use Illuminate\Support\Facades\DB;
 
 
@@ -21,10 +23,12 @@ class DetailKaryawan extends Component
     public $pend_awal_id;
     public $roles;
     public $viewPendAwal;
+    public $listCuti;
 
     public function mount($user)
     {
         // Mendapatkan data user
+        
         $this->user = $user;
         $this->user_id = $user->id;
         $this->pend_awal_id = $user->kategori_pendidikan;
@@ -37,9 +41,11 @@ class DetailKaryawan extends Component
             ->where('model_has_roles.model_id', $this->user_id)
             ->pluck('roles.name')
             ->toArray();
-        $this->pendidikans = MasterPendidikan::all();
-
+            $this->pendidikans = MasterPendidikan::all();
+            // return CutiKaryawan::with('user')->where('user_id');
+        
         $this->viewPendAwal = MasterPenyesuaian::with('pendidikanAwal', 'pendidikanPenyesuaian')->where('user_id', $this->user_id)->where('status_penyesuaian', 1)->first();
+        $this->listCuti = CutiKaryawan::with('user')->where('user_id', $this->user_id)->get();
         // dd($this->viewPendAwal);
     }
 
@@ -107,7 +113,7 @@ class DetailKaryawan extends Component
 
     public function render()
     {
-        return view('livewire.detail-karyawan', [
-        ]);
+        // $users = $this->mont();
+        return view('livewire.detail-karyawan');
     }
 }
