@@ -6,13 +6,17 @@ use App\Models\User;
 use App\Models\Shift;
 use Livewire\Component;
 use App\Models\JenisCuti;
+use App\Models\JenisIzin;
 use App\Models\TukarJadwal;
 use App\Models\CutiKaryawan;
+use App\Models\IzinKaryawan;
+use Livewire\WithFileUploads;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
 
 class PengajuanForm extends Component
 {
+    use WithFileUploads;
     public $tipe;
     public $judul;
     public $deskripsi;
@@ -21,10 +25,13 @@ class PengajuanForm extends Component
     public $tanggal_selesai;
     public $tanggal;
     public $keterangan;
+    public $bukti_izin;
 
     public $jenis_cuti_id;
     public $jenis_cutis;
     public $durasi_default;
+    public $jenis_izins_id;
+    public $jenis_izins;
 
     public $shift_id;
     public $shifts;
@@ -42,6 +49,7 @@ class PengajuanForm extends Component
         } elseif ($tipe === 'ijin') {
             $this->judul = 'Pengajuan Ijin';
             $this->deskripsi = 'Silakan isi form untuk mengajukan ijin.';
+            $this->jenis_izins = JenisIzin::all();
         } elseif ($tipe === 'tukar_jadwal') {
             $this->judul = 'Pengajuan Tukar Jadwal';
             $this->deskripsi = 'Silakan isi form untuk menukar jadwal.';
@@ -151,19 +159,47 @@ class PengajuanForm extends Component
         } elseif ($this->tipe === 'ijin') {
             // ✅ Validasi untuk ijin
             $this->validate([
-                'tanggal' => 'required|date|after_or_equal:today',
+                'jenis_izins_id' => 'required|exists:jenis_izins,id',
+                'tanggal_mulai' => 'required|date|after_or_equal:today',
+                'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
                 'keterangan' => 'nullable|string|max:255',
+                'bukti_izin' => 'nullable|image|mimes:jpg,jpeg,png,pdf|max:2048',
             ]);
 
+            $jumlah_hari = (strtotime($this->tanggal_selesai) - strtotime($this->tanggal_mulai)) / 86400 + 1;
             // ✅ Simpan pengajuan ijin ke database (jika ada model khusus untuk ijin)
-            // Contoh:
-            // IjinKaryawan::create([
-            //     'user_id' => Auth::id(),
-            //     'tanggal' => $this->tanggal,
-            //     'keterangan' => $this->keterangan,
-            // ]);
+            if ($this->bukti_izin) {
+                $fileName = $this->bukti_izin->store('photos/bukti-izin', 'public');
+                $this->bukti_izin = basename($fileName);
+            }
+            $izinkaryawan = IzinKaryawan::create([
+                'user_id' => auth()->id(),
+                'jenis_izin_id' => $this->jenis_izins_id,
+                'status_izin_id' => 3,
+                'tanggal_mulai' => $this->tanggal_mulai,
+                'tanggal_selesai' => $this->tanggal_selesai,
+                'jumlah_hari' => $jumlah_hari,
+                'keterangan' => $this->keterangan,
+                'bukti_izin' => $this->bukti_izin ?? null,
+            ]);
 
-            session()->flash('message', 'Pengajuan ijin berhasil diajukan.');
+            $user = auth()->user();
+            // Ambil nama shift berdasarkan shift_id
+            $jenis_izin = JenisIzin::find($this->jenis_izins_id)->first();
+            $nextUser = User::where('unit_id', $user->unit_id)->whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Kepala%'))->first();
+            $message = 'Pengajuan Izin ' . auth()->user()->name .
+                ' mulai <span class="font-bold">' . $this->tanggal_mulai . ' sampai ' .  $this->tanggal_selesai .
+                '</span> ' .
+                ($jenis_izin ? $jenis_izin->nama_izin : 'Tidak Diketahui') .
+                ' dengan keterangan ' . $this->keterangan . ' membutuhkan persetujuan Anda.';
+
+            $url = "/approvalizin";
+            if ($nextUser) {
+                Notification::send($nextUser, new UserNotification($message, $url));
+            }
+            // session()->flash('message', 'Pengajuan ijin berhasil diajukan.');
+            // return redirect()->route('dashboard')->with('success', 'Pengajuan ijin berhasil diajukan.');
+            return redirect()->route('pengajuan.index', 'ijin')->with('success', 'Pengajuan Izin berhasil di ajukan!');
         } elseif ($this->tipe === 'tukar_jadwal') {
             // ✅ Validasi untuk tukar jadwal
             $this->validate([
@@ -210,6 +246,7 @@ class PengajuanForm extends Component
         // ✅ Reset input setelah pengajuan berhasil
         $this->reset([
             'jenis_cuti_id',
+            'jenis_izins_id',
             'tanggal_mulai',
             'tanggal_selesai',
             'tanggal',

@@ -1,6 +1,6 @@
 @php
-    $isActive1 = isset($href) && request()->is(trim($href, '/')) ? 'bg-gray-100 text-success-950' : 'text-white';
-    $isOpen1 = isset($child) && isActiveMenu($this->child) ? 'block' : 'hidden';
+    $isActive1 = isset($href) && strpos(request()->fullUrl(), url($href)) !== false ? 'bg-gray-100 text-success-950' : 'text-white';
+    $isOpen1 = isset($child) && isActiveMenu($child) ? 'block' : 'hidden';
 @endphp
 @if (isset($child) && empty($child))
     <li>
@@ -22,7 +22,7 @@
         <ul id="{{ Str::slug($title) }}" class="py-2 space-y-2 {{ $isOpen1 }}">
             @foreach ($child as $item)
                 @php
-                    $isActive2 = isset($item['href']) && request()->is(trim($item['href'], '/')) ? 'bg-gray-100 text-success-950': 'text-white';
+                    $isActive2 = isset($item['href']) && strpos(request()->fullUrl(), url($item['href'])) !== false ? 'bg-gray-100 text-success-950' : 'text-white';
                     $isOpen2 = isset($item['child']) && isActiveMenu($item['child']) ? 'block' : 'hidden';
                 @endphp
                 <li>
@@ -37,7 +37,7 @@
                         <ul id="{{ Str::slug($item['title']) }}" class="py-2 space-y-2 {{ $isOpen2 }}">
                             @foreach ($item['child'] as $subItem)
                                 @php
-                                    $isActive3 = isset($subItem['href']) && request()->is(trim($subItem['href'], '/')) ? 'bg-gray-100 text-success-950' : 'text-white';
+                                    $isActive3 = isset($subItem['href']) && strpos(request()->fullUrl(), url($subItem['href'])) !== false ? 'bg-gray-100 text-success-950' : 'text-white';
                                 @endphp
                                 <li>
                                     <a href="{{ $subItem['href'] }}"

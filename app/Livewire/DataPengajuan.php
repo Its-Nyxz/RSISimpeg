@@ -2,52 +2,79 @@
 
 namespace App\Livewire;
 
-use App\Models\CutiKaryawan;
-use App\Models\TukarJadwal;
 use Livewire\Component;
+use App\Models\TukarJadwal;
+use App\Models\CutiKaryawan;
+use App\Models\IzinKaryawan;
+use Livewire\WithPagination;
+use Illuminate\Support\Facades\Auth;
 
 class DataPengajuan extends Component
 {
+    use WithPagination;
+
     public $tipe; // Menerima tipe dari blade
-    public $dataPengajuan;
+    public $judul;
 
     // Lifecycle hook untuk menerima parameter dari blade
     public function mount($tipe)
     {
         $this->tipe = $tipe;
-        $this->loadData();
     }
 
-    public function loadData()
+    public function delete($id, $tipe)
     {
-        $userId = auth()->id();
-
-        switch ($this->tipe) {
+        switch ($tipe) {
             case 'cuti':
-                $this->dataPengajuan = CutiKaryawan::where('user_id', $userId)
-                    ->orderBy('created_at', 'desc')
-                    ->get();
+                CutiKaryawan::findOrFail($id)->delete();
+                return redirect()->route('pengajuan.index', 'cuti')->with('success', 'Pengajuan Cuti berhasil dihapus.');
                 break;
 
             case 'ijin':
-                // $this->dataPengajuan = IjinKaryawan::where('user_id', $userId)
-                //     ->orderBy('created_at', 'desc')
-                //     ->get();
+                IzinKaryawan::findOrFail($id)->delete();
+                return redirect()->route('pengajuan.index', 'ijin')->with('success', 'Pengajuan Izin berhasil dihapus.');
                 break;
 
             case 'tukar_jadwal':
-                $this->dataPengajuan = TukarJadwal::where('user_id', $userId)
-                    ->orderBy('created_at', 'desc')
-                    ->get();
+                TukarJadwal::findOrFail($id)->delete();
+                return redirect()->route('pengajuan.index', 'tukar_jadwal')->with('success', 'Pengajuan Izin berhasil dihapus.');
                 break;
 
             default:
-                abort(404); // Tipe tidak valid, kembalikan 404
+                abort(404);
         }
     }
 
     public function render()
     {
-        return view('livewire.data-pengajuan');
+        $userId = Auth::id();
+
+        switch ($this->tipe) {
+            case 'cuti':
+                $this->judul = "List Pengajuan Cuti";
+                $dataPengajuan = CutiKaryawan::where('user_id', $userId)
+                    ->orderBy('created_at', 'desc')
+                    ->paginate(10);
+                break;
+
+            case 'ijin':
+                $this->judul = "List Pengajuan Izin";
+                $dataPengajuan = IzinKaryawan::with('jenisIzin')->where('user_id', $userId)
+                    ->orderBy('created_at', 'desc')
+                    ->paginate(10);
+                break;
+
+            case 'tukar_jadwal':
+                $this->judul = "List Pengajuan Tukar Jadwal";
+                $dataPengajuan = TukarJadwal::where('user_id', $userId)
+                    ->orderBy('created_at', 'desc')
+                    ->paginate(10);
+                break;
+
+            default:
+                abort(404); // Tipe tidak valid, kembalikan 404
+        }
+
+        return view('livewire.data-pengajuan', compact('dataPengajuan'));
     }
 }

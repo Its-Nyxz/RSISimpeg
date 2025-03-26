@@ -34,6 +34,7 @@
                             : null,
                         ['title' => 'History Tukar Jadwal', 'href' => route('pengajuan.index', 'tukar_jadwal')],
                         ['title' => 'History Cuti', 'href' => route('pengajuan.index', 'cuti')],
+                        ['title' => 'History Izin', 'href' => route('pengajuan.index', 'ijin')],
                     
                         auth()->user()->can('absen')
                             ? [
@@ -97,6 +98,7 @@
                                 ? ['title' => 'Kenaikan', 'href' => '/kenaikan']
                                 : null,
                             ['title' => 'Approval Cuti', 'href' => '/approvalcuti'],
+                            ['title' => 'Approval Izin', 'href' => '/approvalizin'],
                             auth()->user()->can('view-import-gaji') ? ['title' => 'Import Gaji', 'href' => '#'] : null,
                             auth()->user()->can('view-poin-peran')
                                 ? ['title' => 'Poin Peran Fungsional', 'href' => '/peranfungsional']
