@@ -139,8 +139,7 @@ class DataJadwal extends Component
     {
         // Validasi file sebelum diupload
         $this->validate([
-            'file' => 'required|mimes:xlsx,xls'
-
+            'file' => 'required|mimes:xlsx,csv,xls|max:2048', // Validasi file
         ]);
 
         $fileName = $this->file->getClientOriginalName();
@@ -170,6 +169,7 @@ class DataJadwal extends Component
         } catch (\Exception $e) {
             session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
+
     }
 
     public function updated($propertyName)

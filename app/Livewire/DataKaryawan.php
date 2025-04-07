@@ -48,8 +48,12 @@ class DataKaryawan extends Component
         return User::with(['kategorijabatan', 'unitKerja', 'roles'])
             ->where('id', '>', '1') // Eager load jabatan dan unitKerja
             ->when(!Auth::user()->hasAnyRole($roles), function ($query) use ($unit_id) {
-                // Jika bukan Super Admin, Kepegawaian, atau Administrator, filter berdasarkan unit_id
-                $query->where('unit_id', $unit_id);
+                $unitIds = UnitKerja::where('id', $unit_id)
+                    ->orWhere('parent_id', $unit_id)
+                    ->pluck('id')
+                    ->toArray();
+
+                $query->whereIn('unit_id', $unitIds);
             })
             ->when($this->search, function ($query) use ($roles, $unit_id) {
                 $query->where(function ($q) {
@@ -65,14 +69,24 @@ class DataKaryawan extends Component
                 });
 
                 if (!Auth::user()->hasAnyRole($roles)) {
-                    $query->where('unit_id', $unit_id);
+                    $unitIds = UnitKerja::where('id', $unit_id)
+                        ->orWhere('parent_id', $unit_id)
+                        ->pluck('id')
+                        ->toArray();
+
+                    $query->whereIn('unit_id', $unitIds);
                 }
             })
             ->when(isset($this->selectedUserAktif), function ($query) {
                 $query->where('status_karyawan', $this->selectedUserAktif);
             })
             ->when($this->selectedUnit, function ($query) {
-                $query->where('unit_id', $this->selectedUnit);
+                $unitIds = UnitKerja::where('id', $this->selectedUnit)
+                    ->orWhere('parent_id', $this->selectedUnit)
+                    ->pluck('id')
+                    ->toArray();
+
+                $query->whereIn('unit_id', $unitIds);
             })
             ->paginate(15);
     }

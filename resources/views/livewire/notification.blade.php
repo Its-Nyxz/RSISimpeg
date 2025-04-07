@@ -16,15 +16,15 @@
     </div>
 
     <!-- Dropdown Notifikasi -->
-    <div id="dropdownNotification" class="z-10 hidden bg-white shadow-2xl max-w-lg w-96 dark:bg-gray-700">
+    <div id="dropdownNotification" class="z-10 hidden bg-white shadow-2xl max-w-lg w-96 ">
 
-        <ul class="font-normal text-sm text-gray-700 dark:text-gray-200 capitalize max-h-60 w-full overflow-y-auto"
+        <ul class="font-normal text-sm text-gray-700 capitalize max-h-60 w-full overflow-y-auto"
             aria-labelledby="dropdownNotificationButton">
 
             @forelse (auth()->user()->notifications as $notification)
                 <li class="appearance-none list-none"> <!-- ✅ Tambahkan list-none di sini -->
                     <div wire:click="markAsRead('{{ $notification->id }}','{{ $notification->data['url'] }}')"
-                        class="flex cursor-pointer group justify-between px-4 py-3 hover:bg-primary-950 transition duration-200 hover:text-white dark:hover:bg-gray-600 dark:hover:text-white">
+                        class="flex cursor-pointer group justify-between px-4 py-3 hover:bg-primary-950 transition duration-200 hover:text-white ">
 
                         <!-- Isi Notifikasi -->
                         <div>{!! $notification->data['message'] !!}</div>

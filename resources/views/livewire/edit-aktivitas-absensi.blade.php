@@ -44,11 +44,26 @@
                     class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 p-2.5" />
             </div>
 
+            @if ($is_lembur !== null)
+                <div class="form-group col-span-2">
+                    <label class="block text-sm font-medium text-green-900">Laporan Lembur</label>
+                    <input type="text" wire:model="deksripsi_lembur" disabled
+                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 p-2.5" />
+                </div>
+            @endif
+
             <div class="form-group col-span-2">
                 <label class="block text-sm font-medium text-green-900">Keterangan</label>
                 <input type="text" wire:model="keterangan" disabled
                     class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 p-2.5" />
             </div>
+            @if ($is_lembur !== null)
+                <div class="form-group col-span-2">
+                    <label class="block text-sm font-medium text-green-900">Keterangan Lembur</label>
+                    <input type="text" wire:model="keterangan_lembur" disabled
+                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 p-2.5" />
+                </div>
+            @endif
 
             <div class="form-group col-span-2">
                 <label class="block text-sm font-medium text-green-900">Feedback</label>
@@ -59,26 +74,28 @@
                 @enderror
             </div>
 
-            <div class="form-group col-span-2">
-                <label class="block text-sm font-medium text-green-900">Persetujuan Lembur</label>
-                <div class="mt-2">
-                    <button type="button" wire:click="setApproval(true)" 
-                        class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
-                        Ya
-                    </button>
-                    <button type="button" wire:click="setApproval(false)" 
-                        class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 ml-2">
-                        Tidak
-                    </button>
-                </div>
-
-                <!-- Notifikasi langsung di bawah tombol -->
-                @if (session()->has('approval_message'))
-                    <div class="mt-2 p-2 bg-green-200 text-green-800 rounded-lg">
-                        {{ session('approval_message') }}
+            @if ($is_lembur !== null)
+                <div class="form-group col-span-2">
+                    <label class="block text-sm font-medium text-green-900">Persetujuan Lembur</label>
+                    <div class="mt-2">
+                        <button type="button" wire:click="setApproval(true)"
+                            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                            Ya
+                        </button>
+                        <button type="button" wire:click="setApproval(false)"
+                            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 ml-2">
+                            Tidak
+                        </button>
                     </div>
-                @endif
-            </div>
+
+                    <!-- Notifikasi langsung di bawah tombol -->
+                    @if (session()->has('approval_message'))
+                        <div class="mt-2 p-2 bg-green-200 text-green-800 rounded-lg">
+                            {{ session('approval_message') }}
+                        </div>
+                    @endif
+                </div>
+            @endif
         </div>
 
         <div class="form-group col-span-2 flex justify-end mt-4">

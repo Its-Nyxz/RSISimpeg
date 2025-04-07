@@ -5,50 +5,108 @@
         <table class="w-full text-sm text-center text-gray-700">
             <thead class="text-sm uppercase bg-success-400 text-success-900">
                 <tr>
-                    <th class="border border-gray-300 p-2">Jenis Izin</th>
-                    <th class="border border-gray-300 p-2">Tanggal Mulai</th>
-                    <th class="border border-gray-300 p-2">Tanggal Selesai</th>
-                    <th class="border border-gray-300 p-2">Jumlah Hari</th>
+                    @if (!$tipe == 'tukar_jadwal')
+                        <th class="border border-gray-300 p-2">
+                            Jenis {{ $tipe == 'cuti' ? ' Cuti' : ($tipe == 'ijin' ? 'Izin' : 'Tukar Jadwal') }}
+                        </th>
+                    @endif
+                    @if ($tipe == 'tukar_jadwal')
+                        <th class="border border-gray-300 p-2">Tanggal Pergantian</th>
+                    @else
+                        <th class="border border-gray-300 p-2">Tanggal Mulai</th>
+                        <th class="border border-gray-300 p-2">Tanggal Selesai</th>
+                    @endif
+                    @if (!$tipe == 'tukar_jadwal')
+                        <th class="border border-gray-300 p-2">Jumlah Hari</th>
+                    @endif
                     <th class="border border-gray-300 p-2">Alasan</th>
-                    <th scope="col" class="px-6 py-3">Status</th>
                     @if ($tipe === 'tukar_jadwal')
                         <th class="border border-gray-300 p-2">Shift</th>
                     @endif
+                    <th scope="col" class="px-6 py-3">Status</th>
                     <th class="border border-gray-300 p-2">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($dataPengajuan as $pengajuan)
                     <tr class="hover:bg-success-300">
-                        <td class="text-start border border-gray-300 p-2">{{ $pengajuan->jenisCuti->nama_cuti ?? '-' }}
-                        </td>
-                        <td class="border border-gray-300 p-2">{{ formatDate($pengajuan->tanggal_mulai) ?? '-' }}</td>
-                        <td class="border border-gray-300 p-2">{{ formatDate($pengajuan->tanggal_selesai) ?? '-' }}</td>
-                        <td class="border border-gray-300 p-2">{{ $pengajuan->jumlah_hari ?? '-' }}</td>
+                        @if (!$tipe == 'tukar_jadwal')
+                            <td class="text-start border border-gray-300 p-2">
+                                @if ($tipe == 'ijin')
+                                    {{ $pengajuan->jenisIzin->nama_izin ?? '-' }}
+                                @elseif($tipe == 'cuti')
+                                    {{ $pengajuan->jenisCuti->nama_cuti ?? '-' }}
+                                @endif
+                            </td>
+                        @endif
+                        @if ($tipe == 'tukar_jadwal')
+                            <td class="border border-gray-300 p-2">{{ formatDate($pengajuan->tanggal) ?? '-' }}
+                            </td>
+                        @else
+                            <td class="border border-gray-300 p-2">{{ formatDate($pengajuan->tanggal_mulai) ?? '-' }}
+                            </td>
+                            <td class="border border-gray-300 p-2">{{ formatDate($pengajuan->tanggal_selesai) ?? '-' }}
+                            </td>
+                        @endif
+                        @if (!$tipe == 'tukar_jadwal')
+                            <td class="border border-gray-300 p-2">{{ $pengajuan->jumlah_hari ?? '-' }}</td>
+                        @endif
                         <td class="text-start border border-gray-300 p-2">{{ $pengajuan->keterangan ?? '-' }}</td>
-                        <td
-                            class="border border-gray-300 p-2 font-extrabold whitespace-nowrap {{ $pengajuan->status_izin_id == 1 ? 'text-green-900' : ($pengajuan->status_izin_id == 2 ? 'text-red-900' : 'text-gray-900') }}">
-                            {{ $pengajuan->statusIzin->nama_status ?? '-' }}
-                        </td>
                         @if ($tipe === 'tukar_jadwal')
                             <td class="border border-gray-300 p-2">
-                                {{ $pengajuan->shift ?? '-' }}
+                                {{ $pengajuan->shift->nama_shift ?? '-' }}
+                            </td>
+                        @endif
+                        @if ($tipe == 'ijin')
+                            <td
+                                class="border border-gray-300 p-2 font-extrabold whitespace-nowrap {{ $pengajuan->status_izin_id == 1 ? 'text-green-900' : ($pengajuan->status_izin_id == 2 ? 'text-red-900' : 'text-gray-900') }}">
+                                {{ $pengajuan->statusIzin->nama_status ?? '-' }}
+                            </td>
+                        @elseif($tipe == 'cuti')
+                            <td
+                                class="border border-gray-300 p-2 font-extrabold whitespace-nowrap {{ $pengajuan->status_cuti_id == 1 ? 'text-green-900' : ($pengajuan->status_cuti_id == 2 ? 'text-red-900' : 'text-gray-900') }}">
+                                {{ $pengajuan->statusCuti->nama_status ?? '-' }}
+                            </td>
+                        @else
+                            <td
+                                class="border border-gray-300 p-2 font-extrabold whitespace-nowrap
+                                {{ is_null($pengajuan->is_approved) ? 'text-gray-900' : ($pengajuan->is_approved ? 'text-green-900' : 'text-red-900') }}">
+                                {{ is_null($pengajuan->is_approved) ? 'Menunggu' : ($pengajuan->is_approved ? 'Disetujui' : 'Ditolak') }}
                             </td>
                         @endif
                         <td class="border border-gray-300 p-2">
-                            @if ($pengajuan->status_izin_id == 3)
-                                <button wire:click="delete({{ $pengajuan->id }}, '{{ $this->tipe }}')"
-                                    class="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-700">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
+                            @if (!$tipe == 'tukar_jadwal')
+                                @if ($pengajuan->status_izin_id == 3 || $pengajuan->status_izin_id == 3)
+                                    <button
+                                        onclick="confirmAlert('Ingin menghapus data ini?', 'Ya, Hapus!', () => @this.call('delete', {{ $pengajuan->id }}, '{{ $this->tipe }}'))"
+                                        class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300 relative group">
+                                        <i class="fa-solid fa-trash"></i>
+                                        <div id="tooltip-destroy-{{ $pengajuan->id }}"
+                                            class="absolute z-10 hidden group-hover:block bottom-full mb-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-md">
+                                            Hapus Pengajuan
+                                            <div class="tooltip-arrow" data-popper-arrow></div>
+                                        </div>
+                                    </button>
+                                @else
+                                    -
+                                @endif
                             @else
-                                -
+                                <button
+                                    onclick="confirmAlert('Ingin menghapus data ini?', 'Ya, Hapus!', () => @this.call('delete', {{ $pengajuan->id }}, '{{ $this->tipe }}'))"
+                                    class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300 relative group">
+                                    <i class="fa-solid fa-trash"></i>
+                                    <div id="tooltip-tukarjadwal-{{ $pengajuan->id }}"
+                                        class="absolute z-10 hidden group-hover:block bottom-full mb-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-md">
+                                        Hapus Pengajuan
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div>
+                                </button>
                             @endif
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="{{ $tipe === 'tukar_jadwal' ? 6 : 5 }}" class="text-center py-4">
+                        <td colspan="{{ $tipe === 'tukar_jadwal' ? 8 : 7 }}" class="text-center py-4">
                             Tidak ada pengajuan {{ $tipe }} ditemukan.
                         </td>
                     </tr>

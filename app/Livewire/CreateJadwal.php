@@ -108,7 +108,7 @@ class CreateJadwal extends Component
 
             // Update status is_approved pada tabel TukarJadwal
             TukarJadwal::where('user_id', $this->user_id)
-                ->where('tanggal_jadwal', $this->tanggal)
+                ->where('tanggal', $this->tanggal)
                 ->update(['is_approved' => 1]);
 
             $user = auth()->user();

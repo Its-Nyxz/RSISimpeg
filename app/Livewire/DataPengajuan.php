@@ -24,25 +24,26 @@ class DataPengajuan extends Component
 
     public function delete($id, $tipe)
     {
-        switch ($tipe) {
-            case 'cuti':
-                CutiKaryawan::findOrFail($id)->delete();
-                return redirect()->route('pengajuan.index', 'cuti')->with('success', 'Pengajuan Cuti berhasil dihapus.');
-                break;
-
-            case 'ijin':
-                IzinKaryawan::findOrFail($id)->delete();
-                return redirect()->route('pengajuan.index', 'ijin')->with('success', 'Pengajuan Izin berhasil dihapus.');
-                break;
-
-            case 'tukar_jadwal':
-                TukarJadwal::findOrFail($id)->delete();
-                return redirect()->route('pengajuan.index', 'tukar_jadwal')->with('success', 'Pengajuan Izin berhasil dihapus.');
-                break;
-
-            default:
-                abort(404);
+        if ($tipe === 'cuti') {
+            CutiKaryawan::findOrFail($id)->delete();
+            return redirect()->route('pengajuan.index', 'cuti')
+                ->with('success', 'Pengajuan Cuti berhasil dihapus.');
         }
+
+        if ($tipe === 'ijin') {
+            IzinKaryawan::findOrFail($id)->delete();
+            return redirect()->route('pengajuan.index', 'ijin')
+                ->with('success', 'Pengajuan Izin berhasil dihapus.');
+        }
+
+        if ($tipe === 'tukar_jadwal') {
+            TukarJadwal::findOrFail($id)->delete();
+            return redirect()->route('pengajuan.index', 'tukar_jadwal')
+                ->with('success', 'Pengajuan Tukar Jadwal berhasil dihapus.');
+        }
+
+        // Tipe tidak valid
+        abort(404);
     }
 
     public function render()
@@ -52,7 +53,7 @@ class DataPengajuan extends Component
         switch ($this->tipe) {
             case 'cuti':
                 $this->judul = "List Pengajuan Cuti";
-                $dataPengajuan = CutiKaryawan::with('jenisCuti')->where('user_id', $userId)
+                $dataPengajuan = CutiKaryawan::with('jenisCuti', 'statusCuti')->where('user_id', $userId)
                     ->orderBy('created_at', 'desc')
                     ->paginate(10);
                 break;

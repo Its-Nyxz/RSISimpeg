@@ -54,6 +54,7 @@ use App\Http\Controllers\HolidaysController;
 use App\Http\Controllers\IzinController;
 use App\Http\Controllers\KategoriJabatanController;
 use App\Http\Controllers\PengajuanController;
+use App\Http\Controllers\TukarJadwalController;
 use App\Livewire\UserProfile;
 
 Route::get('/', function () {
@@ -138,10 +139,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('poinperan', PointPeranController::class);
     Route::resource('tukinjabatan', TukinJabatanController::class);
     Route::resource('timer', TimerController::class);
-    Route::resource('cuti', CutiController::class);
+    // Route::resource('cuti', CutiController::class);
     Route::resource('importgaji', ImportGajiController::class);
     Route::resource('approvalcuti', CutiController::class);
     Route::resource('approvalizin', IzinController::class);
+    Route::resource('approvaltukar', TukarJadwalController::class);
     // Hapus route 'create' bawaan dari resource
     Route::resource('aktivitasabsensi', AktivitasAbsensiController::class)
         ->except(['create']);

@@ -50,21 +50,40 @@ class JadwalImport implements ToCollection
                 for ($day = 1; $day <= $daysInMonth; $day++) {
                     $tanggal_jadwal = "{$this->tahun}-" . str_pad($this->bulan, 2, '0', STR_PAD_LEFT) . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
 
-                    $nama_shift = $row[4 + $day] ?? null;
+
+                    $nama_shift = isset($row[4 + $day]) ? trim($row[4 + $day]) : null; // Ambil nama shift untuk tanggal ke-n
+
+                    // Jika ditemukan 'L' (menandakan libur), maka hapus jadwal sebelumnya
+                    if ($nama_shift === 'L') {
+                        // Cek apakah jadwal sebelumnya ada di database
+                        $existingJadwal = JadwalAbsensi::where('user_id', $user->id)
+                            ->where('tanggal_jadwal', $tanggal_jadwal)
+                            ->first();
+
+                        if ($existingJadwal) {
+                            // Hapus jadwal sebelumnya
+                            $existingJadwal->delete();
+
+                            Log::info("Jadwal pada tanggal {$tanggal_jadwal} untuk user {$user->id} dihapus karena libur ('L').");
+                        }
+                        continue;
+                    }
 
                     if ($nama_shift) {
                         $shift = Shift::where('nama_shift', $nama_shift)->first();
 
                         if ($shift) {
-                            JadwalAbsensi::updateOrCreate(
-                                [
-                                    'user_id' => $user->id,
-                                    'tanggal_jadwal' => $tanggal_jadwal
-                                ],
-                                [
-                                    'shift_id' => $shift->id
-                                ]
-                            );
+                            if ($user->id && $tanggal_jadwal && $shift->id) {
+                                JadwalAbsensi::updateOrCreate(
+                                    [
+                                        'user_id' => $user->id,
+                                        'tanggal_jadwal' => $tanggal_jadwal
+                                    ],
+                                    [
+                                        'shift_id' => $shift->id
+                                    ]
+                                );
+                            }
                         }
                     }
                 }

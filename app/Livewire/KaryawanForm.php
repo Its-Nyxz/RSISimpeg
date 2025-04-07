@@ -76,9 +76,6 @@ class KaryawanForm extends Component
         'unit' => [],
     ];
     protected $listeners = ['savekaryawan'];
-    public $khususList; //sementara
-
-
 
     public function fetchSuggestions($field, $value)
     {
@@ -245,7 +242,6 @@ class KaryawanForm extends Component
             $this->selectedPph = $user->kategori_id;
             $this->selectedRoles = $user->roles->pluck('id')->toArray();
             $this->typeShift = $user->type_shift;
-            $this->khususList = DB::table('master_khusus')->get(); //sementara
         }
 
         $this->units = UnitKerja::all();

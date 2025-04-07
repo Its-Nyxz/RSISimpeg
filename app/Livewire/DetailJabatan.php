@@ -27,7 +27,7 @@ class DetailJabatan extends Component
             'edit-jadwal',
         ],
         'Master Data' => ['master-data', 'tunjangan', 'golongan', 'gaji-pokok', 'pendidikan', 'unit-kerja', 'potongan', 'tunjangan-kinerja', 'kategori-jabatan'],
-        'Kepegawaian' => ['create-data-karyawan', 'detail-data-karyawan', 'edit-data-karyawan', 'tambah-history', 'view-kepegawaian', 'view-kenaikan', 'notification-cuti', 'view-import-gaji', 'view-poin-peran', 'view-poin-penilaian'],
+        'Kepegawaian' => ['create-data-karyawan', 'detail-data-karyawan', 'edit-data-karyawan', 'tambah-history', 'view-kepegawaian', 'view-kenaikan', 'approval-cuti', 'approval-izin', 'approval-tukar-jadwal', 'resign-kerja', 'view-import-gaji', 'view-poin-peran', 'view-poin-penilaian'],
         'Keuangan' => ['view-keuangan'],
         'Pengaturan' => ['hak-akses'],
     ];
@@ -72,19 +72,36 @@ class DetailJabatan extends Component
 
     public function resetAllForCategory($category)
     {
-        if (isset($this->permissions[$category])) {
-            foreach ($this->permissions[$category] as $key => $value) {
-                $permission = is_array($value) ? $key : $value;
-                $this->selectedPermissions = array_diff($this->selectedPermissions, [$permission]);
-            }
-            $this->syncPermissionsToRole();
-        }
+        if (!isset($this->permissions[$category])) return;
+
+        // Ambil semua permission dari kategori
+        $permissionsInCategory = collect($this->permissions[$category])
+            ->map(function ($value, $key) {
+                return is_array($value) ? $key : $value;
+            })
+            ->values()
+            ->toArray();
+
+        // Hapus semua permission tersebut dari selectedPermissions
+        $this->selectedPermissions = array_values(array_diff($this->selectedPermissions, $permissionsInCategory));
+
+        $this->syncPermissionsToRole();
     }
 
     public function isCategoryFullySelected($category)
     {
-        return isset($this->permissions[$category]) &&
-            !array_diff(array_keys($this->permissions[$category]), $this->selectedPermissions);
+        if (!isset($this->permissions[$category])) {
+            return false;
+        }
+
+        $permissionsInCategory = collect($this->permissions[$category])
+            ->map(function ($value, $key) {
+                return is_array($value) ? $key : $value;
+            })
+            ->values()
+            ->toArray();
+
+        return empty(array_diff($permissionsInCategory, $this->selectedPermissions));
     }
 
     public function syncPermissionsToRole()

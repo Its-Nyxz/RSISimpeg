@@ -1,7 +1,18 @@
 @php
-    $isActive1 = isset($href) && strpos(request()->fullUrl(), url($href)) !== false ? 'bg-gray-100 text-success-950' : 'text-white';
-    $isOpen1 = isset($child) && isActiveMenu($child) ? 'block' : 'hidden';
+    $currentPath = request()->path();
+    $hrefPath = trim(parse_url($href, PHP_URL_PATH), '/');
+    $isActive1 = isset($href) && $currentPath === $hrefPath ? 'bg-gray-100 text-success-950' : 'text-white';
+    $isOpen1 =
+        isset($child) &&
+        collect($child)
+            ->pluck('href')
+            ->contains(function ($link) use ($currentPath) {
+                return trim(parse_url($link, PHP_URL_PATH), '/') === $currentPath;
+            })
+            ? 'block'
+            : 'hidden';
 @endphp
+
 @if (isset($child) && empty($child))
     <li>
         <a href="{{ $href }}"
@@ -22,8 +33,18 @@
         <ul id="{{ Str::slug($title) }}" class="py-2 space-y-2 {{ $isOpen1 }}">
             @foreach ($child as $item)
                 @php
-                    $isActive2 = isset($item['href']) && strpos(request()->fullUrl(), url($item['href'])) !== false ? 'bg-gray-100 text-success-950' : 'text-white';
-                    $isOpen2 = isset($item['child']) && isActiveMenu($item['child']) ? 'block' : 'hidden';
+                    $childPath = trim(parse_url($item['href'], PHP_URL_PATH), '/');
+                    $isActive2 = $currentPath === $childPath ? 'bg-gray-100 text-success-950' : 'text-white';
+
+                    $isOpen2 =
+                        isset($item['child']) &&
+                        collect($item['child'])
+                            ->pluck('href')
+                            ->contains(function ($subHref) use ($currentPath) {
+                                return trim(parse_url($subHref, PHP_URL_PATH), '/') === $currentPath;
+                            })
+                            ? 'block'
+                            : 'hidden';
                 @endphp
                 <li>
                     @if (!empty($item['child']))
@@ -37,7 +58,9 @@
                         <ul id="{{ Str::slug($item['title']) }}" class="py-2 space-y-2 {{ $isOpen2 }}">
                             @foreach ($item['child'] as $subItem)
                                 @php
-                                    $isActive3 = isset($subItem['href']) && strpos(request()->fullUrl(), url($subItem['href'])) !== false ? 'bg-gray-100 text-success-950' : 'text-white';
+                                    $subPath = trim(parse_url($subItem['href'], PHP_URL_PATH), '/');
+                                    $isActive3 =
+                                        $currentPath === $subPath ? 'bg-gray-100 text-success-950' : 'text-white';
                                 @endphp
                                 <li>
                                     <a href="{{ $subItem['href'] }}"

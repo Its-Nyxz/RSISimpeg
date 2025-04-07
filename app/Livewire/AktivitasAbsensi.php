@@ -47,7 +47,7 @@ class AktivitasAbsensi extends Component
             $this->selectedUserId = $this->subordinates->keys()->first();
         } else {
             // Jika bukan parent, gunakan ID user yang login
-            $this->selectedUserId = auth()->user()->id();
+            $this->selectedUserId = auth()->id();
         }
         $this->loadData();
     }
@@ -159,12 +159,21 @@ class AktivitasAbsensi extends Component
                 'jam_lembur' => $overtime, // lembur (jika is_lembur = true)
                 'rencana_kerja' => $absensi?->deskripsi_in ?? '-',
                 'laporan_kerja' => $absensi?->deskripsi_out ?? '-',
-                'laporan_lembur' => $deskripsiLembur ?? '-',
+                'laporan_lembur' =>  $absensi?->$deskripsiLembur ?? '-',
                 'feedback' => $absensi?->feedback ?? '-',
                 'is_holiday' => $this->isHoliday($date),
                 // 'keterangan' => $keterangan,
                 'is_lembur' => $totalOvertime > 0,
                 'is_dinas' => $absensi?->is_dinas,
+                'late' => $absensi?->late,
+                'real_masuk' => optional($absensi)->time_in
+                    ? Carbon::parse($absensi->time_in)->setTimezone('Asia/Jakarta')->format('H:i:s')
+                    : null,
+
+                'real_selesai' => optional($absensi)->time_out
+                    ? Carbon::parse($absensi->time_out)->setTimezone('Asia/Jakarta')->format('H:i:s')
+                    : null,
+
             ];
         }
     }
@@ -209,7 +218,7 @@ class AktivitasAbsensi extends Component
 
         return response()->streamDownload(
             fn() => print($pdf->output()),
-            "laporan Absensi {$user->name} Bulan {$month} Tahun {$year}.pdf"
+            "Laporan Absensi {$user->name} Bulan {$month} Tahun {$year}.pdf"
         );
     }
     public function render()

@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('unit_id')->constrained('unit_kerjas')->onDelete('cascade');
             $table->string('nama_shift');
-            $table->time('jam_masuk');
-            $table->time('jam_keluar');
+            $table->time('jam_masuk')->nullable();
+            $table->time('jam_keluar')->nullable();
             $table->text('keterangan')->nullable();
             $table->timestamps();
         });
