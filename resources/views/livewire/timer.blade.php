@@ -2,7 +2,7 @@
 
     <div class="p-4 text-left">
         {{-- Tanggal --}}
-        <p class="text-gray-500">{{ now()->format('l, d F Y') }}</p>
+        <p class="text-gray-500">{{ now()->locale('id')->translatedFormat('l, d F Y') }}</p>
 
         <div id="mainTimerContainer" style="display: {{ $isLemburRunning ? 'none' : 'block' }};">
             {{-- Timer Utama --}}
