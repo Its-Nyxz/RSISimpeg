@@ -77,10 +77,9 @@
 
 
         @if (!$routeIsDashboard)
-
-            @can('template-jadwal')
+            @can('template-jadwal') 
                 <!-- Tombol Download Template -->
-                <a href="{{ route('jadwal.template', ['month' => now()->month, 'year' => now()->year]) }}"
+                <a href="{{ route('jadwal.template', ['month' => $bulan, 'year' => $tahun]) }}"
                     class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                     <i class="fas fa-download"></i> Download Template
                 </a>
@@ -148,7 +147,8 @@
                             $hari = $carbonDate->format('l'); // Nama Hari
                             $isHoliday = $this->isHoliday($tanggal);
                         @endphp
-                        <th class="px-2 py-3 text-center
+                        <th
+                            class="px-2 py-3 text-center
                             {{ $isHoliday ? 'bg-red-500 text-white' : '' }}">
                             {{ $carbonDate->format('d') }}
                         </th>
@@ -158,7 +158,7 @@
                     @endcan
                 </tr>
             </thead>
-            
+
             <tbody>
                 @foreach ($jadwals as $user_id => $jadwalUser)
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
@@ -206,3 +206,5 @@
         </table>
     </div>
 </div>
+
+

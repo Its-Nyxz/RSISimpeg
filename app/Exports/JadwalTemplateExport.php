@@ -17,6 +17,7 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
     protected $unitId;
     protected $month;
     protected $year;
+    
 
     public function __construct($month, $year)
     {

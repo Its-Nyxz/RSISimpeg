@@ -20,7 +20,7 @@
             <tbody>
                 @forelse ($dataPengajuan as $pengajuan)
                     <tr class="hover:bg-success-300">
-                        <td class="text-start border border-gray-300 p-2">{{ $pengajuan->jenisIzin->nama_izin ?? '-' }}
+                        <td class="text-start border border-gray-300 p-2">{{ $pengajuan->jenisCuti->nama_cuti ?? '-' }}
                         </td>
                         <td class="border border-gray-300 p-2">{{ formatDate($pengajuan->tanggal_mulai) ?? '-' }}</td>
                         <td class="border border-gray-300 p-2">{{ formatDate($pengajuan->tanggal_selesai) ?? '-' }}</td>
