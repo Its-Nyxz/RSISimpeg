@@ -47,7 +47,7 @@ class AktivitasAbsensi extends Component
             $this->selectedUserId = $this->subordinates->keys()->first();
         } else {
             // Jika bukan parent, gunakan ID user yang login
-            $this->selectedUserId = auth()->user()->id();
+            $this->selectedUserId = auth()->id();
         }
         $this->loadData();
     }

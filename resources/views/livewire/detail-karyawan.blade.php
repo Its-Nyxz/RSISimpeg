@@ -67,7 +67,7 @@
                         {{ $viewPendAwal?->user?->tanggal_lahir ? formatDate($viewPendAwal?->user?->tanggal_lahir) : '-' }}
                     </div>
                     <div class="mb-4">
-                        <strong>Tanggal Tetap</strong>: {{ $user->tmt ? formatDate($user->tmt) : '-' }}
+                        <strong>Tanggal Tetap</strong>: {{ $viewPendAwal?->user?->tmt ? formatDate($viewPendAwal?->user?->tmt) : '-' }}
                     </div>
                     <div class="mb-4">
                         <strong>Pendidikan Awal</strong>:
@@ -178,61 +178,88 @@
             </form>
         </x-modal>
     </div>
-    <div class="w-full">
-        <x-card title="History Cuti" class="mb-6 text-success-900">
-            {{-- <div style="font-family: 'Gilroy-Regular', sans-serif; font-size: 18px;">
-                <div class="mb-6 grid grid-cols-1 lg:grid-cols-1 justify-items-end">
-                    <strong></strong>
-                    <strong class="mb-3">Stok Cuti : <span
-                            class=" bg-green-700 text-white hover:bg-success-800 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                            {{ $user->jatah_cuti_tahunan ?? '-' }} </span></strong>
-                    <strong class="mt-3">Cuti Digunakan : <span
-                            class=" bg-green-700 text-white hover:bg-success-800 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                            {{ $user->sisa_cuti_tahunan ?? '-' }} </span></strong>
+    <div class="w-full mb-6">
+        <x-card-tanpa-title>
+            <div class="flex items-center space-x-3 mb-4">
+                <i class="fa-solid fa-list text-3xl text-gray-700"></i>
+                <h1 class="text-2xl font-bold text-success-900">History Cuti & Izin</h1>
+            </div>
+            <div class="flex flex-col lg:flex-row gap-4">
+                <!-- Tabel Cuti -->
+                <div class="w-full lg:w-1/2 mb-4 lg:mb-0">
+                    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                        <div class="max-h-96 overflow-y-auto">
+                            <table class="w-full text-sm text-center text-gray-700">
+                                <thead class="text-sm uppercase bg-success-400 text-success-900 sticky top-0 z-10">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 bg-success-400">Jenis Cuti</th>
+                                        <th scope="col" class="px-6 py-3 bg-success-400">Tanggal Mulai Cuti</th>
+                                        <th scope="col" class="px-6 py-3 bg-success-400">Tanggal Berakhir Cuti</th>
+                                        <th scope="col" class="px-6 py-3 bg-success-400">Status Cuti</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($listCuti as $cuti)
+                                        <tr
+                                            class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
+                                            <td class="px-6 py-4">{{ $cuti->jeniscuti->nama_cuti ?? '-' }}</td>
+                                            <td class="px-6 py-4">{{ formatDate($cuti->tanggal_mulai) ?? '-' }}</td>
+                                            <td class="px-6 py-4">{{ formatDate($cuti->tanggal_selesai) ?? '-' }}</td>
+                                            <td
+                                                class="px-6 py-4 font-extrabold whitespace-nowrap
+                                            {{ $cuti->status_cuti_id == 1 ? 'text-green-900' : ($cuti->status_cuti_id == 2 ? 'text-red-900' : 'text-gray-900') }}">
+                                                {{ $cuti->statusCuti->nama_status ?? '-' }}
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center px-6 py-4">Belum ada Cuti.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-            </div> --}}
-            <div class="relative shadow-md sm:rounded-lg">
-                <div class="max-h-96 overflow-y-auto">
-                    <table class="w-full text-sm text-center text-gray-700">
-                        <thead class="text-sm uppercase bg-success-400 text-success-900 sticky top-0 z-10">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 bg-success-400">No.</th>
-                                <th scope="col" class="px-6 py-3 bg-success-400">Tanggal Mulai Cuti</th>
-                                <th scope="col" class="px-6 py-3 bg-success-400">Tanggal Berakhir Cuti</th>
-                                <th scope="col" class="px-6 py-3 bg-success-400">Jenis Cuti</th>
-                                <th scope="col" class="px-6 py-3 bg-success-400">Keterangan</th>
-                                <th scope="col" class="px-6 py-3 bg-success-400">Status Cuti</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($listCuti as $cuti)
-                                <tr
-                                    class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
-                                    <td scope="row"
-                                        class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
-                                        {{ $loop->iteration }}
-                                    </td>
-                                    <td class="px-6 py-4">{{ formatDate($cuti->tanggal_mulai) ?? '-' }}</td>
-                                    <td class="px-6 py-4">{{ formatDate($cuti->tanggal_selesai) ?? '-' }}</td>
-                                    <td class="px-6 py-4">{{ $cuti->jeniscuti->nama_cuti ?? '-' }}</td>
-                                    <td class="px-6 py-4">{{ Str::limit($cuti->keterangan ?? '-', 15, '...') }}</td>
-                                    <td
-                                        class="px-6 py-4 font-extrabold whitespace-nowrap
-                                        {{ $cuti->status_cuti_id == 1 ? 'text-green-900' : ($cuti->status_cuti_id == 2 ? 'text-red-900' : 'text-gray-900') }}">
-                                        {{ $cuti->statusCuti->nama_status ?? '-' }}
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="text-center px-6 py-4">Belum ada Cuti.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+
+                <!-- Tabel Izin -->
+                <div class="w-full lg:w-1/2">
+                    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                        <div class="max-h-96 overflow-y-auto">
+                            <table class="w-full text-sm text-center text-gray-700">
+                                <thead class="text-sm uppercase bg-success-400 text-success-900 sticky top-0 z-10">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 bg-success-400">Jenis Izin</th>
+                                        <th scope="col" class="px-6 py-3 bg-success-400">Tanggal Mulai Izin</th>
+                                        <th scope="col" class="px-6 py-3 bg-success-400">Tanggal Berakhir Izin</th>
+                                        <th scope="col" class="px-6 py-3 bg-success-400">Status Izin</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($listIzin as $izin)
+                                        <tr
+                                            class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
+                                            <td class="px-6 py-4">{{ $izin->jenisizin->nama_izin ?? '-' }}</td>
+                                            <td class="px-6 py-4">{{ formatDate($izin->tanggal_mulai) ?? '-' }}</td>
+                                            <td class="px-6 py-4">{{ formatDate($izin->tanggal_selesai) ?? '-' }}</td>
+                                            <td
+                                                class="px-6 py-4 font-extrabold whitespace-nowrap
+                                            {{ $izin->status_izin_id == 1 ? 'text-green-900' : ($izin->status_izin_id == 2 ? 'text-red-900' : 'text-gray-900') }}">
+                                                {{ $izin->statusizin->nama_status ?? '-' }}
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center px-6 py-4">Belum ada Izin.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-        </x-card>
+        </x-card-tanpa-title>
     </div>
 
 </div>

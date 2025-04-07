@@ -13,8 +13,7 @@
                     <th scope="col" class="px-6 py-3">Tanggal Mulai</th>
                     <th scope="col" class="px-6 py-3">Tanggal Selesai</th>
                     <th scope="col" class="px-6 py-3">Jumlah Hari</th>
-                    <th scope="col" class="px-6 py-3">Jenis izin</th>
-                    <th scope="col" class="px-6 py-3">Keterangan</th>
+                    <th scope="col" class="px-6 py-3">Jenis Izin</th>
                     <th scope="col" class="px-6 py-3">Status</th>
                     <th scope="col" class="px-6 py-3">Aksi</th>
                 </tr>
@@ -29,9 +28,8 @@
                         <td class="px-6 py-4">{{ $izin->user->kategorijabatan->nama ?? '-' }}</td>
                         <td class="px-6 py-4">{{ formatDate($izin->tanggal_mulai) ?? '-' }}</td>
                         <td class="px-6 py-4">{{ formatDate($izin->tanggal_selesai) ?? '-' }}</td>
-                        <td class="px-6 py-4">{{ $izin->jumlah_hari ?? '-' }}</td>
+                        <td class="px-6 py-4">{{ $izin->jumlah_hari ?? '-' }} Hari</td>
                         <td class="px-6 py-4">{{ $izin->jenisIzin->nama_izin ?? '-' }}</td>
-                        <td class="px-6 py-4">{{ $izin->keterangan ?? '-' }}</td>
                         <td
                             class="px-6 py-4 font-extrabold whitespace-nowrap {{ $izin->status_izin_id == 1 ? 'text-green-900' : ($izin->status_izin_id == 2 ? 'text-red-900' : 'text-gray-900') }}">
                             {{ $izin->statusIzin->nama_status ?? '-' }}
@@ -39,11 +37,13 @@
                         <td class="px-6 py-4 text-center">
                             <div class="flex justify-center gap-2">
                                 @if ($izin->status_izin_id == 3)
-                                    <button wire:click="approveIzin({{ $izin->id }}, {{ $izin->user->id }})"
+                                    <button type="button"
+                                        onclick="confirmAlert('Ingin menyetujui izin ini?', 'Ya, Setujui!', () => @this.call('approveIzin', {{ $izin->id }}, {{ $izin->user->id }}))"
                                         class="bg-green-600 text-white px-3 py-1 rounded-lg flex items-center gap-2">
                                         <i class="fa-solid fa-check"></i> Disetujui
                                     </button>
-                                    <button wire:click="rejectIzin({{ $izin->id }}, {{ $izin->user->id }})"
+                                    <button
+                                        onclick="confirmAlert('Ingin menolak izin ini?', 'Ya, Yakin!', () => @this.call('rejectIzin', {{ $izin->id }}, {{ $izin->user->id }}))"
                                         class="bg-red-600 text-white px-3 py-1 rounded-lg flex items-center gap-2">
                                         <i class="fa-solid fa-xmark"></i> Ditolak
                                     </button>

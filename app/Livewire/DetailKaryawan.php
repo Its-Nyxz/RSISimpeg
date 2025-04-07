@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\CutiKaryawan;
+use App\Models\IzinKaryawan;
 use Livewire\Component;
 use App\Models\Penyesuaian;
 use App\Models\MasterPendidikan;
@@ -25,11 +26,11 @@ class DetailKaryawan extends Component
     public $roles;
     public $viewPendAwal;
     public $listCuti;
+    public $listIzin;
 
     public function mount($user)
     {
         // Mendapatkan data user
-        
         $this->user = $user;
         $this->user_id = $user->id;
         $this->pend_awal_id = $user->kategori_pendidikan;
@@ -39,14 +40,15 @@ class DetailKaryawan extends Component
         $this->alasanResign = $user->alasan_resign;
         $this->pendidikans = MasterPendidikan::all();
         $this->viewPendAwal = Penyesuaian::with('penyesuaian', 'user')->where('user_id', $this->user_id)->first();
-        $this->roles = DB::table('roles')
-            ->join('model_has_roles', 'roles.id', '=', 'model_has_roles.role_id')
-            ->where('model_has_roles.model_id', $this->user_id)
-            ->pluck('roles.name')
-            ->toArray();
-            $this->pendidikans = MasterPendidikan::all();
+        // $this->roles = DB::table('roles')
+        //     ->join('model_has_roles', 'roles.id', '=', 'model_has_roles.role_id')
+        //     ->where('model_has_roles.model_id', $this->user_id)
+        //     ->pluck('roles.name')
+        //     ->toArray();
+        $this->pendidikans = MasterPendidikan::all();
             // return CutiKaryawan::with('user')->where('user_id');
-        $this->listCuti = CutiKaryawan::with('user')->where('user_id', $this->user_id)->get();
+        $this->listCuti = CutiKaryawan::with('user')->where('user_id', $this->user_id)->orderBy('created_at', 'desc')->get();
+        $this->listIzin = IzinKaryawan::with('user')->where('user_id', $this->user_id)->orderBy('created_at', 'desc')->get();
         // dd($this->viewPendAwal);
     }
 

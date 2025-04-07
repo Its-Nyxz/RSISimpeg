@@ -2,16 +2,17 @@
 
 namespace App\Livewire;
 
-use App\Models\KategoriJabatan;
 use Livewire\Component;
-use Illuminate\Support\Facades\Auth;
+use Livewire\WithFileUploads;
+use App\Models\KategoriJabatan;
 use App\Models\MasterPendidikan;
+use Illuminate\Support\Facades\Auth;
 
 class EditProfile extends Component
 {
     use WithFileUploads;
 
-    public $user_id, $name, $nip, $no_ktp, $no_hp, $no_rek, $kategori_pendidikan, $pendidikan, $institusi, $jk, $alamat, $tempat, $tanggal_lahir;
+    public $user_id, $name, $nip, $no_ktp, $no_hp, $no_rek, $kategori_pendidikan, $pendidikan, $institusi, $jenisKelamin, $alamat, $tempat_lahir, $tanggal_lahir;
     public $photo, $currentPhoto;
     public $jabatans, $pendidikans;
 
@@ -71,9 +72,9 @@ class EditProfile extends Component
             'kategori_pendidikan' => $this->kategori_pendidikan ?? null,
             'pendidikan' => $this->pendidikan ?? null,
             'institusi' => $this->institusi ?? null,
-            'jk' => $this->jk ?? null,
+            'jk' => $this->jenisKelamin ?? null,
             'alamat' => $this->alamat ?? null,
-            'tempat' => $this->tempat ?? null,
+            'tempat' => $this->tempat_lahir ?? null,
             'tanggal_lahir' => $this->tanggal_lahir ?? null,
         ]);
 

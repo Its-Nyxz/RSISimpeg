@@ -52,7 +52,7 @@ class DataPengajuan extends Component
         switch ($this->tipe) {
             case 'cuti':
                 $this->judul = "List Pengajuan Cuti";
-                $dataPengajuan = CutiKaryawan::where('user_id', $userId)
+                $dataPengajuan = CutiKaryawan::with('jenisCuti', 'statusCuti')->where('user_id', $userId)
                     ->orderBy('created_at', 'desc')
                     ->paginate(10);
                 break;
