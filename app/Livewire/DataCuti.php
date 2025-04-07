@@ -2,11 +2,14 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
+use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Shift;
+use Livewire\Component;
 use App\Models\CutiKaryawan;
-use Livewire\WithPagination;
 
+use Livewire\WithPagination;
+use App\Models\JadwalAbsensi;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
 
@@ -23,12 +26,12 @@ class DataCuti extends Component
     public function loadData()
     {
         $user = auth()->user();
-        $roles = ['Super Admin', 'Kepala Seksi Kepegawaian', 'Staf Kepegawaian', 'Kepegawaian', 'Administrator'];
+        // $roles = ['Super Admin', 'Kepala Seksi Kepegawaian', 'Staf Kepegawaian', 'Kepegawaian', 'Administrator'];
 
-        // Jika pengguna memiliki salah satu role di atas, tampilkan semua data
-        if (in_array($user->hasAnyRole($roles), $roles)) {
-            return CutiKaryawan::with('user')->orderByDesc('id')->paginate(10);
-        }
+        // // Jika pengguna memiliki salah satu role di atas, tampilkan semua data
+        // if (in_array($user->hasAnyRole($roles), $roles)) {
+        //     return CutiKaryawan::with('user')->orderByDesc('id')->paginate(10);
+        // }
 
         // Jika bukan, filter berdasarkan unit
         return CutiKaryawan::with('user')
@@ -43,6 +46,30 @@ class DataCuti extends Component
         $cuti = CutiKaryawan::find($cutiId);
         if ($cuti) {
             $cuti->update(['status_cuti_id' => 1]);
+
+            $shift = Shift::firstOrCreate(
+                ['nama_shift' => 'C'],
+                [
+                    'unit_id' => auth()->user()->unit_id, // Unit dari user yang approve
+                    'jam_masuk' => null,
+                    'jam_keluar' => null,
+                    'keterangan' => 'Cuti'
+                ]
+            );
+            $start = Carbon::parse($cuti->tanggal_mulai);
+            $end = Carbon::parse($cuti->tanggal_selesai);
+
+            for ($date = $start; $date->lte($end); $date->addDay()) {
+                JadwalAbsensi::updateOrCreate(
+                    [
+                        'user_id' => $userId,
+                        'tanggal_jadwal' => $date->toDateString()
+                    ],
+                    [
+                        'shift_id' => $shift->id,
+                    ]
+                );
+            }
 
             $nextUser = User::where('id', $userId)->first();
             $message = 'Pengajuan Cuti anda (' . $nextUser->name .

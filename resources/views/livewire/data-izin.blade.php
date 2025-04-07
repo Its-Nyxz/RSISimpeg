@@ -43,7 +43,7 @@
                                         <i class="fa-solid fa-check"></i> Disetujui
                                     </button>
                                     <button
-                                        onclick="confirmAlert('Ingin menolak izin ini?', 'Ya, Yakin!', () => @this.call('rejectIzin', {{ $izin->id }}, {{ $izin->user->id }}))"
+                                        onclick="confirmAlert('Ingin menolak izin ini?', 'Ya, Tolak!', () => @this.call('rejectIzin', {{ $izin->id }}, {{ $izin->user->id }}))"
                                         class="bg-red-600 text-white px-3 py-1 rounded-lg flex items-center gap-2">
                                         <i class="fa-solid fa-xmark"></i> Ditolak
                                     </button>

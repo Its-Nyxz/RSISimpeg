@@ -228,13 +228,13 @@ class PengajuanForm extends Component
                 ->whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Kepala%'))
                 ->first();
 
-            $message = 'Pengajuan Tukar Jadwal atau Shift' . auth()->user()->name .
+            $message = 'Pengajuan Tukar Jadwal atau Shift ' . auth()->user()->name .
                 ' <span class="font-bold">' . $this->tanggal .
                 '</span> ke ' .
                 ($nama_shift ? $nama_shift->nama_shift : 'Tidak Diketahui') .
-                'dengan keterangan' . $this->keterangan . ' membutuhkan persetujuan Anda.';
+                ' dengan keterangan ' . $this->keterangan . ' membutuhkan persetujuan Anda.';
 
-            $url = "/pengajuan/tukarjadwal/{$tukarJadwal->id}";
+            $url = "/approvaltukar";
             if ($nextUser) {
                 Notification::send($nextUser, new UserNotification($message, $url));
             }

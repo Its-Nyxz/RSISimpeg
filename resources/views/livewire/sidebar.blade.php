@@ -30,12 +30,17 @@
                     <livewire:side-link title="Aktivitas Kerja" icon="fa-solid fa-user" :child="array_filter([
                         auth()->user()->can('timer') ? ['title' => 'Timer', 'href' => '/timer'] : null,
                         auth()->user()->can('list-history')
-                            ? ['title' => 'History Absensi', 'href' => '/aktivitasabsensi']
+                            ? [
+                                'title' => 'History',
+                                'href' => '/#',
+                                'child' => [
+                                    ['title' => 'Absensi', 'href' => '/aktivitasabsensi'],
+                                    ['title' => 'Tukar Jadwal', 'href' => route('pengajuan.index', 'tukar_jadwal')],
+                                    ['title' => 'Cuti', 'href' => route('pengajuan.index', 'cuti')],
+                                    ['title' => 'Izin', 'href' => route('pengajuan.index', 'ijin')],
+                                ],
+                            ]
                             : null,
-                        ['title' => 'History Tukar Jadwal', 'href' => route('pengajuan.index', 'tukar_jadwal')],
-                        ['title' => 'History Cuti', 'href' => route('pengajuan.index', 'cuti')],
-                        ['title' => 'History Izin', 'href' => route('pengajuan.index', 'ijin')],
-                    
                         auth()->user()->can('absen')
                             ? [
                                 'title' => 'Absensi',
@@ -55,6 +60,7 @@
                             auth()->user()->can('tunjangan')
                                 ? [
                                     'title' => 'Tunjangan',
+                                    'href' => '/#',
                                     'child' => [
                                         ['title' => 'Tunjangan Jabatan', 'href' => '/jabatan'],
                                         ['title' => 'Tunjangan Fungsional', 'href' => '/fungsional'],
@@ -97,8 +103,15 @@
                             auth()->user()->can('view-kenaikan')
                                 ? ['title' => 'Kenaikan', 'href' => '/kenaikan']
                                 : null,
-                            ['title' => 'Approval Cuti', 'href' => '/approvalcuti'],
-                            ['title' => 'Approval Izin', 'href' => '/approvalizin'],
+                            auth()->user()->can('approval-cuti')
+                                ? ['title' => 'Approval Cuti', 'href' => '/approvalcuti']
+                                : null,
+                            auth()->user()->can('approval-cuti')
+                                ? ['title' => 'Approval Izin', 'href' => '/approvalizin']
+                                : null,
+                            auth()->user()->can('approval-tukar-jadwal')
+                                ? ['title' => 'Approval Tukar Jadwal', 'href' => '/approvaltukar']
+                                : null,
                             auth()->user()->can('view-import-gaji') ? ['title' => 'Import Gaji', 'href' => '#'] : null,
                             auth()->user()->can('view-poin-peran')
                                 ? ['title' => 'Poin Peran Fungsional', 'href' => '/peranfungsional']

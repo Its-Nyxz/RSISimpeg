@@ -93,17 +93,28 @@
                         <th class="px-6 py-4">{{ $item['jam_lembur'] }}</th>
                         <th class="px-6 py-4"> {!! $item['laporan_lembur'] !!}</th>
                         <td class="px-6 py-4">{{ $item['feedback'] }}</td>
-                        @can('list-history-edit')
-                            <td class="px-6 py-4">
+                        <td class="px-6 py-4">
+                            <div class="flex gap-2">
+                                @can('list-history-edit')
+                                    @if (!is_null($item['id']))
+                                        <a href="{{ route('aktivitasabsensi.edit', $item['id']) }}"
+                                            class="text-success-900 px-3 py-2 rounded-md border hover:bg-success-300"
+                                            data-tooltip-target="tooltip-item-{{ $item['id'] }}">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </a>
+                                    @endif
+                                @endcan
+
                                 @if (!is_null($item['id']))
-                                    <a href="{{ route('aktivitasabsensi.edit', $item['id']) }}"
-                                        class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
-                                        data-tooltip-target="tooltip-item-{{ $item['id'] }}">
-                                        <i class="fa-solid fa-pen"></i>
+                                    <a href="{{ route('aktivitasabsensi.show', $item['id']) }}"
+                                        class="text-success-900 px-3 py-2 rounded-md border hover:bg-success-300"
+                                        data-tooltip-target="tooltip-show-{{ $item['id'] }}">
+                                        <i class="fa-solid fa-eye"></i>
                                     </a>
                                 @endif
-                            </td>
-                        @endcan
+                            </div>
+                        </td>
+
                     </tr>
                 @empty
                     <tr>

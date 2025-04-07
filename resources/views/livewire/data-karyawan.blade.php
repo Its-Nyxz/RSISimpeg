@@ -10,13 +10,15 @@
                 <option value="1">Aktif</option>
                 <option value="0">Non Aktif</option>
             </select>
-            <select wire:model.live="selectedUnit"
-                class="rounded-lg px-2 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
-                <option value="">-- Pilih Unit --</option>
-                @foreach ($units as $item)
-                    <option value="{{ $item->id }}">{{ $item->nama }}</option>
-                @endforeach
-            </select>
+            @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->nama == 'KEPEGAWAIAN')
+                <select wire:model.live="selectedUnit"
+                    class="rounded-lg px-2 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
+                    <option value="">-- Pilih Unit --</option>
+                    @foreach ($units as $item)
+                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
+                    @endforeach
+                </select>
+            @endif
         </div>
 
         <!-- Bagian Search dan Tambah (Tetap dalam satu baris) -->

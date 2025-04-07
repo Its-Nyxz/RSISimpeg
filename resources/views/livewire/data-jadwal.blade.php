@@ -148,7 +148,8 @@
                             $hari = $carbonDate->format('l'); // Nama Hari
                             $isHoliday = $this->isHoliday($tanggal);
                         @endphp
-                        <th class="px-2 py-3 text-center
+                        <th
+                            class="px-2 py-3 text-center
                             {{ $isHoliday ? 'bg-red-500 text-white' : '' }}">
                             {{ $carbonDate->format('d') }}
                         </th>
@@ -158,7 +159,7 @@
                     @endcan
                 </tr>
             </thead>
-            
+
             <tbody>
                 @foreach ($jadwals as $user_id => $jadwalUser)
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
@@ -177,12 +178,17 @@
 
                         @foreach ($tanggalJadwal as $tanggal)
                             @php
-                                $hari = \Carbon\Carbon::parse($tanggal)->format('l');
+                                $carbonDate = \Carbon\Carbon::parse($tanggal);
+                                $hari = $carbonDate->format('l');
+                                $isHoliday = $this->isHoliday($tanggal);
+
+                                $namaShift = $filteredShifts[$user_id][$tanggal] ?? null;
+                                $isSpecialShift = in_array($namaShift, ['I', 'C']);
                             @endphp
                             <td
                                 class="px-2 py-3 text-center 
-                            {{ $hari === 'Sunday' ? 'bg-red-200 text-red-600' : '' }}">
-                                {{ $filteredShifts[$user_id][$tanggal] ?? '-' }}
+                             {{ $isHoliday || $isSpecialShift ? 'bg-red-200 text-red-600' : ($hari === 'Sunday' ? 'bg-red-200 text-red-600' : '') }}">
+                                {{ $namaShift ?? '-' }}
                             </td>
                         @endforeach
                         @can('edit-jadwal')
