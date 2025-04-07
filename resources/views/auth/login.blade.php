@@ -8,7 +8,7 @@
         <!-- Email Address -->
         <div>
             <!-- Ubah label Email menjadi "Email / Username / NIP" -->
-            <x-input-label for="login" :value="__('Email / Username / NIP')" />
+            <x-input-label for="login" :value="__('Email / Username / NIP / No Hp')" />
 
             <!-- Ubah input "email" menjadi "login" -->
             <x-text-input id="login" class="block mt-1 w-full h-10 pl-2" type="text" name="login" :value="old('login')"

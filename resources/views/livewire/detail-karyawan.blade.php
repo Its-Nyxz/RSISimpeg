@@ -32,7 +32,7 @@
                         {{ $user->jk === null ? '-' : ($user->jk == 1 ? 'Laki-Laki' : 'Perempuan') }}
                     </div>
                     <div class="mb-4"><strong>Alamat</strong> : {{ $user->alamat ?? '-' }}</div>
-                    <div class="mb-4"><strong>Hak Akses</strong> : {{ $user->roles->first()->name ?? '-' }}</div>
+                    {{-- <div class="mb-4"><strong>Hak Akses</strong> : {{ $user->roles->first()->name ?? '-' }}</div> --}}
                 </div>
 
                 <!-- Tombol Edit Karyawan -->
@@ -57,24 +57,25 @@
             <x-card title="No recent" class="mb-6 text-success-900">
                 <div style="font-family: 'Gilroy-Regular', sans-serif; font-size: 14px;">
                     <div class="mb-4">
-                        <strong>Nama</strong>: {{ $user->name ?? '-' }}
+                        <strong>Nama</strong>: {{ $viewPendAwal?->user?->name ?? '-' }}
                     </div>
                     <div class="mb-4">
-                        <strong>Jabatan</strong>: {{ $user->kategorijabatan->nama ?? '-' }}
+                        <strong>Jabatan</strong>: {{ $viewPendAwal?->user?->kategorijabatan?->nama ?? '-' }}
                     </div>
                     <div class="mb-4">
-                        <strong>Tempat Tanggal Lahir</strong>:
-                        {{ $user->tanggal_lahir ? formatDate($user->tanggal_lahir) : '-' }}
+                        <strong>Tempat Tanggal Lahir</strong>: {{ $viewPendAwal?->user?->tempat ?? '-' }},
+                        {{ $viewPendAwal?->user?->tanggal_lahir ? formatDate($viewPendAwal?->user?->tanggal_lahir) : '-' }}
                     </div>
                     <div class="mb-4">
-                        <strong>Tanggal Tetap</strong>:  {{ $user->tmt ? formatDate($user->tmt) : '-' }}
+                        <strong>Tanggal Tetap</strong>: {{ $user->tmt ? formatDate($user->tmt) : '-' }}
                     </div>
                     <div class="mb-4">
-                        <strong>Pendidikan Awal</strong>: {{ $viewPendAwal->pendidikanAwal->nama ?? '-' }}
+                        <strong>Pendidikan Awal</strong>:
+                        {{ $viewPendAwal?->penyesuaian?->pendidikanAwal?->nama ?? '-' }}
                     </div>
                     <div class="mb-4">
                         <strong>Pendidikan Penyesuaian</strong>:
-                        {{ $viewPendAwal->pendidikanPenyesuaian->nama ?? '-' }}
+                        {{ $viewPendAwal?->penyesuaian?->pendidikanPenyesuaian?->nama ?? '-' }}
                     </div>
                     <div class="mb-4">
                         <strong>Tanggal Penyesuaian</strong>:
@@ -84,7 +85,7 @@
                         <strong>Naik Golongan</strong> : -
                     </div>
                     <div class="mb-4">
-                        <strong>Hak akses</strong> : {{ implode(', ', $roles) }}
+                        {{-- <strong>Hak akses</strong> : {{ implode(', ', $roles) }} --}}
                     </div>
                 </div>
             </x-card>
@@ -178,8 +179,8 @@
         </x-modal>
     </div>
     <div class="w-full">
-        <x-card title="History Cuti Tahunan" class="mb-6 text-success-900">
-            <div style="font-family: 'Gilroy-Regular', sans-serif; font-size: 18px;">
+        <x-card title="History Cuti" class="mb-6 text-success-900">
+            {{-- <div style="font-family: 'Gilroy-Regular', sans-serif; font-size: 18px;">
                 <div class="mb-6 grid grid-cols-1 lg:grid-cols-1 justify-items-end">
                     <strong></strong>
                     <strong class="mb-3">Stok Cuti : <span
@@ -189,37 +190,49 @@
                             class=" bg-green-700 text-white hover:bg-success-800 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                             {{ $user->sisa_cuti_tahunan ?? '-' }} </span></strong>
                 </div>
+            </div> --}}
+            <div class="relative shadow-md sm:rounded-lg">
+                <div class="max-h-96 overflow-y-auto">
+                    <table class="w-full text-sm text-center text-gray-700">
+                        <thead class="text-sm uppercase bg-success-400 text-success-900 sticky top-0 z-10">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 bg-success-400">No.</th>
+                                <th scope="col" class="px-6 py-3 bg-success-400">Tanggal Mulai Cuti</th>
+                                <th scope="col" class="px-6 py-3 bg-success-400">Tanggal Berakhir Cuti</th>
+                                <th scope="col" class="px-6 py-3 bg-success-400">Jenis Cuti</th>
+                                <th scope="col" class="px-6 py-3 bg-success-400">Keterangan</th>
+                                <th scope="col" class="px-6 py-3 bg-success-400">Status Cuti</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($listCuti as $cuti)
+                                <tr
+                                    class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
+                                    <td scope="row"
+                                        class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
+                                        {{ $loop->iteration }}
+                                    </td>
+                                    <td class="px-6 py-4">{{ formatDate($cuti->tanggal_mulai) ?? '-' }}</td>
+                                    <td class="px-6 py-4">{{ formatDate($cuti->tanggal_selesai) ?? '-' }}</td>
+                                    <td class="px-6 py-4">{{ $cuti->jeniscuti->nama_cuti ?? '-' }}</td>
+                                    <td class="px-6 py-4">{{ Str::limit($cuti->keterangan ?? '-', 15, '...') }}</td>
+                                    <td
+                                        class="px-6 py-4 font-extrabold whitespace-nowrap
+                                        {{ $cuti->status_cuti_id == 1 ? 'text-green-900' : ($cuti->status_cuti_id == 2 ? 'text-red-900' : 'text-gray-900') }}">
+                                        {{ $cuti->statusCuti->nama_status ?? '-' }}
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center px-6 py-4">Belum ada Cuti.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-                <table class="w-full text-sm text-center text-gray-700">
-                    <thead class="text-sm uppercase bg-success-400 text-success-900">
-                        <tr>
-                            <th scope="col" class="px-6 py-3">No.</th>
-                            <th scope="col" class="px-6 py-3">Tanggal Mulai Cuti</th>
-                            <th scope="col" class="px-6 py-3">Tanggal Berakhir Cuti</th>
-                            <th scope="col" class="px-6 py-3">Jenis Cuti</th>
-                            <th scope="col" class="px-6 py-3">Keterangan</th>
-                            <th scope="col" class="px-6 py-3">Status Cuti</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr
-                            class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
-                            <td class="px-6 py-4">1</td>
-                            <td class="px-6 py-4">1</td>
-                            <td class="px-6 py-4">1</td>
-                            <td class="px-6 py-4">Nikahan</td>
-                            <td class="px-6 py-4">-</td>
-                            <td class="px-6 py-4">ACC</td>
-                        </tr>
-                        {{-- <tr>
-                            <td colspan="7" class="text-center px-6 py-4">Tidak ada data Cuti Karyawan.</td>
-                        </tr> --}}
-                    </tbody>
-                </table>
-            </div>
+
         </x-card>
     </div>
-
 
 </div>

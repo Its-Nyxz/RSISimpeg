@@ -17,8 +17,6 @@ return new class extends Migration
             $table->unsignedBigInteger('pendidikan_awal')->nullable();
             $table->unsignedBigInteger('pendidikan_penyesuaian')->nullable();
             $table->string('masa_kerja')->nullable();
-            $table->date('tanggal_penyesuaian')->nullable();
-            $table->string('status_penyesuaian')->nullable();
             $table->timestamps(0);
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

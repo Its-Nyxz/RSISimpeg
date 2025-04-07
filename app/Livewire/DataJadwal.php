@@ -10,6 +10,8 @@ use App\Models\JadwalAbsensi;
 use Livewire\WithFileUploads;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Request;
+use App\Models\Holidays;
+use Carbon\Carbon;
 
 class DataJadwal extends Component
 {
@@ -111,6 +113,27 @@ class DataJadwal extends Component
             $this->filteredShifts[$jadwal->user_id][$jadwal->tanggal_jadwal] = optional($jadwal->shift)->nama_shift ?? '-';
         }
     }
+
+    // Fungsi untuk menandai tanggal merah (libur nasional atau Minggu)
+    public function isHoliday($date)
+    {
+        $carbonDate = Carbon::parse($date);
+
+        // Tandai merah jika hari Minggu
+        if ($carbonDate->isSunday()) {
+            return true;
+        }
+
+        // Cek di database jika tanggal termasuk libur nasional
+        $holiday = Holidays::where('date', $carbonDate->format('Y-m-d'))->exists();
+
+        if ($holiday) {
+            return true;
+        }
+
+        return false;
+    }
+
 
     public function import()
     {

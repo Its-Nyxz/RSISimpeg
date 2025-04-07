@@ -177,5 +177,16 @@ class User extends Authenticatable
     public function absen()
     {
         return $this->hasMany(Absen::class, 'user_id');
+        
+    }
+
+    public function izinKaryawan()
+    {
+        return $this->hasMany(IzinKaryawan::class, 'user_id');
+    }
+
+    public function cutiKaryawan()
+    {
+        return $this->hasMany(CutiKaryawan::class, 'user_id');
     }
 }

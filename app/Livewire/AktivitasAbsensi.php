@@ -43,7 +43,6 @@ class AktivitasAbsensi extends Component
             // Jika user adalah parent, ambil daftar user bawahannya berdasarkan unit_id
             $this->subordinates = User::where('unit_id', auth()->user()->unit_id)
                 ->pluck('name', 'id');
-
             // Default pilih user pertama jika ada
             $this->selectedUserId = $this->subordinates->keys()->first();
         } else {
@@ -81,6 +80,7 @@ class AktivitasAbsensi extends Component
                 $shiftStart = $shift ? Carbon::parse($shift->jam_masuk) : null;
                 $shiftEnd = $shift ? Carbon::parse($shift->jam_keluar) : null;
             }
+
             // Ambil jam masuk dan keluar dari absensi
             $timeIn = $absensi?->time_in ? Carbon::parse($absensi->time_in) : null;
             $timeOut = $absensi?->time_out ? Carbon::parse($absensi->time_out) : null;

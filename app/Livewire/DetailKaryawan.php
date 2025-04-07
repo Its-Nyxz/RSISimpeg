@@ -2,11 +2,14 @@
 
 namespace App\Livewire;
 
-use App\Models\MasterPendidikan;
-use App\Models\MasterPenyesuaian;
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\CutiKaryawan;
 use Livewire\Component;
+use App\Models\Penyesuaian;
+use App\Models\MasterPendidikan;
+use App\Models\MasterPenyesuaian;
+
 use Illuminate\Support\Facades\DB;
 
 
@@ -21,10 +24,12 @@ class DetailKaryawan extends Component
     public $pend_awal_id;
     public $roles;
     public $viewPendAwal;
+    public $listCuti;
 
     public function mount($user)
     {
         // Mendapatkan data user
+        
         $this->user = $user;
         $this->user_id = $user->id;
         $this->pend_awal_id = $user->kategori_pendidikan;
@@ -32,14 +37,16 @@ class DetailKaryawan extends Component
         $this->tmt = $user->tmt ? formatDate($user->tmt) : null;
         $this->statusKaryawan = $user->status_karyawan;
         $this->alasanResign = $user->alasan_resign;
+        $this->pendidikans = MasterPendidikan::all();
+        $this->viewPendAwal = Penyesuaian::with('penyesuaian', 'user')->where('user_id', $this->user_id)->first();
         $this->roles = DB::table('roles')
             ->join('model_has_roles', 'roles.id', '=', 'model_has_roles.role_id')
             ->where('model_has_roles.model_id', $this->user_id)
             ->pluck('roles.name')
             ->toArray();
-        $this->pendidikans = MasterPendidikan::all();
-
-        $this->viewPendAwal = MasterPenyesuaian::with('pendidikanAwal', 'pendidikanPenyesuaian')->where('user_id', $this->user_id)->where('status_penyesuaian', 1)->first();
+            $this->pendidikans = MasterPendidikan::all();
+            // return CutiKaryawan::with('user')->where('user_id');
+        $this->listCuti = CutiKaryawan::with('user')->where('user_id', $this->user_id)->get();
         // dd($this->viewPendAwal);
     }
 
@@ -82,16 +89,20 @@ class DetailKaryawan extends Component
         } else {
             $cekMasterPenyesuaian = MasterPenyesuaian::where('pendidikan_awal', $this->pend_awal_id)->where('pendidikan_penyesuaian', $this->pend_penyesuaian)->where('user_id', $this->user_id)->exists();
             if (!$cekMasterPenyesuaian) {
-                $existingPenyesuaian = MasterPenyesuaian::where('user_id', $this->user_id)->where('status_penyesuaian', 1)->first();
+                $existingPenyesuaian = Penyesuaian::where('user_id', $this->user_id)->where('status_penyesuaian', 1)->first();
                 // Jika ada, ubah status_penyesuaian menjadi non aktif
                 if ($existingPenyesuaian) {
                     $existingPenyesuaian->update(['status_penyesuaian' => 0]);
                 }
-                MasterPenyesuaian::create([
+                $masterPenyesuaian = MasterPenyesuaian::create([
                     'user_id' => $this->user_id,
                     'pendidikan_awal' => $this->pend_awal_id,
                     'pendidikan_penyesuaian' => $this->pend_penyesuaian,
                     'masa_kerja' => 'coming soon',
+                ]);
+                Penyesuaian::create([
+                    'user_id' => $this->user_id,
+                    'penyesuaian_id' => $masterPenyesuaian->id, //last id master
                     'tanggal_penyesuaian' => $this->tanggal_penyesuaian,
                     'status_penyesuaian' => 1
                 ]);
@@ -107,8 +118,7 @@ class DetailKaryawan extends Component
 
     public function render()
     {
-        return view('livewire.detail-karyawan', [
-            'roles' => $this->roles // Kirim ke view
-        ]);
+        // $users = $this->mont();
+        return view('livewire.detail-karyawan');
     }
 }

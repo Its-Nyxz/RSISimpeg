@@ -51,6 +51,7 @@ use App\Http\Controllers\ImportGajiController;
 
 use App\Http\Controllers\AktivitasAbsensiController;
 use App\Http\Controllers\HolidaysController;
+use App\Http\Controllers\IzinController;
 use App\Http\Controllers\KategoriJabatanController;
 use App\Http\Controllers\PengajuanController;
 use App\Livewire\UserProfile;
@@ -130,6 +131,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/userprofile/editemail', [UserProfileController::class, 'editEmail'])->name('userprofile.editemail');
     Route::get('/userprofile/editpassword', [UserProfileController::class, 'editPassword'])->name('userprofile.editpassword');
     Route::get('/userprofile/editprofile', [UserProfileController::class, 'editProfile'])->name('userprofile.editprofile');
+    Route::get('/userprofile/editusername', [UserProfileController::class, 'editUsername'])->name('userprofile.editusername');
     Route::resource('keuangan', KeuanganController::class);
     Route::resource('userprofile', UserProfileController::class);
     Route::resource('proposionalitas', ProposionalitasPointController::class);
@@ -139,6 +141,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('cuti', CutiController::class);
     Route::resource('importgaji', ImportGajiController::class);
     Route::resource('approvalcuti', CutiController::class);
+    Route::resource('approvalizin', IzinController::class);
     // Hapus route 'create' bawaan dari resource
     Route::resource('aktivitasabsensi', AktivitasAbsensiController::class)
         ->except(['create']);

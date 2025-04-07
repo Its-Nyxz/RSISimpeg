@@ -76,10 +76,11 @@ class UserSeeder extends Seeder
 
         // Data untuk Direktur
         $direktur = [
-            ['name' => 'Dr. H, Arif Fadlullah Chonar', 'nip' => '01030167', 'jabatan' => 'Direktur'],
+            ['name' => 'Dr. H, Arif Fadlullah Chonar', 'unit_name' => 'DIREKTUR', 'nip' => '01030167', 'jabatan' => 'Direktur'],
         ];
 
         foreach ($direktur as $member) {
+            $unit = UnitKerja::where('nama', $member['unit_name'])->first();
             $KategoriJabatan = KategoriJabatan::where('nama', $member['jabatan'])->value('id');
             $user = User::firstOrCreate(
                 ['email' => $this->emailFormat($member['name'])],
@@ -88,6 +89,7 @@ class UserSeeder extends Seeder
                     'username' => $this->usernameFormat($member['name']),
                     'name' => $member['name'],
                     'password' => Hash::make('123'), // Password default
+                    'unit_id' => $unit->id,
                     'jabatan_id' => $KategoriJabatan,
                 ]
             );

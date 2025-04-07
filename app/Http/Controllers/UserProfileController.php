@@ -16,6 +16,11 @@ class UserProfileController extends Controller
         return view('userprofile.index');
     }
 
+    public function editUsername()
+    {
+        return view('userprofile.editusername');
+    }
+
     public function editNomor()
     {
         return view('userprofile.editnomor');
