@@ -137,15 +137,39 @@ class DataJadwal extends Component
 
     public function import()
     {
+        // Validasi file sebelum diupload
         $this->validate([
             'file' => 'required|mimes:xlsx,csv,xls|max:2048', // Validasi file
         ]);
 
-        Excel::import(new JadwalImport, $this->file);
+        $fileName = $this->file->getClientOriginalName();
+        // Format bulan ke dalam nama (contoh: Maret)
+        $monthName = Carbon::createFromDate($this->tahun, $this->bulan, 1)->format('F');
 
+        // Format nama file
+        $expectedFileName = 'jadwal_template_' . auth()->user()->unitKerja->nama . '_' . $monthName . '_' . $this->tahun . '.xlsx';
 
-        session()->flash('success', 'Jadwal berhasil diimport!');
-        $this->loadData(); // Refresh data setelah import
+        // dd($fileName, $expectedFileName, $fileName == $expectedFileName);
+
+        // Cek apakah nama file sesuai format
+        if ($fileName !== $expectedFileName) {
+            return redirect()->route('jadwal.index')->with('error', 'masukan file sesuai bulan yang dipilih ');
+            return;
+        }
+
+        try {
+            // Lakukan proses import dengan filter bulan & tahun
+            Excel::import(new JadwalImport($this->bulan, $this->tahun), $this->file->getRealPath());
+
+            // Reset input file setelah sukses
+            $this->reset('file');
+
+            // Kirim notifikasi sukses ke Livewire
+            return redirect()->route('jadwal.index')->with('success', 'data jadwal berhasil dimasukan');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+
     }
 
     public function updated($propertyName)

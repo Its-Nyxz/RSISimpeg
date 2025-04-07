@@ -77,10 +77,9 @@
 
 
         @if (!$routeIsDashboard)
-
-            @can('template-jadwal')
+            @can('template-jadwal') 
                 <!-- Tombol Download Template -->
-                <a href="{{ route('jadwal.template', ['month' => now()->month, 'year' => now()->year]) }}"
+                <a href="{{ route('jadwal.template', ['month' => $bulan, 'year' => $tahun]) }}"
                     class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                     <i class="fas fa-download"></i> Download Template
                 </a>
@@ -212,3 +211,5 @@
         </table>
     </div>
 </div>
+
+
