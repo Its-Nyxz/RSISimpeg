@@ -55,7 +55,15 @@ class CreateJadwal extends Component
                 )
                 ->get();
         } elseif ($field === 'shift') {
-            $this->shifts = Shift::where('nama_shift', 'like', "%$query%")->get();
+            $this->shifts = Shift::where('nama_shift', 'like', "%$query%")
+                ->when(
+                    !$userLogin->hasRole('Super Admin'),
+                    function ($query) use ($userLogin) {
+                        $query->whereHas('unitKerja', function ($q) use ($userLogin) {
+                            $q->where('id', $userLogin->unitKerja->id);
+                        });
+                    }
+                )->get();
         }
         // elseif ($field === 'opsi') {
 
