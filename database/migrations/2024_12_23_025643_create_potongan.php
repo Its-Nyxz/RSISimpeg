@@ -27,6 +27,7 @@ return new class extends Migration
             $table->integer('dplk')->nullable();
             $table->integer('bpjs_tk')->nullable();
             $table->integer('bpjs_kes')->nullable();
+            $table->integer('lain')->nullable();
             $table->timestamps(0);
 
             // $table->foreign('bruto_id')->references('id')->on('gaji_bruto');

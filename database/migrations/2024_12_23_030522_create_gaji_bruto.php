@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('gaji_bruto', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
-            $table->date('bulan_penggajian');
+            $table->integer('bulan_penggajian');
+            $table->integer('tahun_penggajian');
             $table->integer('nom_jabatan')->nullable();
             $table->integer('nom_fungsi')->nullable();
             $table->integer('nom_umum')->nullable();

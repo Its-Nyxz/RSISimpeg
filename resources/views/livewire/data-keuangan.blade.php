@@ -4,17 +4,24 @@
             <!-- Tulisan Keuangan -->
             <div class="flex items-center gap-4">
                 <h1 class="text-2xl font-bold text-success-900">Keuangan</h1>
-                <p class="text-base text-success-900 flex items-center">
+                {{-- <p class="text-base text-success-900 flex items-center">
                     <i class="fa-solid fa-caret-right mr-2"></i> Keuangan
-                </p>
+                </p> --}}
             </div>
-        
+
             <!-- Kotak Pencarian -->
-            <div class="mt-3">
+            <div class="flex space-x-4 w-full md:w-auto justify-center md:justify-start mt-4">
                 <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Karyawan..."
                     class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
+                <select wire:model.live="selectedUnit"
+                    class="rounded-lg px-2 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
+                    <option value="">-- Pilih Unit --</option>
+                    @foreach ($units as $item)
+                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
+                    @endforeach
+                </select>
             </div>
-        </div>        
+        </div>
     </div>
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-center text-gray-700">
@@ -40,10 +47,11 @@
                         <td class="px-6 py-4">{{ $user->kategorijabatan->nama ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $user->unitKerja->nama ?? '-' }}</td>
                         <td class="px-6 py-4 text-center">
-                            <a href="{{route('detailkeuangan.show', ['detailkeuangan' => $user->id])}}"class="flex items-center justify-center w-10 h-10 rounded bg-[#006633]" style="margin-left: 40px; border-radius: 20%;">
+                            <a href="{{ route('detailkeuangan.show', ['detailkeuangan' => $user->id]) }}"class="flex items-center justify-center w-10 h-10 rounded bg-[#006633]"
+                                style="margin-left: 40px; border-radius: 20%;">
                                 <i class="fa-solid fa-magnifying-glass text-lg" style="color: #ffffff;"></i>
-                            </a>                            
-                        </td>                                                
+                            </a>
+                        </td>
                     </tr>
                 @empty
                     <tr>

@@ -11,5 +11,8 @@ class KeuanganController extends Controller
     {
         return view("keuangan.index");
     }
+    public function potongan(User $user, $bulan, $tahun)
+    {
+        return view("keuangan.potongan", compact('user', 'bulan', 'tahun'));
+    }
 }
-

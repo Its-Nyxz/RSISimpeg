@@ -2,11 +2,12 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
 use App\Models\User;
+use Livewire\Component;
+use App\Models\Potongan;
 use App\Models\GajiBruto;
 
-class DetailKeuangan extends Component
+class AddPotongan extends Component
 {
     public $user;
     public $potonganData;
@@ -17,35 +18,40 @@ class DetailKeuangan extends Component
         $rek_bpjs_kes, $bpjs_tambahan, $pph_21, $pph_kurang,
         $angsuran_kurban, $amaliah, $ranap, $potongan_selisih, $perkasi, $lain_lain;
 
-    public function updatedBulan()
+    public function mount(User $user, $bulan = null, $tahun = null)
     {
-        $this->loadData();
-    }
+        $this->bulan = $bulan ?? now()->month;
+        $this->tahun = $tahun ?? now()->year;
 
-    public function updatedTahun()
-    {
-        $this->loadData();
-    }
+        $this->user = User::with([
+            'kategorijabatan.masterjabatan',
+            'kategorijabatan.masterfungsi',
+            'kategorijabatan.masterumum',
+        ])->findOrFail($user->id);
 
-    public function mount(User $user)
-    {
-        $this->user = $user;
-        $this->bulan = now()->month;
-        $this->tahun = now()->year;
-        $this->loadData();
-    }
+        $nom_jabatan = $this->user->kategorijabatan?->nominal ?? 0;
+        $this->gajiBruto = GajiBruto::updateOrCreate(
+            [
+                'user_id' => $this->user->id,
+                'bulan_penggajian' => $this->bulan,
+                'tahun_penggajian' => $this->tahun,
+            ],
+            [
+                'nom_jabatan' => $nom_jabatan,
+                'nom_khusus' => 0,
+                'nom_lainnya' => 0,
+                'total_bruto' => $nom_jabatan,
+                'created_at' => now(),
+            ]
+        );
 
-
-    public function loadData()
-    {
-        $this->gajiBruto = GajiBruto::with('potongan')
-            ->where('user_id', $this->user->id)
+        $gajiBruto = GajiBruto::with('potongan')
+            ->where('user_id', $user->id)
             ->where('tahun_penggajian', $this->tahun)
             ->where('bulan_penggajian', $this->bulan)
             ->first();
 
-        $this->potonganData = $this->gajiBruto?->potongan;
-
+        $this->potonganData = $gajiBruto?->potongan;
         if ($this->potonganData) {
             $this->simpanan_wajib = $this->potonganData->simpanan_wajib;
             $this->simpanan_pokok = $this->potonganData->simpanan_pokok;
@@ -70,39 +76,8 @@ class DetailKeuangan extends Component
             $this->potongan_selisih = $this->potonganData->potongan_selisih;
             $this->perkasi = $this->potonganData->perkasi;
             $this->lain_lain = $this->potonganData->lain_lain;
-        } else {
-            $this->resetPotonganFields();
         }
     }
-
-    public function resetPotonganFields()
-    {
-        $this->simpanan_wajib = 0;
-        $this->simpanan_pokok = 0;
-        $this->ibi = 0;
-        $this->idi = 0;
-        $this->ppni = 0;
-        $this->pinjam_kop = 0;
-        $this->obat = 0;
-        $this->a_b = 0;
-        $this->a_p = 0;
-        $this->dansos = 0;
-        $this->dplk = 0;
-        $this->bpjs_tk = 0;
-        $this->bpjs_kes = 0;
-        $this->rek_bpjs_kes = 0;
-        $this->bpjs_tambahan = 0;
-        $this->pph_21 = 0;
-        $this->pph_kurang = 0;
-        $this->angsuran_kurban = 0;
-        $this->amaliah = 0;
-        $this->ranap = 0;
-        $this->potongan_selisih = 0;
-        $this->perkasi = 0;
-        $this->lain_lain = 0;
-    }
-
-
     public function getTotalPotonganProperty()
     {
         return collect([
@@ -132,9 +107,44 @@ class DetailKeuangan extends Component
         ])->sum();
     }
 
+    public function simpan()
+    {
+        // Simpan atau update data potongan
+        Potongan::updateOrCreate(
+            ['bruto_id' => $this->gajiBruto->id],
+            [
+                'simpanan_wajib' => $this->simpanan_wajib,
+                'simpanan_pokok' => $this->simpanan_pokok,
+                'ibi' => $this->ibi,
+                'idi' => $this->idi,
+                'ppni' => $this->ppni,
+                'pinjam_kop' => $this->pinjam_kop,
+                'obat' => $this->obat,
+                'a_b' => $this->a_b,
+                'a_p' => $this->a_p,
+                'dansos' => $this->dansos,
+                'dplk' => $this->dplk,
+                'bpjs_tk' => $this->bpjs_tk,
+                'bpjs_kes' => $this->bpjs_kes,
+                'rek_bpjs_kes' => $this->rek_bpjs_kes,
+                'bpjs_tambahan' => $this->bpjs_tambahan,
+                'pph_21' => $this->pph_21,
+                'pph_kurang' => $this->pph_kurang,
+                'angsuran_kurban' => $this->angsuran_kurban,
+                'amaliah' => $this->amaliah,
+                'ranap' => $this->ranap,
+                'potongan_selisih' => $this->potongan_selisih,
+                'perkasi' => $this->perkasi,
+                'lain_lain' => $this->lain_lain,
+                'created_at' => now(),
+            ]
+        );
+
+        return redirect()->route('detailkeuangan.show', $this->user->id)->with('success', 'Data potongan berhasil disimpan');
+    }
 
     public function render()
     {
-        return view('livewire.detail-keuangan');
+        return view('livewire.add-potongan');
     }
 }

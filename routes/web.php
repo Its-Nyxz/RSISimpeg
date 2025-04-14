@@ -132,7 +132,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/userprofile/editemail', [UserProfileController::class, 'editEmail'])->name('userprofile.editemail');
     Route::get('/userprofile/editpassword', [UserProfileController::class, 'editPassword'])->name('userprofile.editpassword');
     Route::get('/userprofile/editprofile', [UserProfileController::class, 'editProfile'])->name('userprofile.editprofile');
-    Route::get('/userprofile/editusername', [UserProfileController::class, 'editUsername'])->name('userprofile.editusername');
+    Route::get('/userprofile/editusername', action: [UserProfileController::class, 'editUsername'])->name('userprofile.editusername');
+    Route::get('keuangan/{user}/potongan/{bulan}/{tahun}', [KeuanganController::class, 'potongan'])->name('keuangan.potongan');
     Route::resource('keuangan', KeuanganController::class);
     Route::resource('userprofile', UserProfileController::class);
     Route::resource('proposionalitas', ProposionalitasPointController::class);

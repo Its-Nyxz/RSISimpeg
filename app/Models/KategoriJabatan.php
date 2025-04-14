@@ -29,6 +29,16 @@ class KategoriJabatan extends Model
     {
         return $this->hasMany(MasterPotongan::class, 'katjab_id');
     }
+    public function getNominalAttribute()
+    {
+        return match ($this->tunjangan) {
+            'jabatan' => $this->masterjabatan->first()?->nominal,
+            'umum' => $this->masterumum->first()?->nominal,
+            'fungsional' => $this->masterfungsi->first()?->nominal,
+            default => 0,
+        };
+    }
+
     public function users()
     {
         return $this->hasMany(User::class, 'jabatan_id');
