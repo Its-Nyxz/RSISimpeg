@@ -112,7 +112,7 @@
                             auth()->user()->can('approval-tukar-jadwal')
                                 ? ['title' => 'Approval Tukar Jadwal', 'href' => '/approvaltukar']
                                 : null,
-                            auth()->user()->can('view-import-gaji') ? ['title' => 'Import Gaji', 'href' => '#'] : null,
+                            // auth()->user()->can('view-import-gaji') ? ['title' => 'Import Gaji', 'href' => '#'] : null,
                             auth()->user()->can('view-poin-peran')
                                 ? ['title' => 'Poin Peran Fungsional', 'href' => '/peranfungsional']
                                 : null,
