@@ -10,19 +10,30 @@ class DataShift extends Component
 {
     public $search = ''; // Properti untuk menyimpan nilai input pencarian
     public $shifts = [];
+    public $units;
+    public $selectedUnit = null;
 
     public function mount()
     {
+        $this->units = UnitKerja::orderBy('nama', 'asc')->get();
         $this->loadData();
     }
+    public function updatedSelectedUnit()
+    {
+        $this->loadData();
+    }
+
     public function loadData()
     {
-        $userUnitId = auth()->user()->unit_id; // Ambil unit_id dari user yang login
+        $userUnitId = auth()->user()->unit_id;
+        $selectedUnitId = $this->selectedUnit;
+
+        // Jika user tidak punya unit_id tapi memilih dari dropdown
+        $unitIdToFilter = $userUnitId ?? $selectedUnitId; // Ambil unit_id dari user yang login
 
         $this->shifts = Shift::with('unitKerja')
-            ->when($userUnitId, function ($query) use ($userUnitId) {
-                // Filter berdasarkan unit kerja dari user yang login
-                $query->where('unit_id', $userUnitId);
+            ->when($unitIdToFilter, function ($query) use ($unitIdToFilter) {
+                $query->where('unit_id', $unitIdToFilter);
             })
             ->when($this->search, function ($query) {
                 $query->where('nama_shift', 'like', '%' . $this->search . '%')
