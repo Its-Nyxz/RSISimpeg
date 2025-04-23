@@ -35,7 +35,7 @@
                         <td class="px-6 py-4">{{ $jabatan['kualifikasi'] }}</td>
                         <td class="px-6 py-4">Rp {{ number_format($jabatan->nominal, 0, ',', '.') }}</td>
                         <td class="px-6 py-4">{{ $jabatan['deskripsi'] }}</td>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 flex gap-2">
                             <a href="{{ route('jabatan.edit', $jabatan['id']) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                 data-tooltip-target="tooltip-jabatan-{{ $jabatan['id'] }}">
@@ -44,6 +44,21 @@
                             <div id="tooltip-jabatan-{{ $jabatan['id'] }}" role="tooltip"
                                 class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
                                 Ubah Jabatan
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
+                            <button type="button"
+                                onclick="confirmAlert('Yakin ingin menghapus Jabatan ini?', 'Ya, hapus!', () => @this.call('destroy', {{ $jabatan['id'] }}))"
+                                class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300 relative group">
+                                <i class="fa-solid fa-trash"></i>
+                                <div id="tooltip-destroy-{{ $jabatan['id'] }}"
+                                    class="absolute z-10 hidden group-hover:block bottom-full mb-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-md">
+                                    Hapus Jabatan
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            </button>
+                            <div id="tooltip-destroy-{{ $jabatan['id'] }}" role="tooltip"
+                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                                Hapus Jabatan
                                 <div class="tooltip-arrow" data-popper-arrow></div>
                             </div>
                         </td>

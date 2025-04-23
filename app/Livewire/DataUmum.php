@@ -2,8 +2,9 @@
 
 namespace App\Livewire;
 
-use App\Models\MasterUmum;
+use App\Models\User;
 use Livewire\Component;
+use App\Models\MasterUmum;
 
 class DataUmum extends Component
 {
@@ -33,6 +34,33 @@ class DataUmum extends Component
     {
         $this->search = $value;
         $this->loadData();
+    }
+
+    public function destroy($id)
+    {
+        $jabatan = MasterUmum::with('kategorijabatan')->find($id);
+
+        if (!$jabatan) {
+            return redirect()->route('umum.index')->with('error', 'Jabatan Tidak Ditemukan');
+        }
+
+        // Cek apakah ada user yang memakai jabatan ini
+        $userCount = User::where('jabatan_id', $id)->count();
+
+        if ($userCount > 0) {
+            return redirect()->route('umum.index')->with('error', 'Tidak dapat menghapus. Jabatan ini sedang digunakan oleh pengguna.');
+        }
+
+        try {
+            $jabatan->delete();
+
+            // Refresh data setelah penghapusan
+            $this->loadData();
+
+            return redirect()->route('umum.index')->with('success', 'Jabatan berhasil Dihapus');
+        } catch (\Exception $e) {
+            return redirect()->route('umum.index')->with('error', 'Terjadi kesalahan saat Jabatan dihapus');
+        }
     }
     public function render()
     {

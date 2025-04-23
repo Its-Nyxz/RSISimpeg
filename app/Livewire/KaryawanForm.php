@@ -35,6 +35,7 @@ class KaryawanForm extends Component
     public $email;
     public $units;
     public $jabatans;
+    public $fungsionals;
     public $fungsi;
     public $fungsis;
     public $umum;
@@ -68,11 +69,15 @@ class KaryawanForm extends Component
     public $selectedGolongan; // ID golongan yang dipilih otomatis
     public string $selectedGolonganNama; // Nama golongan yang ditampilkan di input
     public $jabatan;
+    public $fungsional;
     public $jabatanAwal;
+    public $fungsionalAwal;
     public $jabatanChanged = false;
+    public $fungsionalChanged = false;
     public $unit; // Input untuk unit kerja
     public $suggestions = [
         'jabatan' => [],
+        'fungsional' => [],
         'unit' => [],
     ];
     protected $listeners = ['savekaryawan'];
@@ -90,6 +95,15 @@ class KaryawanForm extends Component
             foreach ($categories as $tunjangan => $katjabList) {
                 $this->suggestions[$field][$tunjangan] = $katjabList->pluck('nama')->toArray();
             }
+        } elseif ($field === 'fungsional') {
+            $categories = KategoriJabatan::where('nama', 'like', "%$value%")
+                ->where('tunjangan', 'fungsi') // Filter hanya yang tunjangan = 'fungsi'
+                ->get()
+                ->groupBy('tunjangan');
+
+            foreach ($categories as $tunjangan => $katjabList) {
+                $this->suggestions[$field][$tunjangan] = $katjabList->pluck('nama')->toArray();
+            }
         } elseif ($field === 'unit') {
             $this->suggestions[$field] = UnitKerja::where('nama', 'like', "%$value%")->pluck('nama')->toArray();
         }
@@ -102,6 +116,11 @@ class KaryawanForm extends Component
                 $this->dispatch('confirmJabatanChange');
             }
             $this->jabatan = $value;
+        } elseif ($field === 'fungsional') {
+            if ($this->fungsionalAwal !== $value) {
+                $this->dispatch('confirmFungsionalChange');
+            }
+            $this->fungsional = $value;
         } elseif ($field === 'unit') {
             $this->unit = $value;
         }
@@ -233,6 +252,9 @@ class KaryawanForm extends Component
             $this->jabatan = $user->kategorijabatan->nama ?? null;
             $this->jabatanAwal = $this->jabatan; // Simpan nilai awal jabatan
             $this->jabatanChanged = false;
+            $this->fungsional = $user->kategorifungsional->nama ?? null;
+            $this->fungsionalAwal = $this->fungsional; // Simpan nilai awal jabatan
+            $this->fungsionalChanged = false;
             $this->selectedJenisKaryawan = $user->jenis_id;
             $this->tmt = $user->tmt;
             $this->masakerja = $user->masa_kerja;
@@ -280,6 +302,7 @@ class KaryawanForm extends Component
             'tanggal_lahir' => 'nullable|date',
             'unit' => 'nullable',
             'jabatan' => 'nullable',
+            'fungsional' => 'nullable',
             'selectedJenisKaryawan' => 'nullable',
             'tmt' => 'nullable',
             'masakerja' => 'nullable',
@@ -292,6 +315,7 @@ class KaryawanForm extends Component
 
         $unit = UnitKerja::where('nama', $this->unit)->first(); // Cari ID berdasarkan nama unit
         $kategoriJabatan = KategoriJabatan::where('nama', $this->jabatan)->first(); // Cari ID berdasarkan nama kategori jabatan
+        $kategoriFungsional = KategoriJabatan::where('nama', $this->fungsional)->first(); // Cari ID berdasarkan nama kategori jabatan
         // if (!$unit) {
         //     return back()->with('error', 'Unit tidak ditemukan.');
         // } elseif (!$kategoriJabatan) {
@@ -314,6 +338,7 @@ class KaryawanForm extends Component
             'tanggal_lahir' => $this->tanggal_lahir ?? null,
             'unit_id' => $unit->id ?? null,
             'jabatan_id' => $kategoriJabatan->id ?? null,
+            'fungsi_id' => $kategoriFungsional->id ?? null,
             'jenis_id' => $this->selectedJenisKaryawan ?? null,
             'tmt' => $this->tmt ?? null,
             'masa_kerja' => $this->masakerja ?? null,
@@ -337,7 +362,7 @@ class KaryawanForm extends Component
 
     public function updateKaryawan()
     {
-     
+
         $this->validate([
             'nama' => 'nullable|string|max:255',
             'nip' => 'nullable|max:50|unique:users,nip,' .  ($this->user_id ?? 'NULL'),
@@ -353,6 +378,7 @@ class KaryawanForm extends Component
             'tanggal_lahir' => 'nullable|date',
             'unit' => 'nullable',
             'jabatan' => 'nullable',
+            'fungsional' => 'nullable',
             'selectedJenisKaryawan' => 'nullable',
             'tmt' => 'nullable',
             'masakerja' => 'nullable',
@@ -363,7 +389,9 @@ class KaryawanForm extends Component
             'typeShift' => 'nullable',
         ]);
         $unit = UnitKerja::where('nama', $this->unit)->first(); // Cari ID berdasarkan nama unit
-        $kategoriJabatan = KategoriJabatan::where('nama', $this->jabatan)->first(); // Cari ID berdasarkan nama kategori jabatan
+        $kategoriJabatan = KategoriJabatan::where('nama', $this->jabatan)->first();
+        $kategoriFungsional = KategoriJabatan::where('nama', $this->fungsional)->first(); // Cari ID berdasarkan nama kategori jabatan
+        // Cari ID berdasarkan nama kategori jabatan
         // if (!$unit) {
         //     return back()->with('error', 'Unit tidak ditemukan.');
         // } elseif (!$kategoriJabatan) {
@@ -387,6 +415,7 @@ class KaryawanForm extends Component
             'tanggal_lahir' => $this->tanggal_lahir ?? null,
             'unit_id' => $unit->id ?? null,
             'jabatan_id' => $kategoriJabatan->id ?? null,
+            'fungsi_id' => $kategoriFungsional->id ?? null,
             'jenis_id' => $this->selectedJenisKaryawan ?? null,
             'tmt' => $this->tmt ?? null,
             'masa_kerja' => $this->masakerja ?? null,
@@ -411,12 +440,18 @@ class KaryawanForm extends Component
             $this->dispatch('confirmJabatanChange'); // Panggil event ke browser
             return; // Hentikan eksekusi agar tidak langsung menyimpan sebelum konfirmasi
         }
+        if ($this->fungsional !== $this->fungsionalAwal) {
+            $this->dispatch('confirmFungsionalChange'); // Panggil event ke browser
+            return; // Hentikan eksekusi agar tidak langsung menyimpan sebelum konfirmasi
+        }
         $this->updateKaryawan();
     }
     public function updateKaryawanConfirmed()
     {
         $this->jabatanChanged = false; // Reset perubahan
         $this->jabatanAwal = $this->jabatan; // Update nilai awal agar tidak terdeteksi perubahan lagi
+        $this->fungsionalChanged = false; // Reset perubahan
+        $this->fungsionalAwal = $this->fungsional; // Update nilai awal agar tidak terdeteksi perubahan lagi
 
         // Lanjutkan proses update karyawan seperti di updateKaryawan()
         $this->updateKaryawan();

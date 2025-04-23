@@ -18,7 +18,11 @@
             <x-card title="No KTP : {{ $user->no_ktp ?? '-' }}" class="mb-6 text-success-900">
                 <div style="font-family: 'Gilroy-Regular', sans-serif; font-size: 14px;">
                     <div class="mb-4"><strong>Nama</strong> : {{ $user->name ?? '-' }}</div>
-                    <div class="mb-4"><strong>Jabatan</strong> : {{ $user->kategorijabatan->nama ?? '-' }}</div>
+                    <div class="mb-4"><strong>Jabatan Struktural</strong> : {{ $user->kategorijabatan->nama ?? '-' }}
+                    </div>
+                    <div class="mb-4"><strong>Jabatan Fungsional</strong> :
+                        {{ $user->kategorifungsional->nama ?? '-' }}
+                    </div>
                     <div class="mb-4">
                         <strong>Tempat, Tanggal Lahir</strong> : {{ $user->tempat ?? '-' }},
                         {{ $user->tanggal_lahir ? formatDate($user->tanggal_lahir) : '-' }}
@@ -67,7 +71,8 @@
                         {{ $viewPendAwal?->user?->tanggal_lahir ? formatDate($viewPendAwal?->user?->tanggal_lahir) : '-' }}
                     </div>
                     <div class="mb-4">
-                        <strong>Tanggal Tetap</strong>: {{ $viewPendAwal?->user?->tmt ? formatDate($viewPendAwal?->user?->tmt) : '-' }}
+                        <strong>Tanggal Tetap</strong>:
+                        {{ $viewPendAwal?->user?->tmt ? formatDate($viewPendAwal?->user?->tmt) : '-' }}
                     </div>
                     <div class="mb-4">
                         <strong>Pendidikan Awal</strong>:

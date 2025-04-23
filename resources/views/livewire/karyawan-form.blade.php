@@ -265,7 +265,7 @@
                         <tr>
                             <td style="width: 40%">
                                 <label for="jabatan" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Jabatan <span class="text-sm text-red-500">*</span></label>
+                                    Jabatan Struktural<span class="text-sm text-red-500">*</span></label>
                             </td>
                             <td class="relative">
                                 <input id="jabatan" type="text" wire:model.live="jabatan"
@@ -295,7 +295,7 @@
                                         Livewire.on('confirmJabatanChange', () => {
                                             Swal.fire({
                                                 title: "Perubahan Jabatan",
-                                                text: "Jabatan berubah, jangan lupa untuk mengelola hak akses agar tetap sesuai.",
+                                                text: "Jabatan Struktural berubah, jangan lupa untuk mengelola hak akses agar tetap sesuai.",
                                                 icon: "warning",
                                                 showCancelButton: true,
                                                 confirmButtonColor: "#3085d6",
@@ -321,10 +321,69 @@
                                         });
                                     });
                                 </script>
+                            </td>
 
+                        </tr>
 
+                        <tr>
+                            <td style="width: 40%">
+                                <label for="jabatan" class="block mb-2 text-sm font-medium text-gray-900">
+                                    Jabatan Fungsional<span class="text-sm text-red-500">*</span></label>
+                            </td>
+                            <td class="relative">
+                                <input id="fungsional" type="text" wire:model.live="fungsional"
+                                    wire:focus="fetchSuggestions('fungsional', $event.target.value)"
+                                    wire:input="fetchSuggestions('fungsional', $event.target.value)"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-700 focus:border-green-700 block w-full p-2.5"
+                                    placeholder="Cari Jabatan..." wire:blur="hideSuggestions('fungsional')"
+                                    autocomplete="off">
 
-
+                                @if (!empty($suggestions['fungsional']))
+                                    <ul
+                                        class="absolute z-20 w-full bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
+                                        @foreach ($suggestions['fungsional'] as $tunjangan => $list)
+                                            <li class="bg-gray-100 px-4 py-2 font-bold text-gray-600 uppercase">
+                                                {{ ucfirst($tunjangan) }}</li>
+                                            @foreach ($list as $suggestion)
+                                                <li wire:click="selectSuggestion('fungsional', '{{ $suggestion }}')"
+                                                    class="px-4 py-2 hover:bg-green-700 hover:text-white cursor-pointer transition duration-200">
+                                                    {{ $suggestion }}
+                                                </li>
+                                            @endforeach
+                                        @endforeach
+                                    </ul>
+                                @endif
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        Livewire.on('confirmFungsionalChange', () => {
+                                            Swal.fire({
+                                                title: "Perubahan Jabatan",
+                                                text: "Jabatan Fungsional berubah, jangan lupa untuk mengelola hak akses agar tetap sesuai.",
+                                                icon: "warning",
+                                                showCancelButton: true,
+                                                confirmButtonColor: "#3085d6",
+                                                cancelButtonColor: "#d33",
+                                                confirmButtonText: "Ya, lanjutkan!",
+                                                cancelButtonText: "Batal"
+                                            }).then((result) => {
+                                                if (result.isConfirmed) {
+                                                    setTimeout(() => {
+                                                        document.getElementById('roles')?.focus();
+                                                    }, 300);
+                                                    Livewire.emit('savekaryawan');
+                                                } else {
+                                                    Swal.fire({
+                                                        title: "Perubahan Dibatalkan",
+                                                        text: "Anda membatalkan perubahan jabatan, periksa lagi jabatan anda.",
+                                                        icon: "info",
+                                                        confirmButtonColor: "#3085d6",
+                                                        confirmButtonText: "OK"
+                                                    });
+                                                }
+                                            });
+                                        });
+                                    });
+                                </script>
                             </td>
 
                         </tr>

@@ -32,7 +32,7 @@
                         </td>
                         <td class="px-6 py-4">Rp {{ number_format($fungsional->nominal, 0, ',', '.') }}</td>
                         <td class="px-6 py-4">{{ $fungsional['deskripsi'] }}</td>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 flex gap-2">
                             <a href="{{ route('fungsional.edit', $fungsional['id']) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                 data-tooltip-target="tooltip-fungsional-{{ $fungsional['id'] }}">
@@ -41,6 +41,21 @@
                             <div id="tooltip-fungsional-{{ $fungsional['id'] }}" role="tooltip"
                                 class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
                                 Ubah Fungsional
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
+                            <button type="button"
+                                onclick="confirmAlert('Yakin ingin menghapus Jabatan Fungsional ini?', 'Ya, hapus!', () => @this.call('destroy', {{ $fungsional['id'] }}))"
+                                class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300 relative group">
+                                <i class="fa-solid fa-trash"></i>
+                                <div id="tooltip-destroy-{{ $fungsional['id'] }}"
+                                    class="absolute z-10 hidden group-hover:block bottom-full mb-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-md">
+                                    Hapus Jabatan
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            </button>
+                            <div id="tooltip-destroy-{{ $fungsional['id'] }}" role="tooltip"
+                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                                Hapus Jabatan
                                 <div class="tooltip-arrow" data-popper-arrow></div>
                             </div>
                         </td>

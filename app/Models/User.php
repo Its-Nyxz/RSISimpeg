@@ -119,6 +119,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(KategoriJabatan::class, 'jabatan_id');
     }
+    public function kategorifungsional()
+    {
+        return $this->belongsTo(KategoriJabatan::class, 'fungsi_id');
+    }
     public function trans()
     {
         return $this->belongsTo(MasterTrans::class, 'trans_id');
@@ -177,7 +181,6 @@ class User extends Authenticatable
     public function absen()
     {
         return $this->hasMany(Absen::class, 'user_id');
-        
     }
 
     public function izinKaryawan()
