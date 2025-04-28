@@ -95,6 +95,9 @@
                             auth()->user()->can('kategori-jabatan')
                                 ? ['title' => 'Kategori Jabatan', 'href' => '/katjab']
                                 : null,
+                            auth()->user()->can('jatah-cuti')
+                                ? ['title' => 'Jatah Cuti Tahunan', 'href' => '/jatahcuti']
+                                : null,
                         ])" />
                     @endcan
                     @can('view-kepegawaian')

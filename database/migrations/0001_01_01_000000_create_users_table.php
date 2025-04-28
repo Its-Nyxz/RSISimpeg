@@ -50,8 +50,8 @@ return new class extends Migration
             // $table->string('pendidikan')->nullable();
             $table->dateTime('tgl_penyesuaian')->nullable();
             $table->integer('masa_kerja')->default(value: 0)->nullable();
-            $table->integer('jatah_cuti_tahunan')->nullable()->default(12); // Jatah cuti default
-            $table->integer('sisa_cuti_tahunan')->nullable()->default(12); // Sisa cuti tahunan
+            // $table->integer('jatah_cuti_tahunan')->nullable()->default(12); // Jatah cuti default
+            // $table->integer('sisa_cuti_tahunan')->nullable()->default(12); // Sisa cuti tahunan
             $table->string('status_karyawan')->default(1)->nullable();
             $table->string('alasan_resign')->nullable();
             $table->string('type_shift')->nullable();

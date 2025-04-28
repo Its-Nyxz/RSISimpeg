@@ -59,3 +59,33 @@ window.rupiah = function (angka) {
     }
     return "Rp " + rupiah + ",00";
 };
+
+window.confirmRejectWithReason = function (
+    message,
+    confirmButtonText,
+    callback
+) {
+    Swal.fire({
+        title: "Apakah Anda yakin ingin menolak?",
+        text: message || "Masukkan alasan penolakan:",
+        input: "textarea", // ✅ Inputan alasan
+        inputPlaceholder: "Tulis alasan penolakan di sini...",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: confirmButtonText || "Tolak",
+        cancelButtonText: "Batal",
+        inputValidator: (value) => {
+            if (!value) {
+                return "Alasan wajib diisi!";
+            }
+        },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Callback function after input
+            if (typeof callback === "function") {
+                callback(result.value); // Pass alasan ke callback
+            }
+        }
+    });
+};

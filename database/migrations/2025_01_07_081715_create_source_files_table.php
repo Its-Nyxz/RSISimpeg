@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('path'); // Lokasi penyimpanan file
             $table->string('name')->nullable(); // Nama file
             $table->morphs('fileable'); // fileable_type dan fileable_id
+            $table->date('mulai')->nullable(); // Nama file
+            $table->date('selesai')->nullable(); // Nama file
             $table->timestamps();
         });
     }

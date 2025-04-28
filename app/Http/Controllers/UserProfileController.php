@@ -127,4 +127,9 @@ class UserProfileController extends Controller
 
         return redirect()->back()->with('success', 'Profil berhasil diperbarui!');
     }
+
+    public function upload()
+    {
+        return view('userprofile.upload');
+    }
 }

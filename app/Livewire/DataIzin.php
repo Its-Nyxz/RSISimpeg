@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Shift;
 use Livewire\Component;
+use App\Models\UnitKerja;
 use App\Models\IzinKaryawan;
 use Livewire\WithPagination;
 use App\Models\JadwalAbsensi;
@@ -40,6 +41,8 @@ class DataIzin extends Component
 
     public function approveIzin($izinId, $userId)
     {
+        $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
+        $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)->get();
         $izin = IzinKaryawan::find($izinId);
         if ($izin) {
             $izin->update(['status_izin_id' => 1]);
@@ -72,28 +75,40 @@ class DataIzin extends Component
             $message = 'Pengajuan Izin anda (' . $nextUser->name .
                 ') mulai <span class="font-bold">' . $izin->tanggal_mulai . ' sampai ' .  $izin->tanggal_selesai .
                 '</span> ' . '  dengan keterangan "' . $izin->keterangan . '"  telah <span class="text-green-600 font-bold">Disetujui</span> oleh ' . auth()->user()->name;
+            $messageKepegawaian = 'Pengajuan Izin atas nama (' . $nextUser->name .
+                ') mulai <span class="font-bold">' . $izin->tanggal_mulai . ' sampai ' .  $izin->tanggal_selesai .
+                '</span> ' . '  dengan keterangan "' . $izin->keterangan . '"  telah <span class="text-green-600 font-bold">Disetujui</span> oleh ' . auth()->user()->name;
 
             $url = "/pengajuan/ijin";
             if ($nextUser) {
                 Notification::send($nextUser, new UserNotification($message, $url));
+                Notification::send($kepegawaianUsers, new UserNotification($messageKepegawaian, $url));
             }
             return redirect()->route('approvalizin.index')->with('success', 'Izin berhasil disetujui.');
         }
     }
 
-    public function rejectIzin($izinId, $userId)
+    public function rejectIzin($izinId, $userId, $reason = null)
     {
+        $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
+        $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)->get();
         $izin = IzinKaryawan::find($izinId);
         if ($izin) {
             $izin->update(['status_izin_id' => 2]);
             $nextUser = User::where('id', $userId)->first();
             $message = 'Pengajuan Izin anda (' . $nextUser->name .
                 ') mulai <span class="font-bold">' . $izin->tanggal_mulai . ' sampai ' .  $izin->tanggal_selesai .
-                '</span>  dengan keterangan "' . $izin->keterangan . '" telah <span class="text-red-600 font-bold">Ditolak</span> oleh ' . auth()->user()->name;
+                '</span>  dengan keterangan "' . $izin->keterangan . '" telah <span class="text-red-600 font-bold">Ditolak</span> oleh ' . auth()->user()->name .
+                '. Alasan: "' . $reason . '"';
+            $messageKepegawaian = 'Pengajuan Izin atas nama (' . $nextUser->name .
+                ') mulai <span class="font-bold">' . $izin->tanggal_mulai . ' sampai ' .  $izin->tanggal_selesai .
+                '</span>  dengan keterangan "' . $izin->keterangan . '" telah <span class="text-red-600 font-bold">Ditolak</span> oleh ' . auth()->user()->name .
+                '. Alasan: "' . $reason . '"';
 
             $url = "/pengajuan/ijin";
             if ($nextUser) {
                 Notification::send($nextUser, new UserNotification($message, $url));
+                Notification::send($kepegawaianUsers, new UserNotification($messageKepegawaian, $url));
             }
             return redirect()->route('approvalizin.index')->with('success', 'Izin berhasil ditolak.');
         }

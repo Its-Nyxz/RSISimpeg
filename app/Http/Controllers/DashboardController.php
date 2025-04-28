@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\SourceFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -44,6 +45,35 @@ class DashboardController extends Controller
                 return $item;
             });
 
-        return view('dashboard.index', compact('jadwal_id', 'totalKaryawan', 'jumlahKaryawanShift', 'jumlahKaryawanNonShift', 'jumlahKaryawan'));
+        if (auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN' || auth()->user()->hasRole('Super Admin')) {
+            $masaBerlakuSipStr = SourceFile::whereHas('jenisFile', function ($query) {
+                $query->where('name', 'like', '%sip%')
+                    ->orWhere('name', 'like', '%str%');
+            })
+                ->whereNotNull('selesai')
+                ->whereDate('selesai', '>', now())
+                ->with('user', 'jenisFile')
+                ->get();
+        } else {
+            $masaBerlakuSipStr = SourceFile::where('user_id', auth()->id())
+                ->whereHas('jenisFile', function ($query) {
+                    $query->where('name', 'like', '%sip%')
+                        ->orWhere('name', 'like', '%str%');
+                })
+                ->whereNotNull('selesai')
+                ->whereDate('selesai', '>', now())
+                ->with('jenisFile')
+                ->get();
+        }
+
+
+        return view('dashboard.index', compact(
+            'jadwal_id',
+            'totalKaryawan',
+            'jumlahKaryawanShift',
+            'jumlahKaryawanNonShift',
+            'jumlahKaryawan',
+            'masaBerlakuSipStr'
+        ));
     }
 }

@@ -66,7 +66,8 @@ class RolePermissionSeeder extends Seeder
             'view-keuangan',
             'view-kepegawaian',
             'hak-akses',
-            'resign-kerja'
+            'resign-kerja',
+            'jatah-cuti'
 
         ];
 
@@ -120,7 +121,8 @@ class RolePermissionSeeder extends Seeder
                 'import-jadwal',
                 'tambah-jadwal',
                 'edit-jadwal',
-                'resign-kerja'
+                'resign-kerja',
+                'jatah-cuti'
             ])->get(),
             'Staf' => Permission::whereIn('name', ['timer', 'list-history'])->get(),
             'Kepala Instalasi' => Permission::whereNotIn('name', ['view-keuangan', 'hak-akses', 'master-data', 'create-data-karyawan', 'resign-kerja'])->get(),

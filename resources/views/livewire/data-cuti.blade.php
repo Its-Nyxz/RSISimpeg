@@ -1,48 +1,6 @@
 <div x-data="{ open: false }" class="relative">
     <div class="flex justify-between py-2 mb-3">
         <h1 class="text-2xl font-bold text-success-900">Approval Cuti</h1>
-        <div class="relative">
-
-            <!-- Modal Dropdown -->
-            {{-- <div x-show="open" x-transition
-                class="absolute right-0 mt-2 w-96 bg-green-100 p-6 rounded-lg shadow-lg z-50">
-                <h2 class="text-lg font-bold mb-3 text-center">CUTI APPROVAL</h2>
-
-                @forelse ($users as $user)
-                    <!-- Modal Content -->
-                    <div class="grid grid-cols-2 gap-6 text-sm text-gray-700">
-                        <div class="font-semibold">Nama</div>
-                        <div>: {{ $user->name }}</div>
-
-                        <div class="font-semibold">Jabatan</div>
-                        <div>: {{ $user->kategorijabatan->nama ?? '-' }}</div>
-
-                        <div class="font-semibold">Tempat/TGL Lahir</div>
-                        <div>: {{ $user->tempat_lahir ?? '-' }}, {{ $user->tgl_lahir ?? '-' }}</div>
-
-                        <div class="font-semibold">Alasan Cuti</div>
-                        <div>: {{ $user->cutiKaryawan->first()->alasan_cuti ?? '-' }}</div>
-
-                        <div class="font-semibold">Pengambilan Cuti</div>
-                        <div>: {{ $user->cutiKaryawan->first()->pengambilan_cuti ?? '-' }} Hari</div>
-
-                        <div class="font-semibold">Sisa Cuti</div>
-                        <div>: {{ $user->cutiKaryawan->first()->sisa_cuti ?? '-' }} Hari</div>
-                    </div>
-
-                    <!-- Modal Buttons -->
-                    <div class="flex justify-end mt-4">
-                        <button @click="open = false"
-                            class="bg-gray-500 text-white px-4 py-2 rounded-lg mr-2">Tutup</button>
-                        <button class="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2">
-                            <i class="fa-solid fa-check"></i> Approve
-                        </button>
-                    </div>
-                @empty
-                    <p class="text-gray-600 text-center">Tidak ada data user.</p>
-                @endforelse
-            </div> --}}
-        </div>
     </div>
 
     <!-- Tabel Data Cuti Karyawan -->
@@ -81,7 +39,7 @@
                         </td>
                         <td class="px-6 py-4 text-center">
                             <div class="flex justify-center gap-2">
-                                @if ($cuti->status_cuti_id == 3)
+                                @if ($cuti->status_cuti_id == 3 || ($isKepegawaian && $cuti->status_cuti_id == 4))
                                     <button
                                         onclick="confirmAlert('Ingin menyetujui cuti ini?', 'Ya, Setujui!', () => @this.call('approveCuti', {{ $cuti->id }}, {{ $cuti->user->id }}))"
                                         class="bg-green-600 text-white px-3 py-1 rounded-lg flex items-center gap-2">
@@ -89,7 +47,7 @@
                                     </button>
 
                                     <button
-                                        onclick="confirmAlert('Ingin menolak cuti ini?', 'Ya, Tolak!', () => @this.call('rejectCuti', {{ $cuti->id }}, {{ $cuti->user->id }}))"
+                                        onclick="confirmRejectWithReason('Ingin menolak cuti ini?', 'Ya, Tolak!', (reason) => @this.call('rejectCuti', {{ $cuti->id }}, {{ $cuti->user->id }}, reason))"
                                         class="bg-red-600 text-white px-3 py-1 rounded-lg flex items-center gap-2">
                                         <i class="fa-solid fa-xmark"></i> Ditolak
                                     </button>
@@ -98,6 +56,7 @@
                                 @endif
                             </div>
                         </td>
+
 
                     </tr>
                 @empty

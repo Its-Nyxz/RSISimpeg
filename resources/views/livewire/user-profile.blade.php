@@ -22,11 +22,11 @@
                         ? '<img src="' .
                             asset('storage/photos/' . $userprofile->photo) .
                             '" 
-                                                                                             alt="User Profile" 
-                                                                                             class="w-full h-full object-cover">'
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             alt="User Profile" 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             class="w-full h-full object-cover">'
                         : '<div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500">
-                                                                                            <i class="fa-solid fa-user text-5xl"></i>
-                                                                                       </div>' !!}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="fa-solid fa-user text-5xl"></i>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       </div>' !!}
                 </div>
 
                 <!-- Data Profile -->
@@ -63,7 +63,15 @@
                     </div>
                     <div class="grid grid-cols-2">
                         <div class="font-semibold">Institusi</div>
-                        <div>: {{ $userprofile->no_ktp }}</div>
+                        <div>: {{ $userprofile->institusi }}</div>
+                    </div>
+                    <div class="grid grid-cols-2">
+                        <div class="font-semibold">Jabatan Struktural</div>
+                        <div>: {{ $userprofile->kategorijabatan->nama }}</div>
+                    </div>
+                    <div class="grid grid-cols-2">
+                        <div class="font-semibold">Jabatan Fungsional</div>
+                        <div>: {{ $userprofile->kategorifungsional->nama ?? '-' }}</div>
                     </div>
                     <div class="grid grid-cols-2">
                         <div class="font-semibold">Jenis Kelamin</div>
@@ -142,6 +150,14 @@
                         <i class="fa-solid fa-minus"></i>
                     </a>
                 </div>
+                <div class="flex items-center justify-between">
+                    <p><strong>Dokumen :</strong></p>
+                    <a href="{{ route('userprofile.upload') }}"
+                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                        Upload Dokumen
+                    </a>
+                </div>
+
             </div>
         </x-card>
     </div>

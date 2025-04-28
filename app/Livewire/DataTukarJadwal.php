@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Shift;
 use Livewire\Component;
+use App\Models\UnitKerja;
 use App\Models\TukarJadwal;
 use Livewire\WithPagination;
 use App\Models\JadwalAbsensi;
@@ -41,6 +42,8 @@ class DataTukarJadwal extends Component
 
     public function approveTukar($tukarId, $userId)
     {
+        $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
+        $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)->get();
         $tukar = TukarJadwal::find($tukarId);
         if ($tukar) {
             $tukar->update(['is_approved' => 1]);
@@ -61,17 +64,23 @@ class DataTukarJadwal extends Component
             $message = 'Pengajuan Tukar Jadwal anda (' . $nextUser->name .
                 ') mulai <span class="font-bold">' . $tukar->tanggal .
                 '</span> ' . '  dengan keterangan "' . $tukar->keterangan . '"  telah <span class="text-green-600 font-bold">Disetujui</span> oleh ' . auth()->user()->name;
+            $messageKepegawaian = 'Pengajuan Tukar Jadwal atas nama (' . $nextUser->name .
+                ') mulai <span class="font-bold">' . $tukar->tanggal .
+                '</span> ' . '  dengan keterangan "' . $tukar->keterangan . '"  telah <span class="text-green-600 font-bold">Disetujui</span> oleh ' . auth()->user()->name;
 
             $url = "/pengajuan/tukar_jadwal";
             if ($nextUser) {
                 Notification::send($nextUser, new UserNotification($message, $url));
+                Notification::send($kepegawaianUsers, new UserNotification($messageKepegawaian, $url));
             }
             return redirect()->route('approvaltukar.index')->with('success', 'Pengajuan Tukar Jadwal Disetujui!');
             $this->resetPage();
         }
     }
-    public function rejectTukar($tukarId, $userId)
+    public function rejectTukar($tukarId, $userId, $reason = null)
     {
+        $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
+        $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)->get();
         $tukar = TukarJadwal::find($tukarId);
 
         if ($tukar) {
@@ -83,11 +92,17 @@ class DataTukarJadwal extends Component
             // Pesan notifikasi untuk user
             $message = 'Pengajuan Tukar Jadwal anda (' . $nextUser->name .
                 ') mulai <span class="font-bold">' . $tukar->tanggal .
-                '</span>  dengan keterangan "' . $tukar->keterangan . '" telah <span class="text-red-600 font-bold">Ditolak</span> oleh ' . auth()->user()->name;
+                '</span>  dengan keterangan "' . $tukar->keterangan . '" telah <span class="text-red-600 font-bold">Ditolak</span> oleh ' . auth()->user()->name .
+                '. Alasan: "' . $reason . '"';
+            $messageKepegawaian = 'Pengajuan Tukar Jadwal atas nama (' . $nextUser->name .
+                ') mulai <span class="font-bold">' . $tukar->tanggal .
+                '</span>  dengan keterangan "' . $tukar->keterangan . '" telah <span class="text-red-600 font-bold">Ditolak</span> oleh ' . auth()->user()->name .
+                '. Alasan: "' . $reason . '"';
 
             $url = "/pengajuan/tukar_jadwal";
             if ($nextUser) {
                 Notification::send($nextUser, new UserNotification($message, $url));
+                Notification::send($kepegawaianUsers, new UserNotification($messageKepegawaian, $url));
             }
 
             return redirect()->route('approvaltukar.index')->with('success', 'Pengajuan Tukar Jadwal ditolak!');

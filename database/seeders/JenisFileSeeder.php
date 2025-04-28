@@ -18,7 +18,8 @@ class JenisFileSeeder extends Seeder
             ['name' => 'Pas Foto', 'keterangan' => 'Foto untuk keperluan administrasi'],
             ['name' => 'Kartu Keluarga (KK)', 'keterangan' => 'Dokumen Kartu Keluarga'],
             ['name' => 'Ijazah dan Transkip Nilai', 'keterangan' => 'Ijazah dan Transkrip Nilai Pendidikan'],
-            ['name' => 'SIP dan STR', 'keterangan' => 'Surat Izin Praktik dan Surat Tanda Registrasi'],
+            ['name' => 'SIP', 'keterangan' => 'Surat Izin Praktik'],
+            ['name' => 'STR', 'keterangan' => 'Surat Tanda Registrasi'],
             ['name' => 'Sertifikat Pelatihan', 'keterangan' => 'Sertifikat Pelatihan terkait'],
         ];
 

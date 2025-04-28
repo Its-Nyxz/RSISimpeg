@@ -7,6 +7,7 @@ use App\Models\Shift;
 use Livewire\Component;
 use App\Models\JenisCuti;
 use App\Models\JenisIzin;
+use App\Models\UnitKerja;
 use App\Models\TukarJadwal;
 use App\Models\CutiKaryawan;
 use App\Models\IzinKaryawan;
@@ -112,6 +113,8 @@ class PengajuanForm extends Component
 
     public function save()
     {
+        $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
+        $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)->get();
         if ($this->tipe === 'cuti') {
             // ✅ Validasi untuk cuti
             $this->validate([
@@ -133,7 +136,6 @@ class PengajuanForm extends Component
                 'jumlah_hari' => $jumlah_hari,
                 'keterangan' => $this->keterangan,
             ]);
-
 
             $user = auth()->user();
             // Ambil nama shift berdasarkan shift_id
@@ -193,10 +195,16 @@ class PengajuanForm extends Component
                 '</span> ' .
                 ($jenis_izin ? $jenis_izin->nama_izin : 'Tidak Diketahui') .
                 ' dengan keterangan ' . $this->keterangan . ' membutuhkan persetujuan Anda.';
+            $messageKepegawaian = 'Pengajuan Izin ' . auth()->user()->name .
+                ' mulai <span class="font-bold">' . $this->tanggal_mulai . ' sampai ' .  $this->tanggal_selesai .
+                '</span> ' .
+                ($jenis_izin ? $jenis_izin->nama_izin : 'Tidak Diketahui') .
+                ' dengan keterangan ' . $this->keterangan . ' memerlukan perhatian Anda.';
 
             $url = "/approvalizin";
             if ($nextUser) {
                 Notification::send($nextUser, new UserNotification($message, $url));
+                Notification::send($kepegawaianUsers, new UserNotification($messageKepegawaian, $url));
             }
             return redirect()->route('pengajuan.index', 'ijin')->with('success', 'Pengajuan Izin berhasil di ajukan!');
         } elseif ($this->tipe === 'tukar_jadwal') {
@@ -233,10 +241,16 @@ class PengajuanForm extends Component
                 '</span> ke ' .
                 ($nama_shift ? $nama_shift->nama_shift : 'Tidak Diketahui') .
                 ' dengan keterangan ' . $this->keterangan . ' membutuhkan persetujuan Anda.';
+            $messageKepegawaian = 'Pengajuan Tukar Jadwal atau Shift ' . auth()->user()->name .
+                ' mulai <span class="font-bold">' . $this->tanggal_mulai . ' sampai ' .  $this->tanggal_selesai .
+                '</span> ' .
+                ($nama_shift ? $nama_shift->nama_shift : 'Tidak Diketahui') .
+                ' dengan keterangan ' . $this->keterangan . ' memerlukan perhatian Anda.';
 
             $url = "/approvaltukar";
             if ($nextUser) {
                 Notification::send($nextUser, new UserNotification($message, $url));
+                Notification::send($kepegawaianUsers, new UserNotification($messageKepegawaian, $url));
             }
 
             session()->flash('message', 'Pengajuan tukar jadwal berhasil diajukan.');

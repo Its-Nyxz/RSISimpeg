@@ -1,61 +1,64 @@
 <?php
 
-use App\Http\Controllers\MasterFungsiController;
-use App\Http\Controllers\JadwalAbsensiController;
-use App\Http\Controllers\StatusAbsenController;
 use App\Models\MasterFungsi;
+use App\Livewire\UserProfile;
+use App\Livewire\UploadUserProfile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\CutiController;
+use App\Http\Controllers\IzinController;
+use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\TimerController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\AbsensiController;
-use App\Http\Controllers\ShiftController;
-use App\Http\Controllers\OpsiAbsenController;
-use App\Http\Controllers\TunjanganKinerjaController;
-use App\Http\Controllers\MasaKerjaController;
-use App\Http\Controllers\LevelUnitController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\HolidaysController;
+use App\Http\Controllers\KeuanganController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LevelUnitController;
+use App\Http\Controllers\MasaKerjaController;
+use App\Http\Controllers\OpsiAbsenController;
+use App\Http\Controllers\PengajuanController;
+use App\Http\Controllers\UnitKerjaController;
+use App\Http\Controllers\ImportGajiController;
 use App\Http\Controllers\MasterUmumController;
+use App\Http\Controllers\PointPeranController;
 use App\Http\Controllers\MasterGapokController;
 use App\Http\Controllers\MasterTransController;
-use App\Http\Controllers\MasterJabatanController;
-use App\Http\Controllers\MasterGolonganController;
-use App\Http\Controllers\MasterTunjanganController;
-use App\Http\Controllers\MasterPendidikanController;
-use App\Http\Controllers\MasterPotonganController;
-use App\Http\Controllers\KeuanganController;
-use App\Http\Controllers\KenaikanBerkalaGolController;
-use App\Http\Controllers\PeranFungsionalController;
-use App\Http\Controllers\PerizinanJabatanController;
+use App\Http\Controllers\StatusAbsenController;
+use App\Http\Controllers\TukarJadwalController;
 
-use App\Http\Controllers\MasterKhususController;
-use App\Http\Controllers\MasterAbsensiController;
-use App\Http\Controllers\KenaikanGolonganController;
-use App\Http\Controllers\PenilaianPekerjaController;
-use App\Http\Controllers\DetailJabatanController;
-
+use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\DataKaryawanController;
+use App\Http\Controllers\MasterFungsiController;
+use App\Http\Controllers\MasterKhususController;
+use App\Http\Controllers\TukinJabatanController;
+
+use App\Http\Controllers\DetailJabatanController;
+use App\Http\Controllers\JadwalAbsensiController;
+use App\Http\Controllers\MasterAbsensiController;
+
+use App\Http\Controllers\MasterJabatanController;
 use App\Http\Controllers\DetailKaryawanController;
 use App\Http\Controllers\DetailKeuanganController;
+use App\Http\Controllers\MasterGolonganController;
+use App\Http\Controllers\MasterPotonganController;
+use App\Http\Controllers\KategoriJabatanController;
 
-use App\Http\Controllers\UnitKerjaController;
-use App\Http\Controllers\UserProfileController;
-use App\Http\Controllers\ProposionalitasPointController;
-use App\Http\Controllers\PointPeranController;
-use App\Http\Controllers\TukinJabatanController;
-use App\Http\Controllers\TimerController;
-
-use App\Http\Controllers\CutiController;
-use App\Http\Controllers\ImportGajiController;
+use App\Http\Controllers\MasterTunjanganController;
+use App\Http\Controllers\PeranFungsionalController;
 
 use App\Http\Controllers\AktivitasAbsensiController;
-use App\Http\Controllers\HolidaysController;
-use App\Http\Controllers\IzinController;
-use App\Http\Controllers\KategoriJabatanController;
-use App\Http\Controllers\PengajuanController;
-use App\Http\Controllers\TukarJadwalController;
-use App\Livewire\UserProfile;
+use App\Http\Controllers\KenaikanGolonganController;
+use App\Http\Controllers\MasterPendidikanController;
+use App\Http\Controllers\PenilaianPekerjaController;
+use App\Http\Controllers\PerizinanJabatanController;
+use App\Http\Controllers\TunjanganKinerjaController;
+use App\Http\Controllers\KenaikanBerkalaGolController;
+use App\Http\Controllers\MasterJatahCutiController;
+use App\Http\Controllers\ProposionalitasPointController;
+use App\Models\MasterJatahCuti;
 
 Route::get('/', function () {
     return redirect()->to('/login');
@@ -134,6 +137,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/userprofile/editprofile', [UserProfileController::class, 'editProfile'])->name('userprofile.editprofile');
     Route::get('/userprofile/editusername', action: [UserProfileController::class, 'editUsername'])->name('userprofile.editusername');
     Route::get('keuangan/{user}/potongan/{bulan}/{tahun}', [KeuanganController::class, 'potongan'])->name('keuangan.potongan');
+    Route::get('/userprofile/upload', action: [UserProfileController::class, 'upload'])->name('userprofile.upload');
     Route::resource('keuangan', KeuanganController::class);
     Route::resource('userprofile', UserProfileController::class);
     Route::resource('proposionalitas', ProposionalitasPointController::class);
@@ -156,6 +160,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('katjab', KategoriJabatanController::class);
     Route::get('liburnasional/{tipe}/{holiday}', [HolidaysController::class, 'create']);
     Route::resource('liburnasional', HolidaysController::class);
+    Route::get('jatahcuti/{tipe}/{cuti}', [MasterJatahCutiController::class, 'create']);
+    Route::resource('jatahcuti', MasterJatahCutiController::class);
     Route::get('pengajuan/create/{tipe}', [PengajuanController::class, 'create'])->name('pengajuan.create');
     Route::get('pengajuan/{tipe}', [PengajuanController::class, 'index'])->name('pengajuan.index');
 });

@@ -5,7 +5,7 @@
         <table class="w-full text-sm text-center text-gray-700">
             <thead class="text-sm uppercase bg-success-400 text-success-900">
                 <tr>
-                    @if (!$tipe == 'tukar_jadwal')
+                    @if ($tipe != 'tukar_jadwal')
                         <th class="border border-gray-300 p-2">
                             Jenis {{ $tipe == 'cuti' ? ' Cuti' : ($tipe == 'ijin' ? 'Izin' : 'Tukar Jadwal') }}
                         </th>
@@ -30,8 +30,8 @@
             <tbody>
                 @forelse ($dataPengajuan as $pengajuan)
                     <tr class="hover:bg-success-300">
-                        @if (!$tipe == 'tukar_jadwal')
-                            <td class="text-start border border-gray-300 p-2">
+                        @if ($tipe != 'tukar_jadwal')
+                            <td class=" border border-gray-300 p-2">
                                 @if ($tipe == 'ijin')
                                     {{ $pengajuan->jenisIzin->nama_izin ?? '-' }}
                                 @elseif($tipe == 'cuti')

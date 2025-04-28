@@ -26,7 +26,7 @@ class DetailJabatan extends Component
             'tambah-jadwal',
             'edit-jadwal',
         ],
-        'Master Data' => ['master-data', 'tunjangan', 'golongan', 'gaji-pokok', 'pendidikan', 'unit-kerja', 'potongan', 'tunjangan-kinerja', 'kategori-jabatan'],
+        'Master Data' => ['master-data', 'tunjangan', 'golongan', 'gaji-pokok', 'pendidikan', 'unit-kerja', 'potongan', 'tunjangan-kinerja', 'kategori-jabatan', 'jatah-cuti'],
         'Kepegawaian' => ['create-data-karyawan', 'detail-data-karyawan', 'edit-data-karyawan', 'tambah-history', 'view-kepegawaian', 'view-kenaikan', 'approval-cuti', 'approval-izin', 'approval-tukar-jadwal', 'resign-kerja', 'view-import-gaji', 'view-poin-peran', 'view-poin-penilaian'],
         'Keuangan' => ['view-keuangan'],
         'Pengaturan' => ['hak-akses'],
