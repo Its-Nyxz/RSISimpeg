@@ -45,7 +45,7 @@
             <!-- Nama Shift -->
             <div class="form-group col-span-2">
                 <label for="nama_shift" class="block text-sm font-medium text-green-900">Kode Shift</label>
-                <input type="text" id="nama_shift" wire:model="nama_shift"
+                <input type="text" id="nama_shift" wire:model.live="nama_shift"
                     class="form-control @error('nama_shift') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" />
                 @error('nama_shift')
                     <span class="text-danger text-sm">{{ $message }}</span>
@@ -55,7 +55,7 @@
             <!-- Jam Masuk -->
             <div class="form-group col-span-2">
                 <label for="jam_masuk" class="block text-sm font-medium text-green-900">Jam Masuk</label>
-                <input type="time" id="jam_masuk" wire:model="jam_masuk"
+                <input type="time" id="jam_masuk" wire:model.live="jam_masuk"
                     class="form-control @error('jam_masuk') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" />
                 @error('jam_masuk')
                     <span class="text-danger text-sm">{{ $message }}</span>
@@ -66,7 +66,7 @@
             <!-- Jam Keluar -->
             <div class="form-group col-span-2">
                 <label for="jam_keluar" class="block text-sm font-medium text-green-900">Jam Keluar</label>
-                <input type="time" id="jam_keluar" wire:model="jam_keluar"
+                <input type="time" id="jam_keluar" wire:model.live="jam_keluar"
                     class="form-control @error('jam_keluar') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" />
                 @error('jam_keluar')
                     <span class="text-danger text-sm">{{ $message }}</span>

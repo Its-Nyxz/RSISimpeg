@@ -100,7 +100,7 @@
         </div>
         <!-- Kolom Kanan -->
         <div class="md:col-span-1">
-            @if (auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN' || auth()->user()->hasRole('Super Admin'))
+            {{-- @if (auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN' || auth()->user()->hasRole('Super Admin'))
                 <x-card title="Total Karyawan" class="mb-4">
                     <div class="flex flex-col items-left" style="margin-left: 30px;">
                         <div class="flex items-left gap-6 mb-4">
@@ -154,7 +154,42 @@
                         </div>
                     </div>
                 </x-card>
-            @endif
+            @endif --}}
+            <x-card title="Detail" class="mb-4">
+                <div class="flex flex-col gap-4 p-4">
+                    <div class="flex justify-between">
+                        <div class="font-semibold">Sisa Cuti Tahunan</div>
+                        <div>{{ $sisaCutiTahunan }} kali</div>
+                    </div>
+                    <div class="flex justify-between">
+                        <div class="font-semibold">Keterlambatan Per Bulan</div>
+                        <div>{{ $jumlahKeterlambatan }} kali </div>
+                    </div>
+                    <div class="font-semibold">
+                        Izin :
+                    </div>
+                    <div class="ml-4 flex flex-col gap-2">
+                        <div class="flex justify-between">
+                            <div>Sakit</div>
+                            <div>{{ $jumlahIzin['sakit'] }} kali</div>
+                        </div>
+                        <div class="flex justify-between">
+                            <div>Tugas</div>
+                            <div>{{ $jumlahIzin['tugas'] }} kali</div>
+                        </div>
+                        <div class="flex justify-between">
+                            <div>Keluarga</div>
+                            <div>{{ $jumlahIzin['keluarga'] }} kali</div>
+                        </div>
+                        <div class="flex justify-between">
+                            <div>Tanpa Keterangan</div>
+                            <div>{{ $jumlahTanpaKeterangan }} kali</div>
+                        </div>
+                    </div>
+                </div>
+            </x-card>
+
+
             <x-card title="Pengajuan" class="mb-4">
                 <div class="flex flex-row items-left gap-x-4 overflow-x-auto" style="margin-left: 30px;">
                     <!-- ✅ Tombol Cuti -->

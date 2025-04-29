@@ -515,9 +515,6 @@ class Timer extends Component
             : redirect()->to('/timer'); // Jika diakses dari route lain
     }
 
-
-
-
     public function render()
     {
         return view('livewire.timer');

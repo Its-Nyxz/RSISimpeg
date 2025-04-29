@@ -13,13 +13,14 @@ return new class extends Migration
     {
         Schema::create('master_potongan', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('katjab_id')->nullable();
+            // $table->unsignedBigInteger('katjab_id')->nullable();
             $table->string('nama')->nullable();
-            $table->integer('nominal')->nullable();
-            $table->string('deskripsi')->nullable();
+            $table->enum('jenis', ['persentase', 'nominal'])->default('nominal')->nullable();
+            // $table->integer('nominal')->nullable();
+            // $table->string('deskripsi')->nullable();
             $table->timestamps(0);
 
-            $table->foreign('katjab_id')->references('id')->on('kategori_jabatans');
+            // $table->foreign('katjab_id')->references('id')->on('kategori_jabatans');
         });
     }
 

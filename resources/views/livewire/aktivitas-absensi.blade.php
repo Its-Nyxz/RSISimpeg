@@ -59,9 +59,9 @@
                     <th scope="col" class="px-6 py-3">Jam Lembur</th>
                     <th scope="col" class="px-6 py-3">Deskripsi Lembur</th>
                     <th scope="col" class="px-6 py-3">Feedback</th>
-                    @can('list-history-edit')
-                        <th scope="col" class="px-6 py-3">Action</th>
-                    @endcan
+                    {{-- @can('list-history-edit') --}}
+                    <th scope="col" class="px-6 py-3">Action</th>
+                    {{-- @endcan --}}
                 </tr>
             </thead>
             <tbody>

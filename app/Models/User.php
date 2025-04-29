@@ -167,4 +167,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(CutiKaryawan::class, 'user_id');
     }
+
+    public function sisaCutiTahunan()
+    {
+        return $this->hasMany(SisaCutiTahunan::class);
+    }
 }

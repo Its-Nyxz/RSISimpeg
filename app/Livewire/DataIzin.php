@@ -53,7 +53,7 @@ class DataIzin extends Component
                     'unit_id' => auth()->user()->unit_id, // Unit dari user yang approve
                     'jam_masuk' => null,
                     'jam_keluar' => null,
-                    'keterangan' => 'Cuti'
+                    'keterangan' => 'Izin'
                 ]
             );
             $start = Carbon::parse($izin->tanggal_mulai);
