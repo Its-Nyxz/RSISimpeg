@@ -2,10 +2,12 @@
 
 namespace App\Livewire;
 
+use Carbon\Carbon;
 use App\Models\User;
 use Livewire\Component;
 use App\Models\Potongan;
 use App\Models\GajiBruto;
+use App\Models\MasterTrans;
 
 class AddPotongan extends Component
 {
@@ -18,6 +20,14 @@ class AddPotongan extends Component
         $rek_bpjs_kes, $bpjs_tambahan, $pph_21, $pph_kurang,
         $angsuran_kurban, $amaliah, $ranap, $potongan_selisih, $perkasi, $lain_lain;
 
+    public $gapok = 0;
+    public $masaKerjaTahun = 0;
+    public $nom_makan = 0;
+    public $nom_transport = 0;
+    public $nom_jabatan = 0;
+    public $nom_fungsi = 0;
+    public $nom_umum = 0;
+
     public function mount(User $user, $bulan = null, $tahun = null)
     {
         $this->bulan = $bulan ?? now()->month;
@@ -27,9 +37,56 @@ class AddPotongan extends Component
             'kategorijabatan.masterjabatan',
             'kategorijabatan.masterfungsi',
             'kategorijabatan.masterumum',
+            'golongan.gapoks',
         ])->findOrFail($user->id);
 
-        $nom_jabatan = $this->user->kategorijabatan?->nominal ?? 0;
+        $masterTrans = MasterTrans::first(); // atau where('nama', 'Tetap')->first() jika ada kondisi
+
+        $this->nom_makan = $masterTrans->nom_makan ?? 0;
+        $this->nom_transport = $masterTrans->nom_transport ?? 0;
+
+        $kategori = $this->user->kategorijabatan;
+
+        $this->nom_jabatan = 0;
+        $this->nom_fungsi = 0;
+        $this->nom_umum   = 0;
+        if ($kategori) {
+            switch ($kategori->tunjangan) {
+                case 'jabatan':
+                    // Ambil dari kategori langsung
+                    $this->nom_jabatan = $kategori->nominal ?? 0;
+                    break;
+
+                case 'fungsi':
+                    $this->nom_fungsi = optional($kategori->masterfungsi->first())->nominal ?? 0;
+                    break;
+
+                case 'umum':
+                    $this->nom_umum = optional($kategori->masterumum->first())->nominal ?? 0;
+                    break;
+            }
+        }
+        
+        // Hitung masa kerja tahun dari TMT
+        $this->masaKerjaTahun = $this->user->tmt
+            ? floor(Carbon::parse($this->user->tmt)->floatDiffInYears(Carbon::now()))
+            : 0;
+        // Ambil gaji pokok sesuai masa kerja
+        $this->gapok = optional(
+            $this->user->golongan?->gapoks
+                ->where('masa_kerja', '<=', $this->masaKerjaTahun)
+                ->sortByDesc('masa_kerja')
+                ->first()
+        )->nominal_gapok ?? 0;
+        // dd($this->gapok);
+
+        // $nom_jabatan = $this->user->kategorijabatan?->nominal ?? 0;
+        $total_bruto = $this->gapok
+            + $this->nom_jabatan
+            + $this->nom_fungsi
+            + $this->nom_umum
+            + $this->nom_makan
+            + $this->nom_transport;
         $this->gajiBruto = GajiBruto::updateOrCreate(
             [
                 'user_id' => $this->user->id,
@@ -37,10 +94,15 @@ class AddPotongan extends Component
                 'tahun_penggajian' => $this->tahun,
             ],
             [
-                'nom_jabatan' => $nom_jabatan,
+                'nom_gapok'     => $this->gapok,
+                'nom_jabatan'   => $this->nom_jabatan,
+                'nom_fungsi'    => $this->nom_fungsi,
+                'nom_umum'      => $this->nom_umum,
+                'nom_makan'     => $this->nom_makan,
+                'nom_transport' => $this->nom_transport,
                 'nom_khusus' => 0,
                 'nom_lainnya' => 0,
-                'total_bruto' => $nom_jabatan,
+                'total_bruto' => $total_bruto,
                 'created_at' => now(),
             ]
         );

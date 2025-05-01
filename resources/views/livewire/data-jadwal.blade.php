@@ -23,37 +23,55 @@
                         <option value="{{ $item->id }}">{{ $item->name }}</option>
                     @endforeach
                 </select>
+
             @endif
         </div>
-        @if ($routeIsDashboard)
-            <div class="flex justify-end">
-                <div>
-                    <a href="{{ route('jadwal.index') }}"
-                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200"
-                        data-tooltip-target="tooltip-pengaturan">
-                        <i class="fa-solid fa-gear"></i>
-                    </a>
-                    <div id="tooltip-pengaturan" role="tooltip"
-                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
-                        Pengaturan Jadwal Absensi
-                        <div class="tooltip-arrow" data-popper-arrow></div>
+        <div class="flex justify-end items-center gap-3 mb-2">
+            @if ($routeIsDashboard)
+                <div class="flex justify-end">
+                    <div>
+                        <a href="{{ route('jadwal.index') }}"
+                            class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200"
+                            data-tooltip-target="tooltip-pengaturan">
+                            <i class="fa-solid fa-gear"></i>
+                        </a>
+                        <div id="tooltip-pengaturan" role="tooltip"
+                            class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                            Pengaturan Jadwal Absensi
+                            <div class="tooltip-arrow" data-popper-arrow></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        @endif
-        @if (!$routeIsDashboard)
-            <div class="flex justify-end">
-                <div>
-                    @can('tambah-jadwal')
-                        <!-- Tombol Tambah Jadwal -->
-                        <a href="{{ route('jadwal.create') }}"
-                            class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                            <i class="fa-solid fa-plus"></i> Tambah Jadwal
-                        </a>
-                    @endcan
+            @endif
+            @if (!$routeIsDashboard)
+                <div class="flex justify-end">
+                    <div>
+                        @can('tambah-jadwal')
+                            <!-- Tombol Tambah Jadwal -->
+                            <a href="{{ route('jadwal.create') }}"
+                                class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                                <i class="fa-solid fa-plus"></i> Tambah Jadwal
+                            </a>
+                        @endcan
+                    </div>
                 </div>
+            @endif
+
+            <!-- Tombol Keterangan Shift -->
+            <button type="button" wire:click="openShiftModal"
+                class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200"
+                data-tooltip-target="tooltip-keterangan-shift">
+                <i class="fa-solid fa-circle-info"></i>
+            </button>
+            <div id="tooltip-keterangan-shift" role="tooltip"
+                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                Lihat Keterangan Shift
+                <div class="tooltip-arrow" data-popper-arrow></div>
             </div>
-        @endif
+
+        </div>
+
+
     </div>
     {{-- </div> --}}
 
@@ -77,7 +95,7 @@
 
 
         @if (!$routeIsDashboard)
-            @can('template-jadwal') 
+            @can('template-jadwal')
                 <!-- Tombol Download Template -->
                 <a href="{{ route('jadwal.template', ['month' => $bulan, 'year' => $tahun]) }}"
                     class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
@@ -210,6 +228,38 @@
             </tbody>
         </table>
     </div>
+    @if ($showModalShift)
+        <div class="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
+            <div class="bg-white rounded-lg shadow-lg w-3/4 max-h-[80vh] overflow-auto p-6">
+                <h2 class="text-lg font-semibold mb-4">Keterangan Shift per Unit</h2>
+
+                <table class="w-full text-sm border border-gray-300">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="border p-2">Unit</th>
+                            <th class="border p-2">Kode Shift</th>
+                            <th class="border p-2">Jam Masuk</th>
+                            <th class="border p-2">Jam Pulang</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($dataShifts as $shift)
+                            <tr>
+                                <td class="border p-2">{{ $shift->unitKerja->nama ?? '-' }}</td>
+                                <td class="border p-2">{{ $shift->nama_shift }}</td>
+                                <td class="border p-2">{{ $shift->jam_masuk }}</td>
+                                <td class="border p-2">{{ $shift->jam_keluar }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+
+                <div class="mt-4 text-right">
+                    <button wire:click="closeShiftModal"
+                        class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">Tutup</button>
+                </div>
+            </div>
+        </div>
+    @endif
+
 </div>
-
-

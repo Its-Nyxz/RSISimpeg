@@ -2,16 +2,17 @@
 
 namespace App\Livewire;
 
+use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Shift;
 use Livewire\Component;
+use App\Models\Holidays;
 use App\Models\UnitKerja;
 use App\Imports\JadwalImport;
 use App\Models\JadwalAbsensi;
 use Livewire\WithFileUploads;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Request;
-use App\Models\Holidays;
-use Carbon\Carbon;
 
 class DataJadwal extends Component
 {
@@ -27,6 +28,8 @@ class DataJadwal extends Component
     public $routeIsDashboard;
     public $selectedUnit = null;
     public $selectedUser = null;
+    public $showModalShift = false;
+    public $dataShifts = [];
 
     public function mount()
     {
@@ -134,6 +137,17 @@ class DataJadwal extends Component
         return false;
     }
 
+    public function openShiftModal()
+    {
+        $this->dataShifts = Shift::with('unitKerja')->orderBy('unit_id')->get();
+        $this->showModalShift = true;
+    }
+
+    public function closeShiftModal()
+    {
+        $this->showModalShift = false;
+    }
+
 
     public function import()
     {
@@ -169,7 +183,6 @@ class DataJadwal extends Component
         } catch (\Exception $e) {
             session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-
     }
 
     public function updated($propertyName)

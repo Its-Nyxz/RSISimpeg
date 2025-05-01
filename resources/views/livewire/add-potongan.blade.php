@@ -43,6 +43,7 @@
             <!-- Detail Gaji Bruto (hidden by default) -->
             <div x-show="showDetail" x-transition
                 class="w-full max-w-md mx-auto space-y-2 text-sm bg-gray-50 p-4 rounded shadow">
+
                 <div class="flex justify-between">
                     <strong>Bulan Penggajian</strong>
                     <span>{{ $this->gajiBruto->bulan_penggajian ?? '-' }}</span>
@@ -52,15 +53,52 @@
                     <span>{{ $this->gajiBruto->tahun_penggajian ?? '-' }}</span>
                 </div>
                 <div class="flex justify-between">
-                    <strong>Nominal Jabatan</strong>
+                    <strong>Gaji Pokok (Gapok)</strong>
+                    <span>
+                        @if ($user->tmt)
+                            Rp {{ number_format($gapok, 0, ',', '.') }}
+                        @else
+                            <em class="text-gray-500">TMT belum diisi</em>
+                        @endif
+                    </span>
+                </div>
+
+                <div class="flex justify-between">
+                    <strong>Masa Kerja</strong>
+                    <span>
+                        @if ($user->tmt)
+                            {{ (int) $masaKerjaTahun }} tahun
+                        @else
+                            <em class="text-gray-500">-</em>
+                        @endif
+                    </span>
+                </div>
+                <div class="flex justify-between">
+                    <strong>Tunjangan Jabatan Struktural</strong>
                     <span>Rp {{ number_format($this->gajiBruto->nom_jabatan ?? 0, 0, ',', '.') }}</span>
                 </div>
                 <div class="flex justify-between">
-                    <strong>Nominal Khusus</strong>
+                    <strong>Tunjangan Jabatan Fungsional</strong>
+                    <span>Rp {{ number_format($this->gajiBruto->nom_fungsi ?? 0, 0, ',', '.') }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <strong>Tunjangan Jabatan Umum</strong>
+                    <span>Rp {{ number_format($this->gajiBruto->nom_umum ?? 0, 0, ',', '.') }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <strong>Tunjangan Transport</strong>
+                    <span>Rp {{ number_format($nom_transport ?? 0, 0, ',', '.') }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <strong>Tunjangan Makan</strong>
+                    <span>Rp {{ number_format($nom_makan ?? 0, 0, ',', '.') }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <strong>Tunjangan Khusus</strong>
                     <span>Rp {{ number_format($this->gajiBruto->nom_khusus ?? 0, 0, ',', '.') }}</span>
                 </div>
                 <div class="flex justify-between">
-                    <strong>Nominal Lainnya</strong>
+                    <strong>Tunjangan Kinerja</strong>
                     <span>Rp {{ number_format($this->gajiBruto->nom_lainnya ?? 0, 0, ',', '.') }}</span>
                 </div>
             </div>

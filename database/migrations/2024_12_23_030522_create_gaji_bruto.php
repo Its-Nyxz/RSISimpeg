@@ -16,11 +16,13 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->integer('bulan_penggajian');
             $table->integer('tahun_penggajian');
+            $table->integer('nom_gapok')->nullable();
             $table->integer('nom_jabatan')->nullable();
             $table->integer('nom_fungsi')->nullable();
             $table->integer('nom_umum')->nullable();
             $table->integer('nom_khusus')->nullable();
-            $table->integer('nom_trans')->nullable();
+            $table->integer('nom_makan')->nullable();
+            $table->integer('nom_transport')->nullable();
             $table->integer('nom_pj_poskes')->nullable();
             $table->integer('nom_p_shift')->nullable();
             $table->integer('nom_lainnya')->nullable();
