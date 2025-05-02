@@ -17,11 +17,9 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('cuti:reset-tahunan')
-        //     ->yearlyOn(1, 1, '00:00')
-        //     ->timezone('Asia/Jakarta');
-
-        $schedule->command('generate:cuti-tahunan')->yearly();
+        $schedule->command('generate:cuti-tahunan')
+            ->yearlyOn(1, 1, '00:00')
+            ->timezone('Asia/Jakarta');
     }
 
     /**
