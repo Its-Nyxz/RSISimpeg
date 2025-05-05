@@ -31,6 +31,12 @@ class DataJadwal extends Component
     public $showModalShift = false;
     public $dataShifts = [];
 
+    public $showModalDetailShift = false;
+    public $shiftNama;
+    public $shiftJamMasuk;
+    public $shiftJamKeluar;
+    public $shiftKeterangan;
+
     public function mount()
     {
         $this->units = UnitKerja::orderBy('nama', 'asc')->get();
@@ -113,7 +119,12 @@ class DataJadwal extends Component
 
         $this->filteredShifts = [];
         foreach ($jadwalData as $jadwal) {
-            $this->filteredShifts[$jadwal->user_id][$jadwal->tanggal_jadwal] = optional($jadwal->shift)->nama_shift ?? '-';
+            $this->filteredShifts[$jadwal->user_id][$jadwal->tanggal_jadwal] = [
+                'nama_shift' => optional($jadwal->shift)->nama_shift,
+                'jam_masuk' => optional($jadwal->shift)->jam_masuk,
+                'jam_keluar' => optional($jadwal->shift)->jam_keluar,
+                'keterangan' => optional($jadwal->shift)->keterangan,
+            ];
         }
     }
 
@@ -139,7 +150,12 @@ class DataJadwal extends Component
 
     public function openShiftModal()
     {
-        $this->dataShifts = Shift::with('unitKerja')->orderBy('unit_id')->get();
+        $unitId = auth()->user()->unit_id;
+
+        $this->dataShifts = Shift::with('unitKerja')
+            ->where('unit_id', $unitId)
+            ->get();
+
         $this->showModalShift = true;
     }
 
@@ -190,6 +206,15 @@ class DataJadwal extends Component
         if (in_array($propertyName, ['bulan', 'tahun'])) {
             $this->loadData();
         }
+    }
+
+    public function showShiftDetail($nama_shift, $jam_masuk, $jam_keluar, $keterangan)
+    {
+        $this->shiftNama = $nama_shift;
+        $this->shiftJamMasuk = $jam_masuk;
+        $this->shiftJamKeluar = $jam_keluar;
+        $this->shiftKeterangan = $keterangan;
+        $this->showModalDetailShift = true;
     }
 
     public function render()

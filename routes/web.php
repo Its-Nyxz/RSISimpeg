@@ -50,13 +50,13 @@ use App\Http\Controllers\MasterTunjanganController;
 use App\Http\Controllers\PeranFungsionalController;
 
 use App\Http\Controllers\AktivitasAbsensiController;
-use App\Http\Controllers\KenaikanGolonganController;
+use App\Http\Controllers\KenaikanController;
 use App\Http\Controllers\MasterPendidikanController;
 use App\Http\Controllers\PenilaianPekerjaController;
 use App\Http\Controllers\PerizinanJabatanController;
 use App\Http\Controllers\TunjanganKinerjaController;
-use App\Http\Controllers\KenaikanBerkalaGolController;
 use App\Http\Controllers\MasterJatahCutiController;
+use App\Http\Controllers\MasterPenyesuaianController;
 use App\Http\Controllers\ProposionalitasPointController;
 use App\Models\MasterJatahCuti;
 
@@ -103,8 +103,6 @@ Route::middleware('auth')->group(function () {
     Route::resource('golongan', MasterGolonganController::class);
     Route::resource('pendidikan', MasterPendidikanController::class);
     Route::resource('potongan', MasterPotonganController::class);
-
-    Route::resource('kenaikangol', KenaikanBerkalaGolController::class);
     Route::resource('peranfungsional', PeranFungsionalController::class);
     Route::resource('jabatanperizinan', PerizinanJabatanController::class);
 
@@ -113,7 +111,7 @@ Route::middleware('auth')->group(function () {
     Route::get('jadwal/{tipe}/{id}', [JadwalAbsensiController::class, 'create']);
     Route::resource('jadwal', JadwalAbsensiController::class);
     Route::resource('status', StatusAbsenController::class);
-    Route::resource('kenaikan', KenaikanGolonganController::class);
+    Route::resource('kenaikan', KenaikanController::class);
     Route::resource('penilaian', PenilaianPekerjaController::class);
     Route::resource('jabatanperizinan', PerizinanJabatanController::class);
     Route::resource('detail', DetailJabatanController::class);
@@ -162,6 +160,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('liburnasional', HolidaysController::class);
     Route::get('jatahcuti/{tipe}/{cuti}', [MasterJatahCutiController::class, 'create']);
     Route::resource('jatahcuti', MasterJatahCutiController::class);
+    Route::get('penyesuaian/{tipe}/{penyesuaian}', [MasterPenyesuaianController::class, 'create']);
+    Route::resource('penyesuaian', MasterPenyesuaianController::class);
     Route::get('pengajuan/create/{tipe}', [PengajuanController::class, 'create'])->name('pengajuan.create');
     Route::get('pengajuan/{tipe}', [PengajuanController::class, 'index'])->name('pengajuan.index');
 });

@@ -26,4 +26,12 @@ class Penyesuaian extends Model
     {
         return $this->belongsTo(MasterPenyesuaian::class, 'penyesuaian_id');
     }
+    public function golonganAkhir()
+    {
+        return $this->belongsTo(MasterGolongan::class, 'gol_id_akhir');
+    }
+    public function golonganAwal()
+    {
+        return $this->belongsTo(MasterGolongan::class, 'gol_id_awal');
+    }
 }

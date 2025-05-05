@@ -98,6 +98,9 @@
                             auth()->user()->can('jatah-cuti')
                                 ? ['title' => 'Jatah Cuti Tahunan', 'href' => '/jatahcuti']
                                 : null,
+                            auth()->user()->can('penyesuaian')
+                                ? ['title' => 'Penyesuaian', 'href' => '/penyesuaian']
+                                : null,
                         ])" />
                     @endcan
                     @can('view-kepegawaian')

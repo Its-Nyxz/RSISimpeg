@@ -16,27 +16,45 @@ use Illuminate\Support\Facades\Notification;
 class DataIzin extends Component
 {
     use WithPagination;
+    public $isKepegawaian = false;
 
     public function mount()
     {
         $this->loadData();
+        $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
+        $user = auth()->user();
+
+        $this->isKepegawaian = $user->unit_id == $unitKepegawaianId;
     }
 
     public function loadData()
     {
         $user = auth()->user();
-        // $roles = ['Super Admin', 'Kepala Seksi Kepegawaian', 'Staf Kepegawaian', 'Kepegawaian', 'Administrator'];
+        $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
 
-        // // Jika pengguna memiliki salah satu role di atas, tampilkan semua data
-        // if (in_array($user->hasAnyRole($roles), $roles)) {
-        //     return IzinKaryawan::with('user')->orderByDesc('id')->paginate(10);
-        // }
-
-        // Jika bukan, filter berdasarkan unit_id
-        return IzinKaryawan::with('user')
-            ->whereHas('user', function ($query) use ($user) {
-                $query->where('unit_id', $user->unit_id);
-            })->orderByDesc('id')->paginate(10);
+        if ($user->unit_id == $unitKepegawaianId) {
+            // Kalau dari unit KEPEGAWAIAN:
+            return IzinKaryawan::with('user')
+                ->where(function ($query) use ($unitKepegawaianId) {
+                    $query->where('status_izin_id', 4)
+                        ->orWhere(function ($q) use ($unitKepegawaianId) {
+                            $q->where('status_izin_id', 3)
+                                ->whereHas('user', function ($subquery) use ($unitKepegawaianId) {
+                                    $subquery->where('unit_id', $unitKepegawaianId);
+                                });
+                        });
+                })
+                ->orderByDesc('id')
+                ->paginate(10);
+        } else {
+            // Selain KEPEGAWAIAN: hanya tampilkan berdasarkan unit_id user
+            return IzinKaryawan::with('user')
+                ->whereHas('user', function ($query) use ($user) {
+                    $query->where('unit_id', $user->unit_id);
+                })
+                ->orderByDesc('id')
+                ->paginate(10);
+        }
     }
 
     public function approveIzin($izinId, $userId)
@@ -44,47 +62,65 @@ class DataIzin extends Component
         $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
         $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)->get();
         $izin = IzinKaryawan::find($izinId);
+        $user = auth()->user();
         if ($izin) {
-            $izin->update(['status_izin_id' => 1]);
-
-            $shift = Shift::firstOrCreate(
-                ['nama_shift' => 'I'],
-                [
-                    'unit_id' => auth()->user()->unit_id, // Unit dari user yang approve
-                    'jam_masuk' => null,
-                    'jam_keluar' => null,
-                    'keterangan' => 'Izin'
-                ]
-            );
-            $start = Carbon::parse($izin->tanggal_mulai);
-            $end = Carbon::parse($izin->tanggal_selesai);
-
-            for ($date = $start; $date->lte($end); $date->addDay()) {
-                JadwalAbsensi::updateOrCreate(
+            if ($user->unit_id == $unitKepegawaianId) {
+                $izin->update(['status_izin_id' => 1]);
+                $shift = Shift::firstOrCreate(
+                    ['nama_shift' => 'I'],
                     [
-                        'user_id' => $userId,
-                        'tanggal_jadwal' => $date->toDateString()
-                    ],
-                    [
-                        'shift_id' => $shift->id,
+                        'unit_id' => $user->unit_id, // Unit dari user yang approve
+                        'jam_masuk' => null,
+                        'jam_keluar' => null,
+                        'keterangan' => 'Izin'
                     ]
                 );
-            }
+                $start = Carbon::parse($izin->tanggal_mulai);
+                $end = Carbon::parse($izin->tanggal_selesai);
 
-            $nextUser = User::where('id', $userId)->first();
-            $message = 'Pengajuan Izin anda (' . $nextUser->name .
-                ') mulai <span class="font-bold">' . $izin->tanggal_mulai . ' sampai ' .  $izin->tanggal_selesai .
-                '</span> ' . '  dengan keterangan "' . $izin->keterangan . '"  telah <span class="text-green-600 font-bold">Disetujui</span> oleh ' . auth()->user()->name;
-            $messageKepegawaian = 'Pengajuan Izin atas nama (' . $nextUser->name .
-                ') mulai <span class="font-bold">' . $izin->tanggal_mulai . ' sampai ' .  $izin->tanggal_selesai .
-                '</span> ' . '  dengan keterangan "' . $izin->keterangan . '"  telah <span class="text-green-600 font-bold">Disetujui</span> oleh ' . auth()->user()->name;
+                for ($date = $start; $date->lte($end); $date->addDay()) {
+                    JadwalAbsensi::updateOrCreate(
+                        [
+                            'user_id' => $userId,
+                            'tanggal_jadwal' => $date->toDateString()
+                        ],
+                        [
+                            'shift_id' => $shift->id,
+                        ]
+                    );
+                }
 
-            $url = "/pengajuan/ijin";
-            if ($nextUser) {
-                Notification::send($nextUser, new UserNotification($message, $url));
-                Notification::send($kepegawaianUsers, new UserNotification($messageKepegawaian, $url));
+                $nextUser = User::where('id', $userId)->first();
+                $message = 'Pengajuan Izin anda (' . $nextUser->name .
+                    ') mulai <span class="font-bold">' . $izin->tanggal_mulai . ' sampai ' .  $izin->tanggal_selesai .
+                    '</span> ' . '  dengan keterangan "' . $izin->keterangan . '"  telah <span class="text-green-600 font-bold">Disetujui Final</span> oleh ' . $user->name;
+
+
+                $url = "/pengajuan/ijin";
+                if ($nextUser) {
+                    Notification::send($nextUser, new UserNotification($message, $url));
+                }
+                return redirect()->route('approvalizin.index')->with('success', 'Pengajuan Izin disetujui Final.');
+            } else {
+                // Kalau unit selain kepegawaian, hanya setujui kepala unit
+                $izin->update(['status_izin_id' => 4]);
+
+                $nextUser = User::where('id', $userId)->first();
+                $message = 'Pengajuan Ijim anda (' . $nextUser->name .
+                    ') telah <span class="text-green-600 font-bold">Disetujui Kepala Unit</span> oleh ' . $user->name;
+                $messagekepegawaian = 'Pengajuan Ijin atas nama (' . $nextUser->name .
+                    ') telah <span class="text-green-600 font-bold">Disetujui Kepala Unit</span> oleh ' . $user->name . ', silahkan melanjutkan persetujuan ';
+
+                $url = "/pengajuan/ijin";
+                $urlkepegawaian = "/approvalizin";
+                if ($nextUser) {
+                    Notification::send($nextUser, new UserNotification($message, $url));
+                    Notification::send($kepegawaianUsers, new UserNotification($messagekepegawaian, $urlkepegawaian));
+                }
+
+                return redirect()->route('approvalizin.index')->with('success', 'Ijin disetujui Kepala Unit!');
+                $this->resetPage();
             }
-            return redirect()->route('approvalizin.index')->with('success', 'Izin berhasil disetujui.');
         }
     }
 
@@ -116,8 +152,10 @@ class DataIzin extends Component
 
     public function render()
     {
+        $users = $this->loadData();
         return view('livewire.data-izin', [
-            'userIzin' => $this->loadData(),
+            'userIzin' => $users,
+            'isKepegawaian' => $this->isKepegawaian,
         ]);
     }
 }

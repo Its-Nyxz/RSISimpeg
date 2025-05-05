@@ -147,7 +147,7 @@ class PengajuanForm extends Component
                 ->first();
 
             $message = 'Pengajuan Cuti ' . auth()->user()->name .
-                'mulai <span class="font-bold">' . $this->tanggal_mulai . ' sampai ' .  $this->tanggal_selesai .
+                ' mulai <span class="font-bold">' . $this->tanggal_mulai . ' sampai ' .  $this->tanggal_selesai .
                 '</span> ' .
                 ($jenis_cuti ? $jenis_cuti->nama_cuti : 'Tidak Diketahui') .
                 ' dengan keterangan ' . $this->keterangan . ' membutuhkan persetujuan Anda.';
@@ -195,16 +195,11 @@ class PengajuanForm extends Component
                 '</span> ' .
                 ($jenis_izin ? $jenis_izin->nama_izin : 'Tidak Diketahui') .
                 ' dengan keterangan ' . $this->keterangan . ' membutuhkan persetujuan Anda.';
-            $messageKepegawaian = 'Pengajuan Izin ' . auth()->user()->name .
-                ' mulai <span class="font-bold">' . $this->tanggal_mulai . ' sampai ' .  $this->tanggal_selesai .
-                '</span> ' .
-                ($jenis_izin ? $jenis_izin->nama_izin : 'Tidak Diketahui') .
-                ' dengan keterangan ' . $this->keterangan . ' memerlukan perhatian Anda.';
+            
 
             $url = "/approvalizin";
             if ($nextUser) {
                 Notification::send($nextUser, new UserNotification($message, $url));
-                Notification::send($kepegawaianUsers, new UserNotification($messageKepegawaian, $url));
             }
             return redirect()->route('pengajuan.index', 'ijin')->with('success', 'Pengajuan Izin berhasil di ajukan!');
         } elseif ($this->tipe === 'tukar_jadwal') {

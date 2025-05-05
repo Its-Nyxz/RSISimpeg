@@ -36,14 +36,15 @@
                         </td>
                         <td class="px-6 py-4 text-center">
                             <div class="flex justify-center gap-2">
-                                @if ($izin->status_izin_id == 3)
-                                    <button type="button"
+                                @if ($izin->status_izin_id == 3 || ($isKepegawaian && $izin->status_izin_id == 4))
+                                    <button
                                         onclick="confirmAlert('Ingin menyetujui izin ini?', 'Ya, Setujui!', () => @this.call('approveIzin', {{ $izin->id }}, {{ $izin->user->id }}))"
                                         class="bg-green-600 text-white px-3 py-1 rounded-lg flex items-center gap-2">
                                         <i class="fa-solid fa-check"></i> Disetujui
                                     </button>
+
                                     <button
-                                        onclick="confirmRejectWithReason('Ingin menolak izin ini?', 'Ya, Tolak!', () => @this.call('rejectIzin', {{ $izin->id }}, {{ $izin->user->id }}))"
+                                        onclick="confirmRejectWithReason('Ingin menolak izin ini?', 'Ya, Tolak!', (reason) => @this.call('rejectIzin', {{ $izin->id }}, {{ $izin->user->id }}, reason))"
                                         class="bg-red-600 text-white px-3 py-1 rounded-lg flex items-center gap-2">
                                         <i class="fa-solid fa-xmark"></i> Ditolak
                                     </button>
@@ -55,7 +56,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="text-center px-6 py-4">Tidak ada data Cuti Karyawan.</td>
+                        <td colspan="8" class="text-center px-6 py-4">Tidak ada data Ijin Karyawan.</td>
                     </tr>
                 @endforelse
             </tbody>

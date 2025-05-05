@@ -5,7 +5,7 @@
                 <label for="tahun">Tahun</label>
             </td>
             <td>
-                <input type="number" id="tahun" wire:model.defer="tahun"
+                <input type="number" id="tahun" wire:model.live="tahun"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
                     min="2020" placeholder="Masukkan Tahun" required />
                 @error('tahun')
@@ -18,7 +18,7 @@
                 <label for="jumlah_cuti">Jumlah Cuti</label>
             </td>
             <td>
-                <input type="number" id="jumlah_cuti" wire:model.defer="jumlah_cuti"
+                <input type="number" id="jumlah_cuti" wire:model.live="jumlah_cuti"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
                     min="0" placeholder="Masukkan Jumlah Cuti" required />
                 @error('jumlah_cuti')

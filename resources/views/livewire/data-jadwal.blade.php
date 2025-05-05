@@ -195,17 +195,23 @@
 
                         @foreach ($tanggalJadwal as $tanggal)
                             @php
-                                $carbonDate = \Carbon\Carbon::parse($tanggal);
-                                $hari = $carbonDate->format('l');
-                                $isHoliday = $this->isHoliday($tanggal);
-
-                                $namaShift = $filteredShifts[$user_id][$tanggal] ?? null;
-                                $isSpecialShift = in_array($namaShift, ['I', 'C']);
+                                $shiftData = $filteredShifts[$user_id][$tanggal] ?? null;
+                                $isSpecialShift = in_array($shiftData['nama_shift'] ?? '', ['I', 'C']);
                             @endphp
+
                             <td
-                                class="px-2 py-3 text-center 
-                             {{ $isHoliday || $isSpecialShift ? 'bg-red-200 text-red-600' : ($hari === 'Sunday' ? 'bg-red-200 text-red-600' : '') }}">
-                                {{ $namaShift ?? '-' }}
+                                class="px-2 py-3 text-center
+                        {{ $isHoliday || $isSpecialShift ? 'bg-red-200 text-red-600' : ($hari === 'Sunday' ? 'bg-red-200 text-red-600' : '') }}">
+
+                                @if ($shiftData)
+                                    <button
+                                        wire:click="showShiftDetail('{{ $shiftData['nama_shift'] }}', '{{ $shiftData['jam_masuk'] }}', '{{ $shiftData['jam_keluar'] }}', `{{ $shiftData['keterangan'] ?? '-' }}`)"
+                                        class="hover:text-blue-700 hover:underline transition duration-150">
+                                        {{ $shiftData['nama_shift'] ?? '-' }}
+                                    </button>
+                                @else
+                                    -
+                                @endif
                             </td>
                         @endforeach
                         @can('edit-jadwal')
@@ -261,5 +267,27 @@
             </div>
         </div>
     @endif
+    @if ($showModalDetailShift)
+        <div class="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center px-4">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md sm:max-w-lg p-6 relative overflow-hidden">
 
-</div>
+                <!-- Judul -->
+                <h2 class="text-lg sm:text-xl font-semibold mb-4 text-center">Detail Shift</h2>
+
+                <!-- Isi Modal -->
+                <div class="text-sm sm:text-base text-gray-700 space-y-2">
+                    <div><strong>Nama Shift:</strong> {{ $shiftNama }}</div>
+                    <div><strong>Jam:</strong> {{ $shiftJamMasuk }} - {{ $shiftJamKeluar }}</div>
+                    <div><strong>Keterangan:</strong> {{ $shiftKeterangan ?? '-' }}</div>
+                </div>
+
+                <!-- Tombol Tutup -->
+                <div class="mt-6 text-center">
+                    <button wire:click="$set('showModalDetailShift', false)"
+                        class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg transition duration-200">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif

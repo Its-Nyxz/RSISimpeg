@@ -60,11 +60,11 @@ class CreateShift extends Component
 
         // Konversi waktu ke timezone Asia/Jakarta
         $jamMasuk = $this->jam_masuk
-            ? Carbon::createFromFormat('H:i', $this->jam_masuk, 'Asia/Jakarta')->format('H:i:s')
+            ? Carbon::createFromFormat('H:i', $this->jam_masuk, 'Asia/Jakarta')->format('H:i')
             : null;
 
         $jamKeluar = $this->jam_keluar
-            ? Carbon::createFromFormat('H:i', $this->jam_keluar, 'Asia/Jakarta')->format('H:i:s')
+            ? Carbon::createFromFormat('H:i', $this->jam_keluar, 'Asia/Jakarta')->format('H:i')
             : null;
 
         Shift::create([

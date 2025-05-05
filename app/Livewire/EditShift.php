@@ -57,8 +57,8 @@ class EditShift extends Component
         $shift = Shift::findOrFail($this->shift_id);
         $shift->update([
             'nama_shift' => $this->nama_shift,
-            'jam_masuk' => $this->jam_masuk !== '' ? Carbon::createFromFormat('H:i', $this->jam_masuk, 'Asia/Jakarta')->format('H:i:s') : null,
-            'jam_keluar' => $this->jam_keluar !== '' ? Carbon::createFromFormat('H:i', $this->jam_keluar, 'Asia/Jakarta')->format('H:i:s') : null,
+            'jam_masuk' => $this->jam_masuk !== '' ? Carbon::createFromFormat('H:i', $this->jam_masuk, 'Asia/Jakarta')->format('H:i') : null,
+            'jam_keluar' => $this->jam_keluar !== '' ? Carbon::createFromFormat('H:i', $this->jam_keluar, 'Asia/Jakarta')->format('H:i') : null,
             'keterangan' => $this->keterangan,
             'unit_id' => $this->unit_id,
         ]);

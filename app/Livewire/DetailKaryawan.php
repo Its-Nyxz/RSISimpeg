@@ -27,11 +27,12 @@ class DetailKaryawan extends Component
     public $viewPendAwal;
     public $listCuti;
     public $listIzin;
+    public $listPenyesuaian;
 
     public function mount($user)
     {
         // Mendapatkan data user
-        $this->user = $user;
+        $this->user = $user->load(['sisaCutiTahunan', 'pendidikanUser']);
         $this->user_id = $user->id;
         $this->pend_awal_id = $user->kategori_pendidikan;
         $this->pend_awal = $user->pendidikanUser->deskripsi ?? null;
@@ -39,16 +40,20 @@ class DetailKaryawan extends Component
         $this->statusKaryawan = $user->status_karyawan;
         $this->alasanResign = $user->alasan_resign;
         $this->pendidikans = MasterPendidikan::all();
-        $this->viewPendAwal = Penyesuaian::with('penyesuaian', 'user')->where('user_id', $this->user_id)->first();
+        $this->viewPendAwal = Penyesuaian::with('penyesuaian', 'user')
+            ->where('user_id', $this->user_id)
+            ->where('status_penyesuaian', 1) // tampilkan yang aktif
+            ->first();
         // $this->roles = DB::table('roles')
         //     ->join('model_has_roles', 'roles.id', '=', 'model_has_roles.role_id')
         //     ->where('model_has_roles.model_id', $this->user_id)
         //     ->pluck('roles.name')
         //     ->toArray();
         $this->pendidikans = MasterPendidikan::all();
-            // return CutiKaryawan::with('user')->where('user_id');
+        // return CutiKaryawan::with('user')->where('user_id');
         $this->listCuti = CutiKaryawan::with('user')->where('user_id', $this->user_id)->orderBy('created_at', 'desc')->get();
         $this->listIzin = IzinKaryawan::with('user')->where('user_id', $this->user_id)->orderBy('created_at', 'desc')->get();
+        $this->listPenyesuaian = Penyesuaian::with('user')->where('user_id', $this->user_id)->where('status_penyesuaian', 0)->orderBy('created_at', 'desc')->get();
         // dd($this->viewPendAwal);
     }
 
@@ -81,41 +86,88 @@ class DetailKaryawan extends Component
             'pend_penyesuaian' => 'required',
             'tanggal_penyesuaian' => 'required',
         ], [
-            'tmt.required' => 'Tanggal Mulai Kerja tidak boleh kosong, Silakan isi dulu melalui Edit Karyawan.',
-            'pend_awal.required' => 'Pendidikan Awal tidak boleh kosong, Silakan isi dulu melalui Edit Karyawan.',
-            'tanggal_penyesuaian.required' => 'Tanggal Penyesuaian tidak boleh kosong',
-            'pend_penyesuaian.required' => 'Penyesuaian pendidikan tidak boleh kosong',
+            'tmt.required' => 'Tanggal Mulai Kerja tidak boleh kosong, silakan isi dulu melalui Edit Karyawan.',
+            'pend_awal.required' => 'Pendidikan Awal tidak boleh kosong.',
+            'pend_penyesuaian.required' => 'Pendidikan Penyesuaian tidak boleh kosong.',
+            'tanggal_penyesuaian.required' => 'Tanggal Penyesuaian tidak boleh kosong.',
         ]);
+
         if ($this->pend_penyesuaian == $this->pend_awal_id) {
-            return redirect()->route('detailkaryawan.show', $this->user_id)->with('error', 'Penyesuaian Pendidikan dan Pendidikan Awal tidak boleh sama.');
-        } else {
-            $cekMasterPenyesuaian = MasterPenyesuaian::where('pendidikan_awal', $this->pend_awal_id)->where('pendidikan_penyesuaian', $this->pend_penyesuaian)->where('user_id', $this->user_id)->exists();
-            if (!$cekMasterPenyesuaian) {
-                $existingPenyesuaian = Penyesuaian::where('user_id', $this->user_id)->where('status_penyesuaian', 1)->first();
-                // Jika ada, ubah status_penyesuaian menjadi non aktif
-                if ($existingPenyesuaian) {
-                    $existingPenyesuaian->update(['status_penyesuaian' => 0]);
-                }
-                $masterPenyesuaian = MasterPenyesuaian::create([
-                    'user_id' => $this->user_id,
-                    'pendidikan_awal' => $this->pend_awal_id,
-                    'pendidikan_penyesuaian' => $this->pend_penyesuaian,
-                    'masa_kerja' => 'coming soon',
-                ]);
-                Penyesuaian::create([
-                    'user_id' => $this->user_id,
-                    'penyesuaian_id' => $masterPenyesuaian->id, //last id master
-                    'tanggal_penyesuaian' => $this->tanggal_penyesuaian,
-                    'status_penyesuaian' => 1
-                ]);
-                User::findOrFail($this->user_id)->update([
-                    'kategori_pendidikan' => $this->pend_penyesuaian
-                ]);
-                return redirect()->route('detailkaryawan.show', $this->user_id)->with('success', 'History berhasil di tambahkan.');
-            } else {
-                return redirect()->route('detailkaryawan.show', $this->user_id)->with('error', 'History sudah ada sebelumnya.');
-            }
+            return redirect()->route('detailkaryawan.show', $this->user_id)
+                ->with('error', 'Penyesuaian Pendidikan dan Pendidikan Awal tidak boleh sama.');
         }
+
+        // Cek apakah user sudah pernah melakukan penyesuaian ke pendidikan yang sama
+        $sudahAda = Penyesuaian::where('user_id', $this->user_id)
+            ->whereHas('penyesuaian', function ($query) {
+                $query->where('pendidikan_awal', $this->pend_awal_id)
+                    ->where('pendidikan_penyesuaian', $this->pend_penyesuaian);
+            })
+            ->exists();
+
+        if ($sudahAda) {
+            return redirect()->route('detailkaryawan.show', $this->user_id)
+                ->with('error', 'History sudah pernah ditambahkan sebelumnya.');
+        }
+
+        // Ambil atau buat master penyesuaian
+        $master = MasterPenyesuaian::firstOrCreate(
+            [
+                'pendidikan_awal' => $this->pend_awal_id,
+                'pendidikan_penyesuaian' => $this->pend_penyesuaian,
+            ],
+            [
+                'masa_kerja' => '-', // Default pengurangan jika belum diatur
+            ]
+        );
+
+        // Ambil data user
+        $user = User::findOrFail($this->user_id);
+        $masaKerjaAwal = $user->masa_kerja;
+        $golAwal = $user->gol_id;
+
+        // Ambil masa kerja yang dikurangi dari master (hanya angka)
+        $pengurangan = (int) filter_var($master->masa_kerja, FILTER_SANITIZE_NUMBER_INT);
+        $masaKerjaAkhir = max(0, $masaKerjaAwal - $pengurangan);
+
+        $pendidikanBaru = MasterPendidikan::find($this->pend_penyesuaian);
+
+        $golBaru = $golAwal; // default
+        if ($pendidikanBaru) {
+            $naikGol = floor($masaKerjaAkhir / 4);     // 1 kenaikan per 4 tahun
+            $naikGol = min($naikGol, 4);               // maksimal 4 kali
+
+            $golDihitung = $pendidikanBaru->minim_gol + $naikGol;
+
+            $golBaru = min($golDihitung, $pendidikanBaru->maxim_gol); // batasi maksimal gol
+        }
+
+        // Nonaktifkan penyesuaian lama
+        Penyesuaian::where('user_id', $this->user_id)
+            ->where('status_penyesuaian', 1)
+            ->update(['status_penyesuaian' => 0]);
+
+        // Simpan penyesuaian baru
+        Penyesuaian::create([
+            'user_id' => $this->user_id,
+            'penyesuaian_id' => $master->id,
+            'tanggal_penyesuaian' => $this->tanggal_penyesuaian,
+            'status_penyesuaian' => 1,
+            'gol_id_awal' => $golAwal,
+            'gol_id_akhir' => $golBaru,
+            'masa_kerja_awal' => $masaKerjaAwal,
+            'masa_kerja_akhir' => $masaKerjaAkhir,
+        ]);
+
+        // Update data user
+        $user->update([
+            'kategori_pendidikan' => $this->pend_penyesuaian,
+            'masa_kerja' => $masaKerjaAkhir,
+            'gol_id' => $golBaru,
+        ]);
+
+        return redirect()->route('detailkaryawan.show', $this->user_id)
+            ->with('success', 'History berhasil ditambahkan.');
     }
 
     public function render()

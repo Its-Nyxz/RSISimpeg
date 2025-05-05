@@ -18,6 +18,11 @@ return new class extends Migration
             $table->unsignedBigInteger('penyesuaian_id');
             $table->date('tanggal_penyesuaian')->nullable();
             $table->string('status_penyesuaian')->nullable();
+            $table->unsignedBigInteger('gol_id_awal')->nullable();     // Golongan sebelum penyesuaian
+            $table->unsignedBigInteger('gol_id_akhir')->nullable();    // Golongan setelah penyesuaian
+            $table->integer('masa_kerja_awal')->nullable();            // Tahun
+            $table->integer('masa_kerja_akhir')->nullable();           // Tahun
+
             $table->timestamps(0);
 
             $table->foreign('user_id')->references('id')->on('users');

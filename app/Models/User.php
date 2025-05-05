@@ -170,6 +170,6 @@ class User extends Authenticatable
 
     public function sisaCutiTahunan()
     {
-        return $this->hasMany(SisaCutiTahunan::class);
+        return $this->hasOne(SisaCutiTahunan::class);
     }
 }

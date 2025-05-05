@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
             MasterFungsiSeeder::class,
             MasterUmumSeeder::class,
             MasterKhususSeeder::class,
-            // MasterPenyesuaianSeeder::class,
+            MasterPenyesuaianSeeder::class,
             // MasterPotonganSeeder::class,
             MasterTransSeeder::class,
             OpsiAbsenSeeder::class,

@@ -80,8 +80,6 @@ class DataCuti extends Component
                         if ($userCuti->sisa_cuti >= $cuti->jumlah_hari) {
                             $cuti->update(['status_cuti_id' => 1]);
                             $userCuti->decrement('sisa_cuti', $cuti->jumlah_hari);
-
-                            return redirect()->route('approvalcuti.index')->with('success', 'Cuti disetujui.');
                         } else {
                             $cuti->update(['status_cuti_id' => 2]);
 

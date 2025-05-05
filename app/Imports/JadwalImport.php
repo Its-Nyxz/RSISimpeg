@@ -51,26 +51,30 @@ class JadwalImport implements ToCollection
                     $tanggal_jadwal = "{$this->tahun}-" . str_pad($this->bulan, 2, '0', STR_PAD_LEFT) . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
 
 
-                    $nama_shift = isset($row[4 + $day]) ? trim($row[4 + $day]) : null; // Ambil nama shift untuk tanggal ke-n
+                    $shiftCell = isset($row[4 + $day]) ? trim($row[4 + $day]) : null;
 
-                    // Jika ditemukan 'L' (menandakan libur), maka hapus jadwal sebelumnya
-                    if ($nama_shift === 'L') {
-                        // Cek apakah jadwal sebelumnya ada di database
-                        $existingJadwal = JadwalAbsensi::where('user_id', $user->id)
-                            ->where('tanggal_jadwal', $tanggal_jadwal)
-                            ->first();
+                    // Default null
+                    $nama_shift = null;
+                    $jam_masuk = null;
+                    $jam_keluar = null;
 
-                        if ($existingJadwal) {
-                            // Hapus jadwal sebelumnya
-                            $existingJadwal->delete();
-
-                            Log::info("Jadwal pada tanggal {$tanggal_jadwal} untuk user {$user->id} dihapus karena libur ('L').");
+                    // Jika bukan libur, parse nama dan jam shift dari format "Pagi (08:00 - 16:00)"
+                    if ($shiftCell && $shiftCell !== 'L') {
+                        if (preg_match('/^(.+?)\s*\((\d{2}:\d{2})\s*-\s*(\d{2}:\d{2})\)$/', $shiftCell, $matches)) {
+                            $nama_shift = trim($matches[1]);
+                            $jam_masuk = $matches[2];
+                            $jam_keluar = $matches[3];
+                        } else {
+                            // Fallback jika tidak cocok formatnya
+                            $nama_shift = $shiftCell;
                         }
-                        continue;
                     }
 
                     if ($nama_shift) {
-                        $shift = Shift::where('nama_shift', $nama_shift)->first();
+                        $shift = Shift::where('nama_shift', $nama_shift)
+                            ->where('jam_masuk', $jam_masuk)
+                            ->where('jam_keluar', $jam_keluar)
+                            ->first();
 
                         if ($shift) {
                             if ($user->id && $tanggal_jadwal && $shift->id) {

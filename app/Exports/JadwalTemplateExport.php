@@ -17,7 +17,7 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
     protected $unitId;
     protected $month;
     protected $year;
-    
+
 
     public function __construct($month, $year)
     {
@@ -101,10 +101,12 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
                 $sheet = $event->sheet->getDelegate();
 
                 // ======= Tambahkan Data Shift di Sheet Terpisah =======
-                $shifts = Shift::where('unit_id', $this->unitId)->pluck('nama_shift')->toArray();
+                $shifts = Shift::where('unit_id', $this->unitId)->get()->map(function ($shift) {
+                    return "{$shift->nama_shift} ({$shift->jam_masuk}-{$shift->jam_keluar})";
+                })->toArray();
 
-                // Tambahkan opsi "L" (Libur) ke dalam daftar shift
-                array_push($shifts, 'L', ''); // Tambahkan L dan kosong untuk opsi libur
+                // Tambahkan Libur (L) dan kosong
+                array_push($shifts, 'L (-)', '');
 
                 if (count($shifts) > 0) {
                     // Buat sheet baru untuk daftar shift (JANGAN DISEMBUNYIKAN)
