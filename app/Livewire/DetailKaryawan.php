@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\CutiKaryawan;
+use App\Models\Gapok;
 use App\Models\IzinKaryawan;
 use Livewire\Component;
 use App\Models\Penyesuaian;
@@ -28,6 +29,7 @@ class DetailKaryawan extends Component
     public $listCuti;
     public $listIzin;
     public $listPenyesuaian;
+    public $listGapok;
 
     public function mount($user)
     {
@@ -54,6 +56,7 @@ class DetailKaryawan extends Component
         $this->listCuti = CutiKaryawan::with('user')->where('user_id', $this->user_id)->orderBy('created_at', 'desc')->get();
         $this->listIzin = IzinKaryawan::with('user')->where('user_id', $this->user_id)->orderBy('created_at', 'desc')->get();
         $this->listPenyesuaian = Penyesuaian::with('user')->where('user_id', $this->user_id)->where('status_penyesuaian', 0)->orderBy('created_at', 'desc')->get();
+        $this->listGapok = Gapok::with('user')->where('user_id', $this->user_id)->orderBy('created_at', 'desc')->get();
         // dd($this->viewPendAwal);
     }
 
@@ -110,16 +113,14 @@ class DetailKaryawan extends Component
                 ->with('error', 'History sudah pernah ditambahkan sebelumnya.');
         }
 
-        // Ambil atau buat master penyesuaian
-        $master = MasterPenyesuaian::firstOrCreate(
-            [
-                'pendidikan_awal' => $this->pend_awal_id,
-                'pendidikan_penyesuaian' => $this->pend_penyesuaian,
-            ],
-            [
-                'masa_kerja' => '-', // Default pengurangan jika belum diatur
-            ]
-        );
+        $master = MasterPenyesuaian::where('pendidikan_awal', $this->pend_awal_id)
+            ->where('pendidikan_penyesuaian', $this->pend_penyesuaian)
+            ->first();
+
+        if (!$master) {
+            return redirect()->route('detailkaryawan.show', $this->user_id)
+                ->with('error', 'Data master penyesuaian tidak ditemukan. Silakan hubungi admin untuk menambahkan terlebih dahulu.');
+        }
 
         // Ambil data user
         $user = User::findOrFail($this->user_id);

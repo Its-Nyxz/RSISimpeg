@@ -13,14 +13,19 @@ return new class extends Migration
     {
         Schema::create('t_gapok', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('gol_id');
-            $table->unsignedBigInteger('gapok_id');
-            $table->timestamps(0);
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('gol_id');       // Golongan sebelumnya
+            $table->unsignedBigInteger('gol_id_baru')->nullable(); // Golongan baru (khusus kenaikan golongan)
 
-            $table->foreign('user_id')->references('id')->on('users');
-            // $table->foreign('gol_id')->references('id')->on('master_golongan');
-            $table->foreign('gapok_id')->references('id')->on('master_gapok');
+            $table->unsignedInteger('masa_kerja');      // Masa kerja saat kenaikan
+            $table->unsignedBigInteger('gapok')->nullable(); // Gaji saat itu
+
+            $table->enum('jenis_kenaikan', ['berkala', 'golongan']);
+            $table->integer('status')->nullable();
+            $table->string('catatan')->nullable();
+
+            $table->date('tanggal_kenaikan')->nullable();
+            $table->timestamps();
         });
     }
 

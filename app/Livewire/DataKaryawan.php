@@ -2,10 +2,11 @@
 
 namespace App\Livewire;
 
-use App\Models\UnitKerja;
 use App\Models\User;
 use Livewire\Component;
+use App\Models\UnitKerja;
 use Livewire\WithPagination;
+use App\Models\JenisKaryawan;
 use Illuminate\Support\Facades\Auth;
 
 class DataKaryawan extends Component
@@ -18,9 +19,13 @@ class DataKaryawan extends Component
     public $selectedUserAktif = 1; // Default aktif
     public $selectedUnit = null;
 
+    public $selectedJenisKaryawan = null;
+    public $jenisKaryawans = [];
+
     public function mount()
     {
         $this->units = UnitKerja::all();
+        $this->jenisKaryawans = JenisKaryawan::all();
         $this->loadData();
     }
 
@@ -45,7 +50,7 @@ class DataKaryawan extends Component
         $roles = ['Super Admin', 'Kepala Seksi Kepegawaian', 'Staf Kepegawaian', 'Kepegawaian', 'Administrator'];
         $unit_id = Auth::user()->unit_id;
 
-        return User::with(['kategorijabatan', 'unitKerja', 'roles'])
+        return User::with(['kategorijabatan', 'unitKerja', 'roles', 'jenis'])
             ->where('id', '>', '1') // Eager load jabatan dan unitKerja
             ->when(!Auth::user()->hasAnyRole($roles), function ($query) use ($unit_id) {
                 $unitIds = UnitKerja::where('id', $unit_id)
@@ -87,6 +92,9 @@ class DataKaryawan extends Component
                     ->toArray();
 
                 $query->whereIn('unit_id', $unitIds);
+            })
+            ->when($this->selectedJenisKaryawan, function ($query) {
+                $query->where('jenis_id', $this->selectedJenisKaryawan);
             })
             ->paginate(15);
     }

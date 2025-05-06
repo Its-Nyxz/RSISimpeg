@@ -335,12 +335,51 @@
                 </div>
 
                 {{-- Kolom 4: Bisa dikembangkan --}}
-                {{-- <div class="w-full">
-                    <div class="text-lg font-semibold mb-2">Lainnya</div>
-                    <div class="p-4 bg-success-50 text-gray-700 rounded shadow-sm text-center">
-                        Belum ada data lainnya.
+                <div class="w-full">
+                    <div class="text-lg font-semibold mb-2">Riwayat Kenaikan Gapok</div>
+                    <div class="relative overflow-x-auto max-w-full shadow-md sm:rounded-lg">
+                        <div class="max-h-96 overflow-y-auto">
+                            <table class="w-full text-xs sm:text-sm text-center text-gray-700">
+                                <thead class="uppercase bg-success-400 text-success-900 sticky top-0 z-10">
+                                    <tr>
+                                        <th class="px-2 py-2 sm:px-4">Tanggal Kenaikan</th>
+                                        <th class="px-2 py-2 sm:px-4">Jenis Kenaikan</th>
+                                        <th class="px-2 py-2 sm:px-4">Gaji Pokok</th>
+                                        <th class="px-2 py-2 sm:px-4">Gol Baru</th>
+                                        <th class="px-2 py-2 sm:px-4">Catatan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($listGapok as $kenaikan)
+                                        <tr
+                                            class="@if (!$kenaikan->status && $kenaikan->catatan) bg-red-200 @else odd:bg-success-50 even:bg-success-100 hover:bg-success-300 @endif border-b border-success-300">
+                                            <td class="px-2 py-2 sm:px-4">
+                                                {{ formatDate($kenaikan->tanggal_kenaikan) ?? '-' }}</td>
+                                            <td class="px-2 py-2 sm:px-4">
+                                                {{ $kenaikan->jenis_kenaikan ?? '-' }}</td>
+                                            <td class="px-2 py-2 sm:px-4">
+                                                Rp {{ number_format($kenaikan->gapok, 0, ',', '.') }}
+                                            </td>
+                                            <td>
+                                                {{ $kenaikan->golonganBaru->nama ?? '-' }}
+                                                @if (!$kenaikan->status && $kenaikan->jenis_kenaikan === 'golongan')
+                                                    <span class="text-red-600 text-xs font-semibold">(Ditolak)</span>
+                                                @endif
+                                            </td>
+                                            <td class="px-2 py-2 sm:px-4">
+                                                {{ $kenaikan->catatan ?? '-' }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center py-2">Belum ada kenaikan
+                                                pendidikan.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div> --}}
+                </div>
             </div>
         </x-card-tanpa-title>
     </div>

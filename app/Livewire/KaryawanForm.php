@@ -89,8 +89,9 @@ class KaryawanForm extends Component
         // if ($value) {
         if ($field === 'jabatan') {
             $categories = KategoriJabatan::where('nama', 'like', "%$value%")
+                ->whereIn('tunjangan', ['jabatan', 'umum']) // hanya ambil jabatan tunjangan kabatan & umum
                 ->get()
-                ->groupBy('tunjangan'); // Mengelompokkan berdasarkan tunjangan
+                ->groupBy('tunjangan');
 
             foreach ($categories as $tunjangan => $katjabList) {
                 $this->suggestions[$field][$tunjangan] = $katjabList->pluck('nama')->toArray();

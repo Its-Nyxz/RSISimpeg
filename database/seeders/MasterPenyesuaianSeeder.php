@@ -47,18 +47,23 @@ class MasterPenyesuaianSeeder extends Seeder
             ['pendidikan_awal' => 7, 'pendidikan_penyesuaian' => 11, 'masa_kerja' => 1], // S1 - Umum -> S2 - Umum
             ['pendidikan_awal' => 7, 'pendidikan_penyesuaian' => 12, 'masa_kerja' => 2], // S1 - Umum -> S2 - Spesialis
             ['pendidikan_awal' => 7, 'pendidikan_penyesuaian' => 13, 'masa_kerja' => 2], // S1 - Umum -> S2 - Direktur
+            ['pendidikan_awal' => 7, 'pendidikan_penyesuaian' => 14, 'masa_kerja' => 2], // S1 - Umum -> S2 - Direktur
             ['pendidikan_awal' => 8, 'pendidikan_penyesuaian' => 11, 'masa_kerja' => 2], // S1 - Apoteker -> S2 - Umum
             ['pendidikan_awal' => 8, 'pendidikan_penyesuaian' => 12, 'masa_kerja' => 2], // S1 - Apoteker -> S2 - Spesialis
             ['pendidikan_awal' => 8, 'pendidikan_penyesuaian' => 13, 'masa_kerja' => 2], // S1 - Apoteker -> S2 - Direktur
+            ['pendidikan_awal' => 8, 'pendidikan_penyesuaian' => 14, 'masa_kerja' => 2], // S1 - Apoteker -> S2 - Direktur
             ['pendidikan_awal' => 9, 'pendidikan_penyesuaian' => 11, 'masa_kerja' => 2], // S1 - Nurse -> S2 - Umum
             ['pendidikan_awal' => 9, 'pendidikan_penyesuaian' => 12, 'masa_kerja' => 2], // S1 - Nurse -> S2 - Spesialis
             ['pendidikan_awal' => 9, 'pendidikan_penyesuaian' => 13, 'masa_kerja' => 2], // S1 - Nurse -> S2 - Direktur
+            ['pendidikan_awal' => 9, 'pendidikan_penyesuaian' => 14, 'masa_kerja' => 2], // S1 - Nurse -> S2 - Direktur
             ['pendidikan_awal' => 10, 'pendidikan_penyesuaian' => 11, 'masa_kerja' => 2], // S1 - Dokter -> S2 - Umum
             ['pendidikan_awal' => 10, 'pendidikan_penyesuaian' => 12, 'masa_kerja' => 2], // S1 - Dokter -> S2 - Spesialis
             ['pendidikan_awal' => 10, 'pendidikan_penyesuaian' => 13, 'masa_kerja' => 2], // S1 - Dokter -> S2 - Direktur
+            ['pendidikan_awal' => 10, 'pendidikan_penyesuaian' => 14, 'masa_kerja' => 2], // S1 - Dokter -> S2 - Direktur
             ['pendidikan_awal' => 11, 'pendidikan_penyesuaian' => 11, 'masa_kerja' => 2], // S1 - Informatika -> S2 - Umum
             ['pendidikan_awal' => 11, 'pendidikan_penyesuaian' => 12, 'masa_kerja' => 2], // S1 - Informatika -> S2 - Spesialis
             ['pendidikan_awal' => 11, 'pendidikan_penyesuaian' => 13, 'masa_kerja' => 2], // S1 - Informatika -> S2 - Direktur
+            ['pendidikan_awal' => 11, 'pendidikan_penyesuaian' => 14, 'masa_kerja' => 2], // S1 - Informatika -> S2 - Direktur
         ];
 
         foreach ($penyesuaians as $penyesuaian) {

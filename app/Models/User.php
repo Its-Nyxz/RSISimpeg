@@ -106,10 +106,7 @@ class User extends Authenticatable
     {
         return $this->belongsTo(MasterKhusus::class, 'khusus_id');
     }
-    public function pendAwal()
-    {
-        return $this->belongsTo(MasterPendidikan::class, 'pend_awal');
-    }
+
     public function pendidikanUser()
     {
         return $this->belongsTo(MasterPendidikan::class, 'kategori_pendidikan');
@@ -140,9 +137,17 @@ class User extends Authenticatable
         return $this->hasMany(HistoryPendidikan::class, 'user_id');
     }
 
-    public function gapok()
+    public function historyGapok()
     {
         return $this->hasMany(Gapok::class, 'user_id');
+    }
+
+    public function pendingGolonganGapok()
+    {
+        return $this->hasOne(Gapok::class)
+            ->where('jenis_kenaikan', 'golongan')
+            ->where('status', false)
+            ->latestOfMany();
     }
 
     public function jadwalabsensi()

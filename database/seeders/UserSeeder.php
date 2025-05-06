@@ -81,7 +81,9 @@ class UserSeeder extends Seeder
 
         foreach ($direktur as $member) {
             $unit = UnitKerja::where('nama', $member['unit_name'])->first();
-            $KategoriJabatan = KategoriJabatan::where('nama', $member['jabatan'])->value('id');
+            $jabatan = strtolower(trim($member['jabatan']));
+
+            $KategoriJabatan = KategoriJabatan::whereRaw('LOWER(nama) = ?', [$jabatan])->value('id');
             $user = User::firstOrCreate(
                 ['email' => $this->emailFormat($member['name'])],
                 [
@@ -102,16 +104,19 @@ class UserSeeder extends Seeder
 
         // Data Kepala Instalasi
         $kepalaInstalasi = [
-            ['unit_name' => 'IRJ', 'name' => 'drg Amalia Rahmaniar', 'nip' => '01200559', 'jabatan' => 'Kepala Instalasi Rawat Jalan'], //102
-            ['unit_name' => 'IAPI', 'name' => 'Dr. Anantya Hari W.,Sp.An', 'jabatan' => 'Dokter Spesialis Anastesi + Ka. IAPI'], //part time
-            ['unit_name' => 'IMP', 'name' => 'Tatun Parjiati', 'nip' => '02990132', 'jabatan' => 'Ka. IMP'],
-            ['unit_name' => 'INST RANAP', 'name' => 'Agus Widayat', 'nip' => '02050192', 'jabatan' => 'Ka. Instalasi Rawat Inap'],
+            ['unit_name' => 'IRJ', 'name' => 'drg Amalia Rahmaniar', 'nip' => '01200559', 'jabatan' => 'Kepala Instalasi', 'fungsi' => 'Dokter Gigi'], //102
+            ['unit_name' => 'IAPI', 'name' => 'Dr. Anantya Hari W.,Sp.An', 'jabatan' => 'Kepala Instalasi', 'fungsi' => 'Dokter Spesialis'], //part time
+            ['unit_name' => 'IMP', 'name' => 'Tatun Parjiati', 'nip' => '02990132', 'jabatan' => 'Kepala Instalasi', 'fungsi' => 'Bidan'],
+            ['unit_name' => 'INST RANAP', 'name' => 'Agus Widayat', 'nip' => '02050192', 'jabatan' => 'Kepala Instalasi', 'fungsi' => 'Perawat Diploma'],
         ];
 
         foreach ($kepalaInstalasi as $data) {
             $unit = UnitKerja::where('nama', $data['unit_name'])->first();
+            $jabatan = strtolower(trim($data['jabatan']));
+            $fungsi = strtolower(trim($data['fungsi']));
 
-            $KategoriJabatan = KategoriJabatan::where('nama', $data['jabatan'])->value('id');
+            $KategoriJabatan = KategoriJabatan::whereRaw('LOWER(nama) = ?', [$jabatan])->value('id');
+            $FungsiJabatan = KategoriJabatan::whereRaw('LOWER(nama) = ?', [$fungsi])->value('id');
             if ($unit) {
                 $user = User::firstOrCreate(
                     ['email' => $this->emailFormat($data['name'])],
@@ -122,6 +127,7 @@ class UserSeeder extends Seeder
                         'password' => Hash::make('123'),
                         'unit_id' => $unit->id,
                         'jabatan_id' => $KategoriJabatan,
+                        'fungsi_id' => $FungsiJabatan,
                     ]
                 );
 

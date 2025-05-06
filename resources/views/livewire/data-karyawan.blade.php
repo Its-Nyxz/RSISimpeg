@@ -19,6 +19,13 @@
                     @endforeach
                 </select>
             @endif
+            <select wire:model.live="selectedJenisKaryawan"
+                class="rounded-lg px-2 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
+                <option value="">-- Semua Jenis Karyawan --</option>
+                @foreach ($jenisKaryawans as $item)
+                    <option value="{{ $item->id }}">{{ $item->nama }}</option>
+                @endforeach
+            </select>
         </div>
 
         <!-- Bagian Search dan Tambah (Tetap dalam satu baris) -->

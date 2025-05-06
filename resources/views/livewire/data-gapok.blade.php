@@ -20,6 +20,7 @@
             <thead class="text-sm uppercase bg-success-400 text-success-900">
                 <tr>
                     <th scope="col" class="px-6 py-3">Nama Golongan</th>
+                    <th scope="col" class="px-6 py-3">Masa Kerja</th>
                     <th scope="col" class="px-6 py-3">Nominal</th>
                     <th scope="col" class="px-6 py-3">Action</th>
                 </tr>
@@ -30,9 +31,10 @@
                         <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
                             {{ $gapok['golongan']['nama'] }}
                         </td>
+                        <td class="px-6 py-4">{{ $gapok['masa_kerja'] }}</td>
                         <td class="px-6 py-4">{{ rupiah($gapok['nominal_gapok']) }}</td>
                         <td class="px-6 py-4">
-                            <a href="{{route('gapok.edit', $gapok['id']) }}"
+                            <a href="{{ route('gapok.edit', $gapok['id']) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                 data-tooltip-target="tooltip-gapok-{{ $gapok['id'] }}">
                                 <i class="fa-solid fa-pen"></i>

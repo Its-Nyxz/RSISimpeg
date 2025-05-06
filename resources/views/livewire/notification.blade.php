@@ -24,7 +24,7 @@
             @forelse (auth()->user()->notifications as $notification)
                 <li class="appearance-none list-none"> <!-- ✅ Tambahkan list-none di sini -->
                     <div wire:click="markAsRead('{{ $notification->id }}','{{ $notification->data['url'] }}')"
-                        class="flex cursor-pointer group justify-between px-4 py-3 hover:bg-primary-950 transition duration-200 hover:text-white ">
+                        class="flex cursor-pointer group justify-between px-4 py-3 hover:bg-success-950 transition duration-200 hover:text-white ">
 
                         <!-- Isi Notifikasi -->
                         <div>{!! $notification->data['message'] !!}</div>
@@ -32,7 +32,7 @@
                         <!-- Status "Baru" -->
                         <div>
                             @if (!$notification->read_at)
-                                <span class="text-xs text-blue-500 group-hover:text-white font-semibold ml-2">
+                                <span class="text-xs text-green-500 group-hover:text-white font-semibold ml-2">
                                     Baru
                                 </span>
                             @endif
