@@ -133,6 +133,8 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
                                 ->setShowDropDown(true)
                                 // === Gunakan referensi langsung ke sheet hidden ===
                                 ->setFormula1('\'Shifts\'!$A$1:$A$' . count($shifts));
+                            // Atur lebar kolom agar dropdown tidak terpotong
+                            $sheet->getColumnDimensionByColumn($col)->setWidth(15);
                         }
                     }
                 }

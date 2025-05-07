@@ -10,20 +10,20 @@ class DataPotongan extends Component
     public $search = '';
     public $potongans = [];
 
-    public function mount(){
+    public function mount()
+    {
         $this->loadData();
     }
 
     public function loadData()
     {
-        $this->potongans = MasterPotongan::with('kategorijabatan')
-            ->when($this->search, function ($query) {
-                $query->where('nama', 'like', '%' . $this->search . '%');
-            })
+        $this->potongans = MasterPotongan::when($this->search, function ($query) {
+            $query->where('nama', 'like', '%' . $this->search . '%');
+        })
             ->get()
             ->toArray();
     }
-    
+
 
     public function updateSearch($value)
     {

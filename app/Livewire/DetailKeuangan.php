@@ -12,10 +12,14 @@ class DetailKeuangan extends Component
     public $potonganData;
     public $gajiBruto;
     public $bulan, $tahun;
-    public $simpanan_wajib, $simpanan_pokok, $ibi, $idi, $ppni, $pinjam_kop,
-        $obat, $a_b, $a_p, $dansos, $dplk, $bpjs_tk, $bpjs_kes,
-        $rek_bpjs_kes, $bpjs_tambahan, $pph_21, $pph_kurang,
-        $angsuran_kurban, $amaliah, $ranap, $potongan_selisih, $perkasi, $lain_lain;
+    public $gapok = 0;
+    public $nom_jabatan = 0;
+    public $nom_fungsi = 0;
+    public $nom_umum = 0;
+    public $nom_transport = 0;
+    public $nom_makan = 0;
+
+    public $dynamicPotongans = []; // [nama => nominal]
 
     public function updatedBulan()
     {
@@ -44,94 +48,31 @@ class DetailKeuangan extends Component
             ->where('bulan_penggajian', $this->bulan)
             ->first();
 
-        $this->potonganData = $this->gajiBruto?->potongan;
+        if ($this->gajiBruto) {
+            $this->gapok         = $this->gajiBruto->nom_gapok;
+            $this->nom_jabatan   = $this->gajiBruto->nom_jabatan;
+            $this->nom_fungsi    = $this->gajiBruto->nom_fungsi;
+            $this->nom_umum      = $this->gajiBruto->nom_umum;
+            $this->nom_transport = $this->gajiBruto->nom_transport;
+            $this->nom_makan     = $this->gajiBruto->nom_makan;
 
-        if ($this->potonganData) {
-            $this->simpanan_wajib = $this->potonganData->simpanan_wajib;
-            $this->simpanan_pokok = $this->potonganData->simpanan_pokok;
-            $this->ibi = $this->potonganData->ibi;
-            $this->idi = $this->potonganData->idi;
-            $this->ppni = $this->potonganData->ppni;
-            $this->pinjam_kop = $this->potonganData->pinjam_kop;
-            $this->obat = $this->potonganData->obat;
-            $this->a_b = $this->potonganData->a_b;
-            $this->a_p = $this->potonganData->a_p;
-            $this->dansos = $this->potonganData->dansos;
-            $this->dplk = $this->potonganData->dplk;
-            $this->bpjs_tk = $this->potonganData->bpjs_tk;
-            $this->bpjs_kes = $this->potonganData->bpjs_kes;
-            $this->rek_bpjs_kes = $this->potonganData->rek_bpjs_kes;
-            $this->bpjs_tambahan = $this->potonganData->bpjs_tambahan;
-            $this->pph_21 = $this->potonganData->pph_21;
-            $this->pph_kurang = $this->potonganData->pph_kurang;
-            $this->angsuran_kurban = $this->potonganData->angsuran_kurban;
-            $this->amaliah = $this->potonganData->amaliah;
-            $this->ranap = $this->potonganData->ranap;
-            $this->potongan_selisih = $this->potonganData->potongan_selisih;
-            $this->perkasi = $this->potonganData->perkasi;
-            $this->lain_lain = $this->potonganData->lain_lain;
+            // Ambil potongan dinamis dari tabel `potongan`
+            $potonganList = \App\Models\Potongan::with('masterPotongan')
+                ->where('bruto_id', $this->gajiBruto->id)
+                ->get();
+
+            $this->dynamicPotongans = $potonganList->mapWithKeys(function ($item) {
+                return [$item->masterPotongan->nama => $item->nominal];
+            })->toArray();
         } else {
-            $this->resetPotonganFields();
+            $this->dynamicPotongans = [];
         }
     }
 
-    public function resetPotonganFields()
-    {
-        $this->simpanan_wajib = 0;
-        $this->simpanan_pokok = 0;
-        $this->ibi = 0;
-        $this->idi = 0;
-        $this->ppni = 0;
-        $this->pinjam_kop = 0;
-        $this->obat = 0;
-        $this->a_b = 0;
-        $this->a_p = 0;
-        $this->dansos = 0;
-        $this->dplk = 0;
-        $this->bpjs_tk = 0;
-        $this->bpjs_kes = 0;
-        $this->rek_bpjs_kes = 0;
-        $this->bpjs_tambahan = 0;
-        $this->pph_21 = 0;
-        $this->pph_kurang = 0;
-        $this->angsuran_kurban = 0;
-        $this->amaliah = 0;
-        $this->ranap = 0;
-        $this->potongan_selisih = 0;
-        $this->perkasi = 0;
-        $this->lain_lain = 0;
-    }
-
-
     public function getTotalPotonganProperty()
     {
-        return collect([
-            $this->simpanan_wajib,
-            $this->simpanan_pokok,
-            $this->ibi,
-            $this->idi,
-            $this->ppni,
-            $this->pinjam_kop,
-            $this->obat,
-            $this->a_b,
-            $this->a_p,
-            $this->dansos,
-            $this->dplk,
-            $this->bpjs_tk,
-            $this->bpjs_kes,
-            $this->rek_bpjs_kes,
-            $this->bpjs_tambahan,
-            $this->pph_21,
-            $this->pph_kurang,
-            $this->angsuran_kurban,
-            $this->amaliah,
-            $this->ranap,
-            $this->potongan_selisih,
-            $this->perkasi,
-            $this->lain_lain,
-        ])->sum();
+        return collect($this->dynamicPotongans)->sum();
     }
-
 
     public function render()
     {

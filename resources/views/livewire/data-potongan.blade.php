@@ -20,9 +20,8 @@
             <thead class="text-sm uppercase bg-success-400 text-success-900">
                 <tr>
                     <th scope="col" class="px-6 py-3">Nama Potongan</th>
-                    <th scope="col" class="px-6 py-3">Nama Jabatan</th>
-                    <th scope="col" class="px-6 py-3">Nominal</th>
-                    <th scope="col" class="px-6 py-3">Deskripsi</th>
+                    <th scope="col" class="px-6 py-3">Jenis Potongan</th>
+                    <th scope="col" class="px-6 py-3">Status</th>
                     <th scope="col" class="px-6 py-3">Action</th>
                 </tr>
             </thead>
@@ -32,9 +31,10 @@
                         <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
                             {{ $potongan['nama'] ?? '-' }}
                         </td>
-                        <td class="px-6 py-4">{{ $potongan['kategorijabatan']['nama'] ?? '-' }}</td>
-                        <td class="px-6 py-4">{{ $potongan['nominal'] }}</td>
-                        <td class="px-6 py-4">{{ $potongan['deskripsi'] }}</td>
+                        <td class="px-6 py-4">{{ $potongan['jenis'] ?? '-' }}</td>
+                        <td class="px-6 py-4">
+                            {{ $potongan['is_wajib'] ? 'iya' : 'tidak' }}
+                        </td>
                         <td class="px-6 py-4">
                             <a href="{{ route('potongan.edit', $potongan['id']) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"

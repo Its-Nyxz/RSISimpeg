@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
         $this->call([
-            MasterGolonganSeeder::class, // Tambahkan ini
+            MasterGolonganSeeder::class,
             MasterPendidikanSeeder::class,
             KategoriJabatanSeeder::class,
             MasterGapokSeeder::class,
@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
             MasterUmumSeeder::class,
             MasterKhususSeeder::class,
             MasterPenyesuaianSeeder::class,
-            // MasterPotonganSeeder::class,
+            MasterPotonganSeeder::class,
             MasterTransSeeder::class,
             OpsiAbsenSeeder::class,
             JenisFileSeeder::class,
@@ -44,7 +44,7 @@ class DatabaseSeeder extends Seeder
             LevelUnitSeeder::class,
             TerlibatPointSeeder::class,
             PosisiPointSeeder::class,
-            // ShiftSeeder::class,
+            ShiftSeeder::class,
             ShiftPointSeeder::class,
             PkPointSeeder::class,
             PointPelatihanSeeder::class,
@@ -54,7 +54,7 @@ class DatabaseSeeder extends Seeder
             ProposionalitasPointSeeder::class,
             PointKinerjaSeeder::class,
             PointJamKerjaSeeder::class,
-            // UserSeeder::class, // Tambahkan ini
+            UserSeeder::class, // Tambahkan ini
             RolePermissionSeeder::class,
             HolidaysSeeder::class,
             JenisCutiSeeder::class,

@@ -9,69 +9,32 @@ use App\Models\MasterPotongan;
 
 class CreatePotongan extends Component
 {
-    public $katjab_id;
     public $nama;
-    public $nominal;
-    public $deskripsi;
-    public $jabatans = [];
-    public $katjab_nama;
-    public $suggestions = [];
-
-    public function fetchSuggestions($type, $query)
-    {
-        if ($type === 'jabatan') {
-            $this->suggestions = KategoriJabatan::where('nama', 'like', "%$query%")
-                ->get()
-                ->toArray();
-        }
-    }
-
-    public function selectJabatan($id, $name)
-    {
-        $this->katjab_id = $id;
-        $this->katjab_nama = $name;
-        $this->suggestions = [];
-    }
+    public $jenis = 'nominal'; // default
+    public $is_wajib = false;
 
     protected $rules = [
-        'katjab_id' => 'required|exists:kategori_jabatans,id',
-        'nama' => 'required',
-        'nominal' => 'required',
-        'deskripsi' => 'required',
+        'nama' => 'required|string|unique:master_potongan,nama',
+        'jenis' => 'required|in:nominal,persentase',
+        'is_wajib' => 'boolean',
     ];
-
-      // Method untuk memilih fungsi
-    public function selectFungsi($id, $name)
-    {
-        $this->fungsi_id = $id;
-        $this->fungsi_nama = $name;
-        $this->showDropdown = false; // Tutup dropdown setelah memilih
-    }
-  
-    public function mount()
-    {
-        $this->jabatans = KategoriJabatan::all();
-    }
 
     public function store()
     {
         $this->validate();
 
         MasterPotongan::create([
-            'katjab_id' => $this->katjab_id,
-            'nama' => $this->nama,
-            'nominal' => $this->nominal,
-            'deskripsi' => $this->deskripsi,
+            'nama' => strtolower($this->nama),
+            'jenis' => $this->jenis,
+            'is_wajib' => $this->is_wajib,
         ]);
 
-        session()->flash('success', 'Potongan berhasil ditambahkan!');
+        session()->flash('success', 'Master potongan berhasil ditambahkan!');
         return redirect()->route('potongan.index');
     }
 
     public function render()
     {
-        return view('livewire.create-potongan', [
-            'jabatans' => $this->jabatans,
-        ]);
+        return view('livewire.create-potongan');
     }
 }

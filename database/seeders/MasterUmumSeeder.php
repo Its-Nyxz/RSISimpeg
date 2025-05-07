@@ -119,7 +119,7 @@ class MasterUmumSeeder extends Seeder
             ['nama' => 'Staf Anggota SPI', 'nominal' => 350000],
             ['nama' => 'Komite Full Time', 'nominal' => 350000],
             ['nama' => 'Staf Instalasi Teknologi Informasi', 'nominal' => 350000],
-            ['nama' => 'Penanggungjawab Klaim Asuransi', 'nominal' => 350000],
+            ['nama' => 'Penanggung Jawab Klaim Asuransi', 'nominal' => 350000],
             ['nama' => 'Staf Administrasi Inst Laboratorium', 'nominal' => 350000],
 
             // Rp 250.000

@@ -18,7 +18,6 @@ class DataKaryawan extends Component
     public $units;
     public $selectedUserAktif = 1; // Default aktif
     public $selectedUnit = null;
-
     public $selectedJenisKaryawan = null;
     public $jenisKaryawans = [];
 

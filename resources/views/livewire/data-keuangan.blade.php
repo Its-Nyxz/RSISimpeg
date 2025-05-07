@@ -20,6 +20,13 @@
                         <option value="{{ $item->id }}">{{ $item->nama }}</option>
                     @endforeach
                 </select>
+                <select wire:model.live="selectedJenisKaryawan"
+                    class="rounded-lg px-2 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
+                    <option value="">-- Semua Jenis Karyawan --</option>
+                    @foreach ($jenisKaryawans as $item)
+                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
+                    @endforeach
+                </select>
             </div>
         </div>
     </div>
@@ -39,12 +46,16 @@
                 @forelse ($users as $user)
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
                         <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
-                            {{ $user->name }}
+                            {{ $user->nama_bersih }}
                         </td>
                         <td class="px-6 py-4">{{ $user->nik ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $user->alamat ?? '-' }}</td>
                         {{-- <td class="px-6 py-4">{{ $user->roles->pluck('name')->implode(', ') ?? '-' }}</td> --}}
-                        <td class="px-6 py-4">{{ $user->kategorijabatan->nama ?? '-' }}</td>
+                        <td class="px-6 py-4">
+                            {{ $user->kategorifungsional && $user->kategorijabatan
+                                ? $user->kategorijabatan->nama . ' + ' . $user->kategorifungsional->nama
+                                : $user->kategorijabatan->nama ?? '-' }}
+                        </td>
                         <td class="px-6 py-4">{{ $user->unitKerja->nama ?? '-' }}</td>
                         <td class="px-6 py-4 text-center">
                             <a href="{{ route('detailkeuangan.show', ['detailkeuangan' => $user->id]) }}"class="flex items-center justify-center w-10 h-10 rounded bg-[#006633]"

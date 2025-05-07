@@ -16,7 +16,7 @@ class KategoriJabatanSeeder extends Seeder
         $data = [
             // Jabatan
             ['nama' => 'Direktur', 'tunjangan' => 'jabatan'],
-            ['nama' => 'Wadir ', 'tunjangan' => 'jabatan'],
+            ['nama' => 'Wadir', 'tunjangan' => 'jabatan'],
             // ['nama' => 'Wadir Pelayanan', 'tunjangan' => 'jabatan'],
             // ['nama' => 'Wadir Umum dan Keuangan', 'tunjangan' => 'jabatan'],
             ['nama' => 'Manajer', 'tunjangan' => 'jabatan'],
@@ -169,11 +169,11 @@ class KategoriJabatanSeeder extends Seeder
             ['nama' => 'Staf Penunjang', 'tunjangan' => 'umum'],
             ['nama' => 'Staf Unit Pemasaran', 'tunjangan' => 'umum'],
             ['nama' => 'Staf Anggota SPI', 'tunjangan' => 'umum'],
-            ['nama' => 'Staf Anggota SPI', 'tunjangan' => 'umum'],
+
             // Instalasi Lainnya
             ['nama' => 'Komite Full Time', 'tunjangan' => 'umum'],
             ['nama' => 'Staf Instalasi Teknologi Informasi', 'tunjangan' => 'umum'],
-            ['nama' => 'Penanggungjawab Klaim Asuransi', 'tunjangan' => 'umum'],
+            ['nama' => 'Penanggung Jawab Klaim Asuransi', 'tunjangan' => 'umum'],
             ['nama' => 'Staf Administrasi Inst Laboratorium', 'tunjangan' => 'umum'],
 
 

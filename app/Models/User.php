@@ -71,6 +71,26 @@ class User extends Authenticatable
         });
     }
 
+    public function getNamaBersihAttribute()
+    {
+        $name = $this->name;
+
+        // Hapus awalan gelar
+        $name = preg_replace('/^(drg\.|dr\.|dr|drs\.|drs|drh\.|drh)\s+/i', '', $name);
+
+        // Hapus gelar belakang berbasis spasi atau singkatan tanpa koma
+        $name = preg_replace('/\s+(Sp\.\w+|M\.\w+|S\.\w+|MKes|M\.Kes|SKp)$/i', '', $name);
+
+        // Hapus gelar dengan koma di akhir, fleksibel terhadap titik dan spasi
+        $name = preg_replace(
+            '/,\s*(A(\.?)(Md)?\.?\s*Kep\.?|Amd\.?Kep\.?|SE|S\.Sos|Sp\.An|Sp\.Rad|Sp\s*U|Sp\s*PK|S\.KM|S\.Farm\s*Apt)\.?/i',
+            '',
+            $name
+        );
+
+        return trim($name);
+    }
+
     /**
      * Relasi ke MasterFungsi.
      */
@@ -176,5 +196,10 @@ class User extends Authenticatable
     public function sisaCutiTahunan()
     {
         return $this->hasOne(SisaCutiTahunan::class);
+    }
+
+    public function potonganBulanan()
+    {
+        return $this->hasMany(Potongan::class);
     }
 }

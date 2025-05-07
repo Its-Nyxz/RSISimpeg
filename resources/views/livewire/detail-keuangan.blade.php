@@ -53,7 +53,7 @@
                 <strong>Nama</strong>
                 <span>{{ $user->name ?? '-' }}</span>
             </div>
-            @if ($gajiBruto && $potonganData)
+            @if ($gajiBruto)
                 <!-- Tombol Toggle -->
                 <div class="text-right w-full max-w-md mx-auto mb-2" x-data="{ showDetail: false }">
                     <button @click="showDetail = !showDetail" class="text-sm text-success-700 hover:underline">
@@ -73,24 +73,45 @@
                             <span>{{ $gajiBruto->tahun_penggajian ?? '-' }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <strong>Nominal Jabatan</strong>
+                            <strong>Gaji Pokok (Gapok)</strong>
+                            <span>Rp {{ number_format($gajiBruto->nom_gapok ?? 0, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <strong>Tunjangan Jabatan Struktural</strong>
                             <span>Rp {{ number_format($gajiBruto->nom_jabatan ?? 0, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <strong>Nominal Khusus</strong>
+                            <strong>Tunjangan Jabatan Fungsional</strong>
+                            <span>Rp {{ number_format($gajiBruto->nom_fungsi ?? 0, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <strong>Tunjangan Jabatan Umum</strong>
+                            <span>Rp {{ number_format($gajiBruto->nom_umum ?? 0, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <strong>Tunjangan Transport</strong>
+                            <span>Rp {{ number_format($gajiBruto->nom_transport ?? 0, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <strong>Tunjangan Makan</strong>
+                            <span>Rp {{ number_format($gajiBruto->nom_makan ?? 0, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <strong>Tunjangan Khusus</strong>
                             <span>Rp {{ number_format($gajiBruto->nom_khusus ?? 0, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <strong>Nominal Lainnya</strong>
-                            <span>Rp {{ number_format($gajiBruto->nom_lainnya ?? 0, 0, ',', '.') }}</span>
+                            <strong>Tunjangan Kinerja</strong>
+                            <span>Rp {{ number_format($gajiBruto->nom_kinerja ?? 0, 0, ',', '.') }}</span>
                         </div>
-                        <div class="flex justify-between">
+                        <div class="flex justify-between border-t pt-2">
                             <strong>Total Bruto</strong>
                             <span>Rp {{ number_format($gajiBruto->total_bruto ?? 0, 0, ',', '.') }}</span>
                         </div>
                     </div>
                 </div>
             @endif
+
         </div>
 
         <hr class="border-green-700 mb-6 w-1/2 mx-auto">
@@ -99,44 +120,18 @@
         <div class="text-center">
             <h2 class="text-lg font-semibold mb-4">Potongan-Potongan</h2>
 
-            @php
-                $fields = [
-                    'simpanan_wajib' => 'Simpanan Wajib',
-                    'simpanan_pokok' => 'Simpanan Pokok',
-                    'ibi' => 'IBI',
-                    'idi' => 'IDI',
-                    'ppni' => 'PPNI',
-                    'pinjam_kop' => 'Pinjaman Koperasi',
-                    'obat' => 'Obat',
-                    'a_b' => 'Angsuran Bank',
-                    'a_p' => 'Angsuran Perum',
-                    'dansos' => 'Dansos',
-                    'dplk' => 'DPLK',
-                    'bpjs_tk' => 'BPJS Tenaga Kerja',
-                    'bpjs_kes' => 'BPJS Kesehatan',
-                    'rek_bpjs_kes' => 'Rekonsiliasi BPJS Kesehatan',
-                    'bpjs_tambahan' => 'BPJS Kesehatan Ortu/Tambahan',
-                    'pph_21' => 'PPH 21',
-                    'pph_kurang' => 'Kurangan PPH 21 Tahun 2000?',
-                    'angsuran_kurban' => 'Angsuran Kurban',
-                    'amaliah' => 'Amaliah Ramadhan',
-                    'ranap' => 'Ranap',
-                    'potongan_selisih' => 'Potongan Selisih',
-                    'perkasi' => 'Iuran Perkasi',
-                    'lain_lain' => 'Lain-lain',
-                ];
-            @endphp
-
-            <div class="space-y-2">
-                @foreach ($fields as $key => $label)
-                    <div class="flex justify-between items-center w-full max-w-md mx-auto">
-                        <label class="font-semibold w-1/2 text-left">{{ $label }}</label>
-                        <span class="text-right block w-1/2">
-                            Rp {{ number_format($$key ?? 0, 0, ',', '.') }}
-                        </span>
-                    </div>
-                @endforeach
-            </div>
+            @forelse ($dynamicPotongans as $label => $nominal)
+                <div class="flex justify-between items-center w-full max-w-md mx-auto">
+                    <label class="font-semibold w-1/2 text-left">
+                        {{ ucwords(str_replace('_', ' ', $label)) }}
+                    </label>
+                    <span class="text-right block w-1/2">
+                        Rp {{ number_format($nominal, 0, ',', '.') }}
+                    </span>
+                </div>
+            @empty
+                <p class="text-sm text-gray-500">Tidak ada potongan tersedia.</p>
+            @endforelse
 
             <hr class="border-green-700 my-6 w-1/2 mx-auto">
 
@@ -154,5 +149,6 @@
                 </span>
             </div>
         </div>
+
     </x-card>
 </div>

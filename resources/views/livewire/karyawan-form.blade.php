@@ -594,6 +594,19 @@
                                 </div>
                             </td>
                         </tr>
+                        <tr>
+                            <td style="width: 40%">
+                                <label for="roles" class="block mb-2 text-sm font-medium text-gray-900">
+                                    Menanggung BPJS Ortu / Tambahan <span class="text-sm text-red-500">*</span></label>
+                            </td>
+                            <td>
+                                <div>
+                                    <input type="checkbox" wire:model.live="bpjsOrtu" id="bpjsOrtu"
+                                        class="form-checkbox">
+                                    <label for="bpjsOrtu" class="font-medium text-gray-900">Iya?</label>
+                                </div>
+                            </td>
+                        </tr>
 
                     </table>
                 </x-card>

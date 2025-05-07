@@ -90,6 +90,7 @@ class UnitKerjaSeeder extends Seeder
             ['name' => 'GUDANG', 'kode' => 'GUDANG', 'keterangan' => ' Unit Gudang '],
             ['name' => 'DEWAN PENGAWAS', 'kode' => 'DEWAS', 'keterangan' => ' Unit Dewan Pengawas '],
             ['name' => 'DIREKTUR', 'kode' => 'DIREKTUR', 'keterangan' => ' Direktur '],
+            ['name' => 'KOMITE K3RS', 'kode' => 'K3RS', 'keterangan' => ' Komite K3RS '],
         ];
 
         // Menambahkan unit dengan sub-unit

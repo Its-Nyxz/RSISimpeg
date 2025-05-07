@@ -34,7 +34,7 @@ class KategoriJabatan extends Model
         return match ($this->tunjangan) {
             'jabatan' => $this->masterjabatan->first()?->nominal,
             'umum' => $this->masterumum->first()?->nominal,
-            'fungsional' => $this->masterfungsi->first()?->nominal,
+            'fungsi' => $this->masterfungsi->first()?->nominal,
             default => 0,
         };
     }

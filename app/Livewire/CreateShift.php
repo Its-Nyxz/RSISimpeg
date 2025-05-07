@@ -17,10 +17,6 @@ class CreateShift extends Component
     public $keterangan;
     public $unitKerjaOptions = [];
 
-    protected $rules = [
-        'unit_id' => 'required|exists:unit_kerjas,id',
-    ];
-
     public function mount()
     {
         // Ambil unit_id dari user yang login
@@ -48,13 +44,13 @@ class CreateShift extends Component
     // Method to store the shift
     public function store()
     {
-        // $this->validate([
-        //     'nama_shift' => 'required|string|max:255',
-        //     'unit_id' => 'required|exists:unit_kerjas,id'
-        //     'jam_masuk' => 'required|date_format:H:i',
-        //     'jam_keluar' => 'required|date_format:H:i',
-        //     'keterangan' => 'nullable|string',
-        // ]);
+        $this->validate([
+            'nama_shift' => 'required|string|max:255',
+            'unit_id' => 'required|exists:unit_kerjas',
+            'jam_masuk' => 'nullable|date_format:H:i',
+            'jam_keluar' => 'nullable|date_format:H:i',
+            'keterangan' => 'nullable|string',
+        ]);
 
         $this->validate();
 

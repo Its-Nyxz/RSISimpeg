@@ -13,6 +13,14 @@
         </div>
     </div>
 
+    {{-- ✅ Notifikasi error (global) --}}
+    @if ($showNotif)
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
+            class="mb-4 px-4 py-3 rounded bg-red-100 text-red-700 border border-red-300 shadow max-w-md mx-auto">
+            {{ $notifMessage }}
+        </div>
+    @endif
+
 
     <!-- Slip Gaji dalam Card -->
     <x-card title="{{ $user->nip ?? '-' }}" class="mb-6 text-success-900">
@@ -117,43 +125,21 @@
         <div class="text-center space-y-3">
             <h2 class="text-lg font-semibold mb-4">Potongan-Potongan</h2>
 
-            @php
-                $fields = [
-                    'simpanan_wajib' => 'Simpanan Wajib',
-                    'simpanan_pokok' => 'Simpanan Pokok',
-                    'ibi' => 'IBI',
-                    'idi' => 'IDI',
-                    'ppni' => 'PPNI',
-                    'pinjam_kop' => 'Pinjaman Koperasi',
-                    'obat' => 'Obat',
-                    'a_b' => 'Angsuran Bank',
-                    'a_p' => 'Angsuran Perum',
-                    'dansos' => 'Dansos',
-                    'dplk' => 'DPLK',
-                    'bpjs_tk' => 'BPJS Tenaga Kerja',
-                    'bpjs_kes' => 'BPJS Kesehatan',
-                    'rek_bpjs_kes' => 'Rekonsiliasi BPJS Kesehatan',
-                    'bpjs_tambahan' => 'BPJS Kesehatan Ortu/Tambahan',
-                    'pph_21' => 'PPH 21',
-                    'pph_kurang' => 'Kurangan PPH 21 Tahun 2000?',
-                    'angsuran_kurban' => 'Angsuran Kurban',
-                    'amaliah' => 'Amaliah Ramadhan',
-                    'ranap' => 'Ranap',
-                    'potongan_selisih' => 'Potongan Selisih',
-                    'perkasi' => 'Iuran Perkasi',
-                    'lain_lain' => 'Lain-lain',
-                ];
-            @endphp
-
-            <div class="space-y-2">
-                @foreach ($fields as $key => $label)
-                    <div class="flex justify-between items-center w-full max-w-md mx-auto">
-                        <label class="font-semibold w-1/2 text-left">{{ $label }}</label>
-                        <input type="number" wire:model.live="{{ $key }}"
-                            class="border border-gray-300 rounded px-3 py-1 w-1/2 text-right" />
-                    </div>
-                @endforeach
-            </div>
+            @foreach ($masterPotongans as $potongan)
+                <div class="flex justify-between items-center w-full max-w-md mx-auto">
+                    <label class="font-semibold w-1/2 text-left">
+                        {{ strtoupper(str_replace('_', ' ', $potongan->nama)) }}
+                        @if ($potongan->is_wajib)
+                            <span class="text-red-500">*</span>
+                        @endif
+                    </label>
+                    <input type="number" wire:model.live="potonganInputs.{{ $potongan->id }}"
+                        class="border border-gray-300 rounded px-3 py-1 w-1/2 text-right" />
+                    @error('potonganInputs.' . $potongan->id)
+                        <div class="text-red-500 text-sm mt-1 w-full">{{ $message }}</div>
+                    @enderror
+                </div>
+            @endforeach
 
             <strong>Jumlah Potongan</strong>
             <span>Rp {{ number_format($this->totalPotongan, 0, ',', '.') }}</span>

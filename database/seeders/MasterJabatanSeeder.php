@@ -69,17 +69,23 @@ class MasterJabatanSeeder extends Seeder
             [
                 'katjab_id' => 2,
                 'kualifikasi' => 'Strata 1',
+                'nominal' => 4000000,
+                'deskripsi' => 'Tunjangan untuk kategori jabatan direktur dan setara.',
+            ],
+            [
+                'katjab_id' => 3,
+                'kualifikasi' => 'Strata 1',
                 'nominal' => 3000000,
                 'deskripsi' => 'Tunjangan untuk kategori jabatan manajer dan setara.',
             ],
             [
-                'katjab_id' => 3,
+                'katjab_id' => 4,
                 'kualifikasi' => 'Minimal DIII',
                 'nominal' => 2500000,
                 'deskripsi' => 'Tunjangan untuk kategori kepala seksi.',
             ],
             [
-                'katjab_id' => 4,
+                'katjab_id' => 5,
                 'kualifikasi' => 'Minimal DIII',
                 'nominal' => 2200000,
                 'deskripsi' => 'Tunjangan untuk kategori kepala instalasi (dokter).',

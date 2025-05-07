@@ -69,6 +69,7 @@ class KaryawanForm extends Component
     public $selectedGolongan; // ID golongan yang dipilih otomatis
     public string $selectedGolonganNama; // Nama golongan yang ditampilkan di input
     public $jabatan;
+    public $bpjsOrtu;
     public $fungsional;
     public $jabatanAwal;
     public $fungsionalAwal;
@@ -265,6 +266,7 @@ class KaryawanForm extends Component
             $this->selectedPph = $user->kategori_id;
             $this->selectedRoles = $user->roles->pluck('id')->toArray();
             $this->typeShift = $user->type_shift;
+            $this->bpjsOrtu = $user->bpjs_ortu;
         }
 
         $this->units = UnitKerja::all();
@@ -347,6 +349,7 @@ class KaryawanForm extends Component
             'khusus_id' => $this->khusus ?? null,
             'kategori_id' => $this->selectedPph ?? null,
             'type_shift' => $this->typeShift ?? null,
+            'bpjs_ortu' =>  $this->bpjsOrtu ?? null,
             'password' => Hash::make('123'),
         ]);
 
@@ -424,6 +427,7 @@ class KaryawanForm extends Component
             'khusus_id' => $this->khusus ?? null,
             'kategori_id' => $this->selectedPph ?? null,
             'type_shift' => $this->typeShift ?? null,
+            'bpjs_ortu' =>  $this->bpjsOrtu ?? null,
         ]);
 
         if (!empty($this->selectedRoles)) {
