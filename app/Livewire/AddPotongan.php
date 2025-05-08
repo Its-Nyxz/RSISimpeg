@@ -16,6 +16,7 @@ class AddPotongan extends Component
     public $user;
     public $potonganData;
     public $gajiBruto;
+    public $isKaryawanTetap;
     public $bulan, $tahun;
     public $gapok = 0;
     public $masaKerjaTahun = 0;
@@ -24,6 +25,7 @@ class AddPotongan extends Component
     public $nom_jabatan = 0;
     public $nom_fungsi = 0;
     public $nom_umum = 0;
+    public $nom_khusus = 0;
     public $notifMessage = '';
     public $showNotif = false;
     public $potonganInputs = []; // [master_potongan_id => nominal]
@@ -35,6 +37,7 @@ class AddPotongan extends Component
         $this->tahun = $tahun ?? now()->year;
 
         $this->user = User::with([
+            'jenis',
             'kategorijabatan.masterjabatan',
             'kategorijabatan.masterfungsi',
             'kategorijabatan.masterumum',
@@ -43,80 +46,126 @@ class AddPotongan extends Component
         ])->findOrFail($user->id);
 
         $masterTrans = MasterTrans::first(); // atau where('nama', 'Tetap')->first() jika ada kondisi
+        $this->masaKerjaTahun = !is_null($this->user->masa_kerja)
+            ? $this->user->masa_kerja
+            : ($this->user->tmt
+                ? floor(Carbon::parse($this->user->tmt)->floatDiffInYears(Carbon::now()))
+                : 0);
+        $base_makan = $masterTrans->nom_makan ?? 0;
+        $base_transport = $masterTrans->nom_transport ?? 0;
+        $this->nom_khusus = $this->user->khusus?->nominal ?? 0;
 
-        $this->nom_makan = $masterTrans->nom_makan ?? 0;
-        $this->nom_transport = $masterTrans->nom_transport ?? 0;
-
-        $masterTrans = MasterTrans::first();
-        $this->nom_makan = $masterTrans->nom_makan ?? 0;
-        $this->nom_transport = $masterTrans->nom_transport ?? 0;
-
-        $kategori = $this->user->kategorijabatan;
-        $fungsional = $this->user->kategorifungsional;
-
+        // Reset nilai awal
         $this->nom_jabatan = 0;
-        $this->nom_fungsi  = 0;
-        $this->nom_umum    = 0;
+        $this->nom_fungsi = 0;
+        $this->nom_umum = 0;
 
-        if ($kategori) {
-            // Normalisasi: hilangkan tanda kurung
-            $jabatan_nama = strtolower(preg_replace('/\s*\(.*?\)/', '', $kategori->nama)); // "ka. instalasi"
-            $tunjangan_type = $kategori->tunjangan;
+        // Periode pembayaran: misalnya jika periode = 21 (bulan sebelumnya) s/d 20 (bulan ini)
+        $periodeMulai = Carbon::create($this->tahun, $this->bulan, 21)->subMonth()->startOfDay();
+        $periodeSelesai = Carbon::create($this->tahun, $this->bulan, 20)->endOfDay();
 
-            $nom_jabatan = optional($kategori)->nominal ?? 0;
-            $nom_fungsi  = optional($fungsional)->nominal ?? 0;
-            $nom_umum    = $tunjangan_type === 'umum' ? $kategori->nominal : 0;
-            // $nom_fungsi    = $tunjangan_type === 'fungsi' ? $kategori->nominal : 0;
+        // Ambil semua jadwal dalam periode
+        $jadwalUser = $this->user->jadwalabsensi()
+            ->whereBetween('tanggal_jadwal', [$periodeMulai->toDateString(), $periodeSelesai->toDateString()])
+            ->get();
 
-            $jabatan_struktural = ['ka. seksi', 'ka. instalasi', 'manajer', 'wadir'];
-            $isFungsional = $this->user->fungsi_id !== null;
-            $isStruktural = collect($jabatan_struktural)->contains(function ($item) use ($jabatan_nama) {
-                return str_contains($jabatan_nama, strtolower($item));
-            });
+        // Hitung total hari dijadwalkan
+        $totalHariJadwal = $jadwalUser->count();
 
-            if ($isFungsional && $isStruktural) {
-                if (str_contains($jabatan_nama, 'ka. seksi') || str_contains($jabatan_nama, 'ka. instalasi')) {
-                    $this->nom_fungsi = $nom_fungsi;
-                    $this->nom_jabatan = $nom_jabatan * 0.5;
-                } elseif (str_contains($jabatan_nama, 'manajer') || str_contains($jabatan_nama, 'wadir')) {
-                    $this->nom_fungsi = $nom_fungsi;
-                    $this->nom_jabatan = $nom_jabatan;
-                }
-            } else {
-                switch ($tunjangan_type) {
-                    case 'jabatan':
-                        $this->nom_jabatan = $nom_jabatan;
-                        break;
-                    case 'fungsi':
-                        $this->nom_fungsi = $nom_fungsi > 0 ? $nom_fungsi : $nom_jabatan;
-                        break;
-                    case 'umum':
-                        $this->nom_umum = $nom_umum;
-                        break;
-                }
+        $absensiValid = $this->user->absen()
+            ->whereIn('jadwal_id', $jadwalUser->pluck('id'))
+            ->where('present', 1)
+            ->distinct('jadwal_id') // pastikan hanya unik jadwal_id
+            ->count('jadwal_id');
+
+        // Proporsi kehadiran aktual
+        $proporsiHybrid = $absensiValid / max($totalHariJadwal, 1);
+        // Terapkan hanya ke makan dan transport
+        $this->nom_makan = $base_makan * $proporsiHybrid;
+        $this->nom_transport = $base_transport * $proporsiHybrid;
+
+        // Ambil semua riwayat jabatan yang aktif selama bulan ini
+        $riwayatJabatanAktif = $this->user->riwayatJabatan()
+            ->where(function ($q) use ($periodeMulai, $periodeSelesai) {
+                $q->whereDate('tanggal_mulai', '<=', $periodeSelesai)
+                    ->where(function ($q2) use ($periodeMulai) {
+                        $q2->whereNull('tanggal_selesai')
+                            ->orWhere('tanggal_selesai', '>=', $periodeMulai);
+                    });
+            })
+            ->with('kategori')
+            ->get();
+
+        foreach ($riwayatJabatanAktif as $riwayat) {
+            $kategori = $riwayat->kategori;
+            if (!$kategori) continue;
+
+            $start = Carbon::parse(max($riwayat->tanggal_mulai, $periodeMulai));
+            $end = Carbon::parse(min($riwayat->tanggal_selesai ?? $periodeSelesai, $periodeSelesai));
+
+            // Hitung jadwal yang aktif selama masa jabatan ini
+            $hariJadwalAktif = $jadwalUser->filter(function ($jadwal) use ($start, $end) {
+                return Carbon::parse($jadwal->tanggal_jadwal)->between($start, $end);
+            })->count();
+
+            $proporsi = $hariJadwalAktif / max($totalHariJadwal, 1);
+            $nominal = max(0, $kategori->nominal);
+            $nama_jabatan = strtolower(preg_replace('/\s*\(.*?\)/', '', $kategori->nama));
+
+            $isKaSeksiOrInstalasi = Str::contains($nama_jabatan, ['ka. seksi', 'ka. instalasi']);
+            $isManajerOrWadir     = Str::contains($nama_jabatan, ['manajer', 'wadir']);
+
+            switch ($riwayat->tunjangan) {
+                case 'jabatan':
+                    if ($isKaSeksiOrInstalasi) {
+                        $this->nom_jabatan += $nominal * 0.5 * $proporsi;
+                    } else {
+                        $this->nom_jabatan += $nominal * $proporsi;
+                    }
+                    break;
+                case 'fungsi':
+                    $this->nom_fungsi += $nominal * $proporsi;
+                    break;
+                case 'umum':
+                    $this->nom_umum += $nominal * $proporsi;
+                    break;
             }
         }
+        // dd($this->user->jenis);
+        $this->isKaryawanTetap = strtolower($this->user->jenis?->nama ?? '') === 'tetap';
+        $jenisKaryawan = strtolower($this->user->jenis?->nama ?? ''); // <- e.g. "part time", "kontrak", "magang"
 
-        // Hitung masa kerja tahun dari TMT
-        $this->masaKerjaTahun = $this->user->tmt
-            ? floor(Carbon::parse($this->user->tmt)->floatDiffInYears(Carbon::now()))
-            : 0;
-        // Ambil gaji pokok sesuai masa kerja
-        $this->gapok = optional(
-            $this->user->golongan?->gapoks
-                ->where('masa_kerja', '<=', $this->masaKerjaTahun)
-                ->sortByDesc('masa_kerja')
-                ->first()
-        )->nominal_gapok ?? 0;
-        // dd($this->gapok);
+        if (!$this->isKaryawanTetap) {
 
-        // $nom_jabatan = $this->user->kategorijabatan?->nominal ?? 0;
-        $total_bruto = $this->gapok
-            + $this->nom_jabatan
-            + $this->nom_fungsi
-            + $this->nom_umum
-            + $this->nom_makan
-            + $this->nom_transport;
+            $gajiLama = GajiBruto::where('user_id', $this->user->id)
+                ->where('bulan_penggajian', $this->bulan)
+                ->where('tahun_penggajian', $this->tahun)
+                ->first();
+            if ($gajiLama) {
+                $this->gapok = $gajiLama->nom_gapok;
+            }
+
+            $total_bruto = $this->gapok + $this->nom_makan + $this->nom_transport;
+
+            if ($jenisKaryawan === 'part time') {
+                $total_bruto += $this->nom_jabatan + $this->nom_fungsi + $this->nom_umum;
+            } else {
+                // untuk non-part-time seperti kontrak/magang hanya gapok+makan+transport
+                $this->nom_jabatan = 0;
+                $this->nom_fungsi = 0;
+                $this->nom_umum = 0;
+            }
+        } else {
+            $this->gapok = optional(
+                $this->user->golongan?->gapoks
+                    ->where('masa_kerja', '<=', $this->masaKerjaTahun)
+                    ->sortByDesc('masa_kerja')
+                    ->first()
+            )->nominal_gapok ?? 0;
+
+            $total_bruto = $this->gapok + $this->nom_jabatan + $this->nom_fungsi + $this->nom_umum
+                + $this->nom_makan + $this->nom_transport + $this->nom_khusus;
+        }
         $this->gajiBruto = GajiBruto::updateOrCreate(
             [
                 'user_id' => $this->user->id,
@@ -130,7 +179,7 @@ class AddPotongan extends Component
                 'nom_umum'      => $this->nom_umum,
                 'nom_makan'     => $this->nom_makan,
                 'nom_transport' => $this->nom_transport,
-                'nom_khusus' => 0,
+                'nom_khusus' => $this->nom_khusus,
                 'nom_lainnya' => 0,
                 'total_bruto' => $total_bruto,
                 'created_at' => now(),
@@ -138,63 +187,88 @@ class AddPotongan extends Component
         );
 
         $this->masterPotongans = MasterPotongan::all();
+        $this->updatePotonganInputs();
+    }
 
-        $existing = Potongan::where('bruto_id', $this->gajiBruto->id)
-            ->get()
-            ->keyBy('master_potongan_id');
+    public function updatedGapok()
+    {
+        $this->updateGajiBruto();
+        $this->updatePotonganInputs();
+    }
 
+    protected function updateGajiBruto()
+    {
+        $jenisKaryawan = strtolower($this->user->jenis->nama);
+
+        if ($this->isKaryawanTetap) {
+            $total_bruto = $this->gapok
+                + $this->nom_jabatan
+                + $this->nom_fungsi
+                + $this->nom_umum
+                + $this->nom_makan
+                + $this->nom_transport
+                + $this->nom_khusus;
+        } else {
+            $total_bruto = $this->gapok
+                + $this->nom_makan
+                + $this->nom_transport;
+
+            if ($jenisKaryawan === 'part time') {
+                $total_bruto += $this->nom_jabatan + $this->nom_fungsi;
+            }
+        }
+
+        $this->gajiBruto->update([
+            'total_bruto' => $total_bruto,
+            'nom_gapok'   => $this->gapok,
+        ]);
+    }
+
+    protected function updatePotonganInputs()
+    {
         foreach ($this->masterPotongans as $item) {
-            $existing = Potongan::where('bruto_id', $this->gajiBruto->id)
-                ->where('master_potongan_id', $item->id)
-                ->first();
-            if ($existing) {
-                $this->potonganInputs[$item->id] = $existing->nominal;
-            } else {
-                $nama = strtolower($item->nama);
+            $nama = strtolower($item->nama);
 
-                if (Str::contains($nama, ['tenaga kerja', 'bpjs tenaga kerja'])) {
-                    // 3% dari semua komponen
-                    $this->potonganInputs[$item->id] = round(
-                        0.03 * (
-                            $this->gapok +
-                            $this->nom_jabatan +
-                            $this->nom_fungsi +
-                            $this->nom_umum +
-                            $this->nom_transport +
-                            $this->nom_makan
-                        )
-                    );
-                } elseif (Str::contains($nama, ['bpjs kesehatan ortu', 'kesehatan ortu'])) {
-                    $this->potonganInputs[$item->id] = $this->user->bpjs_ortu
-                        ? round(0.01 * (
-                            $this->gapok +
-                            $this->nom_jabatan +
-                            $this->nom_fungsi +
-                            $this->nom_umum
-                        ))
-                        : 0;
-                } elseif (Str::contains($nama, ['bpjs kesehatan', 'kesehatan'])) {
-                    $this->potonganInputs[$item->id] = round(
-                        0.01 * (
-                            $this->gapok +
-                            $this->nom_jabatan +
-                            $this->nom_fungsi +
-                            $this->nom_umum
-                        )
-                    );
-                } else {
-                    $this->potonganInputs[$item->id] = 0;
-                }
+            if (Str::contains($nama, ['tenaga kerja', 'bpjs tenaga kerja'])) {
+                $this->potonganInputs[$item->id] = round(
+                    0.03 * (
+                        $this->gapok + $this->nom_jabatan + $this->nom_fungsi + $this->nom_umum
+                    )
+                );
+            } elseif (Str::contains($nama, ['bpjs kesehatan ortu'])) {
+                // Harus lebih spesifik cek 'ortu' dulu agar tidak kena kondisi umum
+                $this->potonganInputs[$item->id] = $this->user->bpjs_ortu
+                    ? round(0.01 * (
+                        $this->gapok + $this->nom_jabatan + $this->nom_fungsi + $this->nom_umum
+                        + $this->nom_makan + $this->nom_transport
+                    ))
+                    : 0;
+            } elseif (
+                Str::contains($nama, ['bpjs kesehatan']) &&
+                !Str::contains($nama, ['ortu', 'rekonsiliasi'])
+            ) {
+                // Ini hanya untuk "bpjs kesehatan" non-ortu dan non-rekonsiliasi
+                $this->potonganInputs[$item->id] = round(
+                    0.01 * (
+                        $this->gapok + $this->nom_jabatan + $this->nom_fungsi + $this->nom_umum
+                        + $this->nom_makan + $this->nom_transport
+                    )
+                );
             }
         }
     }
 
     public function simpan()
     {
+        if (!$this->isKaryawanTetap && (!is_numeric($this->gapok) || $this->gapok <= 0)) {
+            $this->notifMessage = 'Gaji pokok harus diisi untuk karyawan non-tetap.';
+            $this->showNotif = true;
+            return;
+        }
+
         foreach ($this->masterPotongans as $potongan) {
             $nominal = $this->potonganInputs[$potongan->id] ?? null;
 
-            // Validasi potongan wajib
             if ($potongan->is_wajib && (!is_numeric($nominal) || $nominal <= 0)) {
                 $this->notifMessage = 'Potongan wajib "' . strtoupper(str_replace('_', ' ', $potongan->nama))  . '" tidak boleh kosong atau nol.';
                 $this->showNotif = true;
@@ -222,6 +296,9 @@ class AddPotongan extends Component
 
     public function render()
     {
-        return view('livewire.add-potongan');
+        return view('livewire.add-potongan', [
+            'isKaryawanTetap' => $this->isKaryawanTetap,
+            'jenisKaryawan' => strtolower($this->user->jenis?->nama ?? ''),
+        ]);
     }
 }

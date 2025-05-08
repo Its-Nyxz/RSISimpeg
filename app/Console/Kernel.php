@@ -28,6 +28,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('kenaikan:golongan')
             ->monthlyOn(1, '03:00') // misal tanggal 1 jam 03:00 WIB
             ->timezone('Asia/Jakarta');
+
+        $schedule->command('update:masa-kerja')
+            ->dailyAt('02:00')
+            ->timezone('Asia/Jakarta');
     }
 
     /**

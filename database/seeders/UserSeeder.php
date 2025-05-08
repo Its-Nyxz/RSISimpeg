@@ -395,7 +395,7 @@ class UserSeeder extends Seeder
 
         // Data untuk unit IRJ
         $irjMembers = [
-            ['name' => 'drg Amalia Rahmanniar', 'role' => 'Kepala Instalasi', 'jabatan' => 'Ka. Instalasi (Dokter)', 'fungsi' => 'Dokter Gigi'],
+            // ['name' => 'drg Amalia Rahmanniar', 'role' => 'Kepala Instalasi', 'jabatan' => 'Ka. Instalasi (Dokter)', 'fungsi' => 'Dokter Gigi'],
             // ['name' => 'Desi Norma W', 'role' => 'Kepala Ruang', 'jabatan' => 'Karu Instalasi Rawat Jalan'],
             ['name' => 'Desi Norma W', 'role' => 'Kepala Unit', 'jabatan' => 'Perawat Diploma'],
             ['name' => 'Ais Oktavina', 'jabatan' => 'Perawat Diploma'],

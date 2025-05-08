@@ -40,6 +40,17 @@ class UpdateKenaikanBerkala extends Command
                 continue; // Belum waktunya naik jika bukan mode test
             }
 
+            // Cek apakah sudah pernah naik dengan masa kerja ini
+            $alreadyRaised = DB::table('t_gapok')
+                ->where('user_id', $user->id)
+                ->where('jenis_kenaikan', 'berkala')
+                ->where('masa_kerja', $masaKerjaSebelumnya)
+                ->exists();
+
+            if ($alreadyRaised && !$isTest) {
+                continue;
+            }
+
             // Ambil gapok lama
             $gapokLama = MasterGapok::where('gol_id', $user->gol_id)
                 ->where('masa_kerja', '<=', $masaKerjaSebelumnya)

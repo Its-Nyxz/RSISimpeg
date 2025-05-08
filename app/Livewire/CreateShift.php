@@ -46,13 +46,11 @@ class CreateShift extends Component
     {
         $this->validate([
             'nama_shift' => 'required|string|max:255',
-            'unit_id' => 'required|exists:unit_kerjas',
+            'unit_id' => 'required|exists:unit_kerjas,id',
             'jam_masuk' => 'nullable|date_format:H:i',
             'jam_keluar' => 'nullable|date_format:H:i',
             'keterangan' => 'nullable|string',
         ]);
-
-        $this->validate();
 
         // Konversi waktu ke timezone Asia/Jakarta
         $jamMasuk = $this->jam_masuk

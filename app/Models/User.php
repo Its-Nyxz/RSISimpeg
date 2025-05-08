@@ -76,7 +76,7 @@ class User extends Authenticatable
         $name = $this->name;
 
         // Hapus awalan gelar
-        $name = preg_replace('/^(drg\.|dr\.|dr|drs\.|drs|drh\.|drh)\s+/i', '', $name);
+        $name = preg_replace('/^(drg\.?|dr\.?|drs\.?|drh\.?)\s+/i', '', $name);
 
         // Hapus gelar belakang berbasis spasi atau singkatan tanpa koma
         $name = preg_replace('/\s+(Sp\.\w+|M\.\w+|S\.\w+|MKes|M\.Kes|SKp)$/i', '', $name);
@@ -201,5 +201,10 @@ class User extends Authenticatable
     public function potonganBulanan()
     {
         return $this->hasMany(Potongan::class);
+    }
+
+    public function riwayatJabatan()
+    {
+        return $this->hasMany(RiwayatJabatan::class, 'user_id');
     }
 }

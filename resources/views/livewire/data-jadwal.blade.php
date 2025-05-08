@@ -190,8 +190,14 @@
                             {{ optional(optional($jadwalUser)->first())->user->tmt ? \Carbon\Carbon::parse(optional(optional($jadwalUser)->first())->user->tmt)->format('d M Y') : '-' }}
                         </td>
                         <td class="px-4 py-3">
-                            {{ optional(optional($jadwalUser)->first())->user->masa_kerja ?? '-' }}
-                            tahun</td>
+                            @php
+                                $user = optional(optional($jadwalUser)->first())->user;
+                                $masaKerja = $user?->masa_kerja;
+                                $jenis = strtolower($user?->jenis?->nama ?? '');
+                            @endphp
+
+                            {{ $masaKerja !== null ? ($jenis === 'kontrak' ? floor($masaKerja) . ' bulan' : $masaKerja . ' tahun') : '-' }}
+                        </td>
 
                         @foreach ($tanggalJadwal as $tanggal)
                             @php

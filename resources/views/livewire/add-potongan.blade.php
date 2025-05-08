@@ -40,6 +40,10 @@
                 <strong>Nama</strong>
                 <span>{{ $user->name ?? '-' }}</span>
             </div>
+            <div class="flex justify-between w-full max-w-md mx-auto">
+                <strong>Jenis Karyawan</strong>
+                <span>{{ ucfirst(strtolower($user->jenis->nama ?? '-')) }}</span>
+            </div>
 
             <!-- Tombol Toggle -->
             <div class="text-right w-full max-w-md mx-auto mb-2">
@@ -60,16 +64,19 @@
                     <strong>Tahun Penggajian</strong>
                     <span>{{ $this->gajiBruto->tahun_penggajian ?? '-' }}</span>
                 </div>
-                <div class="flex justify-between">
+                <div class="flex justify-between items-center">
                     <strong>Gaji Pokok (Gapok)</strong>
-                    <span>
-                        @if ($user->tmt)
-                            Rp {{ number_format($gapok, 0, ',', '.') }}
+                    <span class="text-right">
+                        @if (!$isKaryawanTetap)
+                            <input type="number" wire:model.live="gapok"
+                                class="border border-gray-300 px-2 py-1 rounded text-sm w-32 text-right"
+                                placeholder="Gapok" />
                         @else
-                            <em class="text-gray-500">TMT belum diisi</em>
+                            Rp {{ number_format($gapok, 0, ',', '.') }}
                         @endif
                     </span>
                 </div>
+
 
                 <div class="flex justify-between">
                     <strong>Masa Kerja</strong>
@@ -81,18 +88,20 @@
                         @endif
                     </span>
                 </div>
-                <div class="flex justify-between">
-                    <strong>Tunjangan Jabatan Struktural</strong>
-                    <span>Rp {{ number_format($this->gajiBruto->nom_jabatan ?? 0, 0, ',', '.') }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <strong>Tunjangan Jabatan Fungsional</strong>
-                    <span>Rp {{ number_format($this->gajiBruto->nom_fungsi ?? 0, 0, ',', '.') }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <strong>Tunjangan Jabatan Umum</strong>
-                    <span>Rp {{ number_format($this->gajiBruto->nom_umum ?? 0, 0, ',', '.') }}</span>
-                </div>
+                @if ($isKaryawanTetap || $jenisKaryawan === 'part time')
+                    <div class="flex justify-between">
+                        <strong>Tunjangan Jabatan Struktural</strong>
+                        <span>Rp {{ number_format($this->gajiBruto->nom_jabatan ?? 0, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <strong>Tunjangan Jabatan Fungsional</strong>
+                        <span>Rp {{ number_format($this->gajiBruto->nom_fungsi ?? 0, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <strong>Tunjangan Jabatan Umum</strong>
+                        <span>Rp {{ number_format($this->gajiBruto->nom_umum ?? 0, 0, ',', '.') }}</span>
+                    </div>
+                @endif
                 <div class="flex justify-between">
                     <strong>Tunjangan Transport</strong>
                     <span>Rp {{ number_format($nom_transport ?? 0, 0, ',', '.') }}</span>
@@ -103,10 +112,10 @@
                 </div>
                 <div class="flex justify-between">
                     <strong>Tunjangan Khusus</strong>
-                    <span>Rp {{ number_format($this->gajiBruto->nom_khusus ?? 0, 0, ',', '.') }}</span>
+                    <span>Rp {{ number_format($this->nom_khusus ?? 0, 0, ',', '.') }}</span>
                 </div>
                 <div class="flex justify-between">
-                    <strong>Tunjangan Kinerja</strong>
+                    <strong>Lainnya</strong>
                     <span>Rp {{ number_format($this->gajiBruto->nom_lainnya ?? 0, 0, ',', '.') }}</span>
                 </div>
             </div>

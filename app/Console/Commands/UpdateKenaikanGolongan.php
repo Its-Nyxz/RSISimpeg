@@ -46,6 +46,8 @@ class UpdateKenaikanGolongan extends Command
                 continue;
             }
 
+
+
             $currentGolId = $user->gol_id;
             $maxGolId = $testMode ? $pendidikan->maxim_gol : $pendidikan->maxim_gol;
 
@@ -73,6 +75,18 @@ class UpdateKenaikanGolongan extends Command
 
             if ($golonganBerikutnya->id === $currentGolId) {
                 continue; // sudah sesuai
+            }
+
+            // Cek apakah user sudah pernah diajukan kenaikan golongan dengan gol_id_baru ini
+            $alreadySubmitted = DB::table('t_gapok')
+                ->where('user_id', $user->id)
+                ->where('jenis_kenaikan', 'golongan')
+                ->where('gol_id_baru', $golonganBerikutnya->id)
+                ->exists();
+
+            if ($alreadySubmitted && !$testMode) {
+                $this->line("⏭ {$user->name} sudah pernah diajukan untuk golongan ini.");
+                continue;
             }
 
             // Ambil gapok lama

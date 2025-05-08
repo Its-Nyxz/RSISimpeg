@@ -4,10 +4,12 @@ namespace App\Livewire;
 
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Absen;
 use App\Models\Shift;
 use Livewire\Component;
-use App\Models\UnitKerja;
 
+use App\Models\UnitKerja;
+use App\Models\StatusAbsen;
 use App\Models\CutiKaryawan;
 use Livewire\WithPagination;
 use App\Models\JadwalAbsensi;
@@ -68,7 +70,7 @@ class DataCuti extends Component
             $user = auth()->user();
             $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
             $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)->get();
-
+            $targetUser = User::findOrFail($userId);
             if ($user->unit_id == $unitKepegawaianId) {
                 // Jika user dari unit kepegawaian, setujui final
                 if ($cuti->jenisCuti && strtolower($cuti->jenisCuti->nama_cuti) == 'cuti tahunan') {
@@ -104,7 +106,7 @@ class DataCuti extends Component
                 $shift = Shift::firstOrCreate(
                     ['nama_shift' => 'C'],
                     [
-                        'unit_id' => $user->unit_id,
+                        'unit_id' => $targetUser->unit_id,
                         'jam_masuk' => null,
                         'jam_keluar' => null,
                         'keterangan' => 'Cuti'
@@ -125,6 +127,43 @@ class DataCuti extends Component
                         ]
                     );
                 }
+
+                foreach (Carbon::parse($cuti->tanggal_mulai)->toPeriod(Carbon::parse($cuti->tanggal_selesai)) as $date) {
+                    $jadwal = JadwalAbsensi::with('shift')->where('user_id', $userId)
+                        ->whereDate('tanggal_jadwal', $date->toDateString())
+                        ->first();
+
+                    if ($jadwal && $jadwal->shift) {
+                        $shift = $jadwal->shift;
+
+                        $cutiStatusId = StatusAbsen::where('nama', 'Tepat Waktu')->value('id');
+                        $jenisCuti = $cuti->jenisCuti->nama_cuti ?? 'Cuti';
+
+                        Absen::updateOrCreate(
+                            [
+                                'user_id' => $userId,
+                                'jadwal_id' => $jadwal->id,
+                            ],
+                            [
+                                'status_absen_id' => $cutiStatusId,
+                                'present' => 1,
+                                'absent' => 0,
+                                'late' => 0,
+                                'time_in' => null,
+                                'time_out' => null,
+                                'keterangan' => 'Cuti disetujui',
+                                'deskripsi_in' => $jenisCuti,
+                                'deskripsi_out' => $jenisCuti,
+                                'is_dinas' => false,
+                                'is_lembur' => false,
+                                'approved_lembur' => false,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]
+                        );
+                    }
+                }
+
 
                 $nextUser = User::find($userId);
                 $message = 'Pengajuan Cuti anda (' . $nextUser->name .

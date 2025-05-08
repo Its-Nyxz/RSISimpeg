@@ -102,7 +102,7 @@ class DataJadwal extends Component
 
         $unitId = $this->selectedUnit ?? auth()->user()->unit_id;
 
-        $jadwalData = JadwalAbsensi::with(['user', 'shift'])
+        $jadwalData = JadwalAbsensi::with(['user.jenis', 'shift'])
             ->whereYear('tanggal_jadwal', $this->tahun)
             ->whereMonth('tanggal_jadwal', $this->bulan)
             ->when($unitId, function ($query) use ($unitId) {

@@ -44,7 +44,7 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
                 $user->name ?? '-',
                 $user->pendidikan ?? '-',
                 $user->tmt ? (new DateTime($user->tmt))->format('d/m/Y') : '-',
-                $user->lama_kerja ?? 0,
+                $user->masa_kerja ?? 0,
             ];
 
             // Kosongkan kolom shift untuk setiap hari dalam satu bulan

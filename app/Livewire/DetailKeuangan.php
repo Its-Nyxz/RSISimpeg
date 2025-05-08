@@ -2,34 +2,18 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
 use App\Models\User;
+use Livewire\Component;
+use App\Models\Potongan;
 use App\Models\GajiBruto;
 
 class DetailKeuangan extends Component
 {
     public $user;
-    public $potonganData;
     public $gajiBruto;
+    public $isKaryawanTetap;
     public $bulan, $tahun;
-    public $gapok = 0;
-    public $nom_jabatan = 0;
-    public $nom_fungsi = 0;
-    public $nom_umum = 0;
-    public $nom_transport = 0;
-    public $nom_makan = 0;
-
-    public $dynamicPotongans = []; // [nama => nominal]
-
-    public function updatedBulan()
-    {
-        $this->loadData();
-    }
-
-    public function updatedTahun()
-    {
-        $this->loadData();
-    }
+    public $dynamicPotongans = [];
 
     public function mount(User $user)
     {
@@ -39,6 +23,14 @@ class DetailKeuangan extends Component
         $this->loadData();
     }
 
+    public function updatedBulan()
+    {
+        $this->loadData();
+    }
+    public function updatedTahun()
+    {
+        $this->loadData();
+    }
 
     public function loadData()
     {
@@ -49,15 +41,7 @@ class DetailKeuangan extends Component
             ->first();
 
         if ($this->gajiBruto) {
-            $this->gapok         = $this->gajiBruto->nom_gapok;
-            $this->nom_jabatan   = $this->gajiBruto->nom_jabatan;
-            $this->nom_fungsi    = $this->gajiBruto->nom_fungsi;
-            $this->nom_umum      = $this->gajiBruto->nom_umum;
-            $this->nom_transport = $this->gajiBruto->nom_transport;
-            $this->nom_makan     = $this->gajiBruto->nom_makan;
-
-            // Ambil potongan dinamis dari tabel `potongan`
-            $potonganList = \App\Models\Potongan::with('masterPotongan')
+            $potonganList = Potongan::with('masterPotongan')
                 ->where('bruto_id', $this->gajiBruto->id)
                 ->get();
 
@@ -67,6 +51,8 @@ class DetailKeuangan extends Component
         } else {
             $this->dynamicPotongans = [];
         }
+
+        $this->isKaryawanTetap = strtolower($this->user->jenis?->nama ?? '') === 'tetap';
     }
 
     public function getTotalPotonganProperty()
@@ -76,6 +62,9 @@ class DetailKeuangan extends Component
 
     public function render()
     {
-        return view('livewire.detail-keuangan');
+        return view('livewire.detail-keuangan', [
+            'jenisKaryawan' => strtolower($this->user->jenis?->nama ?? ''),
+            'isKaryawanTetap' => $this->isKaryawanTetap,
+        ]);
     }
 }

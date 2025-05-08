@@ -4,9 +4,11 @@ namespace App\Livewire;
 
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Absen;
 use App\Models\Shift;
 use Livewire\Component;
 use App\Models\UnitKerja;
+use App\Models\StatusAbsen;
 use App\Models\IzinKaryawan;
 use Livewire\WithPagination;
 use App\Models\JadwalAbsensi;
@@ -63,13 +65,14 @@ class DataIzin extends Component
         $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)->get();
         $izin = IzinKaryawan::find($izinId);
         $user = auth()->user();
+        $targetUser = User::findOrFail($userId);
         if ($izin) {
             if ($user->unit_id == $unitKepegawaianId) {
                 $izin->update(['status_izin_id' => 1]);
                 $shift = Shift::firstOrCreate(
                     ['nama_shift' => 'I'],
                     [
-                        'unit_id' => $user->unit_id, // Unit dari user yang approve
+                        'unit_id' =>  $targetUser->unit_id, // Unit dari user yang minta
                         'jam_masuk' => null,
                         'jam_keluar' => null,
                         'keterangan' => 'Izin'
@@ -88,6 +91,41 @@ class DataIzin extends Component
                             'shift_id' => $shift->id,
                         ]
                     );
+                }
+
+                foreach (Carbon::parse($izin->tanggal_mulai)->toPeriod(Carbon::parse($izin->tanggal_selesai)) as $date) {
+                    $jadwal = JadwalAbsensi::with('shift')
+                        ->where('user_id', $userId)
+                        ->whereDate('tanggal_jadwal', $date->toDateString())
+                        ->first();
+
+                    if ($jadwal && $jadwal->shift) {
+                        $statusIzinId = StatusAbsen::where('nama', 'Tepat Waktu')->value('id');
+                        $jenisIzin = $izin->jenisIzin->nama_izin ?? 'Izin';
+
+                        Absen::updateOrCreate(
+                            [
+                                'user_id' => $userId,
+                                'jadwal_id' => $jadwal->id,
+                            ],
+                            [
+                                'status_absen_id' => $statusIzinId,
+                                'present' => 1,
+                                'absent' => 0,
+                                'late' => 0,
+                                'time_in' => null,
+                                'time_out' => null,
+                                'keterangan' => 'Izin disetujui',
+                                'deskripsi_in' => $jenisIzin,
+                                'deskripsi_out' => $jenisIzin,
+                                'is_dinas' => false,
+                                'is_lembur' => false,
+                                'approved_lembur' => false,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]
+                        );
+                    }
                 }
 
                 $nextUser = User::where('id', $userId)->first();

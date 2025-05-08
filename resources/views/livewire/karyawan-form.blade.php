@@ -443,14 +443,18 @@
                         <tr>
                             <td>
                                 <label for="masakerja" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Masa Kerja <span class="text-sm text-red-500">*</span></label>
+                                    Masa Kerja <span class="text-sm text-red-500">*</span>
+                                </label>
                             </td>
                             <td>
                                 <div class="flex items-center">
                                     <input type="text" id="masakerja" wire:model.live="masakerja"
                                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
-                                        placeholder="Masa Kerja (dalam tahun)" readonly /> <label for="masakerja"
-                                        class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm ">Tahun</label>
+                                        placeholder="Masa Kerja" readonly />
+                                    <label for="masakerja"
+                                        class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm ">
+                                        {{ strtolower($jenisKaryawanNama) === 'kontrak' ? 'Bulan' : 'Tahun' }}
+                                    </label>
                                 </div>
                                 @error('masakerja')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>

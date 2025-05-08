@@ -60,6 +60,7 @@ class DatabaseSeeder extends Seeder
             JenisCutiSeeder::class,
             StatusCutiSeeder::class,
             JenisIzinSeeder::class,
+            RiwayatJabatanSeeder::class,
         ]);
     }
 }
