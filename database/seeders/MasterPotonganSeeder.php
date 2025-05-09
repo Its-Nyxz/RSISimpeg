@@ -27,8 +27,8 @@ class MasterPotonganSeeder extends Seeder
             ['nama' => 'kurban', 'jenis' => 'nominal'],
             ['nama' => 'rawat inap', 'jenis' => 'nominal'],
             ['nama' => 'amaliah romadhon', 'jenis' => 'nominal'],
-            ['nama' => 'dansos karyawan', 'jenis' => 'nominal', 'is_wajib' => true],
-            ['nama' => 'iuran perkasi', 'jenis' => 'nominal', 'is_wajib' => true],
+            ['nama' => 'dansos karyawan', 'jenis' => 'nominal'],
+            ['nama' => 'iuran perkasi', 'jenis' => 'nominal'],
             ['nama' => 'lain-lain', 'jenis' => 'nominal'],
         ];
 

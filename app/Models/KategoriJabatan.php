@@ -43,4 +43,8 @@ class KategoriJabatan extends Model
     {
         return $this->hasMany(User::class, 'jabatan_id');
     }
+    public function gapokKontrak()
+    {
+        return $this->hasMany(GapokKontrak::class);
+    }
 }

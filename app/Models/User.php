@@ -149,7 +149,11 @@ class User extends Authenticatable
 
     public function kategoriPPH()
     {
-        return $this->belongsTo(Kategoripph::class, 'user_id');
+        return $this->belongsTo(Kategoripph::class, 'kategori_id');
+    }
+    public function kategoriPphInduk()
+    {
+        return $this->kategoriPPH?->parent ?? $this->kategoriPPH;
     }
 
     public function historyPendidikan()

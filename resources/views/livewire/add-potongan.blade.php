@@ -64,13 +64,18 @@
                     <strong>Tahun Penggajian</strong>
                     <span>{{ $this->gajiBruto->tahun_penggajian ?? '-' }}</span>
                 </div>
+                <!-- Gaji Pokok (Gapok) -->
                 <div class="flex justify-between items-center">
                     <strong>Gaji Pokok (Gapok)</strong>
                     <span class="text-right">
                         @if (!$isKaryawanTetap)
-                            <input type="number" wire:model.live="gapok"
-                                class="border border-gray-300 px-2 py-1 rounded text-sm w-32 text-right"
-                                placeholder="Gapok" />
+                            @if ($jenisKaryawan === 'kontrak')
+                                Rp {{ number_format($gapok, 0, ',', '.') }}
+                            @else
+                                <input type="number" wire:model.live="gapok"
+                                    class="border border-gray-300 px-2 py-1 rounded text-sm w-32 text-right"
+                                    placeholder="Gapok" />
+                            @endif
                         @else
                             Rp {{ number_format($gapok, 0, ',', '.') }}
                         @endif
@@ -81,8 +86,12 @@
                 <div class="flex justify-between">
                     <strong>Masa Kerja</strong>
                     <span>
-                        @if ($user->tmt)
-                            {{ (int) $masaKerjaTahun }} tahun
+                        @if (!is_null($user->masa_kerja))
+                            @if (strtolower($user->jenis?->nama) === 'kontrak')
+                                {{ $masaKerjaTahun }} bulan
+                            @else
+                                {{ floor($masaKerjaTahun) }} tahun
+                            @endif
                         @else
                             <em class="text-gray-500">-</em>
                         @endif

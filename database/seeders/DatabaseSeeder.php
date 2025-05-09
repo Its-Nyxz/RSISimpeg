@@ -61,6 +61,8 @@ class DatabaseSeeder extends Seeder
             StatusCutiSeeder::class,
             JenisIzinSeeder::class,
             RiwayatJabatanSeeder::class,
+            TaxBracketsSeeder::class,
+            GapokKontrakSeeder::class,
         ]);
     }
 }

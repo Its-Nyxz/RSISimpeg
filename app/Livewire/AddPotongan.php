@@ -7,8 +7,10 @@ use App\Models\User;
 use Livewire\Component;
 use App\Models\Potongan;
 use App\Models\GajiBruto;
+use App\Models\TaxBracket;
 use App\Models\MasterTrans;
 use Illuminate\Support\Str;
+use App\Models\GapokKontrak;
 use App\Models\MasterPotongan;
 
 class AddPotongan extends Component
@@ -136,24 +138,25 @@ class AddPotongan extends Component
         $jenisKaryawan = strtolower($this->user->jenis?->nama ?? ''); // <- e.g. "part time", "kontrak", "magang"
 
         if (!$this->isKaryawanTetap) {
+            if ($jenisKaryawan === 'kontrak' && $this->user->jabatan_id) {
+                $gapokKontrak = GapokKontrak::where('kategori_jabatan_id', $this->user->jabatan_id)
+                    ->where('min_masa_kerja', '<=', $this->masaKerjaTahun)
+                    ->where('max_masa_kerja', '>=', $this->masaKerjaTahun)
+                    ->first();
 
-            $gajiLama = GajiBruto::where('user_id', $this->user->id)
-                ->where('bulan_penggajian', $this->bulan)
-                ->where('tahun_penggajian', $this->tahun)
-                ->first();
-            if ($gajiLama) {
-                $this->gapok = $gajiLama->nom_gapok;
+                $this->gapok = $gapokKontrak?->nominal ?? 0;
+            } else {
+                $this->gapok = GajiBruto::where('user_id', $this->user->id)
+                    ->where('bulan_penggajian', $this->bulan)
+                    ->where('tahun_penggajian', $this->tahun)
+                    ->value('nom_gapok') ?? 0;
             }
 
             $total_bruto = $this->gapok + $this->nom_makan + $this->nom_transport;
-
             if ($jenisKaryawan === 'part time') {
                 $total_bruto += $this->nom_jabatan + $this->nom_fungsi + $this->nom_umum;
             } else {
-                // untuk non-part-time seperti kontrak/magang hanya gapok+makan+transport
-                $this->nom_jabatan = 0;
-                $this->nom_fungsi = 0;
-                $this->nom_umum = 0;
+                $this->nom_jabatan = $this->nom_fungsi = $this->nom_umum = 0;
             }
         } else {
             $this->gapok = optional(
@@ -226,37 +229,47 @@ class AddPotongan extends Component
 
     protected function updatePotonganInputs()
     {
+        $this->potonganInputs = [];
+
+        if (!$this->isKaryawanTetap) return;
+
+        $bruto = $this->gajiBruto->total_bruto;
+        $gapok = $this->gapok;
+        $tunjangan = $this->nom_jabatan + $this->nom_fungsi + $this->nom_umum;
+        $makanTransport = $this->nom_makan + $this->nom_transport;
+
+
         foreach ($this->masterPotongans as $item) {
             $nama = strtolower($item->nama);
+            $nominal = 0;
 
-            if (Str::contains($nama, ['tenaga kerja', 'bpjs tenaga kerja'])) {
-                $this->potonganInputs[$item->id] = round(
-                    0.03 * (
-                        $this->gapok + $this->nom_jabatan + $this->nom_fungsi + $this->nom_umum
-                    )
-                );
+            if (Str::contains($nama, ['pph'])) {
+                // Potongan PPh berdasarkan tax bracket
+                $kategoriInduk = $this->user->kategoriPphInduk();
+                if ($kategoriInduk) {
+                    $tax = TaxBracket::where('kategoripph_id', $kategoriInduk->id)
+                        ->where('upper_limit', '>=', $bruto)
+                        ->orderBy('upper_limit')
+                        ->first();
+                    $persen = $tax?->persentase ?? 0;
+                    $nominal = round($bruto * $persen);
+                }
+            } elseif (Str::contains($nama, ['tenaga kerja', 'bpjs tenaga kerja'])) {
+                $nominal = round(0.03 * ($gapok + $tunjangan));
             } elseif (Str::contains($nama, ['bpjs kesehatan ortu'])) {
-                // Harus lebih spesifik cek 'ortu' dulu agar tidak kena kondisi umum
-                $this->potonganInputs[$item->id] = $this->user->bpjs_ortu
-                    ? round(0.01 * (
-                        $this->gapok + $this->nom_jabatan + $this->nom_fungsi + $this->nom_umum
-                        + $this->nom_makan + $this->nom_transport
-                    ))
+                $nominal = $this->user->bpjs_ortu
+                    ? round(0.01 * ($gapok + $tunjangan + $makanTransport))
                     : 0;
-            } elseif (
-                Str::contains($nama, ['bpjs kesehatan']) &&
-                !Str::contains($nama, ['ortu', 'rekonsiliasi'])
-            ) {
-                // Ini hanya untuk "bpjs kesehatan" non-ortu dan non-rekonsiliasi
-                $this->potonganInputs[$item->id] = round(
-                    0.01 * (
-                        $this->gapok + $this->nom_jabatan + $this->nom_fungsi + $this->nom_umum
-                        + $this->nom_makan + $this->nom_transport
-                    )
-                );
+            } elseif (Str::contains($nama, ['bpjs kesehatan']) && !Str::contains($nama, ['ortu', 'rekonsiliasi'])) {
+                $nominal = round(0.01 * ($gapok + $tunjangan + $makanTransport));
+            }
+
+            if ($nominal > 0) {
+                $this->potonganInputs[$item->id] = $nominal;
             }
         }
     }
+
 
     public function simpan()
     {
