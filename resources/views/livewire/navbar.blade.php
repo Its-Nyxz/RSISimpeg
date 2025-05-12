@@ -1,5 +1,6 @@
 <header class="z-40 sm:z-50 fixed w-full">
-    <nav class="bg-success-100 border-gray-200 px-2 lg:px-6 py-5 shadow-2xl">
+    <nav class="bg-gradient-to-r from-yellow-300 via-green-500 to-green-700 text-white px-4 py-4 shadow-xl">
+        {{-- <nav class="bg-success-100 border-gray-200 px-2 lg:px-6 py-5 shadow-2xl"> --}}
         <div class="flex flex-wrap justify-between items-center mx-3">
             <div class="flex">
                 <button data-drawer-target="default-sidebar" data-drawer-toggle="default-sidebar"
@@ -20,9 +21,9 @@
                 <!-- ✅ Nama dan Foto Profil Disembunyikan di Mobile -->
                 <div class="hidden sm:flex items-center ">
                     <!-- Nama Profil -->
-                    <span class="font-medium text-success-950 me-2"
-                        style="text-transform: capitalize;">{{ auth()->user()->name }}</span>
-
+                    <span class="font-medium text-white me-2" style="text-transform: capitalize;">
+                        {{ auth()->user()->name }}
+                    </span>
                     <!-- Foto Profil -->
                     <a href="{{ route('userprofile.index') }}"
                         class="text-white bg-success-950 rounded-full me-2 hover:bg-success-700 px-1 py-1">
@@ -30,11 +31,11 @@
                             ? '<img src="' .
                                 asset('storage/photos/' . auth()->user()->photo) .
                                 '" 
-                                                                                                                                                                                                                                                                                                                                alt="Profile" 
-                                                                                                                                                                                                                                                                                                                                class="w-8 h-8 rounded-full object-cover border border-gray-300">'
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    alt="Profile" 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    class="w-8 h-8 rounded-full object-cover border border-gray-300">'
                             : '<div class="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full border border-gray-300">
-                                                                                                                                <i class="fa-solid fa-user"></i>
-                                                                                                                                </div>' !!}
+                                                                                                                                                                                                                                                                                                                                                    <i class="fa-solid fa-user"></i>
+                                                                                                                                                                                                                                                                                                                                                    </div>' !!}
                     </a>
                 </div>
 

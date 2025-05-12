@@ -184,7 +184,6 @@ class DataJadwal extends Component
         // Cek apakah nama file sesuai format
         if ($fileName !== $expectedFileName) {
             return redirect()->route('jadwal.index')->with('error', 'masukan file sesuai bulan yang dipilih ');
-            return;
         }
 
         try {
@@ -195,9 +194,9 @@ class DataJadwal extends Component
             $this->reset('file');
 
             // Kirim notifikasi sukses ke Livewire
-            return redirect()->route('jadwal.index')->with('success', 'data jadwal berhasil dimasukan');
+            return redirect()->route('jadwal.index')->with('success', 'Data Jadwal Berhasil Diinput');
         } catch (\Exception $e) {
-            session()->flash('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            return redirect()->route('jadwal.index')->with('error', 'Terjadi Kesalahan');
         }
     }
 

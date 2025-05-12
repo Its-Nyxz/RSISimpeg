@@ -19,6 +19,7 @@ class ShiftSeeder extends Seeder
             // Pagi
             ['nama_shift' => 'P', 'jam_masuk' => '05:30', 'jam_keluar' => '12:30', 'keterangan' => 'Pagi'],
             ['nama_shift' => 'P', 'jam_masuk' => '05:30', 'jam_keluar' => '13:00', 'keterangan' => 'Pagi'],
+            ['nama_shift' => 'P', 'jam_masuk' => '06:00', 'jam_keluar' => '12:00', 'keterangan' => 'Pagi'],
             ['nama_shift' => 'P', 'jam_masuk' => '06:00', 'jam_keluar' => '13:00', 'keterangan' => 'Pagi'],
             ['nama_shift' => 'P', 'jam_masuk' => '07:00', 'jam_keluar' => '12:30', 'keterangan' => 'Pagi'],
             ['nama_shift' => 'P', 'jam_masuk' => '07:30', 'jam_keluar' => '13:00', 'keterangan' => 'Pagi'],
@@ -61,6 +62,10 @@ class ShiftSeeder extends Seeder
 
         // Shift pagi khusus untuk unit non-24-jam
         $regularPagiShift = [
+            ['nama_shift' => 'P', 'jam_masuk' => '05:30', 'jam_keluar' => '12:30', 'keterangan' => 'Pagi'],
+            ['nama_shift' => 'P', 'jam_masuk' => '05:30', 'jam_keluar' => '13:00', 'keterangan' => 'Pagi'],
+            ['nama_shift' => 'P', 'jam_masuk' => '06:00', 'jam_keluar' => '12:00', 'keterangan' => 'Pagi'],
+            ['nama_shift' => 'P', 'jam_masuk' => '06:00', 'jam_keluar' => '13:00', 'keterangan' => 'Pagi'],
             ['nama_shift' => 'P', 'jam_masuk' => '07:00', 'jam_keluar' => '12:30', 'keterangan' => 'Pagi'],
             ['nama_shift' => 'P', 'jam_masuk' => '07:30', 'jam_keluar' => '13:00', 'keterangan' => 'Pagi'],
             ['nama_shift' => 'P', 'jam_masuk' => '07:30', 'jam_keluar' => '13:30', 'keterangan' => 'Pagi'],

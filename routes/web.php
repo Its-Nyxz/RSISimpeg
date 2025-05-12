@@ -50,6 +50,7 @@ use App\Http\Controllers\MasterTunjanganController;
 use App\Http\Controllers\PeranFungsionalController;
 
 use App\Http\Controllers\AktivitasAbsensiController;
+use App\Http\Controllers\GapokKontrakController;
 use App\Http\Controllers\KenaikanController;
 use App\Http\Controllers\MasterPendidikanController;
 use App\Http\Controllers\PenilaianPekerjaController;
@@ -162,6 +163,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('jatahcuti', MasterJatahCutiController::class);
     Route::get('penyesuaian/{tipe}/{penyesuaian}', [MasterPenyesuaianController::class, 'create']);
     Route::resource('penyesuaian', MasterPenyesuaianController::class);
+    Route::get('gapokkontrak/{tipe}/{gapokkontrak}', [GapokKontrakController::class, 'create']);
+    Route::resource('gapokkontrak', GapokKontrakController::class);
     Route::get('pengajuan/create/{tipe}', [PengajuanController::class, 'create'])->name('pengajuan.create');
     Route::get('pengajuan/{tipe}', [PengajuanController::class, 'index'])->name('pengajuan.index');
 });

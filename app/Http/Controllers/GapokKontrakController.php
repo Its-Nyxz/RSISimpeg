@@ -13,15 +13,15 @@ class GapokKontrakController extends Controller
      */
     public function index()
     {
-        //
+        return view('gapokkontrak.index');
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create($tipe, $kontrak = 0)
     {
-        //
+        return view('gapokkontrak.create', compact('tipe', 'kontrak'));
     }
 
     /**

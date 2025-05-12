@@ -22,15 +22,15 @@ class Kernel extends ConsoleKernel
             ->timezone('Asia/Jakarta');
 
         $schedule->command('kenaikan:berkala')
-            ->monthlyOn(1, '02:00') // Setiap tanggal 1 pukul 02:00 WIB
+            ->dailyAt('02:00')
             ->timezone('Asia/Jakarta');
 
         $schedule->command('kenaikan:golongan')
-            ->monthlyOn(1, '03:00') // misal tanggal 1 jam 03:00 WIB
+            ->dailyAt('03:00')
             ->timezone('Asia/Jakarta');
 
         $schedule->command('update:masa-kerja')
-            ->dailyAt('02:00')
+            ->dailyAt('01:00')
             ->timezone('Asia/Jakarta');
     }
 
