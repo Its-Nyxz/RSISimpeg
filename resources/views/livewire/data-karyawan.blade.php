@@ -30,6 +30,17 @@
 
         <!-- Bagian Search dan Tambah (Tetap dalam satu baris) -->
         <div id="2" class="flex w-full md:w-auto items-center gap-3 md:gap-4">
+            <a href="{{ route('datakaryawan.export') }}" target="_blank"
+                class="text-green-900 bg-green-100 hover:bg-green-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200"
+                data-tooltip-target="tooltip-export-karyawan">
+                <i class="fas fa-file-excel mr-1"></i>
+            </a>
+
+            <div id="tooltip-export-karyawan" role="tooltip"
+                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                Export Template Karyawan
+                <div class="tooltip-arrow" data-popper-arrow></div>
+            </div>
             <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Karyawan..."
                 class="flex-1 md:w-auto rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
             @can('create-data-karyawan')

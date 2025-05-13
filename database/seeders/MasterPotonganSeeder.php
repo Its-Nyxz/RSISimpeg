@@ -2,10 +2,11 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Support\Str;
 use App\Models\MasterGolongan;
 use App\Models\MasterPotongan;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class MasterPotonganSeeder extends Seeder
 {
@@ -33,7 +34,8 @@ class MasterPotonganSeeder extends Seeder
         ];
 
         foreach ($data as $item) {
-            MasterPotongan::updateOrCreate(['nama' => $item['nama']], $item);
+            $item['slug'] = Str::slug($item['nama']);
+            MasterPotongan::updateOrCreate(['slug' => $item['slug']], $item);
         }
     }
 }

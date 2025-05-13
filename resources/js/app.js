@@ -46,6 +46,25 @@ window.confirmRemove = function (message, callback) {
         }
     });
 };
+window.confirmGenerate = function (message, callback) {
+    Swal.fire({
+        title: "Apakah Anda yakin?",
+        text: message || "Data akan digenerate untuk dikirim ke Pegawai!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Ya",
+        cancelButtonText: "Tidak",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Callback function to execute after confirmation
+            if (typeof callback === "function") {
+                callback();
+            }
+        }
+    });
+};
 window.feedback = function (title, message, icon) {
     let timerInterval;
     Swal.fire({

@@ -20,21 +20,51 @@ class PotonganImport implements ToCollection
     {
         $header = $rows->shift();
         $masterPotongans = MasterPotongan::all();
-        $mapPotongans = $masterPotongans->keyBy(fn($p) => strtolower(trim($p->nama)));
-
+        $mapPotongans = $masterPotongans->keyBy('slug'); // gunakan slug yang sudah pasti valid
+        $headerSlugs = collect($header)
+            ->slice(12)
+            ->map(fn($h) => $h ? Str::slug(trim($h)) : null)
+            ->values();
+        logger()->info("SLUGS dari HEADER:", $headerSlugs->toArray());
+        logger()->info("SLUGS dari MASTER:", $mapPotongans->keys()->toArray());
         foreach ($rows as $row) {
             $slug = trim($row[0] ?? '');
             $user = User::where('slug', $slug)->with(['jenis'])->first();
             if (!$user) continue;
 
             $brutoValue = $this->cleanRupiah($row[11] ?? 0);
-            $bruto = GajiBruto::firstOrCreate([
-                'user_id' => $user->id,
-                'bulan_penggajian' => $this->bulan,
-                'tahun_penggajian' => $this->tahun,
-            ], [
-                'total_bruto' => $brutoValue
-            ]);
+
+            $gapok = (int) $this->cleanRupiah($row[4] ?? 0);
+            $nom_jabatan = (int) $this->cleanRupiah($row[5] ?? 0);
+            $nom_fungsi  = (int) $this->cleanRupiah($row[6] ?? 0);
+            $nom_umum    = (int) $this->cleanRupiah($row[7] ?? 0);
+            $nom_khusus  = (int) $this->cleanRupiah($row[8] ?? 0);
+            $nom_makan   = (int) $this->cleanRupiah($row[9] ?? 0);
+            $nom_transport = (int) $this->cleanRupiah($row[10] ?? 0);
+
+            // Total bruto dihitung ulang dari semua komponen
+            $total_bruto = $gapok + $nom_jabatan + $nom_fungsi + $nom_umum + $nom_khusus + $nom_makan + $nom_transport;
+
+            $bruto = GajiBruto::updateOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'bulan_penggajian' => $this->bulan,
+                    'tahun_penggajian' => $this->tahun,
+                ],
+                [
+                    'nom_gapok'     => $gapok,
+                    'nom_jabatan'   => $nom_jabatan,
+                    'nom_fungsi'    => $nom_fungsi,
+                    'nom_umum'      => $nom_umum,
+                    'nom_khusus'    => $nom_khusus,
+                    'nom_makan'     => $nom_makan,
+                    'nom_transport' => $nom_transport,
+                    'nom_lainnya'   => 0,
+                    'total_bruto'   => $total_bruto,
+                    'created_at'    => now(),
+                ]
+            );
+
 
             $brutoNominal = $bruto->total_bruto ?? $brutoValue;
             $gapok = (int) $this->cleanRupiah($row[3] ?? 0);
@@ -43,12 +73,19 @@ class PotonganImport implements ToCollection
                 (int) $this->cleanRupiah($row[5] ?? 0),
                 (int) $this->cleanRupiah($row[6] ?? 0),
             ]);
-            $makanTransport = (int) $this->cleanRupiah($row[7] ?? 0) + (int) $this->cleanRupiah($row[8] ?? 0);
-            // Import manual potongan dari Excel
-            foreach ($row->slice(12) as $i => $val) {
-                $headerKey = strtolower(trim($header[$i + 12] ?? ''));
-                $master = $mapPotongans[$headerKey] ?? null;
-                if (!$master || !is_numeric($this->cleanRupiah($val))) continue;
+            $makanTransport = (int) $this->cleanRupiah($row[8] ?? 0) + (int) $this->cleanRupiah($row[9] ?? 0);
+
+            foreach ($headerSlugs as $i => $slugKey) {
+                $val = $row[$i + 12] ?? null;
+                $originalHeader = $header[$i + 12] ?? 'UNKNOWN';
+
+                $master = $mapPotongans[$slugKey] ?? null;
+                if (!$master) {
+                    Log::warning("PotonganImport: Tidak ditemukan master untuk kolom '{$originalHeader}' → slug '{$slugKey}'");
+                    continue;
+                }
+
+                if (!is_numeric($this->cleanRupiah($val))) continue;
 
                 Potongan::updateOrCreate([
                     'bruto_id' => $bruto->id,
@@ -60,9 +97,8 @@ class PotonganImport implements ToCollection
                 ]);
             }
 
-            // Tambahkan potongan otomatis jika belum ada
             foreach ($masterPotongans as $master) {
-                $key = strtolower(trim($master->nama));
+                $key = $master->slug;
                 $existing = Potongan::where([
                     'bruto_id' => $bruto->id,
                     'master_potongan_id' => $master->id,
@@ -82,12 +118,12 @@ class PotonganImport implements ToCollection
                         ->orderBy('upper_limit')->first()
                         : null;
                     $nom = round($brutoNominal * ($tax?->persentase ?? 0));
-                } elseif (Str::contains($key, 'tenaga kerja')) {
-                    $nom = round(0.03 * ($gapok + $tunjangan));
-                } elseif (Str::contains($key, 'bpjs kesehatan ortu')) {
-                    $nom = $user->bpjs_ortu ? round(0.01 * ($gapok + $tunjangan + $makanTransport)) : 0;
-                } elseif (Str::contains($key, 'bpjs kesehatan') && !Str::contains($key, ['ortu', 'rekonsiliasi'])) {
-                    $nom = round(0.01 * ($gapok + $tunjangan + $makanTransport));
+                } elseif (Str::contains($key, 'tenaga-kerja')) {
+                    $nom = round(0.03 * ((int) $gapok + (int) $tunjangan));
+                } elseif (Str::contains($key, 'bpjs-kesehatan-ortu')) {
+                    $nom = $user->bpjs_ortu ? round(0.01 * ((int) $gapok + (int) $tunjangan + (int) $makanTransport)) : 0;
+                } elseif (Str::contains($key, 'bpjs-kesehatan') && !Str::contains($key, ['ortu', 'rekonsiliasi'])) {
+                    $nom = round(0.01 * ((int) $gapok + (int) $tunjangan + (int) $makanTransport));
                 }
 
                 if ($nom > 0) {
@@ -103,10 +139,6 @@ class PotonganImport implements ToCollection
         }
     }
 
-    /**
-     * Bersihkan format angka dari format rupiah.
-     * Contoh: "Rp 100.000" -> "100000"
-     */
     protected function cleanRupiah($value): string
     {
         return preg_replace('/[^\d]/', '', $value ?? '');

@@ -46,6 +46,21 @@
                                 Ubah potongan
                                 <div class="tooltip-arrow" data-popper-arrow></div>
                             </div>
+                            <button type="button"
+                                onclick="confirmAlert('Yakin ingin menghapus Data Potongan ini?', 'Ya, hapus!', () => @this.call('destroy', {{ $potongan['id'] }}))"
+                                class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300 relative group">
+                                <i class="fa-solid fa-trash"></i>
+                                <div id="tooltip-destroy-{{ $potongan['id'] }}"
+                                    class="absolute z-10 hidden group-hover:block bottom-full mb-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-md">
+                                    Hapus Potongan
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            </button>
+                            <div id="tooltip-destroy-{{ $potongan['id'] }}" role="tooltip"
+                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                                Hapus Potongan
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
                         </td>
                     </tr>
                 @empty

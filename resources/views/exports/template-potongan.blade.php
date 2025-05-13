@@ -1,7 +1,3 @@
-@php
-    $formatRupiah = fn($val) => number_format($val ?? 0, 0, ',', '.');
-@endphp
-
 <table border="1" cellspacing="0" cellpadding="5">
     <thead>
         <tr>
@@ -29,20 +25,20 @@
                 <td>{{ $user->nama_bersih }}</td>
                 <td>{{ $user->unitKerja->nama ?? '-' }}</td>
                 <td>{{ ucfirst($user->jenis->nama ?? '-') }}</td>
-                <td>{{ $formatRupiah($user->nom_gapok) }}</td>
-                <td>{{ $formatRupiah($user->nom_jabatan) }}</td>
-                <td>{{ $formatRupiah($user->nom_fungsi) }}</td>
-                <td>{{ $formatRupiah($user->nom_umum) }}</td>
-                <td>{{ $formatRupiah($user->nom_khusus) }}</td>
-                <td>{{ $formatRupiah($user->nom_makan) }}</td>
-                <td>{{ $formatRupiah($user->nom_transport) }}</td>
-                <td>{{ $formatRupiah($user->total_bruto) }}</td>
+                <td>{{ (int) $user->nom_gapok }}</td>
+                <td>{{ (int) $user->nom_jabatan }}</td>
+                <td>{{ (int) $user->nom_fungsi }}</td>
+                <td>{{ (int) $user->nom_umum }}</td>
+                <td>{{ (int) $user->nom_khusus }}</td>
+                <td>{{ (int) $user->nom_makan }}</td>
+                <td>{{ (int) $user->nom_transport }}</td>
+                <td>{{ (int) $user->total_bruto }}</td>
                 @foreach ($masterPotongans as $potongan)
                     @php
                         $nom = $user->potonganOtomasis[$potongan->nama] ?? '';
                     @endphp
                     <td style="mso-number-format:'\@';">
-                        {{ is_numeric($nom) ? $formatRupiah($nom) : '' }}
+                        {{ is_numeric($nom) ? (int) $nom : '' }}
                     </td>
                 @endforeach
             </tr>

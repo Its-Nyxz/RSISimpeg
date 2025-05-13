@@ -50,6 +50,7 @@ use App\Http\Controllers\MasterTunjanganController;
 use App\Http\Controllers\PeranFungsionalController;
 
 use App\Http\Controllers\AktivitasAbsensiController;
+use App\Http\Controllers\GajiNettoController;
 use App\Http\Controllers\GapokKontrakController;
 use App\Http\Controllers\KenaikanController;
 use App\Http\Controllers\MasterPendidikanController;
@@ -117,9 +118,13 @@ Route::middleware('auth')->group(function () {
     Route::resource('jabatanperizinan', PerizinanJabatanController::class);
     Route::resource('detail', DetailJabatanController::class);
 
+    Route::get('/datakaryawan/export', [DataKaryawanController::class, 'export'])
+        ->name('datakaryawan.export');
     Route::resource('datakaryawan', DataKaryawanController::class);
     Route::resource('detailkaryawan', DetailKaryawanController::class);
     Route::get('editKaryawan/{id}', [DataKaryawanController::class, 'edit'])->name('editKaryawan.edit');
+    Route::get('/detailkeuangan/export/{user}/{bulan}/{tahun}', [DetailKeuanganController::class, 'export'])
+        ->name('detailkeuangan.export');
     Route::resource('detailkeuangan', DetailKeuanganController::class);
 
     Route::resource('tukin', TunjanganKinerjaController::class);
@@ -137,6 +142,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/userprofile/editusername', action: [UserProfileController::class, 'editUsername'])->name('userprofile.editusername');
     Route::get('keuangan/{user}/potongan/{bulan}/{tahun}', [KeuanganController::class, 'potongan'])->name('keuangan.potongan');
     Route::get('/userprofile/upload', action: [UserProfileController::class, 'upload'])->name('userprofile.upload');
+    Route::get('/keuangan/export', [KeuanganController::class, 'export'])->name('keuangan.export');
     Route::resource('keuangan', KeuanganController::class);
     Route::resource('userprofile', UserProfileController::class);
     Route::resource('proposionalitas', ProposionalitasPointController::class);
@@ -148,6 +154,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('approvalcuti', CutiController::class);
     Route::resource('approvalizin', IzinController::class);
     Route::resource('approvaltukar', TukarJadwalController::class);
+    Route::resource('slipgaji', GajiNettoController::class);
+    Route::get('/slip-gaji/download/{id}', [GajiNettoController::class, 'download'])
+        ->name('slipgaji.download');
     // Hapus route 'create' bawaan dari resource
     Route::resource('aktivitasabsensi', AktivitasAbsensiController::class)
         ->except(['create']);

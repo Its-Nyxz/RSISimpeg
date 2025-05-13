@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\KaryawanTemplateExport;
 
 class DataKaryawanController extends Controller
 {
@@ -21,5 +23,11 @@ class DataKaryawanController extends Controller
         // Ambil data user berdasarkan id
         $user = User::with('unitKerja', 'kategorijabatan', 'golongan')->findOrFail($id);
         return view('datakaryawan.edit', compact('user'));
+    }
+
+    public function export()
+    {
+        $filename = 'template_karyawan.xlsx';
+        return Excel::download(new KaryawanTemplateExport(), $filename);
     }
 }

@@ -269,7 +269,7 @@ class KaryawanForm extends Component
             $this->selectedPph = $user->kategori_id;
             $this->selectedRoles = $user->roles->pluck('id')->toArray();
             $this->typeShift = $user->type_shift;
-            $this->bpjsOrtu = $user->bpjs_ortu;
+            $this->bpjsOrtu = (bool) $user->bpjs_ortu;
             $this->jenisKaryawanNama = JenisKaryawan::find($this->selectedJenisKaryawan)?->nama;
         }
 

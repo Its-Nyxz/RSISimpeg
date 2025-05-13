@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\GajiNetto;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class GajiNettoController extends Controller
 {
@@ -12,7 +13,23 @@ class GajiNettoController extends Controller
      */
     public function index()
     {
-        //
+        return view('slipgaji.index');
+    }
+
+    public function download($id)
+    {
+        $slip = GajiNetto::with(['bruto.potongan.masterPotongan', 'bruto.user.jenis'])->findOrFail($id);
+        $user = $slip->bruto?->user;
+
+        $pdf = Pdf::loadView('exports.slip-gaji', compact('slip'));
+
+        $bulan = str_pad($slip->bruto->bulan_penggajian, 2, '0', STR_PAD_LEFT);
+        $tahun = $slip->bruto->tahun_penggajian;
+        $nama = str_replace(' ', '_', strtolower($user->name ?? 'pegawai'));
+
+        $filename = "slip_gaji_{$nama}_{$bulan}_{$tahun}.pdf";
+
+        return $pdf->download($filename);
     }
 
     /**

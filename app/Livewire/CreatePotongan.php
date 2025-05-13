@@ -2,10 +2,11 @@
 
 namespace App\Livewire;
 
-use App\Models\KategoriJabatan;
 use Livewire\Component;
+use Illuminate\Support\Str;
 use App\Models\MasterFungsi;
 use App\Models\MasterPotongan;
+use App\Models\KategoriJabatan;
 
 class CreatePotongan extends Component
 {
@@ -25,6 +26,7 @@ class CreatePotongan extends Component
 
         MasterPotongan::create([
             'nama' => strtolower($this->nama),
+            'slug' => Str::slug($this->nama),
             'jenis' => $this->jenis,
             'is_wajib' => $this->is_wajib,
         ]);

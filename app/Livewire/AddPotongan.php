@@ -238,13 +238,11 @@ class AddPotongan extends Component
         $tunjangan = $this->nom_jabatan + $this->nom_fungsi + $this->nom_umum;
         $makanTransport = $this->nom_makan + $this->nom_transport;
 
-
         foreach ($this->masterPotongans as $item) {
-            $nama = strtolower($item->nama);
+            $slug = $item->slug;
             $nominal = 0;
 
-            if (Str::contains($nama, ['pph'])) {
-                // Potongan PPh berdasarkan tax bracket
+            if (Str::contains($slug, 'pph')) {
                 $kategoriInduk = $this->user->kategoriPphInduk();
                 if ($kategoriInduk) {
                     $tax = TaxBracket::where('kategoripph_id', $kategoriInduk->id)
@@ -254,13 +252,17 @@ class AddPotongan extends Component
                     $persen = $tax?->persentase ?? 0;
                     $nominal = round($bruto * $persen);
                 }
-            } elseif (Str::contains($nama, ['tenaga kerja', 'bpjs tenaga kerja'])) {
+            } elseif (Str::contains($slug, 'bpjs-tenaga-kerja')) {
                 $nominal = round(0.03 * ($gapok + $tunjangan));
-            } elseif (Str::contains($nama, ['bpjs kesehatan ortu'])) {
+            } elseif (Str::contains($slug, 'bpjs-kesehatan-ortu')) {
                 $nominal = $this->user->bpjs_ortu
                     ? round(0.01 * ($gapok + $tunjangan + $makanTransport))
                     : 0;
-            } elseif (Str::contains($nama, ['bpjs kesehatan']) && !Str::contains($nama, ['ortu', 'rekonsiliasi'])) {
+            } elseif (
+                Str::contains($slug, 'bpjs-kesehatan') &&
+                !Str::contains($slug, 'ortu') &&
+                !Str::contains($slug, 'rekonsiliasi')
+            ) {
                 $nominal = round(0.01 * ($gapok + $tunjangan + $makanTransport));
             }
 
@@ -269,6 +271,7 @@ class AddPotongan extends Component
             }
         }
     }
+
 
 
     public function simpan()

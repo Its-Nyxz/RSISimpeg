@@ -24,13 +24,17 @@
             </select>
         </div>
         <div class="flex space-x-3 justify-end">
-            <a href="{{ route('keuangan.index') }}"
-                class="bg-green-700 text-white hover:bg-success-800 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                Kembali
+            <a href="{{ route('detailkeuangan.export', [$user->id, $bulan, $tahun]) }}" target="_blank"
+                class="text-blue-900 bg-blue-100 hover:bg-blue-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                <i class="fa-solid fa-file-pdf"></i> Export PDF
             </a>
             <a href="{{ route('keuangan.potongan', [$user->id, $bulan, $tahun]) }}"
                 class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                 <i class="fa-solid fa-chart-pie"></i> Add Potongan
+            </a>
+            <a href="{{ route('keuangan.index') }}"
+                class="bg-green-700 text-white hover:bg-success-800 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                Kembali
             </a>
         </div>
     </div>

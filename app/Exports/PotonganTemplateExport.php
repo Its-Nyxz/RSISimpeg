@@ -134,10 +134,10 @@ class PotonganTemplateExport implements FromView
             $makanTransport = $nom_makan + $nom_transport;
 
             foreach ($masterPotongans as $item) {
-                $nama = strtolower($item->nama);
+                $slug = $item->slug;
                 $nominal = 0;
 
-                if (Str::contains($nama, ['pph'])) {
+                if (Str::contains($slug, 'pph')) {
                     $kategoriInduk = $user->kategoriPphInduk();
                     if ($kategoriInduk) {
                         $tax = TaxBracket::where('kategoripph_id', $kategoriInduk->id)
@@ -147,16 +147,20 @@ class PotonganTemplateExport implements FromView
                         $persen = $tax?->persentase ?? 0;
                         $nominal = round($bruto * $persen);
                     }
-                } elseif (Str::contains($nama, ['tenaga kerja', 'bpjs tenaga kerja'])) {
+                } elseif (Str::contains($slug, 'bpjs-tenaga-kerja')) {
                     $nominal = round(0.03 * ($gapok + $tunjangan));
-                } elseif (Str::contains($nama, ['bpjs kesehatan ortu'])) {
+                } elseif (Str::contains($slug, 'bpjs-kesehatan-ortu')) {
                     $nominal = $user->bpjs_ortu ? round(0.01 * ($gapok + $tunjangan + $makanTransport)) : 0;
-                } elseif (Str::contains($nama, ['bpjs kesehatan']) && !Str::contains($nama, ['ortu', 'rekonsiliasi'])) {
+                } elseif (
+                    Str::contains($slug, 'bpjs-kesehatan') &&
+                    !Str::contains($slug, 'ortu') &&
+                    !Str::contains($slug, 'rekonsiliasi')
+                ) {
                     $nominal = round(0.01 * ($gapok + $tunjangan + $makanTransport));
                 }
 
                 if ($nominal > 0) {
-                    $potonganOtomasis[$item->nama] = $nominal;
+                    $potonganOtomasis[$item->nama] = $nominal; // output tetap nama untuk tampil di Excel
                 }
             }
 

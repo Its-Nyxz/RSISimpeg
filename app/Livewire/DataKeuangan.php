@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Carbon\Carbon;
 use App\Models\User;
 use Livewire\Component;
+use App\Models\GajiNetto;
 use App\Models\UnitKerja;
 use Livewire\WithPagination;
 use App\Models\JenisKaryawan;
@@ -13,6 +14,8 @@ use App\Imports\PotonganImport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\JadwalTemplateExport;
 use App\Exports\PotonganTemplateExport;
+use App\Notifications\UserNotification;
+use Illuminate\Support\Facades\Notification;
 
 class DataKeuangan extends Component
 {
@@ -27,6 +30,8 @@ class DataKeuangan extends Component
     public $tahun;
     public $importFile;
     public $file;
+    protected $listeners = ['openGenerateModal' => '$refresh'];
+
     public function mount()
     {
         $this->units = UnitKerja::all();
@@ -115,7 +120,41 @@ class DataKeuangan extends Component
         }
     }
 
+    public function confirmGenerateNetto()
+    {
+        $users = $this->loadData(); // sesuai filter & paginasi
+        foreach ($users as $user) {
+            $bruto = $user->gajiBruto()
+                ->where('bulan_penggajian', $this->bulan)
+                ->where('tahun_penggajian', $this->tahun)
+                ->first();
 
+            if (!$bruto) continue;
+
+            $totalPotongan = $bruto->potongan->sum('nominal');
+            $netto = $bruto->total_bruto - $totalPotongan;
+
+            // Jangan simpan jika netto tidak valid
+            if ($netto <= 0) continue;
+
+            GajiNetto::updateOrCreate(
+                ['bruto_id' => $bruto->id],
+                [
+                    'total_netto' => $netto,
+                    'tanggal_transfer' => now(),
+                    'status' => 'Pending',
+                ]
+            );
+
+            $namaBulan = Carbon::createFromFormat('!m', $this->bulan)->locale('id')->isoFormat('MMMM');
+            $message = 'Slip Gaji Anda bulan ' . $namaBulan . ' telah tersedia, <span class="text-green-600 font-bold">Silahkan Di Cek</span>.';
+            $url = '/slipgaji'; // sesuaikan dengan route ke halaman slip
+
+            Notification::send($user, new UserNotification($message, $url));
+        }
+
+        return redirect()->route('keuangan.index')->with('success', 'Slip Gaji Berhasil dikirim ke Karyawan!');
+    }
 
     public function render()
     {

@@ -3,8 +3,9 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use App\Models\MasterPotongan;
+use Illuminate\Support\Str;
 use App\Models\MasterFungsi;
+use App\Models\MasterPotongan;
 
 class EditPotongan extends Component
 {
@@ -33,6 +34,7 @@ class EditPotongan extends Component
 
         MasterPotongan::where('id', $this->potongan_id)->update([
             'nama' => strtolower($this->nama),
+            'slug' => Str::slug($this->nama),
             'jenis' => $this->jenis,
             'is_wajib' => $this->is_wajib,
         ]);
