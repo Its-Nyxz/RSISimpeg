@@ -13,8 +13,8 @@ class UpdateMasaKerja extends Command
      *
      * @var string
      */
-    protected $signature = 'update:masa-kerja {--test=}';
-    protected $description = 'Perbarui masa kerja user secara otomatis setiap hari';
+    protected $signature = 'update:masa-kerja {--test= testing update saat ini}';
+    protected $description = 'Perbarui masa kerja user secara otomatis setiap hari jika sudah waktunya sesuai tmt';
 
     public function handle(): void
     {
@@ -33,18 +33,26 @@ class UpdateMasaKerja extends Command
             $tmt = Carbon::parse($user->tmt);
 
             if ($jenis === 'kontrak') {
-                if ($today->day === $tmt->day && $today->greaterThan($tmt)) {
+                if ($today->day === $tmt->day && $today->greaterThanOrEqualTo($tmt)) {
                     $bulan = $tmt->diffInMonths($today);
-                    $user->masa_kerja = (int) $bulan;
-                    $user->save();
-                    $updated++;
+                    if ($user->masa_kerja !== $bulan) {
+                        $user->masa_kerja = $bulan;
+                        $user->save();
+                        $updated++;
+                    }
                 }
             } elseif ($jenis === 'tetap') {
-                if ($today->day === $tmt->day && $today->month === $tmt->month && $today->greaterThan($tmt)) {
+                if (
+                    $today->day === $tmt->day &&
+                    $today->month === $tmt->month &&
+                    $today->greaterThanOrEqualTo($tmt)
+                ) {
                     $tahun = $tmt->diffInYears($today);
-                    $user->masa_kerja = (int) $tahun;
-                    $user->save();
-                    $updated++;
+                    if ($user->masa_kerja !== $tahun) {
+                        $user->masa_kerja = $tahun;
+                        $user->save();
+                        $updated++;
+                    }
                 }
             }
         }
