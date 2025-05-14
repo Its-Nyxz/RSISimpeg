@@ -30,17 +30,58 @@
 
         <!-- Bagian Search dan Tambah (Tetap dalam satu baris) -->
         <div id="2" class="flex w-full md:w-auto items-center gap-3 md:gap-4">
-            <a href="{{ route('datakaryawan.export') }}" target="_blank"
-                class="text-green-900 bg-green-100 hover:bg-green-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200"
-                data-tooltip-target="tooltip-export-karyawan">
-                <i class="fas fa-file-excel mr-1"></i>
-            </a>
+            @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->nama == 'KEPEGAWAIAN')
+                <a href="{{ route('datakaryawan.export') }}" target="_blank"
+                    class="text-green-900 bg-green-100 hover:bg-green-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200"
+                    data-tooltip-target="tooltip-export-karyawan">
+                    <i class="fas fa-file-excel"></i>
+                </a>
+                <div id="tooltip-export-karyawan" role="tooltip"
+                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                    Export Template Karyawan
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
 
-            <div id="tooltip-export-karyawan" role="tooltip"
-                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
-                Export Template Karyawan
-                <div class="tooltip-arrow" data-popper-arrow></div>
-            </div>
+                <div x-data="{ open: false }">
+                    <!-- Tombol Import -->
+                    <button @click="open = true"
+                        class="text-blue-900 bg-blue-100 hover:bg-blue-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200"
+                        data-tooltip-target="tooltip-import-karyawan">
+                        <i class="fas fa-upload"></i>
+                    </button>
+
+                    <!-- Tooltip -->
+                    <div id="tooltip-import-karyawan" role="tooltip"
+                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                        Import Data Karyawan
+                        <div class="tooltip-arrow" data-popper-arrow></div>
+                    </div>
+
+                    <!-- Modal Upload -->
+                    <div x-show="open" @keydown.escape.window="open = false"
+                        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                        <div class="bg-white p-6 rounded-lg w-full max-w-md shadow-lg">
+                            <h2 class="text-lg font-semibold mb-4">Import Data Karyawan</h2>
+
+                            <form action="{{ route('datakaryawan.import') }}" method="POST"
+                                enctype="multipart/form-data">
+                                @csrf
+                                <input type="file" name="file" id="fileInput" accept=".xlsx"
+                                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer focus:outline-none">
+                                <p class="text-sm text-gray-500 mt-1">Hanya file <strong>template_karyawan.xlsx</strong>
+                                    yang diterima</p>
+
+                                <div class="mt-4 flex justify-end gap-2">
+                                    <button type="button" @click="open = false"
+                                        class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Batal</button>
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Import</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endif
             <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Karyawan..."
                 class="flex-1 md:w-auto rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
             @can('create-data-karyawan')

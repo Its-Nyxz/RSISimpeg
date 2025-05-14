@@ -120,6 +120,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/datakaryawan/export', [DataKaryawanController::class, 'export'])
         ->name('datakaryawan.export');
+    Route::post('/datakaryawan/import', [DataKaryawanController::class, 'import'])->name('datakaryawan.import');
     Route::resource('datakaryawan', DataKaryawanController::class);
     Route::resource('detailkaryawan', DetailKaryawanController::class);
     Route::get('editKaryawan/{id}', [DataKaryawanController::class, 'edit'])->name('editKaryawan.edit');

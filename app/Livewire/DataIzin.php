@@ -62,7 +62,9 @@ class DataIzin extends Component
     public function approveIzin($izinId, $userId)
     {
         $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
-        $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)->get();
+        $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)
+            ->permission('approve-izin') // ✅ Spatie helper method
+            ->get();
         $izin = IzinKaryawan::find($izinId);
         $user = auth()->user();
         $targetUser = User::findOrFail($userId);
@@ -144,7 +146,7 @@ class DataIzin extends Component
                 $izin->update(['status_izin_id' => 4]);
 
                 $nextUser = User::where('id', $userId)->first();
-                $message = 'Pengajuan Ijim anda (' . $nextUser->name .
+                $message = 'Pengajuan Ijin anda (' . $nextUser->name .
                     ') telah <span class="text-green-600 font-bold">Disetujui Kepala Unit</span> oleh ' . $user->name;
                 $messagekepegawaian = 'Pengajuan Ijin atas nama (' . $nextUser->name .
                     ') telah <span class="text-green-600 font-bold">Disetujui Kepala Unit</span> oleh ' . $user->name . ', silahkan melanjutkan persetujuan ';

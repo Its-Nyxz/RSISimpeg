@@ -69,7 +69,9 @@ class DataCuti extends Component
         if ($cuti) {
             $user = auth()->user();
             $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
-            $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)->get();
+            $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)
+                ->permission('approve-cuti') // ✅ Spatie helper method
+                ->get();
             $targetUser = User::findOrFail($userId);
             if ($user->unit_id == $unitKepegawaianId) {
                 // Jika user dari unit kepegawaian, setujui final

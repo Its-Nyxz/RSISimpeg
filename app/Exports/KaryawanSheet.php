@@ -2,11 +2,15 @@
 
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\FromArray;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
+use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Protection;
 use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
 
 class KaryawanSheet implements FromArray, WithHeadings, WithTitle, WithEvents
@@ -22,19 +26,19 @@ class KaryawanSheet implements FromArray, WithHeadings, WithTitle, WithEvents
             '1234567890',
             'L',
             'Jakarta',
-            '1990-01-01',
+            Date::PHPToExcel(\Carbon\Carbon::create('1990-01-01')),
             'Jl. Contoh No. 1',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            '',
-            ''
+            '1 - SD',
+            'SD',
+            'SD 6 JAKARTA',
+            '1 - IMP',
+            '1 - Direktur',
+            '6 - Dokter Spesialis',
+            '1 - Tetap',
+            '1 - Shift',
+            Date::PHPToExcel(\Carbon\Carbon::create('2000-01-01')),
+            '1 - Dokter Spesialis ...',
+            '2 - TK0' // dropdown fields
         ]];
     }
 
@@ -51,17 +55,17 @@ class KaryawanSheet implements FromArray, WithHeadings, WithTitle, WithEvents
             'Tempat Lahir',
             'Tanggal Lahir (YYYY-MM-DD)',
             'Alamat',
-            'Pendidikan (ID - Nama)',
+            'Pendidikan',
             'Nama Pendidikan',
             'Institusi',
-            'Unit Kerja (ID - Nama)',
-            'Jabatan Struktural (ID - Nama)',
-            'Jabatan Fungsional (ID - Nama)',
-            'Jenis Karyawan (ID - Nama)',
+            'Unit Kerja',
+            'Jabatan Struktural',
+            'Jabatan Fungsional',
+            'Jenis Karyawan',
+            'Shift',
             'TMT',
-            'Golongan (ID)',
-            'Tunjangan Khusus (ID - Nama)',
-            'Kategori PPH (ID - Nama)'
+            'Tunjangan Khusus',
+            'Kategori PPH'
         ];
     }
 
@@ -76,30 +80,176 @@ class KaryawanSheet implements FromArray, WithHeadings, WithTitle, WithEvents
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                // Mapping kolom → baris awal pada sheet REFERENSI
-                $dropdownConfig = [
-                    'K' => 'REFERENSI!$A$2:$A$100', // Pendidikan
-                    'N' => 'REFERENSI!$B$2:$B$100', // Unit Kerja
-                    'O' => 'REFERENSI!$C$2:$C$100', // Jabatan Struktural
-                    'P' => 'REFERENSI!$D$2:$D$100', // Jabatan Fungsional
-                    'Q' => 'REFERENSI!$E$2:$E$100', // Jenis Karyawan
-                    'T' => 'REFERENSI!$F$2:$F$100', // Tunjangan Khusus
-                    'U' => 'REFERENSI!$G$2:$G$100', // Kategori PPH
+                // Dropdown dari sheet REFERENSI
+                $refs = [
+                    'K' => ['A', KaryawanReferenceSheet::$pendidikanCount],
+                    'N' => ['B', KaryawanReferenceSheet::$unitKerjaCount],
+                    'O' => ['C', KaryawanReferenceSheet::$jabStrukturalCount],
+                    'P' => ['D', KaryawanReferenceSheet::$jabFungsionalCount],
+                    'Q' => ['E', KaryawanReferenceSheet::$jenisKarCount],
+                    'T' => ['F', KaryawanReferenceSheet::$khususCount],
+                    'U' => ['G', KaryawanReferenceSheet::$pphCount],
                 ];
 
-                foreach ($dropdownConfig as $col => $range) {
+                foreach ($refs as $col => [$refCol, $count]) {
+                    if ($count <= 0) continue;
+                    $range = "REFERENSI!\${$refCol}\$2:\${$refCol}\$" . (1 + $count);
+
                     for ($row = 2; $row <= 100; $row++) {
                         $cell = $col . $row;
-                        $validation = $sheet->getCell($cell)->getDataValidation();
+                        $validation = new DataValidation();
                         $validation->setType(DataValidation::TYPE_LIST);
                         $validation->setErrorStyle(DataValidation::STYLE_STOP);
                         $validation->setAllowBlank(true);
                         $validation->setShowDropDown(true);
-                        $validation->setFormula1($range);
-
-                        $sheet->getCell($cell)->setDataValidation($validation);
+                        $validation->setFormula1("={$range}");
+                        $validation->setSqref($cell);
+                        $sheet->setDataValidation($cell, $validation);
                     }
                 }
+
+                // Dropdown Jenis Kelamin (L/P) langsung di kolom G
+                for ($row = 2; $row <= 100; $row++) {
+                    $cell = "G{$row}";
+                    $validation = new DataValidation();
+                    $validation->setType(DataValidation::TYPE_LIST);
+                    $validation->setErrorStyle(DataValidation::STYLE_STOP);
+                    $validation->setAllowBlank(true);
+                    $validation->setShowDropDown(true);
+                    $validation->setFormula1('"L,P"'); // dropdown langsung
+                    $validation->setSqref($cell);
+                    $sheet->setDataValidation($cell, $validation);
+                }
+                // Dropdown Shift langsung di kolom R
+                for ($row = 2; $row <= 100; $row++) {
+                    $cell = "R{$row}";
+                    $validation = new DataValidation();
+                    $validation->setType(DataValidation::TYPE_LIST);
+                    $validation->setErrorStyle(DataValidation::STYLE_STOP);
+                    $validation->setAllowBlank(true);
+                    $validation->setShowDropDown(true);
+                    $validation->setFormula1('"Shift,Non Shift"'); // dropdown langsung
+                    $validation->setSqref($cell);
+                    $sheet->setDataValidation($cell, $validation);
+                }
+                // Format kolom Tanggal Lahir (I) sebagai tanggal
+                for ($row = 2; $row <= 100; $row++) {
+                    $sheet->getStyle("I{$row}")
+                        ->getNumberFormat()
+                        ->setFormatCode('yyyy-mm-dd');
+                }
+                // Format kolom TMT (S) sebagai tanggal
+                for ($row = 2; $row <= 100; $row++) {
+                    $sheet->getStyle("S{$row}")
+                        ->getNumberFormat()
+                        ->setFormatCode('yyyy-mm-dd');
+                }
+
+                // Validasi TMT >= Tanggal Lahir
+                for ($row = 2; $row <= 100; $row++) {
+                    $cell = "S{$row}"; // kolom TMT
+
+                    $validation = new DataValidation();
+                    $validation->setType(DataValidation::TYPE_CUSTOM);
+                    $validation->setErrorStyle(DataValidation::STYLE_STOP);
+                    $validation->setAllowBlank(true);
+                    $validation->setShowErrorMessage(true);
+                    $validation->setErrorTitle('Tanggal Tidak Valid');
+                    $validation->setError('TMT tidak boleh lebih awal dari Tanggal Lahir.');
+                    $validation->setFormula1("=IF(AND(ISNUMBER(S{$row}),ISNUMBER(I{$row})),S{$row}>=I{$row},TRUE)");
+                    $validation->setSqref($cell);
+
+                    $sheet->setDataValidation($cell, $validation);
+                }
+
+                $customWidths = [
+                    'A' => 20, // Nama
+                    'B' => 25, // Email
+                    'C' => 15, // NIP
+                    'D' => 20, // No KTP
+                    'E' => 15, // No HP
+                    'F' => 18, // No Rekening
+                    'G' => 10, // Jenis Kelamin
+                    'H' => 15, // Tempat Lahir
+                    'I' => 15, // Tanggal Lahir
+                    'J' => 25, // Alamat
+                    'K' => 25, // Pendidikan
+                    'L' => 20,
+                    'M' => 20,
+                    'N' => 25, // Unit Kerja
+                    'O' => 25, // Jabatan Struktural
+                    'P' => 25, // Jabatan Fungsional
+                    'Q' => 20,
+                    'R' => 15,
+                    'S' => 15,
+                    'T' => 20,
+                    'U' => 20,
+                ];
+
+                foreach ($customWidths as $col => $width) {
+                    $sheet->getColumnDimension($col)->setWidth($width);
+                }
+
+                $kolomTeks = ['C', 'D', 'E', 'F']; // NIP, No KTP, No HP, No Rekening
+                foreach ($kolomTeks as $col) {
+                    $sheet->getStyle("{$col}2:{$col}100")
+                        ->getNumberFormat()
+                        ->setFormatCode('@'); // Format teks
+                }
+
+                // 1. Lock semua sel baris contoh (row 2)
+                $sheet->getStyle('A2:U2')->getProtection()->setLocked(Protection::PROTECTION_PROTECTED);
+
+                // 2. Unlock semua sel lainnya (data input)
+                $sheet->getStyle('A3:U100')->getProtection()->setLocked(Protection::PROTECTION_UNPROTECTED);
+
+                // 3. Aktifkan proteksi sheet
+                $sheet->getProtection()->setSheet(true);
+                $sheet->getProtection()->setPassword('templatekaryawan'); // Optional: tambahkan password
+                $sheet->getStyle('A2:U2')->applyFromArray([
+                    'fill' => [
+                        'fillType' => 'solid',
+                        'startColor' => ['rgb' => 'F0F0F0'],
+                    ],
+                    'font' => [
+                        'color' => ['rgb' => '555555'],
+                    ],
+                ]);
+                $sheet->getStyle('A1:U1')->getAlignment()->setWrapText(true);
+
+                $sheet->getStyle('A1:U1')->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                        'color' => ['rgb' => 'FFFFFF'],
+                    ],
+                    'fill' => [
+                        'fillType' => 'solid',
+                        'startColor' => ['rgb' => '4CAF50'], // hijau tua
+                    ],
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
+                        'vertical' => Alignment::VERTICAL_CENTER,
+                        'wrapText' => true,
+                    ],
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN,
+                        ],
+                    ],
+                ]);
+                $sheet->getStyle('A2:U100')->applyFromArray([
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_LEFT,
+                        'vertical' => Alignment::VERTICAL_CENTER,
+                        'wrapText' => true,
+                    ],
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN,
+                        ],
+                    ],
+                ]);
+                $sheet->freezePane('A3');
             },
         ];
     }

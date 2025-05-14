@@ -21,57 +21,58 @@
                                 <option value="{{ $y }}">{{ $y }}</option>
                             @endforeach
                         </select>
+                        @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->nama == 'KEUANGAN')
+                            <button wire:click="downloadTemplate"
+                                class="text-yellow-900 bg-yellow-100 hover:bg-yellow-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                                <i class="fas fa-download"></i> Download Template
+                            </button>
 
-                        <button wire:click="downloadTemplate"
-                            class="text-yellow-900 bg-yellow-100 hover:bg-yellow-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                            <i class="fas fa-download"></i> Download Template
-                        </button>
+                            {{-- @can('import-jadwal') --}}
+                            <!-- Input untuk Import -->
+                            <input type="file" wire:model="file" class="hidden" id="uploadFile">
+                            <button type="button" onclick="document.getElementById('uploadFile').click();"
+                                class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                                <i class="fas fa-file-excel"></i> Import Excel
+                            </button>
 
-                        {{-- @can('import-jadwal') --}}
-                        <!-- Input untuk Import -->
-                        <input type="file" wire:model="file" class="hidden" id="uploadFile">
-                        <button type="button" onclick="document.getElementById('uploadFile').click();"
-                            class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                            <i class="fas fa-file-excel"></i> Import Excel
-                        </button>
+                            <!-- Menampilkan Nama File -->
+                            @if ($file)
+                                <div class="mt-2 flex items-center space-x-2">
+                                    <span
+                                        class="text-sm text-green-700 font-medium">{{ $file->getClientOriginalName() }}</span>
 
-                        <!-- Menampilkan Nama File -->
-                        @if ($file)
-                            <div class="mt-2 flex items-center space-x-2">
-                                <span
-                                    class="text-sm text-green-700 font-medium">{{ $file->getClientOriginalName() }}</span>
+                                    <!-- Tombol Hapus File -->
+                                    <button type="button" wire:click="$set('file', null)"
+                                        class="text-red-500 hover:text-red-700 font-medium text-sm">
+                                        <i class="fas fa-times-circle"></i>
+                                    </button>
+                                </div>
+                            @endif
 
-                                <!-- Tombol Hapus File -->
-                                <button type="button" wire:click="$set('file', null)"
-                                    class="text-red-500 hover:text-red-700 font-medium text-sm">
-                                    <i class="fas fa-times-circle"></i>
-                                </button>
-                            </div>
-                        @endif
-
-                        <!-- Menampilkan Progress Upload -->
-                        <div wire:loading wire:target="file" class="mt-2">
-                            <div class="w-full bg-gray-200 rounded-full">
-                                <div class="bg-green-500 text-xs leading-none py-1 text-center text-white"
-                                    style="width: 0%;" x-data="{ progress: 0 }" x-init="$watch('progress', value => {
-                                        setInterval(() => {
-                                            if (progress < 100) progress += 10;
-                                        }, 200);
-                                    })">
-                                    Loading...
+                            <!-- Menampilkan Progress Upload -->
+                            <div wire:loading wire:target="file" class="mt-2">
+                                <div class="w-full bg-gray-200 rounded-full">
+                                    <div class="bg-green-500 text-xs leading-none py-1 text-center text-white"
+                                        style="width: 0%;" x-data="{ progress: 0 }" x-init="$watch('progress', value => {
+                                            setInterval(() => {
+                                                if (progress < 100) progress += 10;
+                                            }, 200);
+                                        })">
+                                        Loading...
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Tombol Submit Import -->
-                        @if ($file)
-                            <button type="button" wire:click="import"
-                                class="mt-2 text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                                Submit Import
-                            </button>
-                        @endif
-                        {{-- @endcan --}}
+                            <!-- Tombol Submit Import -->
+                            @if ($file)
+                                <button type="button" wire:click="import"
+                                    class="mt-2 text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                                    Submit Import
+                                </button>
+                            @endif
+                            {{-- @endcan --}}
                     </div>
+                    @endif
                 </div>
 
                 <!-- Kotak Pencarian -->

@@ -1,5 +1,5 @@
 <div id="dropdownNotificationButton" data-dropdown-toggle="dropdownNotification" data-dropdown-trigger="hover"
-    class="text-white bg-success-950 rounded-full hover:bg-success-700 px-3 py-2 transition duration-200 uppercase relative">
+    class="text-white bg-success-950 rounded-full hover:bg-gray-100 hover:text-success-950 px-3 py-2 transition duration-200 uppercase relative">
 
     <!-- Wrapper Ikon Bell dan Badge -->
     <div class="relative inline-block">

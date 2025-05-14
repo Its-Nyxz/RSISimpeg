@@ -68,7 +68,9 @@ class RolePermissionSeeder extends Seeder
             'hak-akses',
             'resign-kerja',
             'jatah-cuti',
-            'penyesuaian'
+            'penyesuaian',
+            'approve-izin',
+            'approve-cuti'
 
         ];
 
@@ -95,11 +97,11 @@ class RolePermissionSeeder extends Seeder
                 'tambah-jadwal',
                 'edit-jadwal',
                 'approval-cuti',
-                'approval-izin',
                 'approval-tukar-jadwal',
                 'view-import-gaji',
                 'view-poin-peran',
                 'view-poin-penilaian',
+                'approve-izin'
             ])->get(),
             'Kepala Seksi Keuangan' => Permission::whereNotIn('name', [
                 'view-kenaikan',

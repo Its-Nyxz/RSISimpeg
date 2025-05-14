@@ -26,16 +26,16 @@
                     </span>
                     <!-- Foto Profil -->
                     <a href="{{ route('userprofile.index') }}"
-                        class="text-white bg-success-950 rounded-full me-2 hover:bg-success-700 px-1 py-1">
+                        class="text-white bg-success-950 rounded-full me-2 hover:bg-gray-100 transition duration-150 hover:text-success-950 px-1 py-1">
                         {!! auth()->user()->photo
                             ? '<img src="' .
                                 asset('storage/photos/' . auth()->user()->photo) .
                                 '" 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    alt="Profile" 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    class="w-8 h-8 rounded-full object-cover border border-gray-300">'
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            alt="Profile" 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            class="w-8 h-8 rounded-full object-cover border border-gray-300">'
                             : '<div class="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full border border-gray-300">
-                                                                                                                                                                                                                                                                                                                                                    <i class="fa-solid fa-user"></i>
-                                                                                                                                                                                                                                                                                                                                                    </div>' !!}
+                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="fa-solid fa-user"></i>
+                                                                                                                                                                                                                                                                                                                                                                                                                            </div>' !!}
                     </a>
                 </div>
 
@@ -46,7 +46,7 @@
                 <!-- ✅ Tombol Logout Tetap Muncul di Mobile -->
                 <div class="flex items-center">
                     <a href="{{ route('logout') }}"
-                        class="text-white bg-success-950 rounded-full hover:bg-success-700 px-3 py-2">
+                        class="text-white bg-success-950 rounded-full hover:bg-gray-100 hover:text-success-950 px-3 py-2">
                         <i class="fa-solid fa-arrow-right-from-bracket"></i>
                     </a>
                 </div>
