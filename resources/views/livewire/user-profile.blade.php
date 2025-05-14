@@ -22,11 +22,11 @@
                         ? '<img src="' .
                             asset('storage/photos/' . $userprofile->photo) .
                             '" 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 alt="User Profile" 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 class="w-full h-full object-cover">'
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         alt="User Profile" 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         class="w-full h-full object-cover">'
                         : '<div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <i class="fa-solid fa-user text-5xl"></i>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           </div>' !!}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <i class="fa-solid fa-user text-5xl"></i>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   </div>' !!}
                 </div>
 
                 <!-- Data Profile -->
@@ -209,38 +209,63 @@
                                     {{-- <td class="px-6 py-3">{{ $user->kategorijabatan->nama ?? '-' }}</td> --}}
                                     {{-- <td class="px-6 py-3">{{ $user->unitKerja->nama ?? '-' }}</td> --}}
                                     <td class="px-6 py-3 flex justify-center items-center gap-2">
-                                        <a href="{{ route('users.edit', ['id' => $user->id]) }}"
-                                            class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300">
-                                            <i class="fa-solid fa-pen"></i>
-                                        </a>
-                                        <form id="resetPassword-form-{{ $user->id }}"
-                                            action="{{ route('users.resetPassword', $user->id) }}" method="POST"
-                                            style="display: none;">
-                                            @csrf
-                                            @method('PUT')
-                                        </form>
-                                        <a href="javascript:void(0);"
-                                            onclick="confirmAlert('Ingin mereset password menjadi 123?', 'Ya, Yakin!',function() { 
-                                                document.getElementById('resetPassword-form-{{ $user->id }}').submit();
-                                            })"
-                                            class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300">
-                                            <i class="fa-solid fa-rotate-right"></i>
-                                        </a>
-                                        <form id="delete-form-{{ $user->id }}"
-                                            action="{{ route('users.destroy', $user->id) }}" method="POST"
-                                            style="display: none;">
-                                            @csrf
-                                            @method('DELETE')
-                                        </form>
-                                        <a href="javascript:void(0);"
-                                            onclick="confirmAlert('Ingin menghapus user ini?', 'Ya, Hapus!',function() { 
-                                                document.getElementById('delete-form-{{ $user->id }}').submit();
-                                            })"
-                                            class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </a>
+                                        {{-- Edit Email & Password --}}
+                                        <div class="relative">
+                                            <a href="{{ route('users.edit', ['id' => $user->id]) }}"
+                                                class="w-10 h-10 flex items-center justify-center rounded-md bg-blue-100 hover:bg-blue-600 transition"
+                                                data-tooltip-target="tooltip-edit-{{ $user->id }}">
+                                                <i class="fa-solid fa-pen text-blue-900"></i>
+                                            </a>
+                                            <div id="tooltip-edit-{{ $user->id }}" role="tooltip"
+                                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip mt-2 left-1/2 -translate-x-1/2">
+                                                Edit Email & Password
+                                                <div class="tooltip-arrow" data-popper-arrow></div>
+                                            </div>
+                                        </div>
 
+                                        {{-- Reset Password --}}
+                                        <div class="relative">
+                                            <form id="resetPassword-form-{{ $user->id }}"
+                                                action="{{ route('users.resetPassword', $user->id) }}" method="POST"
+                                                style="display: none;">
+                                                @csrf
+                                                @method('PUT')
+                                            </form>
+                                            <a href="javascript:void(0);"
+                                                onclick="confirmAlert('Ingin mereset password menjadi 123?', 'Ya, Yakin!',function() { document.getElementById('resetPassword-form-{{ $user->id }}').submit(); })"
+                                                class="w-10 h-10 flex items-center justify-center rounded-md bg-yellow-100 hover:bg-yellow-500 transition"
+                                                data-tooltip-target="tooltip-reset-{{ $user->id }}">
+                                                <i class="fa-solid fa-rotate-right text-yellow-900"></i>
+                                            </a>
+                                            <div id="tooltip-reset-{{ $user->id }}" role="tooltip"
+                                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip mt-2 left-1/2 -translate-x-1/2">
+                                                Reset Password
+                                                <div class="tooltip-arrow" data-popper-arrow></div>
+                                            </div>
+                                        </div>
+
+                                        {{-- Hapus User --}}
+                                        <div class="relative">
+                                            <form id="delete-form-{{ $user->id }}"
+                                                action="{{ route('users.destroy', $user->id) }}" method="POST"
+                                                style="display: none;">
+                                                @csrf
+                                                @method('DELETE')
+                                            </form>
+                                            <a href="javascript:void(0);"
+                                                onclick="confirmAlert('Ingin menghapus user ini?', 'Ya, Hapus!',function() { document.getElementById('delete-form-{{ $user->id }}').submit(); })"
+                                                class="w-10 h-10 flex items-center justify-center rounded-md bg-red-100 hover:bg-red-500 transition"
+                                                data-tooltip-target="tooltip-delete-{{ $user->id }}">
+                                                <i class="fa-solid fa-trash text-red-900"></i>
+                                            </a>
+                                            <div id="tooltip-delete-{{ $user->id }}" role="tooltip"
+                                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip mt-2 left-1/2 -translate-x-1/2">
+                                                Hapus User
+                                                <div class="tooltip-arrow" data-popper-arrow></div>
+                                            </div>
+                                        </div>
                                     </td>
+
                                 </tr>
                             @empty
                                 <tr>

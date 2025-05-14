@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ExportKeuangan;
 use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -33,7 +34,7 @@ class KeuanganController extends Controller
         $filename = "data_keuangan_{$monthName}_{$tahun}.xlsx";
 
         return Excel::download(
-            new PotonganTemplateExport($bulan, $tahun, $unitId, $jenisId, $keyword),
+            new ExportKeuangan($bulan, $tahun, $unitId, $jenisId, $keyword),
             $filename
         );
     }

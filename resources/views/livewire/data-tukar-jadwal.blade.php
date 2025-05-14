@@ -12,6 +12,7 @@
                     <th scope="col" class="px-6 py-3">Nama</th>
                     <th scope="col" class="px-6 py-3">Jabatan</th>
                     <th scope="col" class="px-6 py-3">Tanggal Pergantian</th>
+                    <th scope="col" class="px-6 py-3">Shift</th>
                     <th scope="col" class="px-6 py-3">Alasan</th>
                     <th scope="col" class="px-6 py-3">Status</th>
                     <th scope="col" class="px-6 py-3">Aksi</th>
@@ -34,6 +35,14 @@
                         <td class="px-6 py-4"> {{ $tukar->user->name ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $tukar->user->kategorijabatan->nama ?? '-' }}</td>
                         <td class="px-6 py-4">{{ formatDate($tukar->tanggal) ?? '-' }}</td>
+                        <td class="px-6 py-4">
+                            @if ($tukar->shift)
+                                {{ $tukar->shift->nama_shift }} ({{ $tukar->shift->jam_masuk }} -
+                                {{ $tukar->shift->jam_keluar }})
+                            @else
+                                -
+                            @endif
+                        </td>
                         <td class="px-6 py-4">{{ $tukar->keterangan ?? '-' }}</td>
                         <td
                             class="px-6 py-4 font-extrabold whitespace-nowrap

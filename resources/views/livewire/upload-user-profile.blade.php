@@ -49,7 +49,7 @@
         <h2 class="text-xl font-bold">Daftar Dokumen Saya</h2>
         <div class="mt-4 space-y-2">
             @forelse ($uploadedFiles as $file)
-                <div class="flex justify-between items-center p-2 border rounded">
+                <div class="flex justify-between items-center p-2 border rounded bg-white">
                     <div>
                         <p><strong>{{ $file->jenisFile->name ?? '-' }}</strong></p>
                         <p class="text-sm text-gray-500">{{ $file->name }}</p>

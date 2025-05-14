@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Shift;
 use Illuminate\Support\Str;
@@ -39,6 +40,7 @@ class JadwalImport implements ToCollection
 
                 $user = User::where('slug', Str::slug($row[1]))->first();
 
+
                 if (!$user) {
                     Log::warning("User dengan slug '{$row[1]}' tidak ditemukan.");
                     continue;
@@ -60,10 +62,10 @@ class JadwalImport implements ToCollection
 
                     // Jika bukan libur, parse nama dan jam shift dari format "Pagi (08:00 - 16:00)"
                     if ($shiftCell && $shiftCell !== 'L') {
-                        if (preg_match('/^(.+?)\s*\((\d{2}:\d{2})\s*-\s*(\d{2}:\d{2})\)$/', $shiftCell, $matches)) {
-                            $nama_shift = trim($matches[1]);
-                            $jam_masuk = $matches[2];
-                            $jam_keluar = $matches[3];
+                        if (preg_match('/^(\w)\s*\((\d{2}:\d{2}):\d{2}\s*-\s*(\d{2}:\d{2}):\d{2}\)$/i', $shiftCell, $matches)) {
+                            $nama_shift = strtoupper($matches[1]);
+                            $jam_masuk = Carbon::createFromFormat('H:i', $matches[2])->format('H:i:s');
+                            $jam_keluar = Carbon::createFromFormat('H:i', $matches[3])->format('H:i:s');
                         } else {
                             // Fallback jika tidak cocok formatnya
                             $nama_shift = $shiftCell;

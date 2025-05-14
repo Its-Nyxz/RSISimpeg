@@ -40,9 +40,7 @@ class GenerateAnnualLeave extends Command
                 $users = User::all();
 
                 foreach ($users as $user) {
-                    $golonganId = $user->gol_id;
                     $jatahCuti = MasterJatahCuti::where('tahun', $currentYear)
-                        ->where('golongan_id', $golonganId)
                         ->value('jumlah_cuti') ?? 12;
 
                     SisaCutiTahunan::create([

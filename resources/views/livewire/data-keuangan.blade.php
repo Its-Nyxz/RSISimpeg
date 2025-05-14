@@ -99,42 +99,44 @@
                         @endforeach
                     </select>
 
-                    {{-- Tombol Generate Slip Gaji --}}
-                    <div class="flex items-center gap-2">
-                        {{-- Tombol Slip Gaji --}}
-                        <div class="relative">
-                            <button type="button" onclick="Livewire.dispatch('openGenerateModal')"
-                                class="w-10 h-10 flex items-center justify-center rounded-md bg-blue-100 hover:bg-blue-600 transition"
-                                data-tooltip-target="tooltip-generate">
-                                <i class="fas fa-file-invoice-dollar text-blue-900 text-lg"></i>
-                            </button>
-                            <div id="tooltip-generate" role="tooltip"
-                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip mt-2 left-1/2 -translate-x-1/2">
-                                Generate Slip Gaji
-                                <div class="tooltip-arrow" data-popper-arrow></div>
+                    @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->nama == 'KEUANGAN')
+                        {{-- Tombol Generate Slip Gaji --}}
+                        <div class="flex items-center gap-2">
+                            {{-- Tombol Slip Gaji --}}
+                            <div class="relative">
+                                <button type="button" onclick="Livewire.dispatch('openGenerateModal')"
+                                    class="w-10 h-10 flex items-center justify-center rounded-md bg-blue-100 hover:bg-blue-600 transition"
+                                    data-tooltip-target="tooltip-generate">
+                                    <i class="fas fa-file-invoice-dollar text-blue-900 text-lg"></i>
+                                </button>
+                                <div id="tooltip-generate" role="tooltip"
+                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip mt-2 left-1/2 -translate-x-1/2">
+                                    Generate Slip Gaji
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
                             </div>
-                        </div>
 
-                        {{-- Tombol Export Excel --}}
-                        <div class="relative">
-                            <a href="{{ route('keuangan.export', [
-                                'bulan' => $bulan,
-                                'tahun' => $tahun,
-                                'unit' => $selectedUnit,
-                                'jenis' => $selectedJenisKaryawan,
-                                'keyword' => $search,
-                            ]) }}"
-                                class="w-10 h-10 flex items-center justify-center rounded-md bg-green-100 hover:bg-green-600 transition"
-                                data-tooltip-target="tooltip-export-excel">
-                                <i class="fas fa-file-excel text-green-900 text-lg"></i>
-                            </a>
-                            <div id="tooltip-export-excel" role="tooltip"
-                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip mt-2 left-1/2 -translate-x-1/2">
-                                Export Excel Data
-                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            {{-- Tombol Export Excel --}}
+                            <div class="relative">
+                                <a href="{{ route('keuangan.export', [
+                                    'bulan' => $bulan,
+                                    'tahun' => $tahun,
+                                    'unit' => $selectedUnit,
+                                    'jenis' => $selectedJenisKaryawan,
+                                    'keyword' => $search,
+                                ]) }}"
+                                    class="w-10 h-10 flex items-center justify-center rounded-md bg-green-100 hover:bg-green-600 transition"
+                                    data-tooltip-target="tooltip-export-excel">
+                                    <i class="fas fa-file-excel text-green-900 text-lg"></i>
+                                </a>
+                                <div id="tooltip-export-excel" role="tooltip"
+                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip mt-2 left-1/2 -translate-x-1/2">
+                                    Export Excel Data
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @endif
 
                 </div>
 
