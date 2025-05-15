@@ -71,13 +71,22 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
             ];
         }
 
-        // Tambahkan shift L (Libur) di bawah keterangan shift
-        $data[] = [
-            'Nama Shift'   => 'L',
-            'Jam Masuk'    => '-',
-            'Jam Keluar'   => '-',
-            'Keterangan'   => 'Libur',
-        ];
+        // Tambahkan shift "L" (Libur) jika belum ada di database
+        $existingL = Shift::where('unit_id', $this->unitId)
+            ->where('nama_shift', 'L')
+            ->whereNull('jam_masuk')
+            ->whereNull('jam_keluar')
+            ->first();
+
+        if (!$existingL) {
+            Shift::create([
+                'unit_id' => $this->unitId,
+                'nama_shift' => 'L',
+                'jam_masuk' => null,
+                'jam_keluar' => null,
+                'keterangan' => 'Libur',
+            ]);
+        }
 
         return $data;
     }
@@ -100,13 +109,32 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                // ======= Tambahkan Data Shift di Sheet Terpisah =======
-                $shifts = Shift::where('unit_id', $this->unitId)->get()->map(function ($shift) {
-                    return "{$shift->nama_shift} ({$shift->jam_masuk}-{$shift->jam_keluar})";
-                })->toArray();
+                // ======= Pastikan shift 'L' ada di database =======
+                Shift::firstOrCreate([
+                    'unit_id' => $this->unitId,
+                    'nama_shift' => 'L',
+                    'jam_masuk' => null,
+                    'jam_keluar' => null
+                ], [
+                    'keterangan' => 'Libur'
+                ]);
 
-                // Tambahkan Libur (L) dan kosong
-                array_push($shifts, 'L (-)', '');
+                // ======= Ambil semua shift dan format untuk dropdown =======
+                $shifts = Shift::where('unit_id', $this->unitId)->get()->map(function ($shift) {
+                    $nama = $shift->nama_shift;
+                    $masuk = $shift->jam_masuk ?? '-';
+                    $keluar = $shift->jam_keluar ?? '-';
+
+                    // Khusus shift L
+                    if ($nama === 'L' && is_null($shift->jam_masuk) && is_null($shift->jam_keluar)) {
+                        return 'L (-)';
+                    }
+
+                    return "{$nama} ({$masuk}-{$keluar})";
+                })->unique()->values();
+
+                // Tambahkan satu opsi kosong di dropdown (opsional)
+                $shifts->push('');
 
                 if (count($shifts) > 0) {
                     // Buat sheet baru untuk daftar shift (JANGAN DISEMBUNYIKAN)

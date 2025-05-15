@@ -74,14 +74,23 @@ class AddPotongan extends Component
         // Hitung total hari dijadwalkan
         $totalHariJadwal = $jadwalUser->count();
 
-        $absensiValid = $this->user->absen()
-            ->whereIn('jadwal_id', $jadwalUser->pluck('id'))
-            ->where('present', 1)
-            ->distinct('jadwal_id') // pastikan hanya unik jadwal_id
-            ->count('jadwal_id');
+        $jadwalIds = $jadwalUser->pluck('id');
+
+        $jadwalValid = $this->user->jadwalabsensi()
+            ->whereIn('id', $jadwalIds)
+            ->where(function ($query) {
+                $query->whereHas('absensi', function ($q) {
+                    $q->where('present', 1);
+                })
+                    ->orWhereHas('shift', function ($q) {
+                        $q->whereNull('jam_masuk')->whereNull('jam_keluar');
+                    });
+            })
+            ->count();
 
         // Proporsi kehadiran aktual
-        $proporsiHybrid = $absensiValid / max($totalHariJadwal, 1);
+        $proporsiHybrid = $jadwalValid / max($totalHariJadwal, 1);
+
         // Terapkan hanya ke makan dan transport
         $this->nom_makan = $base_makan * $proporsiHybrid;
         $this->nom_transport = $base_transport * $proporsiHybrid;

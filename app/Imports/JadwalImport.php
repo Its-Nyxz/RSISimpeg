@@ -53,7 +53,30 @@ class JadwalImport implements ToCollection
                     $tanggal_jadwal = "{$this->tahun}-" . str_pad($this->bulan, 2, '0', STR_PAD_LEFT) . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
 
 
-                    $shiftCell = isset($row[4 + $day]) ? trim($row[4 + $day]) : null;
+                    $shiftCellRaw = isset($row[4 + $day]) ? trim($row[4 + $day]) : null;
+                    $shiftCell = preg_replace('/\s*\(-\)/', '', $shiftCellRaw);
+                    // Jika shift L (libur), ambil shift-nya dari database
+                    if ($shiftCell === 'L') {
+                        $shift = Shift::where('unit_id', $user->unit_id)
+                            ->where('nama_shift', 'L')
+                            ->whereNull('jam_masuk')
+                            ->whereNull('jam_keluar')
+                            ->first();
+
+                        if ($shift) {
+                            JadwalAbsensi::updateOrCreate(
+                                [
+                                    'user_id' => $user->id,
+                                    'tanggal_jadwal' => $tanggal_jadwal
+                                ],
+                                [
+                                    'shift_id' => $shift->id
+                                ]
+                            );
+                        }
+
+                        continue; // Lewati parsing lebih lanjut karena sudah diproses
+                    }
 
                     // Default null
                     $nama_shift = null;
@@ -73,7 +96,8 @@ class JadwalImport implements ToCollection
                     }
 
                     if ($nama_shift) {
-                        $shift = Shift::where('nama_shift', $nama_shift)
+                        $shift = Shift::where('unit_id', $user->unit_id)
+                            ->where('nama_shift', $nama_shift)
                             ->where('jam_masuk', $jam_masuk)
                             ->where('jam_keluar', $jam_keluar)
                             ->first();

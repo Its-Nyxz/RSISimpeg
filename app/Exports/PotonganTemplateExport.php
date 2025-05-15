@@ -61,11 +61,19 @@ class PotonganTemplateExport implements FromView
 
             $totalHariJadwal = $jadwalUser->count();
 
-            $absensiValid = $user->absen()
-                ->whereIn('jadwal_id', $jadwalUser->pluck('id'))
-                ->where('present', 1)
-                ->distinct('jadwal_id')
-                ->count('jadwal_id');
+            $jadwalIds = $jadwalUser->pluck('id');
+
+            $absensiValid = $user->jadwalabsensi()
+                ->whereIn('id', $jadwalIds)
+                ->where(function ($query) {
+                    $query->whereHas('absensi', function ($q) {
+                        $q->where('present', 1);
+                    })
+                        ->orWhereHas('shift', function ($q) {
+                            $q->whereNull('jam_masuk')->whereNull('jam_keluar');
+                        });
+                })
+                ->count();
 
             $proporsiHybrid = $absensiValid / max($totalHariJadwal, 1);
             $nom_makan = ($masterTrans?->nom_makan ?? 0) * $proporsiHybrid;
