@@ -27,9 +27,9 @@
             </a>
         </div>
     </div>
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <div class="relative overflow-x-auto overflow-y-auto  max-h-[45rem] shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-left text-gray-700">
-            <thead class="text-sm uppercase bg-success-400 text-success-900">
+            <thead class="sticky top-0 bg-success-400 text-success-900 z-10">
                 <tr>
                     <th scope="col" class="px-6 py-3">Kode Shift</th>
                     <th scope="col" class="px-6 py-3">Jam Masuk</th>
@@ -83,5 +83,23 @@
                 @endforelse
             </tbody>
         </table>
+        <div class="flex justify-center items-center space-x-4 bg-white shadow-md p-4 rounded-sm">
+            <button wire:click="prevPage" @if ($currentPage === 1) disabled @endif
+                class="px-4 py-2 rounded-md border text-sm bg-white text-gray-700 border-gray-300 hover:bg-gray-100 disabled:bg-gray-300 disabled:text-gray-500 disabled:border-gray-400">
+                &larr; Prev
+            </button>
+
+            <span class="text-sm text-gray-700">
+                Halaman <strong>{{ $currentPage }}</strong>
+                @if ($totalShifts > 0)
+                    dari {{ ceil($totalShifts / $perPage) }}
+                @endif
+            </span>
+
+            <button wire:click="nextPage" @if ($currentPage * $perPage >= $totalShifts) disabled @endif
+                class="px-4 py-2 rounded-md border text-sm bg-white text-gray-700 border-gray-300 hover:bg-gray-100 disabled:bg-gray-300 disabled:text-gray-500 disabled:border-gray-400">
+                Next &rarr;
+            </button>
+        </div>
     </div>
 </div>
