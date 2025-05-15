@@ -11,6 +11,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Log;
 
 class UpdateKenaikanGolongan extends Command
 {
@@ -68,6 +69,7 @@ class UpdateKenaikanGolongan extends Command
 
             if ($golonganSetelah->isEmpty()) {
                 $this->line("⏭ {$user->name} sudah di golongan tertinggi.");
+                Log::channel('kenaikan_golongan')->warning("⚠ {$user->name} gagal diproses: tidak memiliki data pendidikan | UserID: {$user->id}");
                 continue;
             }
 
@@ -127,9 +129,11 @@ class UpdateKenaikanGolongan extends Command
             // $user->save();
 
             $this->info("✔ {$user->name} naik golongan → {$golonganBerikutnya->nama} (ID: {$golonganBerikutnya->id})");
+            Log::channel('kenaikan_golongan')->info("✔ {$user->name} naik golongan dari ID {$currentGolId} ke {$golonganBerikutnya->id} ({$golonganBerikutnya->nama}) pada tanggal $tanggalKenaikan | UserID: {$user->id}");
             $updated++;
         }
 
         $this->info("Total user yang naik golongan: $updated");
+        Log::channel('kenaikan_golongan')->info("Total user naik golongan: $updated pada " . now()->toDateString());
     }
 }

@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\MasterGapok;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UpdateKenaikanBerkala extends Command
 {
@@ -85,9 +86,11 @@ class UpdateKenaikanBerkala extends Command
             $user->save();
 
             $this->info("✔ {$user->name} naik gaji → Rp" . number_format($gapokBaru->nominal_gapok, 0, ',', '.') . " | masa kerja: $masaKerjaAktual tahun");
+            Log::channel('kenaikan_berkala')->info("✔ {$user->name} naik gaji → Rp" . number_format($gapokBaru->nominal_gapok, 0, ',', '.') . " | masa kerja: $masaKerjaAktual tahun | UserID: {$user->id}");
             $updated++;
         }
 
         $this->info("Total user yang naik gaji berkala: $updated");
+        Log::channel('kenaikan_berkala')->info("Total user naik gaji berkala: $updated pada {$today->toDateString()}");
     }
 }

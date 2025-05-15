@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class UpdateMasaKerja extends Command
 {
@@ -58,5 +59,6 @@ class UpdateMasaKerja extends Command
         }
 
         $this->info("Selesai. Total user yang diperbarui: {$updated}");
+        Log::channel('masa_kerja')->info("Masa kerja diperbarui: {$updated} user pada {$today->toDateString()}");
     }
 }
