@@ -74,27 +74,35 @@ class ShiftSeeder extends Seeder
 
         // Unit 24 jam (dapat semua shift)
         $unitIdsWithFullShifts = [
-            1,
-            2,
-            3,
-            5,
-            14,
-            15,
-            16,
-            17,
-            18,
-            22,
-            23,
-            24,
-            25,
-            26,
-            28,
-            29,
-            30,
-            31,
-            33,
-            45,
-            57
+            1,  // IMP
+            2,  // PERINATOLOGI (sub)
+            3,  // VK (sub)
+            5,  // INST RANAP
+            6,  // AT TAQWA
+            7,  // ASSALAM
+            8,  // AL AMIN
+            9,  // FIRDAUS
+            10, // HAJI
+            11, // ASSYFA
+            12, // AZIZIAH
+            13, // ALMUNAWAROH
+            14, // IBS
+            15, // IGD
+            16, // ICU
+            17, // INST DIALISIS
+            18, // IRJ
+            22, // INST RADIOLOGI
+            23, // INST LABORATORIUM
+            24, // INST SANITASI
+            25, // INST CSSD
+            26, // INST PEML SARPRAS
+            28, // TRANSPORTASI
+            29, // INST GIZI
+            30, // PJBR
+            31, // PENGELOLAAN LINEN
+            33, // KEPERAWATAN
+            45, // SUPERVISOR
+            57  // GUDANG
         ];
 
         // Semua unit kerja
@@ -104,30 +112,40 @@ class ShiftSeeder extends Seeder
         $unitIdsWithRegularPagi = array_diff($allUnitIds, $unitIdsWithFullShifts);
 
         // Insert untuk unit dengan full shift
+        // Untuk unit dengan full shift
         foreach ($unitIdsWithFullShifts as $unit_id) {
             foreach ($fullShifts as $shift) {
-                Shift::create([
-                    'unit_id' => $unit_id,
-                    'nama_shift' => $shift['nama_shift'],
-                    'jam_masuk' => Carbon::createFromFormat('H:i', $shift['jam_masuk'], 'Asia/Jakarta')->format('H:i'),
-                    'jam_keluar' => Carbon::createFromFormat('H:i', $shift['jam_keluar'], 'Asia/Jakarta')->format('H:i'),
-                    'keterangan' => $shift['keterangan'],
-                ]);
+                Shift::updateOrCreate(
+                    [
+                        'unit_id' => $unit_id,
+                        'nama_shift' => $shift['nama_shift'],
+                        'jam_masuk' => Carbon::createFromFormat('H:i', $shift['jam_masuk'], 'Asia/Jakarta')->format('H:i'),
+                        'jam_keluar' => Carbon::createFromFormat('H:i', $shift['jam_keluar'], 'Asia/Jakarta')->format('H:i'),
+                    ],
+                    [
+                        'keterangan' => $shift['keterangan'],
+                    ]
+                );
             }
         }
 
-        // Insert untuk unit reguler (hanya shift pagi)
+        // Untuk unit dengan shift pagi reguler
         foreach ($unitIdsWithRegularPagi as $unit_id) {
             foreach ($regularPagiShift as $shift) {
-                Shift::create([
-                    'unit_id' => $unit_id,
-                    'nama_shift' => $shift['nama_shift'],
-                    'jam_masuk' => Carbon::createFromFormat('H:i', $shift['jam_masuk'], 'Asia/Jakarta')->format('H:i'),
-                    'jam_keluar' => Carbon::createFromFormat('H:i', $shift['jam_keluar'], 'Asia/Jakarta')->format('H:i'),
-                    'keterangan' => $shift['keterangan'],
-                ]);
+                Shift::updateOrCreate(
+                    [
+                        'unit_id' => $unit_id,
+                        'nama_shift' => $shift['nama_shift'],
+                        'jam_masuk' => Carbon::createFromFormat('H:i', $shift['jam_masuk'], 'Asia/Jakarta')->format('H:i'),
+                        'jam_keluar' => Carbon::createFromFormat('H:i', $shift['jam_keluar'], 'Asia/Jakarta')->format('H:i'),
+                    ],
+                    [
+                        'keterangan' => $shift['keterangan'],
+                    ]
+                );
             }
         }
+
 
         // $unitIds = range(1, 59);
 
