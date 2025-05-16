@@ -366,4 +366,53 @@
         <p class="font-semibold text-gray-600">{{ $this->absensiTanpaLembur->first()->deskripsi_out ?? '-' }}</p>
     @endif
 
+
+    @push('scripts')
+        <script>
+            function ambilDanKirimLokasi() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            const lat = position.coords.latitude;
+                            const lng = position.coords.longitude;
+
+                            // Kirim ke Livewire
+                            @this.set('latitude', lat);
+                            @this.set('longitude', lng);
+
+                            console.log('Latitude:', position.coords.latitude);
+                            console.log('Longitude:', position.coords.longitude);
+                            console.log('Accuracy (in meters):', position.coords.accuracy);
+
+                            // Optional: aktifkan tombol jika di dalam radius (frontend UX)
+                            // Lakukan pengecekan jarak di JS jika mau
+                        },
+                        function(error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lokasi Tidak Dapat Diakses',
+                                text: 'Pastikan izin lokasi diaktifkan di browser Anda.'
+                            });
+                        }, {
+                            enableHighAccuracy: true, // 🔥 Lebih akurat
+                            timeout: 10000,
+                            maximumAge: 0
+                        }
+                    );
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Geolocation Tidak Didukung',
+                        text: 'Browser Anda tidak mendukung deteksi lokasi.'
+                    });
+                }
+            }
+
+            // Jalankan saat halaman dimuat
+            document.addEventListener('DOMContentLoaded', () => {
+                ambilDanKirimLokasi();
+                setInterval(ambilDanKirimLokasi, 30000); // Refresh lokasi setiap 30 detik
+            });
+        </script>
+    @endpush
 </div>

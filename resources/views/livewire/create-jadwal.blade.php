@@ -40,7 +40,8 @@
                     @foreach ($shifts as $suggestion)
                         <li class="dropdown-item p-2 hover:bg-green-200 cursor-pointer"
                             wire:click="selectShift('{{ $suggestion['id'] }}', '{{ $suggestion['nama_shift'] }}')">
-                            {{ $suggestion['nama_shift'] }}
+                            {{ $suggestion['nama_shift'] }} ({{ $suggestion['jam_masuk'] ?? '-' }} -
+                            {{ $suggestion['jam_keluar'] ?? '-' }})
                         </li>
                     @endforeach
                 </ul>

@@ -38,6 +38,9 @@ class Timer extends Component
     public $isLemburRunning = false;
     public $routeIsDashboard;
 
+    public $latitude;
+    public $longitude;
+
     public function mount($jadwal_id)
     {
         $this->jadwal_id = $jadwal_id;
@@ -156,6 +159,28 @@ class Timer extends Component
 
     public function startTimer()
     {
+        // lat long akunbiz : -7.54800807506941, 110.81268629825813
+        // lat long rsi banjar:-7.401539240466296, 109.61590654058521
+        // ✅ Validasi lokasi GPS
+        $lokasiKantor = [
+            'lat' => -7.54800807506941,     // ← koordinat kantor asli
+            'lng' => 110.81268629825813
+        ];
+
+        $jarak = $this->hitungJarakMeter(
+            $this->latitude,
+            $this->longitude,
+            $lokasiKantor['lat'],
+            $lokasiKantor['lng']
+        );
+
+        dd($jarak, $this->latitude, $this->longitude, $jarak > 500);
+
+        if ($jarak > 500) {
+            $this->dispatch('alert-error', message: 'Lokasi Anda terlalu jauh dari RSI Banjarnegara.');
+            return;
+        }
+
         if (!$this->isRunning) {
             $this->isRunning = true;
             $this->timeIn = now()->timestamp;
@@ -214,6 +239,23 @@ class Timer extends Component
 
     public function openWorkReportModal()
     {
+        $lokasiKantor = [
+            'lat' => -7.54800807506941,     // ← koordinat kantor asli
+            'lng' => 110.81268629825813
+        ];
+
+        $jarak = $this->hitungJarakMeter(
+            $this->latitude,
+            $this->longitude,
+            $lokasiKantor['lat'],
+            $lokasiKantor['lng']
+        );
+
+        if ($jarak > 500) {
+            $this->dispatch('alert-error', message: 'Anda tidak berada di area RSI Banjarnegara saat menyelesaikan tugas.');
+            return;
+        }
+
         if ($this->isRunning) {
             $this->timeOut = now()->timestamp;
             $this->isRunning = false;
@@ -513,6 +555,16 @@ class Timer extends Component
         return $this->routeIsDashboard
             ? redirect()->route('dashboard') // Jika diakses dari dashboard
             : redirect()->to('/timer'); // Jika diakses dari route lain
+    }
+
+    private function hitungJarakMeter($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371000; // meter
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+        $a = sin($dLat / 2) ** 2 + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon / 2) ** 2;
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        return $earthRadius * $c;
     }
 
     public function render()
