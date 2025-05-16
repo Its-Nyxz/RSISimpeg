@@ -153,11 +153,15 @@ class CreateJadwal extends Component
     }
 
     // Method untuk memilih shift
-    public function selectShift($id, $nama_shift)
+    public function selectShift($id, $nama)
     {
-        $this->shift_id = $id;
-        $this->shift_nama = $nama_shift;
-        $this->shifts = [];
+        $shift = Shift::find($id);
+
+        if ($shift) {
+            $this->shift_id = $shift->id;
+            $this->shift_nama = $shift->nama_shift . ' (' . $shift->jam_masuk . ' - ' . $shift->jam_keluar . ')';
+            $this->shifts = []; // kosongkan dropdown setelah dipilih
+        }
     }
 
     // Method untuk memilih opsi absensi
