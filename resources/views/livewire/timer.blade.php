@@ -367,7 +367,7 @@
     @endif
 
 
-    @push('scripts')
+    {{-- @push('scripts')
         <script>
             function ambilDanKirimLokasi() {
                 if (navigator.geolocation) {
@@ -426,5 +426,5 @@
                 setInterval(ambilDanKirimLokasi, 30000); // Refresh lokasi setiap 30 detik
             });
         </script>
-    @endpush
+    @endpush --}}
 </div>

@@ -162,24 +162,22 @@ class Timer extends Component
         // lat long akunbiz : -7.54800807506941, 110.81268629825813
         // lat long rsi banjar:-7.401517961585791, 109.61597091359837
         // ✅ Validasi lokasi GPS
-        $lokasiKantor = [
-            'lat' => -7.54800807506941,     // ← koordinat kantor asli
-            'lng' => 110.81268629825813
-        ];
+        // $lokasiKantor = [
+        //     'lat' => -7.54800807506941,     // ← koordinat kantor asli
+        //     'lng' => 110.81268629825813
+        // ];
 
-        $jarak = $this->hitungJarakMeter(
-            $this->latitude,
-            $this->longitude,
-            $lokasiKantor['lat'],
-            $lokasiKantor['lng']
-        );
+        // $jarak = $this->hitungJarakMeter(
+        //     $this->latitude,
+        //     $this->longitude,
+        //     $lokasiKantor['lat'],
+        //     $lokasiKantor['lng']
+        // );
 
-        // dd($jarak, $this->latitude, $this->longitude, $jarak > 500);
-
-        if ($jarak > 500) {
-            $this->dispatch('alert-error', message: 'Lokasi Anda terlalu jauh dari RSI Banjarnegara.');
-            return;
-        }
+        // if ($jarak > 500) {
+        //     $this->dispatch('alert-error', message: 'Lokasi Anda terlalu jauh dari RSI Banjarnegara.');
+        //     return;
+        // }
 
         if (!$this->isRunning) {
             $this->isRunning = true;
@@ -239,22 +237,22 @@ class Timer extends Component
 
     public function openWorkReportModal()
     {
-        $lokasiKantor = [
-            'lat' => -7.54800807506941,     // ← koordinat kantor asli
-            'lng' => 110.81268629825813
-        ];
+        // $lokasiKantor = [
+        //     'lat' => -7.54800807506941,     // ← koordinat kantor asli
+        //     'lng' => 110.81268629825813
+        // ];
 
-        $jarak = $this->hitungJarakMeter(
-            $this->latitude,
-            $this->longitude,
-            $lokasiKantor['lat'],
-            $lokasiKantor['lng']
-        );
+        // $jarak = $this->hitungJarakMeter(
+        //     $this->latitude,
+        //     $this->longitude,
+        //     $lokasiKantor['lat'],
+        //     $lokasiKantor['lng']
+        // );
 
-        if ($jarak > 500) {
-            $this->dispatch('alert-error', message: 'Anda tidak berada di area RSI Banjarnegara saat menyelesaikan tugas.');
-            return;
-        }
+        // if ($jarak > 500) {
+        //     $this->dispatch('alert-error', message: 'Anda tidak berada di area RSI Banjarnegara saat menyelesaikan tugas.');
+        //     return;
+        // }
 
         if ($this->isRunning) {
             $this->timeOut = now()->timestamp;
@@ -307,22 +305,22 @@ class Timer extends Component
 
     public function completeWorkReport()
     {
-        $lokasiKantor = [
-            'lat' => -7.54800807506941,     // ← koordinat kantor asli
-            'lng' => 110.81268629825813
-        ];
+        // $lokasiKantor = [
+        //     'lat' => -7.54800807506941,     // ← koordinat kantor asli
+        //     'lng' => 110.81268629825813
+        // ];
 
-        $jarak = $this->hitungJarakMeter(
-            $this->latitude,
-            $this->longitude,
-            $lokasiKantor['lat'],
-            $lokasiKantor['lng']
-        );
+        // $jarak = $this->hitungJarakMeter(
+        //     $this->latitude,
+        //     $this->longitude,
+        //     $lokasiKantor['lat'],
+        //     $lokasiKantor['lng']
+        // );
 
-        if ($jarak > 500) {
-            $this->dispatch('alert-error', message: 'Lokasi Anda terlalu jauh dari RSI Banjarnegara saat menyelesaikan absen.');
-            return;
-        }
+        // if ($jarak > 500) {
+        //     $this->dispatch('alert-error', message: 'Lokasi Anda terlalu jauh dari RSI Banjarnegara saat menyelesaikan absen.');
+        //     return;
+        // }
 
         if (!$this->timeOut) return;
 
