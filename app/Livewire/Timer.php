@@ -160,11 +160,11 @@ class Timer extends Component
     public function startTimer()
     {
         // lat long akunbiz : -7.54800807506941, 110.81268629825813
-        // lat long rsi banjar:-7.401539240466296, 109.61590654058521
+        // lat long rsi banjar:-7.401517961585791, 109.61597091359837
         // ✅ Validasi lokasi GPS
         $lokasiKantor = [
-            'lat' => -7.54800807506941,     // ← koordinat kantor asli
-            'lng' => 110.81268629825813
+            'lat' => -7.401517961585791,     // ← koordinat kantor asli
+            'lng' => 109.61597091359837
         ];
 
         $jarak = $this->hitungJarakMeter(
@@ -174,7 +174,7 @@ class Timer extends Component
             $lokasiKantor['lng']
         );
 
-        dd($jarak, $this->latitude, $this->longitude, $jarak > 500);
+        // dd($jarak, $this->latitude, $this->longitude, $jarak > 500);
 
         if ($jarak > 500) {
             $this->dispatch('alert-error', message: 'Lokasi Anda terlalu jauh dari RSI Banjarnegara.');
@@ -240,8 +240,8 @@ class Timer extends Component
     public function openWorkReportModal()
     {
         $lokasiKantor = [
-            'lat' => -7.54800807506941,     // ← koordinat kantor asli
-            'lng' => 110.81268629825813
+            'lat' => -7.401517961585791,     // ← koordinat kantor asli
+            'lng' => 109.61597091359837
         ];
 
         $jarak = $this->hitungJarakMeter(
