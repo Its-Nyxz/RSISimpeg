@@ -376,6 +376,18 @@
                             const lat = position.coords.latitude;
                             const lng = position.coords.longitude;
 
+                            // ✅ Validasi akurasi lokasi
+                            if (position.coords.accuracy > 500) {
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: 'GPS Tidak Akurat',
+                                    text: 'Sinyal GPS kurang akurat. Pindah ke tempat terbuka.',
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                });
+                                return;
+                            }
+
                             // Kirim ke Livewire
                             @this.set('latitude', lat);
                             @this.set('longitude', lng);

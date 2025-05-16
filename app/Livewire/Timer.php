@@ -163,8 +163,8 @@ class Timer extends Component
         // lat long rsi banjar:-7.401517961585791, 109.61597091359837
         // ✅ Validasi lokasi GPS
         $lokasiKantor = [
-            'lat' => -7.401517961585791,     // ← koordinat kantor asli
-            'lng' => 109.61597091359837
+            'lat' => -7.54800807506941,     // ← koordinat kantor asli
+            'lng' => 110.81268629825813
         ];
 
         $jarak = $this->hitungJarakMeter(
@@ -240,8 +240,8 @@ class Timer extends Component
     public function openWorkReportModal()
     {
         $lokasiKantor = [
-            'lat' => -7.401517961585791,     // ← koordinat kantor asli
-            'lng' => 109.61597091359837
+            'lat' => -7.54800807506941,     // ← koordinat kantor asli
+            'lng' => 110.81268629825813
         ];
 
         $jarak = $this->hitungJarakMeter(
@@ -307,6 +307,23 @@ class Timer extends Component
 
     public function completeWorkReport()
     {
+        $lokasiKantor = [
+            'lat' => -7.54800807506941,     // ← koordinat kantor asli
+            'lng' => 110.81268629825813
+        ];
+
+        $jarak = $this->hitungJarakMeter(
+            $this->latitude,
+            $this->longitude,
+            $lokasiKantor['lat'],
+            $lokasiKantor['lng']
+        );
+
+        if ($jarak > 500) {
+            $this->dispatch('alert-error', message: 'Lokasi Anda terlalu jauh dari RSI Banjarnegara saat menyelesaikan absen.');
+            return;
+        }
+
         if (!$this->timeOut) return;
 
         $timeIn = Carbon::createFromTimestamp($this->timeIn);
