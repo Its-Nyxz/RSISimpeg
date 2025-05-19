@@ -123,9 +123,13 @@
                     <strong>Tunjangan Khusus</strong>
                     <span>Rp {{ number_format($this->nom_khusus ?? 0, 0, ',', '.') }}</span>
                 </div>
-                <div class="flex justify-between">
-                    <strong>Lainnya</strong>
-                    <span>Rp {{ number_format($this->gajiBruto->nom_lainnya ?? 0, 0, ',', '.') }}</span>
+                <div class="flex justify-between items-center">
+                    <strong>Tunjangan Kinerja</strong>
+                    <div class="flex items-center space-x-1">
+                        <span class="text-gray-600">Rp</span>
+                        <input type="number" wire:model.live="tunjanganTukin"
+                            class="border border-gray-300 rounded px-2 py-1 w-32 text-right" />
+                    </div>
                 </div>
             </div>
 
@@ -152,6 +156,7 @@
                         @endif
                     </label>
                     <input type="number" wire:model.live="potonganInputs.{{ $potongan->id }}"
+                        value="{{ $potonganInputs[$potongan->id] ?? 0 }}"
                         class="border border-gray-300 rounded px-3 py-1 w-1/2 text-right" />
                     @error('potonganInputs.' . $potongan->id)
                         <div class="text-red-500 text-sm mt-1 w-full">{{ $message }}</div>

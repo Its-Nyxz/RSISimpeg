@@ -111,8 +111,8 @@
                             <span>Rp {{ number_format($gajiBruto->nom_khusus ?? 0, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <strong>Lainnya</strong>
-                            <span>Rp {{ number_format($gajiBruto->nom_kinerja ?? 0, 0, ',', '.') }}</span>
+                            <strong>Tunjangan Kinerja</strong>
+                            <span>Rp {{ number_format($gajiBruto->nom_lainnya ?? 0, 0, ',', '.') }}</span>
                         </div>
                     </div>
                 </div>

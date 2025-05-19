@@ -27,7 +27,7 @@ class ShiftSeeder extends Seeder
             ['nama_shift' => 'P', 'jam_masuk' => '07:30', 'jam_keluar' => '14:00', 'keterangan' => 'Pagi'],
             ['nama_shift' => 'P', 'jam_masuk' => '07:30', 'jam_keluar' => '14:30', 'keterangan' => 'Pagi'],
 
-            // Tanggung
+            // Tanggungc
             ['nama_shift' => 'T', 'jam_masuk' => '08:30', 'jam_keluar' => '15:30', 'keterangan' => 'Tanggung'],
             ['nama_shift' => 'T', 'jam_masuk' => '09:00', 'jam_keluar' => '16:00', 'keterangan' => 'Tanggung'],
             ['nama_shift' => 'T', 'jam_masuk' => '09:30', 'jam_keluar' => '16:30', 'keterangan' => 'Tanggung'],

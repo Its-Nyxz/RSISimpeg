@@ -6,6 +6,7 @@ use App\Models\User;
 use Livewire\Component;
 use App\Models\Potongan;
 use App\Models\GajiBruto;
+use App\Models\MasterPotongan;
 
 class DetailKeuangan extends Component
 {
@@ -40,17 +41,21 @@ class DetailKeuangan extends Component
             ->where('bulan_penggajian', $this->bulan)
             ->first();
 
+        $masterPotongans = MasterPotongan::orderBy('id')->get();
+        $potonganList = collect();
+
         if ($this->gajiBruto) {
             $potonganList = Potongan::with('masterPotongan')
                 ->where('bruto_id', $this->gajiBruto->id)
-                ->get();
-
-            $this->dynamicPotongans = $potonganList->mapWithKeys(function ($item) {
-                return [$item->masterPotongan->nama => $item->nominal];
-            })->toArray();
-        } else {
-            $this->dynamicPotongans = [];
+                ->get()
+                ->keyBy('master_potongan_id');
         }
+
+        // Buat urutan tetap sesuai master
+        $this->dynamicPotongans = $masterPotongans->mapWithKeys(function ($mp) use ($potonganList) {
+            return [$mp->nama => $potonganList[$mp->id]->nominal ?? 0];
+        })->toArray();
+
 
         $this->isKaryawanTetap = strtolower($this->user->jenis?->nama ?? '') === 'tetap';
     }

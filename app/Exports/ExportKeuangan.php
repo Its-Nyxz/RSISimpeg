@@ -46,8 +46,6 @@ class ExportKeuangan implements FromView
             $user->nom_khusus = $bruto?->nom_khusus ?? 0;
             $user->nom_makan = $bruto?->nom_makan ?? 0;
             $user->nom_transport = $bruto?->nom_transport ?? 0;
-            $user->nom_pj_poskes = $bruto?->nom_pj_poskes ?? 0;
-            $user->nom_p_shift = $bruto?->nom_p_shift ?? 0;
             $user->nom_lainnya = $bruto?->nom_lainnya ?? 0;
             $user->total_bruto = $bruto?->total_bruto ?? 0;
 

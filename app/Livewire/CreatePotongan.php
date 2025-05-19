@@ -11,13 +11,13 @@ use App\Models\KategoriJabatan;
 class CreatePotongan extends Component
 {
     public $nama;
-    public $jenis = 'nominal'; // default
     public $is_wajib = false;
+    public $nominal = 0; // Tambahan field default
 
     protected $rules = [
         'nama' => 'required|string|unique:master_potongan,nama',
-        'jenis' => 'required|in:nominal,persentase',
         'is_wajib' => 'boolean',
+        'nominal' => 'required|integer|min:0',
     ];
 
     public function store()
@@ -27,8 +27,8 @@ class CreatePotongan extends Component
         MasterPotongan::create([
             'nama' => strtolower($this->nama),
             'slug' => Str::slug($this->nama),
-            'jenis' => $this->jenis,
             'is_wajib' => $this->is_wajib,
+            'nominal' => $this->nominal, // Tambahkan field nominal
         ]);
 
         session()->flash('success', 'Master potongan berhasil ditambahkan!');

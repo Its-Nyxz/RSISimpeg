@@ -29,11 +29,23 @@
         .bold {
             font-weight: bold;
         }
+
+        .rp {
+            width: 30px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        .nominal {
+            text-align: right;
+            white-space: nowrap;
+        }
     </style>
 </head>
 
 <body>
     <h3 style="text-align: center;">Slip Gaji Detail</h3>
+
     <p><strong>Nama:</strong> {{ $user->name }}</p>
     <p><strong>Bulan:</strong> {{ $bulan }}/{{ $tahun }}</p>
 
@@ -41,35 +53,48 @@
     <table>
         <tr>
             <td>Gaji Pokok</td>
-            <td class="text-right">Rp {{ number_format($gajiBruto->nom_gapok ?? 0, 0, ',', '.') }}</td>
+            <td class="rp">Rp</td>
+            <td class="nominal">{{ number_format($gajiBruto->nom_gapok ?? 0, 0, ',', '.') }}</td>
         </tr>
         <tr>
             <td>Tunj. Jabatan</td>
-            <td class="text-right">Rp {{ number_format($gajiBruto->nom_jabatan ?? 0, 0, ',', '.') }}</td>
+            <td class="rp">Rp</td>
+            <td class="nominal">{{ number_format($gajiBruto->nom_jabatan ?? 0, 0, ',', '.') }}</td>
         </tr>
         <tr>
             <td>Tunj. Fungsional</td>
-            <td class="text-right">Rp {{ number_format($gajiBruto->nom_fungsi ?? 0, 0, ',', '.') }}</td>
+            <td class="rp">Rp</td>
+            <td class="nominal">{{ number_format($gajiBruto->nom_fungsi ?? 0, 0, ',', '.') }}</td>
         </tr>
         <tr>
             <td>Tunj. Umum</td>
-            <td class="text-right">Rp {{ number_format($gajiBruto->nom_umum ?? 0, 0, ',', '.') }}</td>
+            <td class="rp">Rp</td>
+            <td class="nominal">{{ number_format($gajiBruto->nom_umum ?? 0, 0, ',', '.') }}</td>
         </tr>
         <tr>
             <td>Tunj. Transport</td>
-            <td class="text-right">Rp {{ number_format($gajiBruto->nom_transport ?? 0, 0, ',', '.') }}</td>
+            <td class="rp">Rp</td>
+            <td class="nominal">{{ number_format($gajiBruto->nom_transport ?? 0, 0, ',', '.') }}</td>
         </tr>
         <tr>
             <td>Tunj. Makan</td>
-            <td class="text-right">Rp {{ number_format($gajiBruto->nom_makan ?? 0, 0, ',', '.') }}</td>
+            <td class="rp">Rp</td>
+            <td class="nominal">{{ number_format($gajiBruto->nom_makan ?? 0, 0, ',', '.') }}</td>
         </tr>
         <tr>
             <td>Tunj. Khusus</td>
-            <td class="text-right">Rp {{ number_format($gajiBruto->nom_khusus ?? 0, 0, ',', '.') }}</td>
+            <td class="rp">Rp</td>
+            <td class="nominal">{{ number_format($gajiBruto->nom_khusus ?? 0, 0, ',', '.') }}</td>
+        </tr>
+        <tr>
+            <td>Tunj. Kinerja</td>
+            <td class="rp">Rp</td>
+            <td class="nominal">{{ number_format($gajiBruto->nom_lainnya ?? 0, 0, ',', '.') }}</td>
         </tr>
         <tr class="bold">
             <td>Total Bruto</td>
-            <td class="text-right">Rp {{ number_format($gajiBruto->total_bruto ?? 0, 0, ',', '.') }}</td>
+            <td class="rp">Rp</td>
+            <td class="nominal">{{ number_format($gajiBruto->total_bruto ?? 0, 0, ',', '.') }}</td>
         </tr>
     </table>
 
@@ -77,22 +102,30 @@
     <table>
         @forelse ($potonganList as $item)
             <tr>
-                <td>{{ $item->masterPotongan->nama ?? '-' }}</td>
-                <td class="text-right">Rp {{ number_format($item->nominal ?? 0, 0, ',', '.') }}</td>
+                <td>{{ $item->nama }}</td>
+                <td class="rp">Rp</td>
+                <td class="nominal">{{ number_format($item->nominal ?? 0, 0, ',', '.') }}</td>
             </tr>
         @empty
             <tr>
-                <td colspan="2">Tidak ada potongan.</td>
+                <td colspan="3">Tidak ada potongan.</td>
             </tr>
         @endforelse
         <tr class="bold">
             <td>Total Potongan</td>
-            <td class="text-right">Rp {{ number_format($totalPotongan, 0, ',', '.') }}</td>
+            <td class="rp">Rp</td>
+            <td class="nominal">{{ number_format($totalPotongan ?? 0, 0, ',', '.') }}</td>
         </tr>
     </table>
 
     <h4>Total Gaji Diterima</h4>
-    <p class="bold text-right">Rp {{ number_format($netto, 0, ',', '.') }}</p>
+    <table>
+        <tr class="bold">
+            <td>Total Diterima</td>
+            <td class="rp">Rp</td>
+            <td class="nominal">{{ number_format($netto ?? 0, 0, ',', '.') }}</td>
+        </tr>
+    </table>
 </body>
 
 </html>

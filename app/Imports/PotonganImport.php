@@ -19,10 +19,10 @@ class PotonganImport implements ToCollection
     public function collection(Collection $rows)
     {
         $header = $rows->shift();
-        $masterPotongans = MasterPotongan::all();
+        $masterPotongans = MasterPotongan::orderBy('id')->get();
         $mapPotongans = $masterPotongans->keyBy('slug'); // gunakan slug yang sudah pasti valid
         $headerSlugs = collect($header)
-            ->slice(12)
+            ->slice(13)
             ->map(fn($h) => $h ? Str::slug(trim($h)) : null)
             ->values();
         logger()->info("SLUGS dari HEADER:", $headerSlugs->toArray());
@@ -32,7 +32,7 @@ class PotonganImport implements ToCollection
             $user = User::where('slug', $slug)->with(['jenis'])->first();
             if (!$user) continue;
 
-            $brutoValue = $this->cleanRupiah($row[11] ?? 0);
+            $brutoValue = $this->cleanRupiah($row[12] ?? 0);
 
             $gapok = (int) $this->cleanRupiah($row[4] ?? 0);
             $nom_jabatan = (int) $this->cleanRupiah($row[5] ?? 0);
@@ -41,9 +41,10 @@ class PotonganImport implements ToCollection
             $nom_khusus  = (int) $this->cleanRupiah($row[8] ?? 0);
             $nom_makan   = (int) $this->cleanRupiah($row[9] ?? 0);
             $nom_transport = (int) $this->cleanRupiah($row[10] ?? 0);
+            $nom_lainnya = (int) $this->cleanRupiah($row[11] ?? 0); // Tunjangan Tukin
 
             // Total bruto dihitung ulang dari semua komponen
-            $total_bruto = $gapok + $nom_jabatan + $nom_fungsi + $nom_umum + $nom_khusus + $nom_makan + $nom_transport;
+            $total_bruto = $gapok + $nom_jabatan + $nom_fungsi + $nom_umum + $nom_khusus + $nom_makan + $nom_transport + $nom_lainnya;
 
             $bruto = GajiBruto::updateOrCreate(
                 [
@@ -59,7 +60,7 @@ class PotonganImport implements ToCollection
                     'nom_khusus'    => $nom_khusus,
                     'nom_makan'     => $nom_makan,
                     'nom_transport' => $nom_transport,
-                    'nom_lainnya'   => 0,
+                    'nom_lainnya'   => $nom_lainnya,
                     'total_bruto'   => $total_bruto,
                     'created_at'    => now(),
                 ]
@@ -76,8 +77,8 @@ class PotonganImport implements ToCollection
             $makanTransport = (int) $this->cleanRupiah($row[8] ?? 0) + (int) $this->cleanRupiah($row[9] ?? 0);
 
             foreach ($headerSlugs as $i => $slugKey) {
-                $val = $row[$i + 12] ?? null;
-                $originalHeader = $header[$i + 12] ?? 'UNKNOWN';
+                $val = $row[$i + 13] ?? null;
+                $originalHeader = $header[$i + 13] ?? 'UNKNOWN';
 
                 $master = $mapPotongans[$slugKey] ?? null;
                 if (!$master) {
@@ -85,7 +86,13 @@ class PotonganImport implements ToCollection
                     continue;
                 }
 
-                if (!is_numeric($this->cleanRupiah($val))) continue;
+                $cleanVal = (int) $this->cleanRupiah($val);
+                if ($cleanVal <= 0) continue;
+
+                if (!$bruto || !$master->id) {
+                    Log::error("Potongan gagal: bruto_id/master_id null. User: {$user->slug}");
+                    continue;
+                }
 
                 Potongan::updateOrCreate([
                     'bruto_id' => $bruto->id,
@@ -93,7 +100,7 @@ class PotonganImport implements ToCollection
                     'bulan_penggajian' => $this->bulan,
                     'tahun_penggajian' => $this->tahun,
                 ], [
-                    'nominal' => (int) $this->cleanRupiah($val)
+                    'nominal' => $cleanVal
                 ]);
             }
 
@@ -126,15 +133,27 @@ class PotonganImport implements ToCollection
                     $nom = round(0.01 * ((int) $gapok + (int) $tunjangan + (int) $makanTransport));
                 }
 
-                if ($nom > 0) {
-                    Potongan::create([
-                        'bruto_id' => $bruto->id,
-                        'master_potongan_id' => $master->id,
-                        'bulan_penggajian' => $this->bulan,
-                        'tahun_penggajian' => $this->tahun,
-                        'nominal' => $nom,
-                    ]);
+                $jabatanKategori = strtolower($user->kategorijabatan?->nama ?? '');
+                $jabatanFungsional = strtolower($user->kategorifungsional?->nama ?? '');
+
+                $isDokter = Str::contains($jabatanKategori, 'dokter') || Str::contains($jabatanFungsional, 'dokter');
+                $isBidan  = Str::contains($jabatanKategori, 'bidan')  || Str::contains($jabatanFungsional, 'bidan');
+
+                if ($key === 'idi' && $isDokter && $master->nominal > 0) {
+                    $nom = $master->nominal;
+                } elseif ($key === 'ppni' && $isBidan && $master->nominal > 0) {
+                    $nom = $master->nominal;
                 }
+
+                // if ($nom > 0) {
+                Potongan::create([
+                    'bruto_id' => $bruto->id,
+                    'master_potongan_id' => $master->id,
+                    'bulan_penggajian' => $this->bulan,
+                    'tahun_penggajian' => $this->tahun,
+                    'nominal' => $nom,
+                ]);
+                // }
             }
         }
     }

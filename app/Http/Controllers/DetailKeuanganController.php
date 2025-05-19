@@ -9,6 +9,7 @@ use App\Models\GajiBruto;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\Controller;
+use App\Models\MasterPotongan;
 
 class DetailKeuanganController extends Controller
 {
@@ -29,12 +30,24 @@ class DetailKeuanganController extends Controller
             ->where('tahun_penggajian', $tahun)
             ->first();
 
-        $potonganList = collect();
+        $masterPotongans = MasterPotongan::orderBy('id')->get();
+
+        $existingPotongans = collect();
         if ($gajiBruto) {
-            $potonganList = Potongan::with('masterPotongan')
+            $existingPotongans = Potongan::with('masterPotongan')
                 ->where('bruto_id', $gajiBruto->id)
-                ->get();
+                ->get()
+                ->keyBy('master_potongan_id');
         }
+
+        // Susun ulang potongan berdasarkan urutan masterPotongans
+        $potonganList = $masterPotongans->map(function ($master) use ($existingPotongans) {
+            $potongan = $existingPotongans[$master->id] ?? null;
+            return (object)[
+                'nama' => $master->nama,
+                'nominal' => $potongan?->nominal ?? 0,
+            ];
+        });
 
         $totalPotongan = $potonganList->sum('nominal');
         $netto = ($gajiBruto->total_bruto ?? 0) - $totalPotongan;

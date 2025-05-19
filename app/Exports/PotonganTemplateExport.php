@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Potongan;
 use App\Models\GajiBruto;
 use App\Models\TaxBracket;
 use App\Models\MasterTrans;
@@ -40,12 +41,45 @@ class PotonganTemplateExport implements FromView
             ->when($this->keyword, fn($q) => $q->where('name', 'like', "%{$this->keyword}%"))
             ->get();
 
-        $masterPotongans = MasterPotongan::all();
+        $masterPotongans = MasterPotongan::orderBy('id')->get();
         $masterTrans = MasterTrans::first();
         $periodeMulai = Carbon::create($this->tahun, $this->bulan, 21)->subMonth()->startOfDay();
         $periodeSelesai = Carbon::create($this->tahun, $this->bulan, 20)->endOfDay();
 
         foreach ($users as $user) {
+            $gajiBruto = GajiBruto::where('user_id', $user->id)
+                ->where('bulan_penggajian', $this->bulan)
+                ->where('tahun_penggajian', $this->tahun)
+                ->first();
+
+            $existingPotongan = collect();
+            if ($gajiBruto) {
+                $existingPotongan = Potongan::where('bruto_id', $gajiBruto->id)
+                    ->with('masterPotongan')
+                    ->get();
+            }
+
+            if ($gajiBruto && $existingPotongan->count() > 0) {
+                // Ambil data dari GajiBruto
+                $user->setAttribute('nom_gapok', $gajiBruto->nom_gapok);
+                $user->setAttribute('nom_jabatan', $gajiBruto->nom_jabatan);
+                $user->setAttribute('nom_fungsi', $gajiBruto->nom_fungsi);
+                $user->setAttribute('nom_umum', $gajiBruto->nom_umum);
+                $user->setAttribute('nom_khusus', $gajiBruto->nom_khusus);
+                $user->setAttribute('nom_makan', $gajiBruto->nom_makan);
+                $user->setAttribute('nom_transport', $gajiBruto->nom_transport);
+                $user->setAttribute('nom_lainnya', $gajiBruto->nom_lainnya);
+                $user->setAttribute('total_bruto', $gajiBruto->total_bruto);
+
+                // Ambil potongan yang sudah tersimpan
+                $potonganData = $existingPotongan->mapWithKeys(fn($p) => [
+                    $p->masterPotongan->nama => $p->nominal,
+                ]);
+                $user->setAttribute('potonganOtomasis', $potonganData->toArray());
+
+                continue; // skip proses kalkulasi otomatis
+            }
+
             $jenis = strtolower($user->jenis?->nama ?? '');
             $masaKerja = $user->masa_kerja ?? ($user->tmt ? floor(Carbon::parse($user->tmt)->floatDiffInYears(now())) : 0);
 
@@ -133,7 +167,11 @@ class PotonganTemplateExport implements FromView
             $user->setAttribute('nom_khusus', $nom_khusus);
             $user->setAttribute('nom_makan', round($nom_makan));
             $user->setAttribute('nom_transport', round($nom_transport));
-            $user->setAttribute('total_bruto', round($gapok + $nom_jabatan + $nom_fungsi + $nom_umum + $nom_khusus + $nom_makan + $nom_transport));
+            $tukin = 0; // default manual
+            $total_bruto = $gapok + $nom_jabatan + $nom_fungsi + $nom_umum + $nom_khusus + $nom_makan + $nom_transport + $tukin;
+
+            $user->setAttribute('nom_lainnya', $tukin);
+            $user->setAttribute('total_bruto', round($total_bruto));
 
             // Potongan Otomatis
             $potonganOtomasis = [];
@@ -167,9 +205,33 @@ class PotonganTemplateExport implements FromView
                     $nominal = round(0.01 * ($gapok + $tunjangan + $makanTransport));
                 }
 
-                if ($nominal > 0) {
-                    $potonganOtomasis[$item->nama] = $nominal; // output tetap nama untuk tampil di Excel
+                $isDok = Str::contains(strtolower($user->kategorijabatan->nama ?? ''), 'dokter')
+                    || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'dokter');
+                $isGigi = Str::contains(strtolower($user->kategorijabatan->nama ?? ''), 'dokter gigi')
+                    || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'dokter gigi');
+                $isBidan = Str::contains(strtolower($user->kategorijabatan->nama ?? ''), 'bidan')
+                    || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'bidan');
+                $isPerawat = Str::contains(strtolower($user->kategorijabatan->nama ?? ''), 'perawat')
+                    || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'perawat');
+
+                if ($slug === 'idi' && $isDok && !$isGigi) {
+                    $nominal = $item->nominal;
+                } elseif ($slug === 'ibi' && $isBidan) {
+                    $nominal = $item->nominal;
+                } elseif ($slug === 'ppni' && $isPerawat) {
+                    $nominal = $item->nominal;
                 }
+
+                if ($slug === 'dansos-karyawan') {
+                    if ($jenis === 'tetap') {
+                        $nominal = round(0.005 * ($gapok + $tunjangan));
+                    } elseif ($jenis === 'kontrak') {
+                        $nominal = round(0.0025 * $bruto);
+                    }
+                }
+
+                // Tampilkan semua, meskipun 0
+                $potonganOtomasis[$item->nama] = $nominal;
             }
 
             $user->setAttribute('potonganOtomasis', $potonganOtomasis);

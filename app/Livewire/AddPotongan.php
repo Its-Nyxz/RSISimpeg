@@ -28,6 +28,7 @@ class AddPotongan extends Component
     public $nom_fungsi = 0;
     public $nom_umum = 0;
     public $nom_khusus = 0;
+    public $tunjanganTukin = 0;
     public $notifMessage = '';
     public $showNotif = false;
     public $potonganInputs = []; // [master_potongan_id => nominal]
@@ -178,34 +179,83 @@ class AddPotongan extends Component
             $total_bruto = $this->gapok + $this->nom_jabatan + $this->nom_fungsi + $this->nom_umum
                 + $this->nom_makan + $this->nom_transport + $this->nom_khusus;
         }
-        $this->gajiBruto = GajiBruto::updateOrCreate(
-            [
-                'user_id' => $this->user->id,
+        $this->gajiBruto = GajiBruto::where('user_id', $this->user->id)
+            ->where('bulan_penggajian', $this->bulan)
+            ->where('tahun_penggajian', $this->tahun)
+            ->first();
+
+        $this->masterPotongans = MasterPotongan::orderBy('id')->get(); // pastikan urut
+        $this->tunjanganTukin = $this->gajiBruto->nom_lainnya ?? 0;
+
+        if ($this->gajiBruto) {
+            // Jika sudah ada, ambil dan isi ulang ke variabel komponen
+            $this->gapok         = $this->gajiBruto->nom_gapok;
+            $this->nom_jabatan   = $this->gajiBruto->nom_jabatan;
+            $this->nom_fungsi    = $this->gajiBruto->nom_fungsi;
+            $this->nom_umum      = $this->gajiBruto->nom_umum;
+            $this->nom_makan     = $this->gajiBruto->nom_makan;
+            $this->nom_transport = $this->gajiBruto->nom_transport;
+            $this->nom_khusus    = $this->gajiBruto->nom_khusus;
+            $this->tunjanganTukin = $this->gajiBruto->nom_lainnya;
+
+            // Cek apakah potongan sudah ada
+            $potonganTersimpan = Potongan::where('bruto_id', $this->gajiBruto->id)->get();
+
+            if ($potonganTersimpan->isNotEmpty()) {
+                // Ambil semua nilai yang tersimpan
+                $this->potonganInputs = $potonganTersimpan->mapWithKeys(function ($p) {
+                    return [$p->master_potongan_id => (int) $p->nominal];
+                })->toArray();
+
+
+                foreach ($this->masterPotongans as $potongan) {
+                    $id = $potongan->id;
+                    $slug = $potongan->slug;
+
+                    $isOtomatis = Str::contains($slug, ['pph', 'bpjs', 'idi', 'ibi', 'dansos-karyawan']);
+
+                    if (
+                        $isOtomatis &&
+                        (!array_key_exists($id, $this->potonganInputs) || ((int) $this->potonganInputs[$id]) === 0)
+                    ) {
+                        // Hitung ulang nilai otomatis ini
+                        $this->updatePotonganInputs(); // panggil seluruh logika otomatis
+                        break; // cukup satu kali panggil, akan update semua otomatis
+                    }
+                }
+            } else {
+                $this->updatePotonganInputs(); // belum ada potongan → hitung semua otomatis
+            }
+        } else {
+            // Jika belum ada → hitung otomatis & buat data baru
+            $this->gajiBruto = GajiBruto::create([
+                'user_id'        => $this->user->id,
                 'bulan_penggajian' => $this->bulan,
                 'tahun_penggajian' => $this->tahun,
-            ],
-            [
-                'nom_gapok'     => $this->gapok,
-                'nom_jabatan'   => $this->nom_jabatan,
-                'nom_fungsi'    => $this->nom_fungsi,
-                'nom_umum'      => $this->nom_umum,
-                'nom_makan'     => $this->nom_makan,
-                'nom_transport' => $this->nom_transport,
-                'nom_khusus' => $this->nom_khusus,
-                'nom_lainnya' => 0,
-                'total_bruto' => $total_bruto,
-                'created_at' => now(),
-            ]
-        );
-
-        $this->masterPotongans = MasterPotongan::all();
-        $this->updatePotonganInputs();
+                'nom_gapok'      => $this->gapok,
+                'nom_jabatan'    => $this->nom_jabatan,
+                'nom_fungsi'     => $this->nom_fungsi,
+                'nom_umum'       => $this->nom_umum,
+                'nom_khusus'     => $this->nom_khusus,
+                'nom_makan'      => $this->nom_makan,
+                'nom_transport'  => $this->nom_transport,
+                'nom_lainnya'    => $this->tunjanganTukin,
+                'total_bruto'    => $total_bruto,
+                'created_at'     => now(),
+            ]);
+            $this->updatePotonganInputs();
+        }
     }
 
     public function updatedGapok()
     {
         $this->updateGajiBruto();
         $this->updatePotonganInputs();
+    }
+
+    public function updatedTunjanganTukin()
+    {
+        $this->updateGajiBruto();
     }
 
     protected function updateGajiBruto()
@@ -219,7 +269,8 @@ class AddPotongan extends Component
                 + $this->nom_umum
                 + $this->nom_makan
                 + $this->nom_transport
-                + $this->nom_khusus;
+                + $this->nom_khusus
+                + $this->tunjanganTukin;
         } else {
             $total_bruto = $this->gapok
                 + $this->nom_makan
@@ -233,6 +284,7 @@ class AddPotongan extends Component
         $this->gajiBruto->update([
             'total_bruto' => $total_bruto,
             'nom_gapok'   => $this->gapok,
+            'nom_lainnya' => $this->tunjanganTukin,
         ]);
     }
 
@@ -240,12 +292,12 @@ class AddPotongan extends Component
     {
         $this->potonganInputs = [];
 
-        if (!$this->isKaryawanTetap) return;
 
         $bruto = $this->gajiBruto->total_bruto;
         $gapok = $this->gapok;
         $tunjangan = $this->nom_jabatan + $this->nom_fungsi + $this->nom_umum;
         $makanTransport = $this->nom_makan + $this->nom_transport;
+        $jenisKaryawan = strtolower($this->user->jenis->nama ?? '');
 
         foreach ($this->masterPotongans as $item) {
             $slug = $item->slug;
@@ -275,6 +327,33 @@ class AddPotongan extends Component
                 $nominal = round(0.01 * ($gapok + $tunjangan + $makanTransport));
             }
 
+            $jabatanKategori = strtolower($this->user->kategorijabatan?->nama ?? '');
+            $jabatanFungsional = strtolower($this->user->kategorifungsional?->nama ?? '');
+
+            $isDokter = Str::contains($jabatanKategori, 'dokter') || Str::contains($jabatanFungsional, 'dokter');
+            $isDokterGigi = Str::contains($jabatanKategori, 'dokter gigi') || Str::contains($jabatanFungsional, 'dokter gigi');
+            $isBidan = Str::contains($jabatanKategori, 'bidan') || Str::contains($jabatanFungsional, 'bidan');
+            $isPerawat = Str::contains($jabatanKategori, 'perawat') || Str::contains($jabatanFungsional, 'perawat');
+
+            $slug = $item->slug;
+
+            // Logika spesifik slug
+            if ($slug === 'idi' && $isDokter && !$isDokterGigi && $item->nominal > 0) {
+                $nominal = $item->nominal;
+            } elseif ($slug === 'ibi' && $isBidan && $item->nominal > 0) {
+                $nominal = $item->nominal;
+            } elseif ($slug === 'ppni' && $isPerawat && $item->nominal > 0) {
+                $nominal = $item->nominal;
+            }
+
+            if ($slug === 'dansos-karyawan') {
+                if ($jenisKaryawan === 'tetap') {
+                    $nominal = round(0.005 * ($gapok + $this->nom_jabatan + $this->nom_fungsi + $this->nom_umum));
+                } elseif ($jenisKaryawan === 'kontrak') {
+                    $nominal = round(0.0025 * $bruto);
+                }
+            }
+
             if ($nominal > 0) {
                 $this->potonganInputs[$item->id] = $nominal;
             }
@@ -290,6 +369,8 @@ class AddPotongan extends Component
             $this->showNotif = true;
             return;
         }
+
+        $this->updateGajiBruto();
 
         foreach ($this->masterPotongans as $potongan) {
             $nominal = $this->potonganInputs[$potongan->id] ?? null;
@@ -316,7 +397,14 @@ class AddPotongan extends Component
 
     public function getTotalPotonganProperty()
     {
-        return collect($this->potonganInputs)->sum();
+        return collect($this->potonganInputs)
+            ->map(fn($val) => (int) $val)
+            ->sum();
+    }
+
+    public function updatedPotonganInputs($value, $key)
+    {
+        $this->potonganInputs[$key] = (int) $value; // pastikan int
     }
 
     public function render()

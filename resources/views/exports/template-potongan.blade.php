@@ -9,12 +9,13 @@
             <th>Tunj. Jabatan</th>
             <th>Tunj. Fungsi</th>
             <th>Tunj. Umum</th>
-            <th>Tunj. Khusus</th>
             <th>Tunj. Makan</th>
             <th>Tunj. Transport</th>
+            <th>Tunj. Khusus</th>
+            <th>Tunj. Kinerja</th>
             <th>Total Bruto</th>
             @foreach ($masterPotongans as $potongan)
-                <th>{{ $potongan->nama }}</th>
+                <th>{{ strtoupper($potongan->nama) }}</th>
             @endforeach
         </tr>
     </thead>
@@ -29,16 +30,17 @@
                 <td>{{ (int) $user->nom_jabatan }}</td>
                 <td>{{ (int) $user->nom_fungsi }}</td>
                 <td>{{ (int) $user->nom_umum }}</td>
-                <td>{{ (int) $user->nom_khusus }}</td>
                 <td>{{ (int) $user->nom_makan }}</td>
                 <td>{{ (int) $user->nom_transport }}</td>
+                <td>{{ (int) $user->nom_khusus }}</td>
+                <td>{{ (int) $user->nom_lainnya }}</td>
                 <td>{{ (int) $user->total_bruto }}</td>
                 @foreach ($masterPotongans as $potongan)
                     @php
                         $nom = $user->potonganOtomasis[$potongan->nama] ?? '';
                     @endphp
                     <td style="mso-number-format:'\@';">
-                        {{ is_numeric($nom) ? (int) $nom : '' }}
+                        {{ (int) $nom }}
                     </td>
                 @endforeach
             </tr>

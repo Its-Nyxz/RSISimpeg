@@ -21,6 +21,11 @@ class GajiNettoController extends Controller
         $slip = GajiNetto::with(['bruto.potongan.masterPotongan', 'bruto.user.jenis'])->findOrFail($id);
         $user = $slip->bruto?->user;
 
+
+        if ($slip->bruto?->potongan) {
+            $slip->bruto->potongan = $slip->bruto->potongan->sortBy('master_potongan_id')->values();
+        }
+
         $pdf = Pdf::loadView('exports.slip-gaji', compact('slip'));
 
         $bulan = str_pad($slip->bruto->bulan_penggajian, 2, '0', STR_PAD_LEFT);

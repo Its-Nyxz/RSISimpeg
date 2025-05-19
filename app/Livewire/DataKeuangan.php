@@ -63,9 +63,11 @@ class DataKeuangan extends Component
 
                 $query->whereIn('unit_id', $unitIds);
             })
+            ->where('status_karyawan', '=', '1')
             ->when($this->selectedJenisKaryawan, function ($query) {
                 $query->where('jenis_id', $this->selectedJenisKaryawan);
-            })->orderBy('name', 'asc')->paginate(15);
+            })->orderBy('name', 'asc')
+            ->orderBy('created_at', 'asc')->paginate(15);
     }
 
     public function downloadTemplate()

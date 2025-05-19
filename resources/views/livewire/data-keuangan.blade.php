@@ -71,8 +71,8 @@
                                 </button>
                             @endif
                             {{-- @endcan --}}
+                        @endif
                     </div>
-                    @endif
                 </div>
 
                 <!-- Kotak Pencarian -->

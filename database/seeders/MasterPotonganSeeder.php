@@ -16,21 +16,22 @@ class MasterPotonganSeeder extends Seeder
     public function run(): void
     {
         $data = [
-            ['nama' => 'pinjaman koperasi', 'jenis' => 'nominal'],
-            ['nama' => 'ibi', 'jenis' => 'nominal'],
-            ['nama' => 'idi', 'jenis' => 'nominal'],
-            ['nama' => 'bpjs tenaga kerja', 'jenis' => 'persentase', 'is_wajib' => true],
-            ['nama' => 'obat', 'jenis' => 'nominal'],
-            ['nama' => 'bpjs kesehatan', 'jenis' => 'persentase', 'is_wajib' => true],
-            ['nama' => 'rekonsiliasi bpjs kesehatan', 'jenis' => 'persentase'],
-            ['nama' => 'bpjs kesehatan ortu/tambahan', 'jenis' => 'persentase'],
-            ['nama' => 'pph21', 'jenis' => 'nominal'],
-            ['nama' => 'kurban', 'jenis' => 'nominal'],
-            ['nama' => 'rawat inap', 'jenis' => 'nominal'],
-            ['nama' => 'amaliah romadhon', 'jenis' => 'nominal'],
-            ['nama' => 'dansos karyawan', 'jenis' => 'nominal'],
-            ['nama' => 'iuran perkasi', 'jenis' => 'nominal'],
-            ['nama' => 'lain-lain', 'jenis' => 'nominal'],
+            ['nama' => 'pinjaman koperasi'],
+            ['nama' => 'ibi', 'nominal' => '30000'],
+            ['nama' => 'idi', 'nominal' => '50000'],
+            ['nama' => 'bpjs tenaga kerja', 'is_wajib' => true],
+            ['nama' => 'obat'],
+            ['nama' => 'ppni', 'nominal' => '30000'],
+            ['nama' => 'bpjs kesehatan', 'is_wajib' => true],
+            ['nama' => 'rekonsiliasi bpjs kesehatan'],
+            ['nama' => 'bpjs kesehatan ortu/tambahan'],
+            ['nama' => 'pph21'],
+            ['nama' => 'kurban'],
+            ['nama' => 'rawat inap'],
+            ['nama' => 'amaliah romadhon'],
+            ['nama' => 'dansos karyawan'],
+            ['nama' => 'iuran perkasi'],
+            ['nama' => 'lain-lain'],
         ];
 
         foreach ($data as $item) {

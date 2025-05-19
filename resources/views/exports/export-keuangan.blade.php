@@ -37,7 +37,7 @@
         <thead>
             <tr>
                 <th>Nama</th>
-                <th>NIK</th>
+                <th>NIP</th>
                 <th>Unit</th>
                 <th>Jenis</th>
                 <th>Gapok</th>
@@ -47,9 +47,7 @@
                 <th>Khusus</th>
                 <th>Makan</th>
                 <th>Transport</th>
-                <th>PJ Poskes</th>
-                <th>P. Shift</th>
-                <th>Lainnya</th>
+                <th>Kinerja</th>
                 <th>Total Bruto</th>
                 @foreach ($masterPotongans as $pot)
                     <th>{{ $pot->nama }}</th>
@@ -63,7 +61,7 @@
                 @php $p = $user->potongan_rinci ?? []; @endphp
                 <tr>
                     <td>{{ $user->nama_bersih ?? $user->name }}</td>
-                    <td>{{ $user->nik }}</td>
+                    <td>{{ $user->nip }}</td>
                     <td>{{ $user->unitKerja->nama ?? '-' }}</td>
                     <td>{{ $user->jenis->nama ?? '-' }}</td>
                     <td class="text-right">{{ (int) $user->nom_gapok }}</td>
@@ -73,8 +71,6 @@
                     <td class="text-right">{{ (int) $user->nom_khusus }}</td>
                     <td class="text-right">{{ (int) $user->nom_makan }}</td>
                     <td class="text-right">{{ (int) $user->nom_transport }}</td>
-                    <td class="text-right">{{ (int) $user->nom_pj_poskes }}</td>
-                    <td class="text-right">{{ (int) $user->nom_p_shift }}</td>
                     <td class="text-right">{{ (int) $user->nom_lainnya }}</td>
                     <td class="text-right">{{ (int) $user->total_bruto }}</td>
 
