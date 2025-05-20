@@ -110,8 +110,10 @@ class PotonganTemplateExport implements FromView
                 ->count();
 
             $proporsiHybrid = $absensiValid / max($totalHariJadwal, 1);
-            $nom_makan = ($masterTrans?->nom_makan ?? 0) * $proporsiHybrid;
-            $nom_transport = ($masterTrans?->nom_transport ?? 0) * $proporsiHybrid;
+            // $nom_makan = ($masterTrans?->nom_makan ?? 0) * $proporsiHybrid;
+            // $nom_transport = ($masterTrans?->nom_transport ?? 0) * $proporsiHybrid;
+            $nom_makan = $masterTrans?->nom_makan ?? 0;
+            $nom_transport = $masterTrans?->nom_transport ?? 0;
 
             if ($jenis === 'tetap') {
                 $gapok = optional(
@@ -164,9 +166,9 @@ class PotonganTemplateExport implements FromView
             $user->setAttribute('nom_jabatan', $nom_jabatan);
             $user->setAttribute('nom_fungsi', $nom_fungsi);
             $user->setAttribute('nom_umum', $nom_umum);
-            $user->setAttribute('nom_khusus', $nom_khusus);
             $user->setAttribute('nom_makan', round($nom_makan));
             $user->setAttribute('nom_transport', round($nom_transport));
+            $user->setAttribute('nom_khusus', $nom_khusus);
             $tukin = 0; // default manual
             $total_bruto = $gapok + $nom_jabatan + $nom_fungsi + $nom_umum + $nom_khusus + $nom_makan + $nom_transport + $tukin;
 

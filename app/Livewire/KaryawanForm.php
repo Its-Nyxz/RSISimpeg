@@ -8,6 +8,7 @@ use Livewire\Component;
 use App\Models\UnitKerja;
 use App\Models\MasterUmum;
 use App\Models\Kategoripph;
+use Illuminate\Support\Str;
 use App\Models\MasterFungsi;
 use App\Models\MasterKhusus;
 use App\Models\JenisKaryawan;
@@ -349,6 +350,7 @@ class KaryawanForm extends Component
 
         $user = User::create([
             'name' => $this->nama ?? null,
+            'slug' => Str::slug($this->nama) ?? null, // ← Tambahan
             'nip' => $this->nip ?? null,
             'email' => $this->email ?? null,
             'no_ktp' => $this->no_ktp ?? null,
@@ -368,7 +370,7 @@ class KaryawanForm extends Component
             'tmt' => $this->tmt ?? null,
             'masa_kerja' => $this->masakerja ?? null,
             'gol_id' => $this->selectedGolongan ?? $this->gol ?? null,
-            'khusus_id' => $this->khusus ?? null,
+            'khusus_id' => $this->khusus !== '' ? $this->khusus : null,
             'kategori_id' => $this->selectedPph ?? null,
             'type_shift' => $this->typeShift ?? null,
             'bpjs_ortu' =>  $this->bpjsOrtu ?? null,
@@ -447,6 +449,7 @@ class KaryawanForm extends Component
         $user = User::findOrFail($this->user_id);
         $user->update([
             'name' => $this->nama ?? null,
+            'slug' => Str::slug($this->nama) ?? null, // ← Tambahan
             'nip' => $this->nip ?? null,
             'email' => $this->email ?? null,
             'no_ktp' => $this->no_ktp ?? null,
@@ -466,7 +469,7 @@ class KaryawanForm extends Component
             'tmt' => $this->tmt ?? null,
             'masa_kerja' => $this->masakerja ?? null,
             'gol_id' => $this->selectedGolongan ?? $this->gol ?? null,
-            'khusus_id' => $this->khusus ?? null,
+            'khusus_id' => $this->khusus !== '' ? $this->khusus : null,
             'kategori_id' => $this->selectedPph ?? null,
             'type_shift' => $this->typeShift ?? null,
             'bpjs_ortu' =>  $this->bpjsOrtu ?? null,

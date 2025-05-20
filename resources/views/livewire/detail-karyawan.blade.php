@@ -1,12 +1,18 @@
 <div>
     <!-- Header -->
     <div class="flex justify-end mb-6">
-        @can('tambah-history')
+        @can('tambah-sp')
+            <button x-on:click="$dispatch('open-modal', 'modal-SP')"
+                class="text-red-900 bg-red-100 hover:bg-red-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 mr-2 transition duration-200">
+                + Tambah SP
+            </button>
+        @endcan
+        @if (auth()->user()->can('tambah-history') && $user->jenis?->nama === 'Tetap')
             <button x-on:click="$dispatch('open-modal', 'modal-History')"
                 class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 mr-2 transition duration-200">
                 + Tambah History
             </button>
-        @endcan
+        @endif
         <a href="{{ route('datakaryawan.index') }}"
             class="bg-green-700 text-white hover:bg-success-800 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
             Kembali
@@ -88,13 +94,14 @@
                         {{ $viewPendAwal?->user?->tmt ? formatDate($viewPendAwal?->user?->tmt) : '-' }}
                     </div>
                     <div class="mb-4">
-                        <strong>Pendidikan Awal</strong>:
+                        <strong>Pendidikan Sebelumnya</strong>:
                         {{ $viewPendAwal?->penyesuaian?->pendidikanAwal?->nama ?? '-' }}
                     </div>
                     <div class="mb-4">
                         <strong>Pendidikan Penyesuaian</strong>:
                         {{ $viewPendAwal?->penyesuaian?->pendidikanPenyesuaian?->nama ?? '-' }}
                     </div>
+
                     <div class="mb-4">
                         <strong>Tanggal Penyesuaian</strong>:
                         {{ $viewPendAwal?->tanggal_penyesuaian ? formatDate($viewPendAwal?->tanggal_penyesuaian) : '-' }}
@@ -108,12 +115,19 @@
                         {{ $viewPendAwal?->golonganAkhir?->nama ?? '-' }}
                     </div>
                     <div class="mb-4">
+                        <strong>Gapok Sebelumnya</strong>:
+                        Rp {{ number_format($gapokSebelumnya?->nominal_gapok ?? 0, 0, ',', '.') }}
+                    </div>
+                    <div class="mb-4">
+                        <strong>Gapok Penyesuaian</strong>:
+                        Rp {{ number_format($gapokPenyesuaian?->nominal_gapok ?? 0, 0, ',', '.') }}
+                    </div>
+                    <div class="mb-4">
                         {{-- <strong>Hak akses</strong> : {{ implode(', ', $roles) }} --}}
                     </div>
                 </div>
             </x-card>
         </div>
-
 
         <x-modal name="modal-resign" maxWidth="lg" :show="false">
             <form class="mx-5 py-5" wire:submit.prevent="{{ $statusKaryawan == 1 ? 'resignKerja' : 'kembaliKerja' }}">
@@ -200,6 +214,92 @@
                 </div>
             </form>
         </x-modal>
+
+        <x-modal name="modal-SP" :show="false">
+            <form class="mx-5 py-5" wire:submit.prevent="tambahSP">
+                <h2 class="text-lg font-semibold mb-4">Tambah Surat Peringatan</h2>
+
+                <div class="mb-4">
+                    <label for="tingkat" class="block text-sm font-medium text-gray-700 mb-2">Tingkat SP</label>
+                    <select id="tingkat" wire:model="tingkat"
+                        class="w-full p-2 border rounded-lg bg-gray-50 text-gray-900">
+                        <option value="">-- Pilih Tingkat SP --</option>
+                        <option value="I">I (Ringan)</option>
+                        <option value="II">II (Sedang) / Surat Peringatan 1</option>
+                        <option value="III">III (Berat) / Surat Peringatan 2</option>
+                        <option value="IV">IV (Sangat Berat)</option>
+                    </select>
+                    @error('tingkat')
+                        <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="mb-4">
+                    <label for="jenis_pelanggaran" class="block text-sm font-medium text-gray-700 mb-2">Jenis
+                        Pelanggaran</label>
+                    <input type="text" wire:model="jenis_pelanggaran" id="jenis_pelanggaran"
+                        class="w-full p-2 border rounded-lg bg-gray-50 text-gray-900"
+                        placeholder="Contoh: Terlambat datang">
+                    @error('jenis_pelanggaran')
+                        <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="mb-4">
+                    <label for="tanggal_sp" class="block text-sm font-medium text-gray-700 mb-2">Tanggal SP</label>
+                    <input type="date" wire:model="tanggal_sp" id="tanggal_sp"
+                        class="w-full p-2 border rounded-lg bg-gray-50 text-gray-900">
+                    @error('tanggal_sp')
+                        <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="mb-4">
+                    <label for="file_sp" class="block text-sm font-medium text-gray-700 mb-2">Upload File SP
+                        (PDF/JPG)</label>
+                    <input type="file" wire:model="file_sp" id="file_sp"
+                        class="w-full p-2 border rounded-lg bg-gray-50 text-gray-900">
+                    @error('file_sp')
+                        <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="mb-4">
+                    <label for="keterangan" class="block text-sm font-medium text-gray-700 mb-2">Keterangan
+                        Tambahan</label>
+                    <textarea wire:model="keterangan" id="keterangan" class="w-full p-2 border rounded-lg bg-gray-50 text-gray-900"
+                        rows="3" placeholder="Opsional..."></textarea>
+                    @error('keterangan')
+                        <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <div class="flex justify-end space-x-4">
+                    <button type="button" x-on:click="$dispatch('close-modal', 'modal-SP')"
+                        class="px-4 py-2 bg-gray-200 rounded-lg">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-success-600 text-white rounded-lg">Simpan</button>
+                </div>
+            </form>
+        </x-modal>
+        @push('scripts')
+            <script type="module">
+                Livewire.on('konfirmasi-phk', () => {
+                    Swal.fire({
+                        title: 'PHK Otomatis?',
+                        html: 'Karyawan telah menerima <b>5x SP II</b> dan <b>2x SP III</b>.<br>Menambah SP ini akan <b>berakibat PHK</b>.<br><br><b>Lanjutkan?</b>',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya, lanjutkan PHK',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Panggil ulang dengan konfirmasi
+                            @this.call('tambahSP', true);
+                        }
+                    });
+                });
+            </script>
+        @endpush
     </div>
     <div class="w-full mb-6">
         <x-card-tanpa-title>
@@ -380,6 +480,53 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="w-full">
+                    <div class="text-lg font-semibold mb-2">Riwayat Surat Peringatan</div>
+                    <div class="relative overflow-x-auto max-w-full shadow-md sm:rounded-lg">
+                        <div class="max-h-96 overflow-y-auto">
+                            <table class="w-full text-xs sm:text-sm text-center text-gray-700">
+                                <thead class="uppercase bg-success-400 text-success-900 sticky top-0 z-10">
+                                    <tr>
+                                        <th class="px-2 py-2 sm:px-4">Tanggal Peringatan</th>
+                                        <th class="px-2 py-2 sm:px-4">Tingkat</th>
+                                        <th class="px-2 py-2 sm:px-4">Jenis Pelanggaran</th>
+                                        <th class="px-2 py-2 sm:px-4">Catatan</th>
+                                        <th class="px-2 py-2 sm:px-4">Dokumen</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($listSP as $sp)
+                                        <tr
+                                            class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
+                                            <td class="px-2 py-2 sm:px-4">{{ formatDate($sp->tanggal_sp) }}</td>
+                                            <td class="px-2 py-2 sm:px-4">SP {{ $sp->sanksi }} Tingkat
+                                                {{ $sp->tingkat }}</td>
+                                            <td class="px-2 py-2 sm:px-4">{{ $sp->jenis_pelanggaran }}</td>
+                                            <td class="px-2 py-2 sm:px-4">{{ $sp->keterangan ?? '-' }}</td>
+                                            <td class="px-2 py-2 sm:px-4">
+                                                @if ($sp->file_sp)
+                                                    <a href="{{ Storage::url($sp->file_sp) }}" target="_blank"
+                                                        class="inline-flex items-center text-sm text-blue-600 hover:underline">
+                                                        <i class="fas fa-file-pdf mr-1"></i> Unduh
+                                                    </a>
+                                                @else
+                                                    <span class="text-gray-400">-</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center py-2">Belum ada surat peringatan.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </x-card-tanpa-title>
     </div>

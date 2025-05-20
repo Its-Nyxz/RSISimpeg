@@ -90,11 +90,13 @@ class AddPotongan extends Component
             ->count();
 
         // Proporsi kehadiran aktual
-        $proporsiHybrid = $jadwalValid / max($totalHariJadwal, 1);
+        // $proporsiHybrid = $jadwalValid / max($totalHariJadwal, 1);
 
         // Terapkan hanya ke makan dan transport
-        $this->nom_makan = $base_makan * $proporsiHybrid;
-        $this->nom_transport = $base_transport * $proporsiHybrid;
+        // $this->nom_makan = $base_makan * $proporsiHybrid;
+        // $this->nom_transport = $base_transport * $proporsiHybrid;
+        $this->nom_makan = $base_makan;
+        $this->nom_transport = $base_transport;
 
         // Ambil semua riwayat jabatan yang aktif selama bulan ini
         $riwayatJabatanAktif = $this->user->riwayatJabatan()

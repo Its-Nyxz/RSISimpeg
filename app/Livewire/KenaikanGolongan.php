@@ -11,14 +11,18 @@ use App\Models\MasterGapok;
 use Livewire\WithPagination;
 use App\Models\JenisKaryawan;
 use App\Models\MasterGolongan;
+use App\Models\PeringatanKaryawan;
 use Illuminate\Support\Facades\Auth;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class KenaikanGolongan extends Component
 {
     use WithPagination;
 
+    public $bulan;
+    public $tahun;
     public $search = ''; // Properti untuk menyimpan nilai input pencarian
     public $roles;
     public $units;
@@ -26,7 +30,6 @@ class KenaikanGolongan extends Component
     public $selectedUnit = null;
     public $isKepegawaian = false;
 
-    public $selectedJenisKaryawan = null;
     public $jenisKaryawans = [];
 
     public function mount()
@@ -34,7 +37,6 @@ class KenaikanGolongan extends Component
         $this->units = UnitKerja::all();
         $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
         $user = auth()->user();
-        $this->jenisKaryawans = JenisKaryawan::all();
         $this->isKepegawaian = $user->unit_id == $unitKepegawaianId;
     }
 
@@ -68,6 +70,7 @@ class KenaikanGolongan extends Component
             'jenis'
         ])
             ->where('id', '>', 1)
+            ->where('jenis_id', 1)
             ->when(!Auth::user()->hasAnyRole($roles), function ($query) use ($unit_id) {
                 $unitIds = UnitKerja::where('id', $unit_id)
                     ->orWhere('parent_id', $unit_id)
@@ -98,58 +101,51 @@ class KenaikanGolongan extends Component
                     ->toArray();
                 $query->whereIn('unit_id', $unitIds);
             })
-            ->when($this->selectedJenisKaryawan, function ($query) {
-                $query->where('jenis_id', $this->selectedJenisKaryawan);
-            })
-            ->paginate(15);
+            ->get(); // Ambil semua dulu untuk bisa filter manual pakai Carbon
 
         // Proses tambahan: masa kerja, gaji, kenaikan berkala, golongan
         foreach ($users as $user) {
             if ($user->tmt) {
-                // Ambil masa kerja real-time dari TMT untuk tampilan
-                $diff = Carbon::parse($user->tmt)->diff(Carbon::now());
-                $user->masa_kerja_tahun = $diff->y;
-                $user->masa_kerja_bulan = $diff->m;
+                $baseTmt = Carbon::parse($user->tmt);
+                $now = Carbon::now();
 
-                // Masa kerja dari DB (sudah disesuaikan)
-                $masaKerjaDariDB = (int) $user->masa_kerja;
-                $user->masa_kerja_golongan = $masaKerjaDariDB;
+                // Hitung masa kerja
+                $diff = $baseTmt->diff($now);
+                $masaKerjaTahun = $diff->y;
+                $masaKerjaBulan = $diff->m;
+                $masaKerjaTotal = floor($baseTmt->floatDiffInYears($now)); // disimpan di DB
+                $user->masa_kerja_tahun = $masaKerjaTahun;
+                $user->masa_kerja_bulan = $masaKerjaBulan;
+                $user->masa_kerja_golongan = $masaKerjaTotal;
 
                 // Gaji sekarang
                 $gapok = MasterGapok::where('gol_id', $user->gol_id)
-                    ->where('masa_kerja', '<=', $masaKerjaDariDB)
+                    ->where('masa_kerja', '<=', $masaKerjaTotal)
                     ->orderByDesc('masa_kerja')
                     ->first();
                 $user->gaji_sekarang = $gapok?->nominal_gapok;
 
-                // Kenaikan Gaji Berkala
-                $baseTmt = Carbon::parse($user->tmt);
-                $next_mk = $masaKerjaDariDB + (2 - ($masaKerjaDariDB % 2));
-                $kenaikanDate = $baseTmt->copy()->addYears($next_mk);
-                // Lewati jika tanggal kenaikan sudah lewat
-                while ($kenaikanDate->lt(Carbon::now())) {
-                    $next_mk += 2;
-                    $kenaikanDate = $baseTmt->copy()->addYears($next_mk);
+                // ✅ Kenaikan Berkala (tiap 2 tahun dari TMT)
+                $kenaikanDate = $baseTmt->copy();
+                while ($kenaikanDate->lt($now)) {
+                    $kenaikanDate->addYears(2);
                 }
-
                 $user->kenaikan_berkala_waktu = $kenaikanDate->format('Y-m-d');
 
-                $next_gapok = MasterGapok::where('gol_id', $user->gol_id)
-                    ->where('masa_kerja', '<=', $masaKerjaDariDB + 2)
+                $gapokNaik = MasterGapok::where('gol_id', $user->gol_id)
+                    ->where('masa_kerja', '<=', $masaKerjaTotal + 2)
                     ->orderByDesc('masa_kerja')
                     ->first();
-                $user->kenaikan_berkala_gaji = $next_gapok?->nominal_gapok;
+                $user->kenaikan_berkala_gaji = $gapokNaik?->nominal_gapok;
 
-                // Kenaikan Golongan
+                // ✅ Kenaikan Golongan
                 $pendidikan = $user->pendidikanUser;
                 $currentGolId = $user->gol_id;
-                $masaKerjaDariDB = (int) $user->masa_kerja;
 
                 if ($pendidikan && $currentGolId) {
                     $maksimalKenaikan = 4;
-                    $kenaikanTercapai = min($maksimalKenaikan, floor($masaKerjaDariDB / 4));
+                    $kenaikanTercapai = min($maksimalKenaikan, floor($masaKerjaTotal / 4));
 
-                    // Ambil daftar golongan setelah golongan sekarang sampai max pendidikan
                     $daftarGolongan = MasterGolongan::where('id', '>', $currentGolId)
                         ->where('id', '<=', $pendidikan->maxim_gol)
                         ->orderBy('id')
@@ -157,51 +153,68 @@ class KenaikanGolongan extends Component
                         ->get();
 
                     if ($kenaikanTercapai < $daftarGolongan->count()) {
-                        // Masih bisa naik
-                        $golonganBerikutnya = $daftarGolongan->get($kenaikanTercapai); // index ke-n
+                        $golonganBerikutnya = $daftarGolongan->get($kenaikanTercapai);
                         $kenaikanKe = $kenaikanTercapai + 1;
-                        $baseTmt = Carbon::parse($user->tmt);
-                        $kenaikanDate = $baseTmt->copy()->addYears($kenaikanKe * 4);
+                        $kenaikanGolDate = $baseTmt->copy()->addYears($kenaikanKe * 4);
 
-                        // Pastikan tanggal kenaikan belum lewat (karena masa kerja bisa tidak sesuai dengan TMT)
-                        while ($kenaikanDate->lt(Carbon::now())) {
+                        while ($kenaikanGolDate->lt($now)) {
                             $kenaikanKe++;
-                            $kenaikanDate = $baseTmt->copy()->addYears($kenaikanKe * 4);
+                            $kenaikanGolDate = $baseTmt->copy()->addYears($kenaikanKe * 4);
                         }
 
-                        // Simpan tanggal kenaikan
-                        $user->kenaikan_golongan_waktu = $kenaikanDate->format('Y-m-d');
+                        $user->kenaikan_golongan_waktu = $kenaikanGolDate->format('Y-m-d');
+
                         $kenaikanGapok = MasterGapok::where('gol_id', $golonganBerikutnya->id)
-                            ->where('masa_kerja', '<=', $masaKerjaDariDB + 4)
+                            ->where('masa_kerja', '<=', $masaKerjaTotal + 4)
                             ->orderByDesc('masa_kerja')
                             ->first();
-
                         $user->kenaikan_golongan_gaji = $kenaikanGapok?->nominal_gapok;
                     } else {
-                        // Sudah maksimal
-                        $user->kenaikan_golongan_waktu = Carbon::parse($user->tmt)
-                            ->addYears($maksimalKenaikan * 4)
-                            ->format('Y-m-d');
-
-                        $gapokTertinggi = MasterGapok::where('gol_id', $currentGolId)
-                            ->where('masa_kerja', '<=', $masaKerjaDariDB)
-                            ->orderByDesc('masa_kerja')
-                            ->first();
-
-                        $user->kenaikan_golongan_gaji = $gapokTertinggi?->nominal_gapok;
+                        $user->kenaikan_golongan_waktu = $baseTmt->copy()->addYears(16)->format('Y-m-d');
+                        $user->kenaikan_golongan_gaji = $gapok?->nominal_gapok;
                     }
 
                     $user->golongan_tertinggi = (
                         $kenaikanTercapai >= $maksimalKenaikan ||
                         $daftarGolongan->count() <= $kenaikanTercapai
                     );
+
+                    $spList = PeringatanKaryawan::where('user_id', $user->id)
+                        ->whereIn('tingkat', ['II', 'III'])
+                        ->where('tanggal_sp', '>=', now()->subYears(4))
+                        ->orderBy('tanggal_sp')
+                        ->get();
+
+                    $penundaanGajiTahun = 0;
+                    $penundaanGolonganTahun = 0;
+
+                    foreach ($spList as $sp) {
+                        if ($sp->tingkat === 'II') {
+                            $penundaanGajiTahun += 2;
+                        } elseif ($sp->tingkat === 'III') {
+                            $penundaanGajiTahun += 2;
+                            $penundaanGolonganTahun += 4;
+                        }
+                    }
+
+
+                    // Waktu kenaikan berkala (gaji)
+                    if ($penundaanGajiTahun) {
+                        $user->kenaikan_berkala_waktu = $kenaikanDate->copy()->addYears($penundaanGajiTahun)->format('Y-m-d');
+                    } else {
+                        $user->kenaikan_golongan_waktu = Carbon::parse($user->kenaikan_golongan_waktu)->addYears($penundaanGolonganTahun)->format('Y-m-d');
+                    }
+
+                    // Waktu kenaikan golongan
+                    if ($penundaanGolonganTahun) {
+                        $user->kenaikan_golongan_waktu = Carbon::parse($user->kenaikan_golongan_waktu)->addYears($penundaanGolonganTahun)->format('Y-m-d');
+                    }
                 } else {
                     $user->kenaikan_golongan_waktu = null;
                     $user->kenaikan_golongan_gaji = null;
                     $user->golongan_tertinggi = false;
                 }
             } else {
-                // tanpa TMT
                 $user->masa_kerja_tahun = null;
                 $user->masa_kerja_bulan = null;
                 $user->gaji_sekarang = null;
@@ -212,8 +225,42 @@ class KenaikanGolongan extends Component
             }
         }
 
+        // ✅ Filter berdasarkan bulan/tahun jika salah satu dipilih
+        if (!empty($this->bulan) || !empty($this->tahun)) {
+            $bulan = (int) $this->bulan;
+            $tahun = (int) $this->tahun;
 
-        return $users;
+            $users = $users->filter(function ($user) use ($bulan, $tahun) {
+                $tglGol = $user->kenaikan_golongan_waktu ?? null;
+                $tglBerkala = $user->kenaikan_berkala_waktu ?? null;
+
+                $matchGol = $tglGol ? Carbon::parse($tglGol) : null;
+                $matchBerkala = $tglBerkala ? Carbon::parse($tglBerkala) : null;
+
+                return (
+                    ($matchGol && (
+                        (empty($bulan) || $matchGol->month == $bulan) &&
+                        (empty($tahun) || $matchGol->year == $tahun)
+                    )) ||
+                    ($matchBerkala && (
+                        (empty($bulan) || $matchBerkala->month == $bulan) &&
+                        (empty($tahun) || $matchBerkala->year == $tahun)
+                    ))
+                );
+            })->values();
+        }
+
+        // Manual pagination (karena sudah pakai ->get())
+        $perPage = 15;
+        $currentPage = $this->page ?? 1;
+        $paged = $users->slice(($currentPage - 1) * $perPage, $perPage)->values();
+        return new LengthAwarePaginator(
+            $paged,
+            $users->count(),
+            $perPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
     }
 
     public function approveKenaikan($userId)
@@ -242,7 +289,7 @@ class KenaikanGolongan extends Component
         // Kirim notifikasi ke user
         $message = 'Kenaikan golongan Anda dari ' . ($user->golongan->nama ?? '-') . ' ke golongan ' . $gapok->golonganBaru->nama . ' telah <span class="text-green-600 font-bold">disetujui</span> oleh ' . $admin->name . '.';
 
-        Notification::send($user, new \App\Notifications\UserNotification($message, null));
+        Notification::send($user, new UserNotification($message, null));
 
         return redirect()->route('kenaikan.index')->with('success', 'Kenaikan golongan berhasil disetujui.');
     }
@@ -265,7 +312,7 @@ class KenaikanGolongan extends Component
         $message = 'Kenaikan golongan Anda telah <span class="text-red-600 font-bold">DITOLAK</span>' .
             ($reason ? ' dengan alasan: <em>' . $reason . '</em>.' : '.');
 
-        Notification::send($user, new \App\Notifications\UserNotification($message, null));
+        Notification::send($user, new UserNotification($message, null));
 
         return redirect()->route('kenaikan.index')->with('success', 'Kenaikan golongan ditolak.');
     }

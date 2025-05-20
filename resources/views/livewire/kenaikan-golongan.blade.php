@@ -1,10 +1,27 @@
 <div class="mb-4">
     <div class="py-2 mb-3">
-        <h1 class="text-2xl font-bold text-success-900">Data Karyawan</h1>
+        <h1 class="text-2xl font-bold text-success-900">Kenaikan Data Karyawan</h1>
     </div>
     <div class="flex flex-col md:flex-row justify-between items-center md:gap-4 space-y-3 md:space-y-0 mb-3">
         <!-- Bagian Dropdown -->
         <div id="1" class="flex space-x-4 w-full md:w-auto justify-center md:justify-start">
+            <select wire:model.live="bulan"
+                class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
+                <option value="">-- Pilih Bulan --</option>
+                @foreach (range(1, 12) as $m)
+                    <option value="{{ $m }}">
+                        {{ \Carbon\Carbon::createFromFormat('!m', $m)->translatedFormat('F') }}
+                    </option>
+                @endforeach
+            </select>
+
+            <select wire:model.live="tahun"
+                class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
+                <option value="">-- Pilih Tahun --</option>
+                @foreach (range(now()->year, now()->year + 5) as $y)
+                    <option value="{{ $y }}">{{ $y }}</option>
+                @endforeach
+            </select>
             <select wire:model.live="selectedUserAktif"
                 class="rounded-lg px-2 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
                 <option value="1">Aktif</option>
@@ -19,13 +36,6 @@
                     @endforeach
                 </select>
             @endif
-            <select wire:model.live="selectedJenisKaryawan"
-                class="rounded-lg px-2 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
-                <option value="">-- Semua Jenis Karyawan --</option>
-                @foreach ($jenisKaryawans as $item)
-                    <option value="{{ $item->id }}">{{ $item->nama }}</option>
-                @endforeach
-            </select>
         </div>
 
         <!-- Bagian Search dan Tambah (Tetap dalam satu baris) -->
@@ -102,7 +112,7 @@
                             @endif
                         </td>
                         <td class="px-6 py-4">
-                            @if ($isKepegawaian && $user->pendingGolonganGapok)
+                            {{-- @if ($isKepegawaian && $user->pendingGolonganGapok)
                                 <div class="flex justify-center gap-2">
                                     <button
                                         onclick="confirmAlert('Ingin menyetujui user ini?', 'Ya, Setujui!', () => @this.call('approveKenaikan', {{ $user->id }}))"
@@ -116,18 +126,18 @@
                                         <i class="fa-solid fa-xmark"></i>
                                     </button>
                                 </div>
-                            @else
-                                <a href="{{ route('detailkaryawan.show', ['detailkaryawan' => $user->id]) }}"
-                                    class="bg-green-700 text-white font-medium rounded-md px-3 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
-                                </a>
+                            @else --}}
+                            <a href="{{ route('detailkaryawan.show', ['detailkaryawan' => $user->id]) }}"
+                                class="bg-green-700 text-white font-medium rounded-md px-3 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </a>
                         </td>
-                @endif
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="7" class="text-center px-6 py-4">Tidak ada data Karyawan.</td>
-                </tr>
+                        {{-- @endif --}}
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="7" class="text-center px-6 py-4">Tidak ada data Karyawan.</td>
+                    </tr>
                 @endforelse
             </tbody>
         </table>

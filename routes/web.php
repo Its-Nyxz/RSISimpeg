@@ -59,6 +59,7 @@ use App\Http\Controllers\PerizinanJabatanController;
 use App\Http\Controllers\TunjanganKinerjaController;
 use App\Http\Controllers\MasterJatahCutiController;
 use App\Http\Controllers\MasterPenyesuaianController;
+use App\Http\Controllers\PeringatanKaryawanController;
 use App\Http\Controllers\ProposionalitasPointController;
 use App\Models\MasterJatahCuti;
 
@@ -155,6 +156,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('approvalcuti', CutiController::class);
     Route::resource('approvalizin', IzinController::class);
     Route::resource('approvaltukar', TukarJadwalController::class);
+    Route::resource('peringatan', PeringatanKaryawanController::class);
     Route::resource('slipgaji', GajiNettoController::class);
     Route::get('/slip-gaji/download/{id}', [GajiNettoController::class, 'download'])
         ->name('slipgaji.download');

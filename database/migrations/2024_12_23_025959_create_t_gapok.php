@@ -19,6 +19,7 @@ return new class extends Migration
 
             $table->unsignedInteger('masa_kerja');      // Masa kerja saat kenaikan
             $table->unsignedBigInteger('gapok')->nullable(); // Gaji saat itu
+            $table->unsignedBigInteger('gapok_lama')->nullable(); // Gaji saat itu
 
             $table->enum('jenis_kenaikan', ['berkala', 'golongan']);
             $table->integer('status')->nullable();

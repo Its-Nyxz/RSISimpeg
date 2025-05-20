@@ -37,22 +37,33 @@ class DataKaryawanImport implements ToCollection
 
                 if ($tmtDate) {
                     $diff = $today->diff($tmtDate);
-
-                    if ($jenisKarId == 1) { // Tetap → dalam tahun
-                        $masaKerja = $diff->y; // hanya tahun
-                    } else {
-                        $masaKerja = ($diff->y * 12) + $diff->m; // Kontrak dll → bulan
-                    }
+                    $masaKerja = $jenisKarId == 1 ? $diff->y : ($diff->y * 12) + $diff->m;
                 }
 
                 $golonganId = $this->hitungGolonganId($pendidikanId, $jenisKarId, $masaKerja);
 
-                Log::info('Baris yang diproses:', $row->toArray());
-                User::updateOrCreate(
-                    ['nip' => $row[2]], // Cari berdasarkan NIP
-                    [
-                        'name' => $row[0],
-                        'slug' => Str::slug($row[0]),
+                $name = $row[0];
+                $slug = Str::slug($name);
+                $nip = $row[2];
+                $conditions = [];
+
+                $user = null;
+
+                if ($nip) {
+                    // Coba cari berdasarkan NIP jika ada
+                    $user = User::where('nip', $nip)->first();
+                }
+
+                if (!$user) {
+                    // Jika tidak ada atau NIP kosong, coba cari berdasarkan slug
+                    $user = User::where('slug', $slug)->first();
+                }
+
+                if ($user) {
+                    // Jika sudah ada, update
+                    $user->update([
+                        'name' => $name,
+                        'slug' => $slug,
                         'email' => $row[1],
                         'no_ktp' => $row[3],
                         'no_hp' => $row[4],
@@ -74,9 +85,43 @@ class DataKaryawanImport implements ToCollection
                         'tunjangan_khusus_id' => $tunjanganId ?: null,
                         'kategori_id' => $pphId ?: null,
                         'gol_id' => $golonganId,
-                        'password' => Hash::make('123'), // ✅ default password
-                    ]
-                );
+                    ]);
+
+                    // Tambahkan nip jika sebelumnya kosong
+                    if (!$user->nip && $nip) {
+                        $user->nip = $nip;
+                        $user->save();
+                    }
+                } else {
+                    // Jika belum ada user sama sekali, buat baru
+                    User::create([
+                        'name' => $name,
+                        'slug' => $slug,
+                        'nip' => $nip,
+                        'email' => $row[1],
+                        'no_ktp' => $row[3],
+                        'no_hp' => $row[4],
+                        'no_rek' => $row[5],
+                        'jk' => $jk,
+                        'tempat' => $row[7],
+                        'tanggal_lahir' => Date::excelToDateTimeObject($row[8] ?? null)?->format('Y-m-d'),
+                        'alamat' => $row[9],
+                        'kategori_pendidikan' => $pendidikanId,
+                        'pendidikan' => $row[11],
+                        'institusi' => $row[12],
+                        'unit_id' => $unitKerjaId ?: null,
+                        'jabatan_id' => $jabatanStrukturalId ?: null,
+                        'fungsi_id' => $jabatanFungsionalId ?: null,
+                        'jenis_id' => $jenisKarId ?: null,
+                        'type_shift' => $typeShift,
+                        'tmt' => $tmtDate?->format('Y-m-d'),
+                        'masa_kerja' => $masaKerja,
+                        'tunjangan_khusus_id' => $tunjanganId ?: null,
+                        'kategori_id' => $pphId ?: null,
+                        'gol_id' => $golonganId,
+                        'password' => Hash::make('123'),
+                    ]);
+                }
             } catch (\Exception $e) {
                 Log::error('Gagal import row: ', [
                     'row' => $row->toArray(), // tampilkan isi array saja
@@ -87,6 +132,10 @@ class DataKaryawanImport implements ToCollection
         });
     }
 
+    public function chunkSize(): int
+    {
+        return 100; // proses 100 baris per batch
+    }
 
     private function hitungGolonganId($pendidikanId, $jenisKaryawanId, $masaKerja)
     {

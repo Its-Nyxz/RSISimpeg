@@ -4,19 +4,27 @@ namespace App\Livewire;
 
 use Carbon\Carbon;
 use App\Models\User;
-use App\Models\CutiKaryawan;
 use App\Models\Gapok;
-use App\Models\IzinKaryawan;
 use Livewire\Component;
 use App\Models\Penyesuaian;
+use Illuminate\Support\Str;
+use App\Models\CutiKaryawan;
+use App\Models\IzinKaryawan;
+use Livewire\WithFileUploads;
+
 use App\Models\MasterPendidikan;
 use App\Models\MasterPenyesuaian;
-
-use Illuminate\Support\Facades\DB;
+use App\Models\PeringatanKaryawan;
+use App\Notifications\UserNotification;
+use Illuminate\Support\Facades\Notification;
 
 
 class DetailKaryawan extends Component
 {
+    use WithFileUploads;
+
+    public $tingkat, $jenis_pelanggaran, $tanggal_sp, $file_sp, $keterangan;
+
     public $user;
     public $user_id;
     public $alasanResign;
@@ -30,6 +38,9 @@ class DetailKaryawan extends Component
     public $listIzin;
     public $listPenyesuaian;
     public $listGapok;
+    public $listSP;
+    public $gapokSebelumnya;
+    public $gapokPenyesuaian;
 
     public function mount($user)
     {
@@ -57,7 +68,28 @@ class DetailKaryawan extends Component
         $this->listIzin = IzinKaryawan::with('user')->where('user_id', $this->user_id)->orderBy('created_at', 'desc')->get();
         $this->listPenyesuaian = Penyesuaian::with('user')->where('user_id', $this->user_id)->where('status_penyesuaian', 0)->orderBy('created_at', 'desc')->get();
         $this->listGapok = Gapok::with('user')->where('user_id', $this->user_id)->orderBy('created_at', 'desc')->get();
+        $this->listSP = PeringatanKaryawan::where('user_id', $this->user_id)
+            ->orderBy('tanggal_sp', 'desc')
+            ->get();
         // dd($this->viewPendAwal);
+
+        if ($this->viewPendAwal) {
+            $masaKerjaAwal = $this->viewPendAwal->masa_kerja_awal ?? 0;
+            $masaKerjaAkhir = $this->viewPendAwal->masa_kerja_akhir ?? 0;
+
+            $golAwal = $this->viewPendAwal->gol_id_awal;
+            $golAkhir = $this->viewPendAwal->gol_id_akhir;
+
+            $this->gapokSebelumnya = \App\Models\MasterGapok::where('gol_id', $golAwal)
+                ->where('masa_kerja', '<=', $masaKerjaAwal)
+                ->orderByDesc('masa_kerja')
+                ->first();
+
+            $this->gapokPenyesuaian = \App\Models\MasterGapok::where('gol_id', $golAkhir)
+                ->where('masa_kerja', '<=', $masaKerjaAkhir)
+                ->orderByDesc('masa_kerja')
+                ->first();
+        }
     }
 
     public function resignKerja()
@@ -169,6 +201,112 @@ class DetailKaryawan extends Component
 
         return redirect()->route('detailkaryawan.show', $this->user_id)
             ->with('success', 'History berhasil ditambahkan.');
+    }
+
+    public function tambahSP($confirmed_phk = false)
+    {
+        $this->validate([
+            'tingkat' => 'required|in:I,II,III,IV',
+            'jenis_pelanggaran' => 'required|string|max:255',
+            'tanggal_sp' => 'required|date',
+            'file_sp' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'keterangan' => 'nullable|string|max:500',
+        ]);
+
+        $user = User::findOrFail($this->user_id);
+        $path = null;
+
+        if ($this->file_sp) {
+            $user = User::find($this->user_id);
+            $namaUser = Str::slug($user->name);
+            $tanggalFormatted = Carbon::parse($this->tanggal_sp)->format('Ymd');
+            $extension = $this->file_sp->getClientOriginalExtension();
+
+            $filename = "sp_{$namaUser}_{$this->tingkat}_{$tanggalFormatted}." . $extension;
+
+            // Simpan di folder public/dokumen/sp_uploads/
+            $path = $this->file_sp->storeAs('dokumen/sp_uploads', $filename, 'public');
+        } else {
+            $path = null;
+        }
+
+        // Map tingkat ke sanksi
+        $sanksi = match ($this->tingkat) {
+            'II' => 1, // SP1
+            'III' => 2, // SP2
+            default => 0,
+        };
+
+        $isPhk = $this->tingkat === 'IV';
+
+        // Hitung SP1 dan SP2 saat ini
+        $sp1Count = PeringatanKaryawan::where('user_id', $user->id)->where('sanksi', 1)->count();
+        $sp2Count = PeringatanKaryawan::where('user_id', $user->id)->where('sanksi', 2)->count();
+
+        // ✅ Blokir penambahan jika batas tercapai
+        if ($sanksi === 1 && $sp1Count >= 5) {
+            return redirect()->route('detailkaryawan.show', $user->id)->with('error', 'Tidak dapat menambahkan SP Tingkat II. Karyawan sudah menerima 5 SP.');
+        }
+
+        if ($sanksi === 2 && $sp2Count >= 2) {
+            return redirect()->route('detailkaryawan.show', $user->id)->with('error', 'Tidak dapat menambahkan SP Tingkat III. Karyawan sudah menerima 2 SP.');
+        }
+
+        // 🔁 Cek potensi PHK otomatis (setelah SP ini disimpan)
+        $willBePhk = false;
+        if (
+            ($sanksi === 1 && ($sp1Count + 1) >= 5 && $sp2Count >= 2) ||
+            ($sanksi === 2 && ($sp2Count + 1) >= 2 && $sp1Count >= 5)
+        ) {
+            $willBePhk = true;
+        }
+
+        if ($willBePhk && !$confirmed_phk) {
+            $this->dispatch('konfirmasi-phk'); // Livewire event
+            return;
+        }
+
+        PeringatanKaryawan::create([
+            'user_id' => $this->user_id,
+            'tingkat' => $this->tingkat,
+            'jenis_pelanggaran' => $this->jenis_pelanggaran,
+            'tanggal_sp' => $this->tanggal_sp,
+            'file_sp' => $path,
+            'keterangan' => $this->keterangan,
+            'sanksi' => $sanksi,
+            'is_phk' => $isPhk,
+        ]);
+
+        // ✅ Update status PHK jika SP IV atau otomatis PHK karena akumulasi
+        if ($isPhk || $willBePhk) {
+            $user->update([
+                'status_karyawan' => 0,
+                'alasan_resign' => $isPhk
+                    ? 'Diberhentikan melalui SP Tingkat IV'
+                    : 'Diberhentikan karena akumulasi SP Tingkat II (5x) dan Tingkat III (2x)',
+            ]);
+
+            Notification::send($user, new UserNotification(
+                'Anda telah diberhentikan dari status karyawan karena pelanggaran berat.' .
+                    ($isPhk ? ' SP IV diterbitkan.' : ' SP II dan SP III melebihi batas.'),
+                '/profil'
+            ));
+        }
+
+        // ✅ Kirim notifikasi SP normal
+        $admin = auth()->user();
+        $message = 'Anda telah diberikan Surat Peringatan Tingkat <strong>' . $this->tingkat . '</strong> oleh <strong>' . $admin->name . '</strong>.' .
+            '<br><span class="text-red-600 font-semibold">Jenis Pelanggaran:</span> ' . $this->jenis_pelanggaran .
+            ($this->keterangan ? '<br><em>Catatan:</em> ' . $this->keterangan : '');
+
+        Notification::send($user, new UserNotification($message, '/peringatan'));
+
+        $messageSuccess = $isPhk
+            ? 'Karyawan berhasil diberhentikan melalui Surat Peringatan Tingkat IV.'
+            : 'Surat Peringatan berhasil ditambahkan.';
+
+        return redirect()->route('detailkaryawan.show', $this->user_id)
+            ->with('success', $messageSuccess);
     }
 
     public function render()

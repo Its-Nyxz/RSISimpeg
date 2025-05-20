@@ -32,6 +32,7 @@ class DetailJabatan extends Component
             'detail-data-karyawan',
             'edit-data-karyawan',
             'tambah-history',
+            'tambah-sp',
             'view-kepegawaian',
             'view-kenaikan',
             'approval-cuti',

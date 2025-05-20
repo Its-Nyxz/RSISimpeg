@@ -26,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Carbon::setLocale('id');
         // $today = Carbon::now('Asia/Jakarta');
         // $currentYear = $today->year;
 

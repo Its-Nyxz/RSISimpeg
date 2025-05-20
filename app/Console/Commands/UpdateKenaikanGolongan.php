@@ -8,10 +8,11 @@ use App\Models\UnitKerja;
 use App\Models\MasterGapok;
 use App\Models\MasterGolongan;
 use Illuminate\Console\Command;
+use App\Models\PeringatanKaryawan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\Log;
 
 class UpdateKenaikanGolongan extends Command
 {
@@ -34,106 +35,143 @@ class UpdateKenaikanGolongan extends Command
 
         $users = User::whereNotNull('tmt')
             ->whereNotNull('gol_id')
-            ->with('pendidikanUser')
+            ->with(['pendidikanUser', 'golongan'])
             ->get();
 
         foreach ($users as $user) {
-            $tmt = Carbon::parse($user->tmt);
-            $masaKerja = $tmt->diffInYears($today);
-            $pendidikan = $user->pendidikanUser;
-
-            if (!$pendidikan) {
+            if (!$user->pendidikanUser) {
                 $this->warn("⚠ {$user->name} tidak memiliki data pendidikan.");
                 continue;
             }
 
+            $tmt = Carbon::parse($user->tmt);
+            $masaKerja = $tmt->diffInYears(Carbon::today());
 
-
-            $currentGolId = $user->gol_id;
-            $maxGolId = $testMode ? $pendidikan->maxim_gol : $pendidikan->maxim_gol;
-
-            // Hitung berapa kali bisa naik golongan (setiap 4 tahun, maksimal 4x)
             $jumlahNaik = $testMode ? 1 : min(4, floor($masaKerja / 4));
 
             if ($jumlahNaik < 1) {
-                $this->line("⏭ {$user->name} belum cukup masa kerja untuk naik golongan.");
+                $this->line("⏭ {$user->name} belum cukup masa kerja.");
                 continue;
             }
 
-            // Ambil golongan berikutnya
-            $golonganSetelah = MasterGolongan::where('id', '>', $currentGolId)
-                ->where('id', '<=', $maxGolId)
+            // Hitung golongan berikutnya
+            $nextGolongan = MasterGolongan::where('id', '>', $user->gol_id)
+                ->where('id', '<=', $user->pendidikanUser->maxim_gol)
                 ->orderBy('id')
-                ->take($jumlahNaik)
-                ->get();
+                ->first();
 
-            if ($golonganSetelah->isEmpty()) {
+            if (!$nextGolongan || $nextGolongan->id === $user->gol_id) {
                 $this->line("⏭ {$user->name} sudah di golongan tertinggi.");
-                Log::channel('kenaikan_golongan')->warning("⚠ {$user->name} gagal diproses: tidak memiliki data pendidikan | UserID: {$user->id}");
+
+                Notification::send($user, new UserNotification(
+                    'Anda saat ini berada di <strong>golongan tertinggi</strong> sesuai pendidikan Anda. Tidak ada kenaikan golongan lebih lanjut yang tersedia.',
+                    null
+                ));
+
+                Log::channel('kenaikan_golongan')->info("⏹ {$user->name} sudah di golongan maksimal | UserID: {$user->id}");
                 continue;
             }
 
-            $golonganBerikutnya = $golonganSetelah->first();
+            // Hitung total penundaan karena SP2 (sanksi = 2)
+            $penundaanTahun = $this->hitungTahunPenundaan($user);
+            $tahunKenaikan = ($jumlahNaik * 4) + $penundaanTahun;
+            $tanggalKenaikan = $tmt->copy()->addYears($tahunKenaikan);
+            $statusNaik = $penundaanTahun === 0;
 
-            if ($golonganBerikutnya->id === $currentGolId) {
-                continue; // sudah sesuai
+            if ($penundaanTahun > 0) {
+                $jumlahSP2 = $penundaanTahun / 4;
+                $tundaHingga = $tanggalKenaikan; // Sudah diset sebelumnya
+                $tanggalFormatted = $tundaHingga->translatedFormat('d F Y');
+
+                // Log ke console
+                $this->warn("⏸ {$user->name} ditunda kenaikan golongan karena ada {$jumlahSP2} SP2 (tingkat III) dalam 4 tahun. Kenaikan ditunda hingga {$tanggalFormatted}.");
+
+                // Kirim notifikasi ke user
+                $pesanTunda = "Kenaikan golongan Anda <strong>ditunda</strong> karena adanya <strong>{$jumlahSP2} Surat Peringatan Tingkat III (SP2)</strong> " .
+                    "dalam 4 tahun terakhir.<br>Kenaikan ditunda hingga <strong>{$tanggalFormatted}</strong>.";
+
+                Notification::send($user, new UserNotification($pesanTunda, null));
             }
 
-            // Cek apakah user sudah pernah diajukan kenaikan golongan dengan gol_id_baru ini
-            $alreadySubmitted = DB::table('t_gapok')
-                ->where('user_id', $user->id)
-                ->where('jenis_kenaikan', 'golongan')
-                ->where('gol_id_baru', $golonganBerikutnya->id)
-                ->exists();
+            // Jika sudah pernah diajukan
+            $sudahAda = DB::table('t_gapok')->where([
+                ['user_id', '=', $user->id],
+                ['jenis_kenaikan', '=', 'golongan'],
+                ['gol_id_baru', '=', $nextGolongan->id],
+            ])->exists();
 
-            if ($alreadySubmitted && !$testMode) {
-                $this->line("⏭ {$user->name} sudah pernah diajukan untuk golongan ini.");
+            if ($sudahAda && !$testMode) {
+                $this->line("⏭ {$user->name} sudah diajukan sebelumnya.");
                 continue;
             }
-
-            // Ambil gapok lama
-            $gapokLama = MasterGapok::where('gol_id', $currentGolId)
+            $gapokBaru = MasterGapok::where('gol_id', $nextGolongan->id)
                 ->where('masa_kerja', '<=', $masaKerja)
                 ->orderByDesc('masa_kerja')
                 ->first();
 
-            Carbon::setLocale('id');
-            $tanggalKenaikan = Carbon::parse($tmt)->addYears($jumlahNaik * 4)->translatedFormat('d F Y');
+            // Gapok lama
+            $gapokLama = MasterGapok::where('gol_id', $user->gol_id)
+                ->where('masa_kerja', '<=', $masaKerja)
+                ->orderByDesc('masa_kerja')
+                ->first();
 
-            // Simpan riwayat ke t_gapok
+            $gapokLamaNominal = $gapokLama?->nominal_gapok ?? 0;
+            $gapokBaruNominal = $gapokBaru?->nominal_gapok ?? 0;
+
+            // Simpan ke t_gapok
             DB::table('t_gapok')->insert([
                 'user_id' => $user->id,
-                'gol_id' => $currentGolId,
-                'gol_id_baru' => $golonganBerikutnya->id,
-                'masa_kerja' => (int) $masaKerja,
-                'gapok' => $gapokLama?->nominal_gapok ?? 0,
+                'gol_id' => $user->gol_id,
+                'gol_id_baru' => $nextGolongan->id,
+                'masa_kerja' => $masaKerja,
+                'gapok' => $gapokBaruNominal,
+                'gapok_lama' => $gapokLamaNominal,
                 'jenis_kenaikan' => 'golongan',
-                'tanggal_kenaikan' =>  Carbon::parse($tmt)->addYears($jumlahNaik * 4)->toDateString(),
-                'status' => false,
+                'tanggal_kenaikan' => $tanggalKenaikan->toDateString(),
+                'status' => $statusNaik,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
 
-            $message = 'Pengajuan Kenaikan Golongan ' . $user->name .
-                ' dari gol <span class="font-bold">' . ($user->golongan?->nama ?? 'Tidak diketahui') .
-                ' ke ' . $golonganBerikutnya->nama .
-                '</span>  di tanggal ' . $tanggalKenaikan . ' membutuhkan persetujuan Anda.';
 
-            $url = "/kenaikan";
-            if ($kepegawaianUsers) {
-                Notification::send($kepegawaianUsers, new UserNotification($message, $url));
+            // Notifikasi ke kepegawaian
+            // $notifMsg = 'Pengajuan Kenaikan Golongan ' . $user->name .
+            //     ' dari gol <span class="font-bold">' . ($user->golongan?->nama ?? '-') .
+            //     ' ke ' . $nextGolongan->nama .
+            //     '</span> di tanggal ' . $tanggalKenaikan->translatedFormat('d F Y') . ' membutuhkan persetujuan Anda.';
+
+            if ($statusNaik) {
+                $user->gol_id = $nextGolongan->id;
+                $user->save();
+
+                $logMsg = "✔ {$user->name} naik golongan ke {$nextGolongan->nama} (ID: {$nextGolongan->id}) pada {$tanggalKenaikan->format('d-m-Y')}";
+                $this->info($logMsg);
+                Log::channel('kenaikan_golongan')->info($logMsg);
+
+                Notification::send($user, new UserNotification(
+                    'Selamat! Anda <strong>naik golongan</strong> dari <strong>' . ($user->golongan?->nama ?? '-') .
+                        '</strong> ke <strong>' . $nextGolongan->nama . '</strong>.' .
+                        '<br><span class="text-sm text-gray-700">Gaji lama: Rp' . number_format($gapokLamaNominal, 0, ',', '.') .
+                        '<br>Gaji baru: Rp' . number_format($gapokBaruNominal, 0, ',', '.') . '</span>',
+                    null
+                ));
             }
 
-            // Update golongan user
-            // $user->gol_id = $golonganBerikutnya->id;
-            // $user->save();
-
-            $this->info("✔ {$user->name} naik golongan → {$golonganBerikutnya->nama} (ID: {$golonganBerikutnya->id})");
-            Log::channel('kenaikan_golongan')->info("✔ {$user->name} naik golongan dari ID {$currentGolId} ke {$golonganBerikutnya->id} ({$golonganBerikutnya->nama}) pada tanggal $tanggalKenaikan | UserID: {$user->id}");
             $updated++;
         }
 
-        $this->info("Total user yang naik golongan: $updated");
-        Log::channel('kenaikan_golongan')->info("Total user naik golongan: $updated pada " . now()->toDateString());
+        $this->info("🎯 Total kenaikan golongan: $updated");
+        Log::channel('kenaikan_golongan')->info("Total: $updated pada " . now()->toDateString());
+    }
+
+
+    protected function hitungTahunPenundaan(User $user): int
+    {
+        $sp2Count = PeringatanKaryawan::where('user_id', $user->id)
+            ->where('sanksi', 2)
+            ->where('tanggal_sp', '>=', now()->subYears(4))
+            ->count();
+
+        return $sp2Count * 4; // setiap SP2 menambah 4 tahun penundaan
     }
 }

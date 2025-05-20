@@ -38,9 +38,9 @@ class PotonganImport implements ToCollection
             $nom_jabatan = (int) $this->cleanRupiah($row[5] ?? 0);
             $nom_fungsi  = (int) $this->cleanRupiah($row[6] ?? 0);
             $nom_umum    = (int) $this->cleanRupiah($row[7] ?? 0);
-            $nom_khusus  = (int) $this->cleanRupiah($row[8] ?? 0);
-            $nom_makan   = (int) $this->cleanRupiah($row[9] ?? 0);
-            $nom_transport = (int) $this->cleanRupiah($row[10] ?? 0);
+            $nom_makan   = (int) $this->cleanRupiah($row[8] ?? 0);
+            $nom_transport = (int) $this->cleanRupiah($row[9] ?? 0);
+            $nom_khusus  = (int) $this->cleanRupiah($row[10] ?? 0);
             $nom_lainnya = (int) $this->cleanRupiah($row[11] ?? 0); // Tunjangan Tukin
 
             // Total bruto dihitung ulang dari semua komponen

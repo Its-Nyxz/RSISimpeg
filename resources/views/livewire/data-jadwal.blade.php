@@ -80,7 +80,8 @@
         <select wire:model.live="bulan"
             class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
             @foreach (range(1, 12) as $m)
-                <option value="{{ $m }}">{{ DateTime::createFromFormat('!m', $m)->format('F') }}
+                <option value="{{ $m }}">
+                    {{ \Carbon\Carbon::createFromFormat('!m', $m)->translatedFormat('F') }}
                 </option>
             @endforeach
         </select>
