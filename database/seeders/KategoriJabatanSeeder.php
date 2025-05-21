@@ -17,16 +17,17 @@ class KategoriJabatanSeeder extends Seeder
             // Jabatan
             ['nama' => 'Direktur', 'tunjangan' => 'jabatan'],
             ['nama' => 'Wadir', 'tunjangan' => 'jabatan'],
+            ['nama' => 'Manajer', 'tunjangan' => 'jabatan'],
+            ['nama' => 'Ka. Seksi', 'tunjangan' => 'jabatan'],
+            ['nama' => 'Ka. Instalasi (Dokter)', 'tunjangan' => 'jabatan'],
             // ['nama' => 'Wadir Pelayanan', 'tunjangan' => 'jabatan'],
             // ['nama' => 'Wadir Umum dan Keuangan', 'tunjangan' => 'jabatan'],
-            ['nama' => 'Manajer', 'tunjangan' => 'jabatan'],
             // ['nama' => 'Manajer Keperawatan', 'tunjangan' => 'jabatan'],
             // ['nama' => 'Manajer Penunjang', 'tunjangan' => 'jabatan'],
             // ['nama' => 'Manajer Humas dan Program RS', 'tunjangan' => 'jabatan'],
             // ['nama' => 'Manajer SDM', 'tunjangan' => 'jabatan'],
             // ['nama' => 'Manajer Keuangan+ Plt. Ka. Seksi Akuntansi', 'tunjangan' => 'jabatan'],
             // ['nama' => 'Manajer Pelayanan Medik', 'tunjangan' => 'jabatan'],
-            ['nama' => 'Ka. Seksi', 'tunjangan' => 'jabatan'],
             // ['nama' => 'Ka. Seksi Pel Medik Rajal, Gadar Ranap', 'tunjangan' => 'jabatan'],
             // ['nama' => 'Ka. Seksi Keperawatan Rajal, Ranap, Gadar', 'tunjangan' => 'jabatan'],
             // ['nama' => 'Ka. Seksi Keperawatan Bedah, Intensif, HD, MP, Rehabilitasi Medik', 'tunjangan' => 'jabatan'],
@@ -40,7 +41,6 @@ class KategoriJabatanSeeder extends Seeder
             // ['nama' => 'Ka. Seksi Aset dan Logistik', 'tunjangan' => 'jabatan'],
             // ['nama' => 'Ka. Seksi Pel. Medik Bedah, Intensif, HD, MP, Rehab Medik', 'tunjangan' => 'jabatan'],
             // ['nama' => 'Ka. Seksi Perencanaan dan Pengembangan', 'tunjangan' => 'jabatan'],
-            ['nama' => 'Ka. Instalasi (Dokter)', 'tunjangan' => 'jabatan'],
             // ['nama' => 'Kepala Instalasi Rawat Jalan', 'tunjangan' => 'jabatan'],
 
 
@@ -67,10 +67,10 @@ class KategoriJabatanSeeder extends Seeder
             ['nama' => 'Dokter Spesialis', 'tunjangan' => 'fungsi'],
             // Rp 1.500.000
             ['nama' => 'Dokter Umum', 'tunjangan' => 'fungsi'],
+            ['nama' => 'Apoteker', 'tunjangan' => 'fungsi'],
             // ['nama' => 'Dokter Umum Fungsional', 'tunjangan' => 'fungsi'],
             // ['nama' => 'Dokter Umum Fungsional + PJ Klaim', 'tunjangan' => 'fungsi'],
             // ['nama' => 'Ka. Instalasi Farmasi', 'tunjangan' => 'fungsi'],
-            ['nama' => 'Apoteker', 'tunjangan' => 'fungsi'],
 
             // Rp 1.300.000
             ['nama' => 'Dokter Gigi', 'tunjangan' => 'fungsi'],
@@ -97,9 +97,14 @@ class KategoriJabatanSeeder extends Seeder
             ['nama' => 'Penata Anastesi', 'tunjangan' => 'fungsi'],
 
             // Rp 700.000
-            // ['nama' => 'Perawat Pelaksana', 'tunjangan' => 'fungsi'],
             ['nama' => 'Perawat Diploma', 'tunjangan' => 'fungsi'],
             ['nama' => 'Bidan', 'tunjangan' => 'fungsi'],
+            ['nama' => 'Fisioterapis', 'tunjangan' => 'fungsi'],
+            ['nama' => 'Okupasi Terapi', 'tunjangan' => 'fungsi'],
+            ['nama' => 'Terapi Wicara', 'tunjangan' => 'fungsi'],
+            ['nama' => 'Radiografer', 'tunjangan' => 'fungsi'],
+            ['nama' => 'Analis Kesehatan', 'tunjangan' => 'fungsi'],
+            // ['nama' => 'Perawat Pelaksana', 'tunjangan' => 'fungsi'],
             // ['nama' => 'Karu Instalasi Rawat Jalan', 'tunjangan' => 'fungsi'],
             // ['nama' => 'Perawat Gigi Pelaksana', 'tunjangan' => 'fungsi'],
             // ['nama' => 'Bidan Pelaksana', 'tunjangan' => 'fungsi'],
@@ -111,34 +116,29 @@ class KategoriJabatanSeeder extends Seeder
             // ['nama' => 'Karu Firdaus', 'tunjangan' => 'fungsi'],
             // ['nama' => 'Karu Aziziah', 'tunjangan' => 'fungsi'],
             // ['nama' => 'Karu Instalasi Rehabilitasi Medik', 'tunjangan' => 'fungsi'],
-            ['nama' => 'Fisioterapis', 'tunjangan' => 'fungsi'],
-            ['nama' => 'Okupasi Terapi', 'tunjangan' => 'fungsi'],
-            ['nama' => 'Terapi Wicara', 'tunjangan' => 'fungsi'],
             // ['nama' => 'Pelaksana Masak', 'tunjangan' => 'fungsi'],
             // ['nama' => 'Karu Instalasi Radiologi', 'tunjangan' => 'fungsi'],
-            ['nama' => 'Radiografer', 'tunjangan' => 'fungsi'],
             // ['nama' => 'Karu Instalasi Labroatorium', 'tunjangan' => 'fungsi'],
-            ['nama' => 'Analis Kesehatan', 'tunjangan' => 'fungsi'],
             // ['nama' => 'Teknisi Bank Darah', 'tunjangan' => 'fungsi'],
             // ['nama' => 'Perawat Pelaksana Poskes dr. Nono', 'tunjangan' => 'fungsi'],
 
             // Rp 600.000
+            ['nama' => 'Tenaga Teknis Kefarmasian (TTK)', 'tunjangan' => 'fungsi'],
+            ['nama' => 'Kesehatan Lingkungan / Sanitarian', 'tunjangan' => 'fungsi'],
+            ['nama' => 'Elektromedik', 'tunjangan' => 'fungsi'],
             // ['nama' => 'Pelaksana Teknis Kefarmasian', 'tunjangan' => 'fungsi'],
             // ['nama' => 'Tenaga Teknis Kefarmasian', 'tunjangan' => 'fungsi'],
             // ['nama' => 'Ka. Instalasi Sanitasi', 'tunjangan' => 'fungsi'],
             // ['nama' => 'Elektromedis', 'tunjangan' => 'fungsi'],
             // ['nama' => 'Staf Unit Pemasaran', 'tunjangan' => 'fungsi'],
-            ['nama' => 'Tenaga Teknis Kefarmasian (TTK)', 'tunjangan' => 'fungsi'],
-            ['nama' => 'Kesehatan Lingkungan / Sanitarian', 'tunjangan' => 'fungsi'],
-            ['nama' => 'Elektromedik', 'tunjangan' => 'fungsi'],
 
             // Rp 500.000
+            ['nama' => 'Ahli Gizi / Dietisien', 'tunjangan' => 'fungsi'],
+            ['nama' => 'Perekam Medik', 'tunjangan' => 'fungsi'],
             // ['nama' => 'Ka. Instalasi Rekam Medik', 'tunjangan' => 'fungsi'],
             // ['nama' => 'Asembling', 'tunjangan' => 'fungsi'],
             // ['nama' => 'Koding', 'tunjangan' => 'fungsi'],
             // ['nama' => 'Ka. Instalasi Gizi', 'tunjangan' => 'fungsi'],
-            ['nama' => 'Ahli Gizi / Dietisien', 'tunjangan' => 'fungsi'],
-            ['nama' => 'Perekam Medik', 'tunjangan' => 'fungsi'],
 
             // Umum
             //Rp 350.000

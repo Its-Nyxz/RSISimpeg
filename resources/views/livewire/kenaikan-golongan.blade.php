@@ -2,16 +2,17 @@
     <div class="py-2 mb-3">
         <h1 class="text-2xl font-bold text-success-900">Kenaikan Data Karyawan</h1>
     </div>
-    <div class="flex flex-col md:flex-row justify-between items-center md:gap-4 space-y-3 md:space-y-0 mb-3">
-        <!-- Bagian Dropdown -->
-        <div id="1" class="flex space-x-4 w-full md:w-auto justify-center md:justify-start">
+
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-3">
+
+        <!-- Dropdown Filter -->
+        <div class="flex flex-wrap gap-3 justify-center md:justify-start w-full md:w-auto">
             <select wire:model.live="bulan"
                 class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
                 <option value="">-- Pilih Bulan --</option>
                 @foreach (range(1, 12) as $m)
                     <option value="{{ $m }}">
-                        {{ \Carbon\Carbon::createFromFormat('!m', $m)->translatedFormat('F') }}
-                    </option>
+                        {{ \Carbon\Carbon::createFromFormat('!m', $m)->translatedFormat('F') }}</option>
                 @endforeach
             </select>
 
@@ -22,14 +23,16 @@
                     <option value="{{ $y }}">{{ $y }}</option>
                 @endforeach
             </select>
+
             <select wire:model.live="selectedUserAktif"
-                class="rounded-lg px-2 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
+                class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
                 <option value="1">Aktif</option>
                 <option value="0">Non Aktif</option>
             </select>
+
             @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->nama == 'KEPEGAWAIAN')
                 <select wire:model.live="selectedUnit"
-                    class="rounded-lg px-2 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
+                    class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
                     <option value="">-- Pilih Unit --</option>
                     @foreach ($units as $item)
                         <option value="{{ $item->id }}">{{ $item->nama }}</option>
@@ -38,18 +41,39 @@
             @endif
         </div>
 
-        <!-- Bagian Search dan Tambah (Tetap dalam satu baris) -->
-        <div id="2" class="flex w-full md:w-auto items-center gap-3 md:gap-4">
+        <!-- Search & Tambah -->
+        <div class="flex items-center gap-3 w-full md:w-auto">
+
+            <!-- Pencarian -->
             <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Karyawan..."
                 class="flex-1 md:w-auto rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
+
+            <!-- Tombol Tambah -->
             @can('create-data-karyawan')
-                <a href="{{ route('datakaryawan.create') }}"
-                    class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200 whitespace-nowrap">
-                    + Tambah Karyawan
-                </a>
+                <div class="relative group">
+                    <!-- Desktop -->
+                    <a href="{{ route('datakaryawan.create') }}"
+                        class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition">
+                        <i class="fa fa-plus mr-1"></i> Tambah Karyawan
+                    </a>
+
+                    <!-- Mobile -->
+                    <a href="{{ route('datakaryawan.create') }}"
+                        class="sm:hidden flex items-center justify-center w-10 h-10 rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition"
+                        aria-label="Tambah" data-tooltip-target="tooltip-tambah-kenaikan">
+                        <i class="fa fa-plus"></i>
+                    </a>
+
+                    <!-- Tooltip -->
+                    <div id="tooltip-tambah-kenaikan" role="tooltip"
+                        class="absolute z-10 invisible group-hover:visible px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded shadow opacity-0 group-hover:opacity-100 transition">
+                        Tambah Karyawan
+                    </div>
+                </div>
             @endcan
         </div>
     </div>
+
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-center text-gray-700">

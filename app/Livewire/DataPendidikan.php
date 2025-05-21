@@ -19,10 +19,10 @@ class DataPendidikan extends Component
     public function loadData($searchGolonganName = null)
     {
         $this->pendidikans = MasterPendidikan::with(['minimGolongan', 'maximGolongan']) // Load relasi ke golongan
-            // ->when($this->search, function ($query) {
-            //     $query->where('nama', 'like', '%' . $this->search . '%')
-            //         ->orWhere('deskripsi', 'like', '%' . $this->search . '%');
-            // })
+            ->when($this->search, function ($query) {
+                $query->where('nama', 'like', '%' . $this->search . '%')
+                    ->orWhere('deskripsi', 'like', '%' . $this->search . '%');
+            })
             // ->when($searchGolonganName, function ($query) use ($searchGolonganName) {
             //     $query->whereHas('minimGolongan', function ($subQuery) use ($searchGolonganName) {
             //         $subQuery->where('nama', 'like', '%' . $searchGolonganName . '%');

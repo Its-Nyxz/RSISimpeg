@@ -2,8 +2,11 @@
         <div class="flex justify-between py-2 mb-3">
             <div class="mb-4">
                 <!-- Tulisan Keuangan -->
-                <div class="flex items-center gap-4">
+                <div class="py-2 mb-3">
                     <h1 class="text-2xl font-bold text-success-900">Keuangan</h1>
+                </div>
+                <div class="flex items-center gap-4">
+
                     <!-- Filter Bulan & Tahun -->
                     <div class="flex flex-wrap gap-2">
                         <select wire:model.live="bulan"
@@ -22,18 +25,48 @@
                             @endforeach
                         </select>
                         @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->nama == 'KEUANGAN')
-                            <button wire:click="downloadTemplate"
-                                class="text-yellow-900 bg-yellow-100 hover:bg-yellow-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                                <i class="fas fa-download"></i> Download Template
-                            </button>
+                            <!-- Download Template -->
+                            <div class="relative group">
+                                <!-- Desktop -->
+                                <button wire:click="downloadTemplate"
+                                    class="hidden sm:flex items-center px-5 py-2.5 text-sm font-medium rounded-lg bg-yellow-100 text-yellow-900 hover:bg-yellow-600 hover:text-white transition">
+                                    <i class="fas fa-download mr-1"></i> Download Template
+                                </button>
+                                <!-- Mobile -->
+                                <button wire:click="downloadTemplate"
+                                    class="sm:hidden flex items-center justify-center w-10 h-10 rounded-md bg-yellow-100 text-yellow-900 hover:bg-yellow-600 hover:text-white transition"
+                                    data-tooltip-target="tooltip-download-template">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <!-- Tooltip -->
+                                <div id="tooltip-download-template"
+                                    class="absolute z-10 invisible group-hover:visible px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded shadow opacity-0 group-hover:opacity-100 transition mt-2 left-1/2 -translate-x-1/2">
+                                    Download Template
+                                </div>
+                            </div>
 
                             {{-- @can('import-jadwal') --}}
                             <!-- Input untuk Import -->
-                            <input type="file" wire:model="file" class="hidden" id="uploadFile">
-                            <button type="button" onclick="document.getElementById('uploadFile').click();"
-                                class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                                <i class="fas fa-file-excel"></i> Import Excel
-                            </button>
+                            <!-- Import Excel -->
+                            <div class="relative group">
+                                <input type="file" wire:model="file" class="hidden" id="uploadFile">
+                                <!-- Desktop -->
+                                <button type="button" onclick="document.getElementById('uploadFile').click();"
+                                    class="hidden sm:flex items-center px-5 py-2.5 text-sm font-medium rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition">
+                                    <i class="fas fa-file-excel mr-1"></i> Import Excel
+                                </button>
+                                <!-- Mobile -->
+                                <button type="button" onclick="document.getElementById('uploadFile').click();"
+                                    class="sm:hidden flex items-center justify-center w-10 h-10 rounded-md bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition"
+                                    data-tooltip-target="tooltip-import-excel">
+                                    <i class="fas fa-file-excel"></i>
+                                </button>
+                                <!-- Tooltip -->
+                                <div id="tooltip-import-excel"
+                                    class="absolute z-10 invisible group-hover:visible px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded shadow opacity-0 group-hover:opacity-100 transition mt-2 left-1/2 -translate-x-1/2">
+                                    Import Excel
+                                </div>
+                            </div>
 
                             <!-- Menampilkan Nama File -->
                             @if ($file)
@@ -47,7 +80,7 @@
                                         <i class="fas fa-times-circle"></i>
                                     </button>
                                 </div>
-                            @endif
+                            @endif 
 
                             <!-- Menampilkan Progress Upload -->
                             <div wire:loading wire:target="file" class="mt-2">

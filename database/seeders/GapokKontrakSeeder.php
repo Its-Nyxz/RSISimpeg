@@ -110,6 +110,81 @@ class GapokKontrakSeeder extends Seeder
             ['Cleaning Service', 25, 36, 2140000],
             ['Cleaning Service', 37, 48, 2190000],
             ['Cleaning Service', 49, 60, 2240000],
+
+            // Bagian Umum D3
+            ['Staf SDM', 0, 12, 2060000],
+            ['Staf SDM', 13, 24, 2160000],
+            ['Staf SDM', 25, 36, 2260000],
+            ['Staf SDM', 37, 48, 2360000],
+            ['Staf SDM', 49, 60, 2460000],
+
+            ['Staf Keuangan', 0, 12, 2060000],
+            ['Staf Keuangan', 13, 24, 2160000],
+            ['Staf Keuangan', 25, 36, 2260000],
+            ['Staf Keuangan', 37, 48, 2360000],
+            ['Staf Keuangan', 49, 60, 2460000],
+
+            ['Staf Asuransi', 0, 12, 2060000],
+            ['Staf Asuransi', 13, 24, 2160000],
+            ['Staf Asuransi', 25, 36, 2260000],
+            ['Staf Asuransi', 37, 48, 2360000],
+            ['Staf Asuransi', 49, 60, 2460000],
+
+            ['Staf Aset dan Logistik', 0, 12, 2060000],
+            ['Staf Aset dan Logistik', 13, 24, 2160000],
+            ['Staf Aset dan Logistik', 25, 36, 2260000],
+            ['Staf Aset dan Logistik', 37, 48, 2360000],
+            ['Staf Aset dan Logistik', 49, 60, 2460000],
+
+            // Bagian Umum SLTA
+            ['Cleaning Service', 0, 12, 2040000],
+            ['Cleaning Service', 13, 24, 2090000],
+            ['Cleaning Service', 25, 36, 2140000],
+            ['Cleaning Service', 37, 48, 2190000],
+            ['Cleaning Service', 49, 60, 2240000],
+
+            ['Pelaksana IPAL', 0, 12, 2040000],
+            ['Pelaksana IPAL', 13, 24, 2090000],
+            ['Pelaksana IPAL', 25, 36, 2140000],
+            ['Pelaksana IPAL', 37, 48, 2190000],
+            ['Pelaksana IPAL', 49, 60, 2240000],
+
+            ['Staf Unit Pengamanan', 0, 12, 2040000],
+            ['Staf Unit Pengamanan', 13, 24, 2090000],
+            ['Staf Unit Pengamanan', 25, 36, 2140000],
+            ['Staf Unit Pengamanan', 37, 48, 2190000],
+            ['Staf Unit Pengamanan', 49, 60, 2240000],
+
+            ['Staf Instalasi Gizi', 0, 12, 2040000],
+            ['Staf Instalasi Gizi', 13, 24, 2090000],
+            ['Staf Instalasi Gizi', 25, 36, 2140000],
+            ['Staf Instalasi Gizi', 37, 48, 2190000],
+            ['Staf Instalasi Gizi', 49, 60, 2240000],
+
+            ['Staf Unit Transportasi', 0, 12, 2040000],
+            ['Staf Unit Transportasi', 13, 24, 2090000],
+            ['Staf Unit Transportasi', 25, 36, 2140000],
+            ['Staf Unit Transportasi', 37, 48, 2190000],
+            ['Staf Unit Transportasi', 49, 60, 2240000],
+
+            // Profesi Nakes Lain
+            ['Psikologi Klinik', 0, 12, 2150000],
+            ['Psikologi Klinik', 13, 24, 2350000],
+            ['Psikologi Klinik', 25, 36, 2550000],
+            ['Psikologi Klinik', 37, 48, 2750000],
+            ['Psikologi Klinik', 49, 60, 2950000],
+
+            ['Penata Anastesi', 0, 12, 2150000],
+            ['Penata Anastesi', 13, 24, 2350000],
+            ['Penata Anastesi', 25, 36, 2550000],
+            ['Penata Anastesi', 37, 48, 2750000],
+            ['Penata Anastesi', 49, 60, 2950000],
+
+            ['Elektromedik', 0, 12, 2080000],
+            ['Elektromedik', 13, 24, 2180000],
+            ['Elektromedik', 25, 36, 2280000],
+            ['Elektromedik', 37, 48, 2380000],
+            ['Elektromedik', 49, 60, 2480000],
         ];
 
         foreach ($data as [$nama, $min, $max, $nominal]) {

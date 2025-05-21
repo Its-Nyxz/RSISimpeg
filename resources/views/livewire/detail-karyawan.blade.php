@@ -1,23 +1,71 @@
 <div>
     <!-- Header -->
-    <div class="flex justify-end mb-6">
+    <div class="flex justify-end flex-wrap gap-2 mb-6 items-center">
         @can('tambah-sp')
-            <button x-on:click="$dispatch('open-modal', 'modal-SP')"
-                class="text-red-900 bg-red-100 hover:bg-red-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 mr-2 transition duration-200">
-                + Tambah SP
-            </button>
+            <div class="relative group">
+                <!-- Mobile -->
+                <button x-on:click="$dispatch('open-modal', 'modal-SP')"
+                    class="sm:hidden w-11 h-11 flex items-center justify-center rounded-lg bg-red-100 text-red-900 hover:bg-red-600 hover:text-white transition"
+                    aria-label="Tambah SP">
+                    <i class="fa-solid fa-file-circle-plus text-lg"></i>
+                </button>
+                <div
+                    class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded shadow opacity-0 group-hover:opacity-100 transition">
+                    Tambah SP
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+
+                <!-- Desktop -->
+                <button x-on:click="$dispatch('open-modal', 'modal-SP')"
+                    class="hidden sm:flex items-center px-5 py-2.5 text-sm font-medium rounded-lg bg-red-100 text-red-900 hover:bg-red-600 hover:text-white transition">
+                    + Tambah SP
+                </button>
+            </div>
         @endcan
+
         @if (auth()->user()->can('tambah-history') && $user->jenis?->nama === 'Tetap')
-            <button x-on:click="$dispatch('open-modal', 'modal-History')"
-                class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 mr-2 transition duration-200">
-                + Tambah History
-            </button>
+            <div class="relative group">
+                <!-- Mobile -->
+                <button x-on:click="$dispatch('open-modal', 'modal-History')"
+                    class="sm:hidden w-11 h-11 flex items-center justify-center rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition"
+                    aria-label="Tambah History">
+                    <i class="fa-solid fa-clock-rotate-left text-lg"></i>
+                </button>
+                <div
+                    class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded shadow opacity-0 group-hover:opacity-100 transition">
+                    Tambah History
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+
+                <!-- Desktop -->
+                <button x-on:click="$dispatch('open-modal', 'modal-History')"
+                    class="hidden sm:flex items-center px-5 py-2.5 text-sm font-medium rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition">
+                    + Tambah History
+                </button>
+            </div>
         @endif
-        <a href="{{ route('datakaryawan.index') }}"
-            class="bg-green-700 text-white hover:bg-success-800 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-            Kembali
-        </a>
+
+        <div class="relative group">
+            <!-- Mobile -->
+            <a href="{{ route('datakaryawan.index') }}"
+                class="sm:hidden w-11 h-11 flex items-center justify-center rounded-lg bg-green-700 text-white hover:bg-success-800 transition"
+                aria-label="Kembali">
+                <i class="fa-solid fa-arrow-left text-lg"></i>
+            </a>
+            <div
+                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded shadow opacity-0 group-hover:opacity-100 transition">
+                Kembali
+                <div class="tooltip-arrow" data-popper-arrow></div>
+            </div>
+
+            <!-- Desktop -->
+            <a href="{{ route('datakaryawan.index') }}"
+                class="hidden sm:flex items-center px-5 py-2.5 text-sm font-medium rounded-lg bg-green-700 text-white hover:bg-success-800 transition">
+                Kembali
+            </a>
+        </div>
     </div>
+
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="w-full">

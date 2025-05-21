@@ -29,43 +29,45 @@
             </h1>
         </div>
 
-        <div class="p-10 text-center">
-            {{-- Tombol Mulai --}}
-            <button id="startButton" wire:click="$set('showStartModal', true)"
-                class="px-6 py-2 font-bold rounded 
-                {{ $timeOut ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 text-white' }}"
-                style="display: {{ $isRunning ? 'none' : 'inline-block' }}" {{ $timeOut ? 'disabled' : '' }}>
-                Mulai
-            </button>
+        <div class="px-4 py-6 text-center">
+            <div class="flex flex-col items-center space-y-2">
+                {{-- Tombol Mulai --}}
+                <button id="startButton" wire:click="$set('showStartModal', true)"
+                    class="px-6 py-2 font-bold rounded 
+            {{ $timeOut ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 text-white' }}"
+                    style="display: {{ $isRunning ? 'none' : 'inline-block' }}" {{ $timeOut ? 'disabled' : '' }}>
+                    Mulai
+                </button>
 
-            {{-- Tombol Selesai --}}
-            <button id="stopButton" wire:click="$set('showStopModal', true)"
-                class="px-6 py-2 font-bold rounded 
-                {{ !$isRunning || $timeOut ? 'bg-gray-600 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700 text-white' }}"
-                style="display: {{ $isRunning ? 'inline-block' : 'none' }}"
-                {{ !$isRunning || $timeOut ? 'disabled' : '' }}>
-                Selesai
-            </button>
+                {{-- Tombol Selesai --}}
+                <button id="stopButton" wire:click="$set('showStopModal', true)"
+                    class="px-6 py-2 font-bold rounded 
+            {{ !$isRunning || $timeOut ? 'bg-gray-600 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700 text-white' }}"
+                    style="display: {{ $isRunning ? 'inline-block' : 'none' }}"
+                    {{ !$isRunning || $timeOut ? 'disabled' : '' }}>
+                    Selesai
+                </button>
 
-            {{-- Tombol Dinas Keluar --}}
-            <button id="dinasKeluarButton" wire:click="$set('showDinasModal', true)"
-                class="px-6 py-2 font-bold rounded 
-                bg-blue-600 hover:bg-blue-700 text-white">
-                Dinas Luar
-            </button>
-            {{-- Tombol Mulai Lembur --}}
-            <button wire:click="openLemburModal"
-                class="px-6 py-2 font-bold rounded bg-yellow-500 hover:bg-yellow-700 text-white"
-                style="display: {{ !$isLemburRunning && $timeOut ? 'inline-block' : 'none' }}">
-                Mulai Lembur
-            </button>
+                {{-- Tombol Dinas Luar --}}
+                <button id="dinasKeluarButton" wire:click="$set('showDinasModal', true)"
+                    class="px-6 py-2 font-bold rounded bg-blue-600 hover:bg-blue-700 text-white">
+                    Dinas Luar
+                </button>
 
-            {{-- Tombol Selesai Lembur --}}
-            <button wire:click="stopLemburMandiri"
-                class="px-6 py-2 font-bold rounded bg-red-500 hover:bg-red-700 text-white"
-                style="display: {{ $isLemburRunning ? 'inline-block' : 'none' }}">
-                Selesai Lembur
-            </button>
+                {{-- Tombol Mulai Lembur --}}
+                <button wire:click="openLemburModal"
+                    class="px-6 py-2 font-bold rounded bg-yellow-500 hover:bg-yellow-700 text-white"
+                    style="display: {{ !$isLemburRunning && $timeOut ? 'inline-block' : 'none' }}">
+                    Mulai Lembur
+                </button>
+
+                {{-- Tombol Selesai Lembur --}}
+                <button wire:click="stopLemburMandiri"
+                    class="px-6 py-2 font-bold rounded bg-red-500 hover:bg-red-700 text-white"
+                    style="display: {{ $isLemburRunning ? 'inline-block' : 'none' }}">
+                    Selesai Lembur
+                </button>
+            </div>
         </div>
 
         {{-- Modal untuk Mulai Timer --}}

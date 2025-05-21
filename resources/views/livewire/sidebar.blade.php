@@ -189,10 +189,12 @@
                             'title' => 'History',
                             'href' => '/#',
                             'child' => [
+                                ['title' => 'Slip Gaji', 'href' => '/slipgaji'],
                                 ['title' => 'Absensi', 'href' => '/aktivitasabsensi'],
                                 ['title' => 'Tukar Jadwal', 'href' => route('pengajuan.index', 'tukar_jadwal')],
                                 ['title' => 'Cuti', 'href' => route('pengajuan.index', 'cuti')],
                                 ['title' => 'Izin', 'href' => route('pengajuan.index', 'ijin')],
+                                ['title' => 'Peringatan', 'href' => '/peringatan'],
                             ],
                         ]
                         : null,

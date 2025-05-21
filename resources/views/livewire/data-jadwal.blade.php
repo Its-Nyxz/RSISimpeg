@@ -1,6 +1,4 @@
 <div>
-    {{-- <div class="flex justify-between py-2 mb-2"> --}}
-    {{-- <h1 class="text-2xl font-bold text-success-900">Master Jadwal Absensi</h1> --}}
     <div class="flex justify-between items-center gap-4 mb-2">
         <div>
             @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->nama == 'KEPEGAWAIAN')
@@ -43,115 +41,96 @@
                     </div>
                 </div>
             @endif
-            @if (!$routeIsDashboard)
-                <div class="flex justify-end">
-                    <div>
-                        @can('tambah-jadwal')
-                            <!-- Tombol Tambah Jadwal -->
-                            <a href="{{ route('jadwal.create') }}"
-                                class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                                <i class="fa-solid fa-plus"></i> Tambah Jadwal
-                            </a>
-                        @endcan
-                    </div>
-                </div>
-            @endif
-
-            <!-- Tombol Keterangan Shift -->
-            <button type="button" wire:click="openShiftModal"
-                class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200"
-                data-tooltip-target="tooltip-keterangan-shift">
-                <i class="fa-solid fa-circle-info"></i>
-            </button>
-            <div id="tooltip-keterangan-shift" role="tooltip"
-                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
-                Lihat Keterangan Shift
-                <div class="tooltip-arrow" data-popper-arrow></div>
-            </div>
-
         </div>
-
-
     </div>
-    {{-- </div> --}}
+
 
     <!-- Filter Bulan & Tahun -->
-    <div class="flex gap-4 mb-4">
-        <select wire:model.live="bulan"
-            class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
-            @foreach (range(1, 12) as $m)
-                <option value="{{ $m }}">
-                    {{ \Carbon\Carbon::createFromFormat('!m', $m)->translatedFormat('F') }}
-                </option>
-            @endforeach
-        </select>
+    <div class="flex flex-col gap-4 mb-4 sm:flex-row sm:items-center sm:justify-between">
+        <!-- Filter Kiri -->
+        <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <select wire:model.live="bulan"
+                class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
+                @foreach (range(1, 12) as $m)
+                    <option value="{{ $m }}">
+                        {{ \Carbon\Carbon::createFromFormat('!m', $m)->translatedFormat('F') }}
+                    </option>
+                @endforeach
+            </select>
 
-        <select wire:model.live="tahun"
-            class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
-            @foreach (range(now()->year - 5, now()->year) as $y)
-                <option value="{{ $y }}">{{ $y }}</option>
-            @endforeach
-        </select>
+            <select wire:model.live="tahun"
+                class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
+                @foreach (range(now()->year - 5, now()->year) as $y)
+                    <option value="{{ $y }}">{{ $y }}</option>
+                @endforeach
+            </select>
+        </div>
 
-
-
+        <!-- Tombol-Tombol Kanan -->
         @if (!$routeIsDashboard)
-            @can('template-jadwal')
-                <!-- Tombol Download Template -->
-                <a href="{{ route('jadwal.template', ['month' => $bulan, 'year' => $tahun]) }}"
-                    class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                    <i class="fas fa-download"></i> Download Template
-                </a>
-            @endcan
-            @can('import-jadwal')
-                <!-- Input untuk Import -->
-                <input type="file" wire:model="file" class="hidden" id="uploadFile">
-                <button type="button" onclick="document.getElementById('uploadFile').click();"
-                    class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                    <i class="fas fa-file-excel"></i> Import Excel
-                </button>
+            <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                {{-- Tombol Download Template --}}
+                @can('template-jadwal')
+                    <a href="{{ route('jadwal.template', ['month' => $bulan, 'year' => $tahun]) }}"
+                        class="w-full sm:w-auto flex items-center justify-center text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition">
+                        <i class="fas fa-download mr-2"></i> Download Template
+                    </a>
+                @endcan
 
-                <!-- Menampilkan Nama File -->
-                @if ($file)
-                    <div class="mt-2 flex items-center space-x-2">
-                        <span class="text-sm text-green-700 font-medium">{{ $file->getClientOriginalName() }}</span>
-
-                        <!-- Tombol Hapus File -->
-                        <button type="button" wire:click="$set('file', null)"
-                            class="text-red-500 hover:text-red-700 font-medium text-sm">
-                            <i class="fas fa-times-circle"></i>
-                        </button>
-                    </div>
-                @endif
-
-                <!-- Menampilkan Progress Upload -->
-                <div wire:loading wire:target="file" class="mt-2">
-                    <div class="w-full bg-gray-200 rounded-full">
-                        <div class="bg-green-500 text-xs leading-none py-1 text-center text-white" style="width: 0%;"
-                            x-data="{ progress: 0 }" x-init="$watch('progress', value => {
-                                setInterval(() => {
-                                    if (progress < 100) progress += 10;
-                                }, 200);
-                            })">
-                            Loading...
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tombol Submit Import -->
-                @if ($file)
-                    <button type="button" wire:click="import"
-                        class="mt-2 text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                        Submit Import
+                {{-- Tombol Import Excel --}}
+                @can('import-jadwal')
+                    <input type="file" wire:model="file" class="hidden" id="uploadFile">
+                    <button type="button" onclick="document.getElementById('uploadFile').click();"
+                        class="w-full sm:w-auto flex items-center justify-center text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition">
+                        <i class="fas fa-file-excel mr-2"></i> Import Excel
                     </button>
-                @endif
-            @endcan
-        @endif
+                    {{-- Info file dan progress (Import) --}}
+                    @if ($file)
+                        <div class="mt-2 flex flex-col gap-2 w-full sm:w-auto">
+                            <div class="flex items-center space-x-2">
+                                <span
+                                    class="text-sm text-green-700 font-medium">{{ $file->getClientOriginalName() }}</span>
+                                <button type="button" wire:click="$set('file', null)"
+                                    class="text-red-500 hover:text-red-700 font-medium text-sm">
+                                    <i class="fas fa-times-circle"></i>
+                                </button>
+                            </div>
 
+                            <div wire:loading wire:target="file">
+                                <div class="w-full bg-gray-200 rounded-full">
+                                    <div class="bg-green-500 text-xs leading-none py-1 text-center text-white"
+                                        style="width: 0%;" x-data="{ progress: 0 }" x-init="$watch('progress', value => {
+                                            setInterval(() => {
+                                                if (progress < 100) progress += 10;
+                                            }, 200);
+                                        })">
+                                        Loading...
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="button" wire:click="import"
+                                class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition">
+                                Submit Import
+                            </button>
+                        </div>
+                    @endif
+                @endcan
+                {{-- Tombol Tambah Jadwal --}}
+                @can('tambah-jadwal')
+                    <a href="{{ route('jadwal.create') }}"
+                        class="w-full sm:w-auto flex items-center justify-center text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition">
+                        <i class="fa-solid fa-plus mr-2"></i> Tambah Jadwal
+                    </a>
+                @endcan
+            </div>
+        @endif
     </div>
+
     @error('file')
         <span class="text-red-500 text-sm">{{ $message }}</span>
     @enderror
+
     <div class="relative overflow-auto max-h-full shadow-md rounded-lg">
         <table class="w-full text-sm text-left text-gray-700">
             <thead class="text-sm uppercase bg-success-400 text-success-900">

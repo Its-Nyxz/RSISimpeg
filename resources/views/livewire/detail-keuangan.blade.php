@@ -1,44 +1,71 @@
 <div>
-    <div class="flex items-center justify-between gap-4 mb-6">
-        <div class="flex items-center gap-4">
-            <h1 class="text-2xl font-bold text-success-900">Keuangan</h1>
-            {{-- <p class="text-base text-success-900 flex items-center">
-            <i class="fa-solid fa-caret-right mr-2"></i> Data Karyawan
-        </p>
-        <p class="text-base text-success-900 flex items-center">
-            <i class="fa-solid fa-caret-right mr-2"></i> Detail Data Karyawan
-        </p> --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <!-- Judul -->
+        <div>
+            <h1 class="text-2xl font-bold text-success-900">Detail Keuangan</h1>
+        </div>
+
+        <!-- Filter & Aksi -->
+        <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-3 justify-start sm:justify-end">
+            <!-- Dropdown Bulan -->
             <select wire:model.live="bulan"
                 class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
                 @foreach (range(1, 12) as $m)
-                    <option value="{{ $m }}">{{ DateTime::createFromFormat('!m', $m)->format('F') }}
-                    </option>
+                    <option value="{{ $m }}">{{ DateTime::createFromFormat('!m', $m)->format('F') }}</option>
                 @endforeach
             </select>
 
+            <!-- Dropdown Tahun -->
             <select wire:model.live="tahun"
                 class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
                 @foreach (range(now()->year - 5, now()->year) as $y)
                     <option value="{{ $y }}">{{ $y }}</option>
                 @endforeach
             </select>
-        </div>
-        <div class="flex space-x-3 justify-end">
-            <a href="{{ route('detailkeuangan.export', [$user->id, $bulan, $tahun]) }}" target="_blank"
-                class="text-blue-900 bg-blue-100 hover:bg-blue-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                <i class="fa-solid fa-file-pdf"></i> Export PDF
-            </a>
-            <a href="{{ route('keuangan.potongan', [$user->id, $bulan, $tahun]) }}"
-                class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                <i class="fa-solid fa-chart-pie"></i> Add Potongan
-            </a>
-            <a href="{{ route('keuangan.index') }}"
-                class="bg-green-700 text-white hover:bg-success-800 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                Kembali
-            </a>
+
+            <!-- Tombol-tombol dengan jarak -->
+            <div class="flex items-center gap-2 mt-2 sm:mt-0">
+                <!-- Export PDF -->
+                <div class="relative group">
+                    <a href="{{ route('detailkeuangan.export', [$user->id, $bulan, $tahun]) }}" target="_blank"
+                        class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-blue-100 text-blue-900 hover:bg-blue-600 hover:text-white transition">
+                        <i class="fa-solid fa-file-pdf mr-2"></i> Export PDF
+                    </a>
+                    <a href="{{ route('detailkeuangan.export', [$user->id, $bulan, $tahun]) }}" target="_blank"
+                        class="sm:hidden p-3 rounded-lg bg-blue-100 text-blue-900 hover:bg-blue-600 hover:text-white transition"
+                        aria-label="Export PDF">
+                        <i class="fa-solid fa-file-pdf"></i>
+                    </a>
+                </div>
+
+                <!-- Add Potongan -->
+                <div class="relative group">
+                    <a href="{{ route('keuangan.potongan', [$user->id, $bulan, $tahun]) }}"
+                        class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition">
+                        <i class="fa-solid fa-chart-pie mr-2"></i> Add Potongan
+                    </a>
+                    <a href="{{ route('keuangan.potongan', [$user->id, $bulan, $tahun]) }}"
+                        class="sm:hidden p-3 rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition"
+                        aria-label="Add Potongan">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </a>
+                </div>
+
+                <!-- Kembali -->
+                <div class="relative group">
+                    <a href="{{ route('keuangan.index') }}"
+                        class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-green-700 text-white hover:bg-green-800 transition">
+                        <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
+                    </a>
+                    <a href="{{ route('keuangan.index') }}"
+                        class="sm:hidden p-3 rounded-lg bg-green-700 text-white hover:bg-green-800 transition"
+                        aria-label="Kembali">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
-
 
     <!-- Slip Gaji dalam Card -->
     <x-card title="{{ $user->nip ?? '-' }}" class="mb-6 text-success-900">

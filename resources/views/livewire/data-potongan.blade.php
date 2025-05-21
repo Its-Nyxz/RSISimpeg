@@ -1,18 +1,33 @@
 <div>
     <div class="flex justify-between py-2 mb-3">
         <h1 class="text-2xl font-bold text-success-900">Potongan</h1>
-        <div class="flex justify-between items-center gap-4 mb-3">
+        <!-- Kontrol Aksi -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
             <!-- Input Pencarian -->
-            <div class="flex-1">
-                <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Potongan..."
-                    class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
-            </div>
+            <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Potongan..."
+                class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
 
-            <!-- Tombol Tambah potongan -->
-            <a href="{{ route('potongan.create') }}"
-                class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                + Tambah Potongan
-            </a>
+            <!-- Tombol Tambah Potongan -->
+            <div class="flex items-center gap-2 mt-2 sm:mt-0">
+                <!-- Mobile Icon Only -->
+                <a href="{{ route('potongan.create') }}"
+                    class="sm:hidden p-3 rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition"
+                    aria-label="Tambah Potongan" data-tooltip-target="tooltip-potongan" data-tooltip-placement="top">
+                    <i class="fa fa-plus"></i>
+                </a>
+                <!-- Tooltip -->
+                <div id="tooltip-potongan" role="tooltip"
+                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                    Tambah Potongan
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+
+                <!-- Desktop Button -->
+                <a href="{{ route('potongan.create') }}"
+                    class="hidden sm:inline-flex items-center px-5 py-2.5 text-sm rounded-lg font-medium whitespace-nowrap bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition">
+                    + Tambah Potongan
+                </a>
+            </div>
         </div>
     </div>
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">

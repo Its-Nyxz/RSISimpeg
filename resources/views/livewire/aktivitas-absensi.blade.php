@@ -4,43 +4,78 @@
         <h1 class="text-2xl font-bold text-green-700">List History Absensi</h1>
     </div>
 
-    <!-- Filter dan Tombol Tambah -->
-    <div class="flex justify-between items-center mb-3">
-        <div class="flex space-x-4">
+    <!-- Filter & Tombol Aksi -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-6 mb-4">
+
+        <!-- Filter Dropdown -->
+        <div class="flex flex-wrap gap-3">
             @can('list-history-user')
-                <select wire:model.live="selectedUserId" class="border-2 border-gray-700 rounded-md p-2">
+                <select wire:model.live="selectedUserId"
+                    class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-success-500">
                     @foreach ($subordinates as $id => $name)
                         <option value="{{ $id }}">{{ $name }}</option>
                     @endforeach
                 </select>
             @endcan
 
-            <select wire:model.live="month" class="border-2 border-gray-700 rounded-md p-2">
+            <select wire:model.live="month"
+                class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-success-500">
                 @foreach (range(1, 12) as $m)
                     <option value="{{ $m }}">{{ \Carbon\Carbon::create(null, $m)->translatedFormat('F') }}
                     </option>
                 @endforeach
             </select>
 
-            <select wire:model.live="year" class="border-2 border-gray-700 rounded-md p-2">
+            <select wire:model.live="year"
+                class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-success-500">
                 @foreach (range(date('Y') - 3, date('Y') + 1) as $y)
                     <option value="{{ $y }}">{{ $y }}</option>
                 @endforeach
             </select>
-
         </div>
 
-        <div class="space-x-2">
-            <button wire:click="exportPdfHistory"
-                class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                <i class="fas fa-download"></i> Export
-            </button>
-            <!-- Tombol Tambah -->
+        <!-- Tombol Aksi -->
+        <div class="flex items-center gap-2">
+            <!-- Tombol Export -->
+            <div class="relative group">
+                <!-- Mobile Icon -->
+                <button wire:click="exportPdfHistory"
+                    class="sm:hidden w-12 h-12 flex items-center justify-center rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition"
+                    aria-label="Export PDF">
+                    <i class="fas fa-download text-lg"></i>
+                </button>
+                <!-- Tooltip -->
+                <div
+                    class="absolute z-10 hidden group-hover:flex bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-800 rounded shadow">
+                    Export PDF
+                </div>
+                <!-- Desktop Full -->
+                <button wire:click="exportPdfHistory"
+                    class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition">
+                    <i class="fas fa-download mr-1"></i> Export
+                </button>
+            </div>
+
             @can('list-history-create')
-                <a href="{{ route('aktivitasabsensi.create', ['user_id' => $selectedUserId]) }}"
-                    class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                    + Tambah
-                </a>
+                <!-- Tombol Tambah -->
+                <div class="relative group">
+                    <!-- Mobile Icon -->
+                    <a href="{{ route('aktivitasabsensi.create', ['user_id' => $selectedUserId]) }}"
+                        class="sm:hidden w-12 h-12 flex items-center justify-center rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition"
+                        aria-label="Tambah Jadwal">
+                        <i class="fa fa-plus text-lg"></i>
+                    </a>
+                    <!-- Tooltip -->
+                    <div
+                        class="absolute z-10 hidden group-hover:flex bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-800 rounded shadow">
+                        Tambah Jadwal
+                    </div>
+                    <!-- Desktop Full -->
+                    <a href="{{ route('aktivitasabsensi.create', ['user_id' => $selectedUserId]) }}"
+                        class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition">
+                        + Tambah
+                    </a>
+                </div>
             @endcan
         </div>
 

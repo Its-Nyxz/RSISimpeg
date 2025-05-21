@@ -191,38 +191,33 @@
 
 
             <x-card title="Pengajuan" class="mb-4">
-                <div class="flex flex-row items-left gap-x-4 overflow-x-auto" style="margin-left: 30px;">
+                <div class="flex flex-wrap gap-3 justify-start items-center">
                     <!-- ✅ Tombol Cuti -->
-                    <div class="text-left">
-                        <a href="{{ route('pengajuan.create', ['tipe' => 'cuti']) }}"
-                            class="inline-flex items-center px-5 py-3 text-white font-medium rounded-full shadow-md
-                                bg-green-500 hover:bg-green-400 transition-all duration-300 transform hover:-translate-y-1">
-                            Cuti
-                            <i class="fa-solid fa-circle-chevron-right ml-2" style="color: #ffffff;"></i>
-                        </a>
-                    </div>
+                    <a href="{{ route('pengajuan.create', ['tipe' => 'cuti']) }}"
+                        class="inline-flex items-center px-5 py-3 text-white font-medium rounded-full shadow-md
+                   bg-green-500 hover:bg-green-400 transition-all duration-300 transform hover:-translate-y-1">
+                        Cuti
+                        <i class="fa-solid fa-circle-chevron-right ml-2 text-white"></i>
+                    </a>
 
                     <!-- ✅ Tombol Ijin -->
-                    <div class="text-left">
-                        <a href="{{ route('pengajuan.create', ['tipe' => 'ijin']) }}"
-                            class="inline-flex items-center px-5 py-3 text-white font-medium rounded-full shadow-md
-                                bg-blue-500 hover:bg-blue-400 transition-all duration-300 transform hover:-translate-y-1">
-                            Ijin
-                            <i class="fa-solid fa-circle-chevron-right ml-2" style="color: #ffffff;"></i>
-                        </a>
-                    </div>
+                    <a href="{{ route('pengajuan.create', ['tipe' => 'ijin']) }}"
+                        class="inline-flex items-center px-5 py-3 text-white font-medium rounded-full shadow-md
+                   bg-blue-500 hover:bg-blue-400 transition-all duration-300 transform hover:-translate-y-1">
+                        Ijin
+                        <i class="fa-solid fa-circle-chevron-right ml-2 text-white"></i>
+                    </a>
 
                     <!-- ✅ Tombol Tukar Jadwal -->
-                    <div class="text-left">
-                        <a href="{{ route('pengajuan.create', ['tipe' => 'tukar_jadwal']) }}"
-                            class="inline-flex items-center px-5 py-3 text-white font-medium rounded-full shadow-md
-                                bg-yellow-500 hover:bg-yellow-400 transition-all duration-300 transform hover:-translate-y-1">
-                            Tukar Jadwal
-                            <i class="fa-solid fa-circle-chevron-right ml-2" style="color: #ffffff;"></i>
-                        </a>
-                    </div>
+                    <a href="{{ route('pengajuan.create', ['tipe' => 'tukar_jadwal']) }}"
+                        class="inline-flex items-center px-5 py-3 text-white font-medium rounded-full shadow-md
+                   bg-yellow-500 hover:bg-yellow-400 transition-all duration-300 transform hover:-translate-y-1">
+                        Tukar Jadwal
+                        <i class="fa-solid fa-circle-chevron-right ml-2 text-white"></i>
+                    </a>
                 </div>
             </x-card>
+
 
         </div>
 
