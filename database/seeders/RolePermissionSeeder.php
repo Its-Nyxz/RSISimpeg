@@ -52,6 +52,7 @@ class RolePermissionSeeder extends Seeder
             'potongan',
             'tunjangan-kinerja',
             'kategori-jabatan',
+            'kategori-pph',
             'create-data-karyawan',
             'detail-data-karyawan',
             'edit-data-karyawan',

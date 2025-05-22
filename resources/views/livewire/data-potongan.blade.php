@@ -52,37 +52,33 @@
                         <td class="px-6 py-4">
                             {{ $potongan['is_wajib'] ? 'iya' : 'tidak' }}
                         </td>
-                        <td class="px-6 py-4 flex items-center gap-2">
-
-                            {{-- Tombol Edit --}}
-                            <div class="relative group">
-                                <a href="{{ route('potongan.edit', $potongan['id']) }}"
-                                    class="inline-flex items-center justify-center w-10 h-10 text-success-900 border rounded-md hover:bg-slate-300">
-                                    <i class="fa-solid fa-pen"></i>
-                                </a>
-                                <div
-                                    class="absolute z-10 bottom-full mb-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-md 
-                    opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    Ubah Potongan
-                                </div>
+                        <td class="px-6 py-4 flex gap-2">
+                            <a href="{{ route('potongan.edit', $potongan['id']) }}"
+                                class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
+                                data-tooltip-target="tooltip-potongan-{{ $potongan['id'] }}">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>
+                            <div id="tooltip-potongan-{{ $potongan['id'] }}" role="tooltip"
+                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                                Ubah Data
+                                <div class="tooltip-arrow" data-popper-arrow></div>
                             </div>
-
-                            {{-- Tombol Hapus --}}
-                            <div class="relative group">
-                                <button type="button"
-                                    onclick="confirmAlert('Yakin ingin menghapus Data Potongan ini?', 'Ya, hapus!', () => @this.call('destroy', {{ $potongan['id'] }}))"
-                                    class="inline-flex items-center justify-center w-10 h-10 text-success-900 border rounded-md hover:bg-slate-300">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                                <div
-                                    class="absolute z-10 bottom-full mb-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-md 
-                    opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    Hapus Potongan
+                            <button type="button"
+                                onclick="confirmAlert('Yakin ingin menghapus Jabatan ini?', 'Ya, hapus!', () => @this.call('destroy', {{ $potongan['id'] }}))"
+                                class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300 relative group">
+                                <i class="fa-solid fa-trash"></i>
+                                <div id="tooltip-destroy-{{ $potongan['id'] }}"
+                                    class="absolute z-10 hidden group-hover:block bottom-full mb-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-md">
+                                    Hapus Data
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
                                 </div>
+                            </button>
+                            <div id="tooltip-destroy-{{ $potongan['id'] }}" role="tooltip"
+                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                                Hapus Data
+                                <div class="tooltip-arrow" data-popper-arrow></div>
                             </div>
-
                         </td>
-
                     </tr>
                 @empty
                     <tr>

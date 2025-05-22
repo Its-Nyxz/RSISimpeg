@@ -1,7 +1,7 @@
 <div>
     <div class="flex justify-between items-center mb-5">
         <h1 class="text-2xl font-bold text-green-900">Edit Data Kategori Jabatan</h1>
-        <a href="{{ route('kategorijabatan.index') }}"
+        <a href="{{ route('katjab.index') }}"
             class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
             <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
         </a>
@@ -13,7 +13,7 @@
                 <input type="text" id="nama" wire:model="nama"
                     class="form-control @error('nama') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" />
                 @error('nama')
-                <span class="text-danger text-sm">{{ $message }}</span>
+                    <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>
 
@@ -27,7 +27,7 @@
                     <option value="umum">Umum</option>
                 </select>
                 @error('tunjangan')
-                <span class="text-danger text-sm">{{ $message }}</span>
+                    <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>
 
@@ -36,7 +36,7 @@
                 <textarea id="keterangan" wire:model="keterangan"
                     class="form-control @error('keterangan') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"></textarea>
                 @error('keterangan')
-                <span class="text-danger text-sm">{{ $message }}</span>
+                    <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>
         </div>
@@ -52,8 +52,8 @@
 
     <!-- Notifikasi -->
     @if (session()->has('success'))
-    <div class="alert alert-success mt-3 p-4 bg-green-200 text-green-800 rounded-lg">
-        {{ session('success') }}
-    </div>
+        <div class="alert alert-success mt-3 p-4 bg-green-200 text-green-800 rounded-lg">
+            {{ session('success') }}
+        </div>
     @endif
 </div>

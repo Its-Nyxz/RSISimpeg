@@ -17,6 +17,6 @@ class TaxBracket extends Model
 
     public function kategoripph()
     {
-        return $this->belongsTo(Kategoripph::class);
+        return $this->belongsTo(Kategoripph::class, 'kategoripph_id');
     }
 }

@@ -568,7 +568,9 @@
                                     @foreach ($parentPphs as $parent)
                                         <optgroup label="{{ $parent->nama }}">
                                             @foreach ($childPphs->where('parent_id', $parent->id) as $child)
-                                                <option value="{{ $child->id }}">{{ $child->nama }}</option>
+                                                <option value="{{ $child->id }}">{{ $child->nama }} -
+                                                    ({{ $child->keterangan }})
+                                                </option>
                                             @endforeach
                                         </optgroup>
                                     @endforeach

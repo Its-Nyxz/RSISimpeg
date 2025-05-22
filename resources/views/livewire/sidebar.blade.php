@@ -118,6 +118,9 @@
                                 auth()->user()->can('penyesuaian')
                                     ? ['title' => 'Penyesuaian', 'href' => '/penyesuaian']
                                     : null,
+                                auth()->user()->can('kategori-pph')
+                                    ? ['title' => 'Kategori PPh', 'href' => '/pph']
+                                    : null,
                             ])" />
                         @endcan
                         @can('view-kepegawaian')
@@ -263,6 +266,7 @@
                         auth()->user()->can('penyesuaian')
                             ? ['title' => 'Penyesuaian', 'href' => '/penyesuaian']
                             : null,
+                        auth()->user()->can('kategori-pph') ? ['title' => 'Kategori PPh', 'href' => '/pph'] : null,
                     ])" />
                 @endcan
                 @can('view-kepegawaian')

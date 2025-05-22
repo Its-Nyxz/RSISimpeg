@@ -52,6 +52,7 @@ use App\Http\Controllers\PeranFungsionalController;
 use App\Http\Controllers\AktivitasAbsensiController;
 use App\Http\Controllers\GajiNettoController;
 use App\Http\Controllers\GapokKontrakController;
+use App\Http\Controllers\KategoripphController;
 use App\Http\Controllers\KenaikanController;
 use App\Http\Controllers\MasterPendidikanController;
 use App\Http\Controllers\PenilaianPekerjaController;
@@ -61,6 +62,7 @@ use App\Http\Controllers\MasterJatahCutiController;
 use App\Http\Controllers\MasterPenyesuaianController;
 use App\Http\Controllers\PeringatanKaryawanController;
 use App\Http\Controllers\ProposionalitasPointController;
+use App\Models\Kategoripph;
 use App\Models\MasterJatahCuti;
 
 Route::get('/', function () {
@@ -179,6 +181,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('gapokkontrak', GapokKontrakController::class);
     Route::get('pengajuan/create/{tipe}', [PengajuanController::class, 'create'])->name('pengajuan.create');
     Route::get('pengajuan/{tipe}', [PengajuanController::class, 'index'])->name('pengajuan.index');
+    Route::get('pph/{tipe}/{pph}', [KategoripphController::class, 'create']);
+    Route::resource('pph', KategoripphController::class);
+    Route::get('pph/{id}', [KategoriPphController::class, 'show'])->name('pph.show');
 });
 
 require __DIR__ . '/auth.php';
