@@ -108,19 +108,26 @@
 
                 <!-- Tombol Edit Karyawan -->
                 @can('edit-data-karyawan')
-                    <div class="mt-4">
+                    <div class="mt-4 flex gap-2">
+                        <!-- Tombol Edit -->
                         <a href="{{ route('editKaryawan.edit', ['id' => $user->id]) }}"
-                            class="bg-green-700 text-white hover:bg-success-800 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 mr-2 transition duration-200">
+                            class="px-5 py-2.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition duration-200">
                             Edit Karyawan
                         </a>
+
                         @can('resign-kerja')
+                            <!-- Tombol Resign / Kembali Kerja -->
                             <button x-on:click="$dispatch('open-modal', 'modal-resign')"
-                                class="text-{{ $statusKaryawan == 1 ? 'success-900' : 'black' }} bg-{{ $statusKaryawan == 1 ? 'success' : 'red' }}-100 hover:bg-{{ $statusKaryawan == 1 ? 'success' : 'red' }}-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                                class="px-5 py-2.5 text-sm font-medium rounded-lg transition duration-200
+                    {{ $statusKaryawan == 1
+                        ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-600 hover:text-white'
+                        : 'bg-red-100 text-red-800 hover:bg-red-600 hover:text-white' }}">
                                 {{ $statusKaryawan == 1 ? 'Resign Kerja' : 'Kembali Kerja' }}
                             </button>
                         @endcan
                     </div>
                 @endcan
+
             </x-card>
         </div>
 

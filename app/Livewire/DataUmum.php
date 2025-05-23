@@ -54,9 +54,6 @@ class DataUmum extends Component
         try {
             $jabatan->delete();
 
-            // Refresh data setelah penghapusan
-            $this->loadData();
-
             return redirect()->route('umum.index')->with('success', 'Jabatan berhasil Dihapus');
         } catch (\Exception $e) {
             return redirect()->route('umum.index')->with('error', 'Terjadi kesalahan saat Jabatan dihapus');

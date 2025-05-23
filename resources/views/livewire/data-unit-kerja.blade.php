@@ -50,17 +50,28 @@
                         </td>
                         <td class="px-6 py-4">{{ $item['kode'] }}</td>
                         <td class="px-6 py-4">{{ $item['keterangan'] }}</td>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 flex gap-2">
                             <a href="{{ route('unitkerja.edit', $item['id']) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
-                                data-tooltip-target="tooltip-umum-{{ $item['id'] }}">
+                                data-tooltip-target="tooltip-unitkerja-{{ $item['id'] }}">
                                 <i class="fa-solid fa-pen"></i>
                             </a>
-                            <div id="tooltip-jabatan-{{ $item['id'] }}" role="tooltip"
+                            <div id="tooltip-unitkerja-{{ $item['id'] }}" role="tooltip"
                                 class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
                                 Ubah Unit Kerja
                                 <div class="tooltip-arrow" data-popper-arrow></div>
                             </div>
+                            <button type="button"
+                                onclick="confirmAlert('Yakin ingin menghapus Unit Kerja ini?', 'Ya, hapus!', () => @this.call('destroy', {{ $item['id'] }}))"
+                                class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300 relative group">
+                                <i class="fa-solid fa-trash"></i>
+                                <div id="tooltip-destroy-{{ $item['id'] }}"
+                                    class="absolute z-10 hidden group-hover:block bottom-full mb-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-md">
+                                    Hapus
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            </button>
+
                         </td>
                     </tr>
                 @empty

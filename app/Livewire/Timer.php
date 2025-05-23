@@ -159,25 +159,7 @@ class Timer extends Component
 
     public function startTimer()
     {
-        // lat long akunbiz : -7.54800807506941, 110.81268629825813
-        // lat long rsi banjar:-7.401517961585791, 109.61597091359837
-        // ✅ Validasi lokasi GPS
-        // $lokasiKantor = [
-        //     'lat' => -7.54800807506941,     // ← koordinat kantor asli
-        //     'lng' => 110.81268629825813
-        // ];
-
-        // $jarak = $this->hitungJarakMeter(
-        //     $this->latitude,
-        //     $this->longitude,
-        //     $lokasiKantor['lat'],
-        //     $lokasiKantor['lng']
-        // );
-
-        // if ($jarak > 500) {
-        //     $this->dispatch('alert-error', message: 'Lokasi Anda terlalu jauh dari RSI Banjarnegara.');
-        //     return;
-        // }
+        // if (!$this->validasiLokasiAtauIp()) return;
 
         if (!$this->isRunning) {
             $this->isRunning = true;
@@ -237,22 +219,7 @@ class Timer extends Component
 
     public function openWorkReportModal()
     {
-        // $lokasiKantor = [
-        //     'lat' => -7.54800807506941,     // ← koordinat kantor asli
-        //     'lng' => 110.81268629825813
-        // ];
-
-        // $jarak = $this->hitungJarakMeter(
-        //     $this->latitude,
-        //     $this->longitude,
-        //     $lokasiKantor['lat'],
-        //     $lokasiKantor['lng']
-        // );
-
-        // if ($jarak > 500) {
-        //     $this->dispatch('alert-error', message: 'Anda tidak berada di area RSI Banjarnegara saat menyelesaikan tugas.');
-        //     return;
-        // }
+        // if (!$this->validasiLokasiAtauIp()) return;
 
         if ($this->isRunning) {
             $this->timeOut = now()->timestamp;
@@ -305,22 +272,7 @@ class Timer extends Component
 
     public function completeWorkReport()
     {
-        // $lokasiKantor = [
-        //     'lat' => -7.54800807506941,     // ← koordinat kantor asli
-        //     'lng' => 110.81268629825813
-        // ];
-
-        // $jarak = $this->hitungJarakMeter(
-        //     $this->latitude,
-        //     $this->longitude,
-        //     $lokasiKantor['lat'],
-        //     $lokasiKantor['lng']
-        // );
-
-        // if ($jarak > 500) {
-        //     $this->dispatch('alert-error', message: 'Lokasi Anda terlalu jauh dari RSI Banjarnegara saat menyelesaikan absen.');
-        //     return;
-        // }
+        // if (!$this->validasiLokasiAtauIp()) return;
 
         if (!$this->timeOut) return;
 
@@ -570,6 +522,55 @@ class Timer extends Component
         return $this->routeIsDashboard
             ? redirect()->route('dashboard') // Jika diakses dari dashboard
             : redirect()->to('/timer'); // Jika diakses dari route lain
+    }
+
+    private function validasiLokasiAtauIp(): bool
+    {
+        // lat long akunbiz : -7.548218078368806, 110.81261315327455
+        // lat long rsi banjar:-7.4021325122156405, 109.61549352397789
+
+        $ipUser = request()->ip();
+        $ipKantor = '127.0.0.1'; // IP jaringan kantor
+        // $domainIpKantor = gethostbyname('rsisimpeg.inventa.id');
+
+        // 🔐 IP jaringan kantor yang diizinkan
+        $ipWhitelist = [
+            '125.163.32.239',
+            '125.163.32.240',
+            '125.163.32.241'
+        ];
+
+        $lokasiKantor = [
+            'lat' => -7.4021325122156405,
+            'lng' => 109.61549352397789
+        ];
+
+        // Jika tidak ada lokasi, tetap izinkan jika IP cocok
+        if (!$this->latitude || !$this->longitude) {
+            if ($ipUser === $ipKantor) {
+                //  if (in_array($ipUser, $ipWhitelist)) {
+                return true;
+            } else {
+                $this->dispatch('alert-error', message: 'GPS tidak aktif atau Anda bukan dari jaringan RSI Banjarnegara.');
+                return false;
+            }
+        }
+
+        $jarak = $this->hitungJarakMeter(
+            $this->latitude,
+            $this->longitude,
+            $lokasiKantor['lat'],
+            $lokasiKantor['lng']
+        );
+
+        if ($jarak > 100 || $ipUser !== $ipKantor) {
+            //   if ($jarak > 100 && !in_array($ipUser, $ipWhitelist)) {
+            $this->dispatch('alert-error', message: 'Anda tidak berada di lokasi atau jaringan RSI Banjarnegara.');
+            // $this->dispatch('alert-error', message: 'Anda tidak berada di lokasi RSI Banjarnegara.');
+            return false;
+        }
+
+        return true;
     }
 
     private function hitungJarakMeter($lat1, $lon1, $lat2, $lon2)

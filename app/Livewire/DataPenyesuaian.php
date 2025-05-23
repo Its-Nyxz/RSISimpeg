@@ -50,9 +50,6 @@ class DataPenyesuaian extends Component
         try {
             $penyesuaian->delete();
 
-            // Refresh data setelah penghapusan
-            $this->loadData();
-
             return redirect()->route('penyesuaian.index')->with('success', 'Penyesuaian berhasil Dihapus');
         } catch (\Exception $e) {
             return redirect()->route('penyesuaian.index')->with('error', 'Terjadi kesalahan saat Penyesuaian dihapus');

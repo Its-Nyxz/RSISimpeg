@@ -82,6 +82,10 @@
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
                         <button wire:click="startTimer"
                             class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Mulai</button>
+                        {{-- <button onclick="kirimLokasiKeLivewire()"
+                            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                            Mulai
+                        </button> --}}
                     </div>
                 </div>
             </div>
@@ -99,6 +103,10 @@
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
                         <button wire:click="openWorkReportModal"
                             class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Selesai</button>
+                        {{-- <button onclick="kirimLokasiKeLivewire('stop')"
+                            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                            Selesai
+                        </button> --}}
                     </div>
                 </div>
             </div>
@@ -371,61 +379,156 @@
 
     {{-- @push('scripts')
         <script>
-            function ambilDanKirimLokasi() {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        function(position) {
-                            const lat = position.coords.latitude;
-                            const lng = position.coords.longitude;
+            const lokasiKantor = {
+                lat: -7.4021325122156405,
+                lng: 109.61549352397789,
+                radiusMeter: 100
+            };
 
-                            // ✅ Validasi akurasi lokasi
-                            if (position.coords.accuracy > 500) {
-                                Swal.fire({
-                                    icon: 'warning',
-                                    title: 'GPS Tidak Akurat',
-                                    text: 'Sinyal GPS kurang akurat. Pindah ke tempat terbuka.',
-                                    showConfirmButton: false,
-                                    timer: 2000
-                                });
-                                return;
-                            }
+            let lokasiTerakhir = null;
+            let sudahPeringatkan = {
+                gerak: false,
+                emulator: false,
+                devtools: false
+            };
 
-                            // Kirim ke Livewire
-                            @this.set('latitude', lat);
-                            @this.set('longitude', lng);
+            function hitungJarakMeter(lat1, lon1, lat2, lon2) {
+                const R = 6371000;
+                const dLat = (lat2 - lat1) * Math.PI / 180;
+                const dLon = (lon2 - lon1) * Math.PI / 180;
+                const a = Math.sin(dLat / 2) ** 2 +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLon / 2) ** 2;
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                return R * c;
+            }
 
-                            console.log('Latitude:', position.coords.latitude);
-                            console.log('Longitude:', position.coords.longitude);
-                            console.log('Accuracy (in meters):', position.coords.accuracy);
+            function simpanLokasi(lat, lng) {
+                const prev = JSON.parse(localStorage.getItem('lokasi_sebelumnya'));
+                const now = {
+                    lat,
+                    lng,
+                    waktu: Date.now()
+                };
 
-                            // Optional: aktifkan tombol jika di dalam radius (frontend UX)
-                            // Lakukan pengecekan jarak di JS jika mau
-                        },
-                        function(error) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Lokasi Tidak Dapat Diakses',
-                                text: 'Pastikan izin lokasi diaktifkan di browser Anda.'
-                            });
-                        }, {
-                            enableHighAccuracy: true, // 🔥 Lebih akurat
-                            timeout: 10000,
-                            maximumAge: 0
-                        }
-                    );
-                } else {
+                if (prev) {
+                    const jarak = hitungJarakMeter(lat, lng, prev.lat, prev.lng);
+                    const waktu = (now.waktu - prev.waktu) / 1000;
+
+                    if (jarak > 1000 && waktu < 30 && !sudahPeringatkan.gerak) {
+                        sudahPeringatkan.gerak = true;
+                        Swal.fire({
+                            icon: 'warning',
+                            title: '🚨 Gerakan Mencurigakan',
+                            text: `Berpindah ${Math.round(jarak)} meter dalam ${waktu} detik.`
+                        });
+                    }
+                }
+
+                localStorage.setItem('lokasi_sebelumnya', JSON.stringify(now));
+            }
+
+            function deteksiEmulator() {
+                const agents = ['Genymotion', 'Emulator', 'SDK', 'Android SDK built', 'X86'];
+                if (!sudahPeringatkan.emulator && agents.some(agent => navigator.userAgent.includes(agent))) {
+                    sudahPeringatkan.emulator = true;
                     Swal.fire({
-                        icon: 'error',
-                        title: 'Geolocation Tidak Didukung',
-                        text: 'Browser Anda tidak mendukung deteksi lokasi.'
+                        icon: 'warning',
+                        title: '⚠️ Emulator Terdeteksi',
+                        text: 'Anda tampaknya menggunakan emulator.'
                     });
                 }
             }
 
-            // Jalankan saat halaman dimuat
+            function deteksiDevTools() {
+                const element = new Image();
+                Object.defineProperty(element, 'id', {
+                    get: function() {
+                        if (!sudahPeringatkan.devtools) {
+                            sudahPeringatkan.devtools = true;
+                            Swal.fire({
+                                icon: 'warning',
+                                title: '⚠️ DevTools Aktif',
+                                text: 'Developer Tools terdeteksi. Data mungkin tidak valid.'
+                            });
+                        }
+                    }
+                });
+                // console.log(element);
+            }
+
+            function ambilLokasiTerbaru() {
+                if (!navigator.geolocation) {
+                    Swal.fire('Error', 'Browser tidak mendukung Geolocation.', 'error');
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    function(pos) {
+                        const {
+                            latitude,
+                            longitude,
+                            accuracy
+                        } = pos.coords;
+                        lokasiTerakhir = {
+                            lat: latitude,
+                            lng: longitude,
+                            accuracy
+                        };
+
+                        simpanLokasi(latitude, longitude);
+                        deteksiEmulator();
+                        deteksiDevTools();
+                    },
+                    function() {
+                        Swal.fire('Gagal', 'Izin lokasi dibutuhkan.', 'error');
+                    }, {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 30000
+                    }
+                );
+            }
+
+            function validasiJarak(lat, lng) {
+                const jarak = hitungJarakMeter(lat, lng, lokasiKantor.lat, lokasiKantor.lng);
+                return {
+                    jarak,
+                    valid: jarak <= lokasiKantor.radiusMeter
+                };
+            }
+
+            window.kirimLokasiKeLivewire = function(aksi = 'start') {
+                if (!lokasiTerakhir) {
+                    Swal.fire('Lokasi belum tersedia. Tunggu sebentar.', '', 'error');
+                    return;
+                }
+
+                const hasilValidasi = validasiJarak(lokasiTerakhir.lat, lokasiTerakhir.lng);
+                if (!hasilValidasi.valid) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Di Luar Area RSI Banjarnegara',
+                        text: `Jarak Anda: ${Math.round(hasilValidasi.jarak)} meter.`
+                        // text: `Anda tidak berada di lokasi RSI Banjarnegara.`
+                    });
+                    return;
+                }
+
+                @this.set('latitude', lokasiTerakhir.lat);
+                @this.set('longitude', lokasiTerakhir.lng);
+
+
+                if (aksi === 'start') {
+                    @this.call('startTimer');
+                } else if (aksi === 'stop') {
+                    @this.call('openWorkReportModal');
+                }
+            };
+
             document.addEventListener('DOMContentLoaded', () => {
-                ambilDanKirimLokasi();
-                setInterval(ambilDanKirimLokasi, 30000); // Refresh lokasi setiap 30 detik
+                ambilLokasiTerbaru();
+                setInterval(ambilLokasiTerbaru, 60000); // setiap 60 detik
             });
         </script>
     @endpush --}}

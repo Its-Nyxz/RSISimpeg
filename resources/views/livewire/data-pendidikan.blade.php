@@ -51,7 +51,7 @@
                         <td class="px-6 py-4">{{ $pendidikan->minimGolongan->nama }}</td>
                         <td class="px-6 py-4">{{ $pendidikan->maximGolongan->nama }}</td>
                         <td class="px-6 py-4">{{ $pendidikan->deskripsi }}</td>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 flex gap-2">
                             <a href="{{ route('pendidikan.edit', $pendidikan->id) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
                                 data-tooltip-target="tooltip-pendidikan-{{ $pendidikan->id }}">
@@ -62,6 +62,16 @@
                                 Ubah Pendidikan
                                 <div class="tooltip-arrow" data-popper-arrow></div>
                             </div>
+                            <button type="button"
+                                onclick="confirmAlert('Yakin ingin menghapus Pendidikan ini?', 'Ya, hapus!', () => @this.call('destroy', {{ $pendidikan['id'] }}))"
+                                class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300 relative group">
+                                <i class="fa-solid fa-trash"></i>
+                                <div id="tooltip-destroy-{{ $pendidikan['id'] }}"
+                                    class="absolute z-10 hidden group-hover:block bottom-full mb-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-md">
+                                    Hapus
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            </button>
                         </td>
                     </tr>
                 @empty

@@ -46,6 +46,7 @@
 <body>
     <h3 style="text-align: center;">Slip Gaji Detail</h3>
 
+    <p><strong>NIP:</strong> {{ $user->nip ?? '-' }}</p>
     <p><strong>Nama:</strong> {{ $user->name }}</p>
     <p><strong>Bulan:</strong> {{ $bulan }}/{{ $tahun }}</p>
 

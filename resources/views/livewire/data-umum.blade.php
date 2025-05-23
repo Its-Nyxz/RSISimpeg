@@ -8,7 +8,7 @@
                 class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
 
             <!-- Tombol Tambah Umum -->
-    <div class="flex items-center gap-2 mt-2 sm:mt-0">
+            <div class="flex items-center gap-2 mt-2 sm:mt-0">
                 <!-- Mobile Icon Only -->
                 <a href="{{ route('umum.create') }}"
                     class="sm:hidden p-3 rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition"
@@ -69,11 +69,6 @@
                                     <div class="tooltip-arrow" data-popper-arrow></div>
                                 </div>
                             </button>
-                            <div id="tooltip-destroy-{{ $umum['id'] }}" role="tooltip"
-                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
-                                Hapus Jabatan
-                                <div class="tooltip-arrow" data-popper-arrow></div>
-                            </div>
                         </td>
                     </tr>
                 @empty

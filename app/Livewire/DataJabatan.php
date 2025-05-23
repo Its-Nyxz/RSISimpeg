@@ -53,9 +53,6 @@ class DataJabatan extends Component
         try {
             $jabatan->delete();
 
-            // Refresh data setelah penghapusan
-            $this->loadData();
-
             return redirect()->route('jabatan.index')->with('success', 'Jabatan berhasil Dihapus');
         } catch (\Exception $e) {
             return redirect()->route('jabatan.index')->with('error', 'Terjadi kesalahan saat Jabatan dihapus');

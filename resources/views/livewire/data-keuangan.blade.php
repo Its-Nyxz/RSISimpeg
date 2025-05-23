@@ -80,7 +80,7 @@
                                         <i class="fas fa-times-circle"></i>
                                     </button>
                                 </div>
-                            @endif 
+                            @endif
 
                             <!-- Menampilkan Progress Upload -->
                             <div wire:loading wire:target="file" class="mt-2">
@@ -304,7 +304,7 @@
                 <thead class="text-sm uppercase bg-success-400 text-success-900">
                     <tr>
                         <th scope="col" class="px-6 py-3">Nama</th>
-                        <th scope="col" class="px-6 py-3">NIK</th>
+                        <th scope="col" class="px-6 py-3">NIP</th>
                         <th scope="col" class="px-6 py-3">Alamat</th>
                         <th scope="col" class="px-6 py-3">Jabatan</th>
                         <th scope="col" class="px-6 py-3">Divisi / Unit Kerja</th>
@@ -318,7 +318,7 @@
                             <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
                                 {{ $user->nama_bersih }}
                             </td>
-                            <td class="px-6 py-4">{{ $user->nik ?? '-' }}</td>
+                            <td class="px-6 py-4">{{ $user->nip ?? '-' }}</td>
                             <td class="px-6 py-4">{{ $user->alamat ?? '-' }}</td>
                             {{-- <td class="px-6 py-4">{{ $user->roles->pluck('name')->implode(', ') ?? '-' }}</td> --}}
                             <td class="px-6 py-4">

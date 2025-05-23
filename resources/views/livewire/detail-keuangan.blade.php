@@ -68,7 +68,7 @@
     </div>
 
     <!-- Slip Gaji dalam Card -->
-    <x-card title="{{ $user->nip ?? '-' }}" class="mb-6 text-success-900">
+    <x-card title="{{ $user->username ?? '-' }}" class="mb-6 text-success-900">
         <!-- Header -->
         <div class="text-center text-green-900 font-bold text-lg mb-4">
             SLIP PENERIMAAN GAJI KARYAWAN
@@ -77,8 +77,8 @@
         <!-- Informasi Karyawan -->
         <div class="flex flex-col items-center gap-2 mb-6">
             <div class="flex justify-between w-full max-w-md mx-auto">
-                <strong>No Urut</strong>
-                <span>{{ $user->id ?? '-' }}</span>
+                <strong>No Urut / NIP</strong>
+                <span>{{ $user->nip ?? '-' }}</span>
             </div>
             <div class="flex justify-between w-full max-w-md mx-auto">
                 <strong>Nama</strong>

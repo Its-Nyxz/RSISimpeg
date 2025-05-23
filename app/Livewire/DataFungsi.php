@@ -54,9 +54,6 @@ class DataFungsi extends Component
         try {
             $fungsional->delete();
 
-            // Refresh data setelah penghapusan
-            $this->loadData();
-
             return redirect()->route('fungsional.index')->with('success', 'Fungsional berhasil Dihapus');
         } catch (\Exception $e) {
             return redirect()->route('fungsional.index')->with('error', 'Terjadi kesalahan saat Fungsional dihapus');
