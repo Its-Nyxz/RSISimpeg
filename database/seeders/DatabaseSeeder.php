@@ -44,7 +44,7 @@ class DatabaseSeeder extends Seeder
             LevelUnitSeeder::class,
             TerlibatPointSeeder::class,
             PosisiPointSeeder::class,
-            // ShiftSeeder::class,
+            ShiftSeeder::class,
             ShiftPointSeeder::class,
             PkPointSeeder::class,
             PointPelatihanSeeder::class,
