@@ -70,6 +70,7 @@ class RolePermissionSeeder extends Seeder
             'hak-akses',
             'resign-kerja',
             'jatah-cuti',
+            'override-lokasi',
             'penyesuaian',
             'approve-izin',
             'approve-cuti'
@@ -112,6 +113,7 @@ class RolePermissionSeeder extends Seeder
                 'create-data-karyawan',
                 'tambah-history',
                 'tambah-sp',
+                'override-lokasi',
                 'view-poin-peran',
                 'view-poin-penilaian',
             ])->get(),
@@ -128,6 +130,7 @@ class RolePermissionSeeder extends Seeder
                 'tambah-jadwal',
                 'tambah-history',
                 'tambah-sp',
+                'override-lokasi',
                 'edit-jadwal',
                 'resign-kerja',
                 'jatah-cuti',

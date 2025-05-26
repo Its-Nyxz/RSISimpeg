@@ -66,7 +66,7 @@ class DetailKaryawan extends Component
         // return CutiKaryawan::with('user')->where('user_id');
         $this->listCuti = CutiKaryawan::with('user')->where('user_id', $this->user_id)->orderBy('created_at', 'desc')->get();
         $this->listIzin = IzinKaryawan::with('user')->where('user_id', $this->user_id)->orderBy('created_at', 'desc')->get();
-        $this->listPenyesuaian = Penyesuaian::with('user')->where('user_id', $this->user_id)->where('status_penyesuaian', 0)->orderBy('created_at', 'desc')->get();
+        $this->listPenyesuaian = Penyesuaian::with('user')->where('user_id', $this->user_id)->orderBy('created_at', 'desc')->get();
         $this->listGapok = Gapok::with('user')->where('user_id', $this->user_id)->orderBy('created_at', 'desc')->get();
         $this->listSP = PeringatanKaryawan::where('user_id', $this->user_id)
             ->orderBy('tanggal_sp', 'desc')

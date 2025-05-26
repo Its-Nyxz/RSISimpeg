@@ -53,6 +53,9 @@
         <table class="w-full text-sm text-left text-gray-700">
             <thead class="sticky top-0 bg-success-400 text-success-900 z-10">
                 <tr>
+                    @if (auth()->user()->hasRole('Super Admin'))
+                        <th scope="col" class="px-6 py-3">Nama Unit</th>
+                    @endif
                     <th scope="col" class="px-6 py-3">Kode Shift</th>
                     <th scope="col" class="px-6 py-3">Jam Masuk</th>
                     <th scope="col" class="px-6 py-3">Jam Keluar</th>
@@ -63,9 +66,12 @@
             <tbody>
                 @forelse ($shifts as $shift)
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
-                        <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
-                            {{ $shift['nama_shift'] ?? '-' }}
-                        </td>
+                        @if (auth()->user()->hasRole('Super Admin'))
+                            <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
+                                {{ data_get($shift, 'unit_kerja.nama', '-') }}
+                            </td>
+                        @endif
+                        <td class="px-6 py-4">{{ $shift['nama_shift'] }}</td>
                         <td class="px-6 py-4">{{ $shift['jam_masuk'] }}</td>
                         <td class="px-6 py-4">{{ $shift['jam_keluar'] }}</td>
                         <td class="px-6 py-4">{{ $shift['keterangan'] }}</td>

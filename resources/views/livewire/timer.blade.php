@@ -34,7 +34,7 @@
                 {{-- Tombol Mulai --}}
                 <button id="startButton" wire:click="$set('showStartModal', true)"
                     class="px-6 py-2 font-bold rounded 
-            {{ $timeOut ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 text-white' }}"
+                {{ $timeOut ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 text-white' }}"
                     style="display: {{ $isRunning ? 'none' : 'inline-block' }}" {{ $timeOut ? 'disabled' : '' }}>
                     Mulai
                 </button>
@@ -42,7 +42,7 @@
                 {{-- Tombol Selesai --}}
                 <button id="stopButton" wire:click="$set('showStopModal', true)"
                     class="px-6 py-2 font-bold rounded 
-            {{ !$isRunning || $timeOut ? 'bg-gray-600 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700 text-white' }}"
+                {{ !$isRunning || $timeOut ? 'bg-gray-600 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700 text-white' }}"
                     style="display: {{ $isRunning ? 'inline-block' : 'none' }}"
                     {{ !$isRunning || $timeOut ? 'disabled' : '' }}>
                     Selesai
@@ -68,6 +68,12 @@
                     Selesai Lembur
                 </button>
             </div>
+            {{-- @if ($isLokasiDanIpTidakValid)
+                <button onclick="konfirmasiOverrideLokasi()"
+                    class="text-sm text-red-600 mt-2 underline hover:text-red-800">
+                    Lanjutkan Absensi Manual (Saya sedang di RSI)
+                </button>
+            @endif --}}
         </div>
 
         {{-- Modal untuk Mulai Timer --}}
@@ -107,7 +113,7 @@
                             class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
                             Selesai
                         </button> --}}
-                    </div>
+                    </div> 
                 </div>
             </div>
         @endif
@@ -380,8 +386,8 @@
     {{-- @push('scripts')
         <script>
             const lokasiKantor = {
-                lat: -7.4021325122156405,
-                lng: 109.61549352397789,
+                lat: -7.548218078368806,
+                lng: 110.81261315327455,
                 radiusMeter: 100
             };
 
@@ -479,6 +485,8 @@
                         simpanLokasi(latitude, longitude);
                         deteksiEmulator();
                         deteksiDevTools();
+                        console.log("Latitude:", latitude);
+                        console.log("Longitude:", longitude);
                     },
                     function() {
                         Swal.fire('Gagal', 'Izin lokasi dibutuhkan.', 'error');
@@ -500,24 +508,42 @@
 
             window.kirimLokasiKeLivewire = function(aksi = 'start') {
                 if (!lokasiTerakhir) {
-                    Swal.fire('Lokasi belum tersedia. Tunggu sebentar.', '', 'error');
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Menunggu Lokasi',
+                        text: 'Sistem sedang mencoba mendeteksi lokasi Anda. Mohon tunggu beberapa saat.',
+                    });
                     return;
                 }
 
                 const hasilValidasi = validasiJarak(lokasiTerakhir.lat, lokasiTerakhir.lng);
+
+                // Jika jarak tidak valid DAN lokasi terakhir belum diperbarui dalam 15 detik
+                const lastUpdate = JSON.parse(localStorage.getItem('lokasi_sebelumnya'));
+                const now = Date.now();
+                const ageInSeconds = lastUpdate ? (now - lastUpdate.waktu) / 1000 : null;
+                console.log("Usia lokasi terakhir:", ageInSeconds, "detik");
                 if (!hasilValidasi.valid) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Di Luar Area RSI Banjarnegara',
-                        text: `Jarak Anda: ${Math.round(hasilValidasi.jarak)} meter.`
-                        // text: `Anda tidak berada di lokasi RSI Banjarnegara.`
-                    });
+                    if (ageInSeconds !== null && ageInSeconds < 15) {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Menunggu Lokasi Akurat',
+                            text: 'Lokasi belum terdeteksi dengan akurat. Silakan tunggu beberapa saat dan coba kembali.',
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Di Luar Area RSI Banjarnegara',
+                            text: `Jarak Anda: ${Math.round(hasilValidasi.jarak)} meter dari area kantor.`,
+                        });
+                    }
                     return;
                 }
 
                 @this.set('latitude', lokasiTerakhir.lat);
                 @this.set('longitude', lokasiTerakhir.lng);
-
 
                 if (aksi === 'start') {
                     @this.call('startTimer');
@@ -527,9 +553,54 @@
             };
 
             document.addEventListener('DOMContentLoaded', () => {
+                // Ambil lokasi pertama kali
                 ambilLokasiTerbaru();
-                setInterval(ambilLokasiTerbaru, 60000); // setiap 60 detik
+
+                // Pastikan `lokasiTerakhir` tersedia sebelum memungkinkan aksi absensi
+                let cekInterval = setInterval(() => {
+                    if (lokasiTerakhir) {
+                        clearInterval(cekInterval);
+                        console.log('✅ Lokasi awal berhasil didapat.');
+                    } else {
+                        console.log('⏳ Menunggu lokasi awal...');
+                    }
+                }, 2000); // cek setiap 2 detik
+
+                // Refresh lokasi setiap 60 detik
+                setInterval(ambilLokasiTerbaru, 60000);
             });
+        </script>
+    @endpush --}}
+    {{-- @push('scripts')
+        <script>
+                function konfirmasiOverrideLokasi() {
+                    Swal.fire({
+                        title: 'Lanjutkan Absensi Manual',
+                        html: `
+        <p class="mb-2 text-sm text-gray-700">
+            Sistem tidak dapat mendeteksi lokasi atau jaringan RSI Anda.<br>
+            Jika Anda memang berada di lingkungan RSI, silakan masukkan alasan untuk melanjutkan absensi manual:
+        </p>
+        <textarea id="overrideReason" class="swal2-textarea" placeholder="Tulis alasan Anda di sini..."></textarea>
+    `,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Kirim & Lanjutkan',
+                        cancelButtonText: 'Batal',
+                        preConfirm: () => {
+                            const reason = document.getElementById('overrideReason').value;
+                            if (!reason.trim()) {
+                                Swal.showValidationMessage('Alasan wajib diisi untuk melanjutkan absensi manual.');
+                            }
+                            return reason;
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            const reason = result.value;
+                            @this.call('overrideLokasi', reason);
+                        }
+                    });
+                }
         </script>
     @endpush --}}
 </div>

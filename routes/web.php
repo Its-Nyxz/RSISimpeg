@@ -60,6 +60,7 @@ use App\Http\Controllers\PerizinanJabatanController;
 use App\Http\Controllers\TunjanganKinerjaController;
 use App\Http\Controllers\MasterJatahCutiController;
 use App\Http\Controllers\MasterPenyesuaianController;
+use App\Http\Controllers\OverrideLokasiController;
 use App\Http\Controllers\PeringatanKaryawanController;
 use App\Http\Controllers\ProposionalitasPointController;
 use App\Models\Kategoripph;
@@ -184,6 +185,7 @@ Route::middleware('auth')->group(function () {
     Route::get('pph/{tipe}/{pph}', [KategoripphController::class, 'create']);
     Route::resource('pph', KategoripphController::class);
     Route::get('pph/{id}', [KategoriPphController::class, 'show'])->name('pph.show');
+    Route::resource('overridelokasi', OverrideLokasiController::class);
 });
 
 require __DIR__ . '/auth.php';

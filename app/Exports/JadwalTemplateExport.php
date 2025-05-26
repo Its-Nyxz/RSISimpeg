@@ -19,12 +19,13 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
     protected $year;
 
 
-    public function __construct($month, $year)
+    public function __construct($month, $year, $unitId = null)
     {
-        $this->unitId = Auth::user()->unit_id;
+        $this->unitId = $unitId ?? Auth::user()->unit_id; // jika tidak dikirim, pakai unit login
         $this->month = $month;
         $this->year = $year;
     }
+
 
     // Data yang akan di-export
     public function array(): array

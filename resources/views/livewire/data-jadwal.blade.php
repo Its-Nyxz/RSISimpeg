@@ -53,7 +53,7 @@
                 class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
                 @foreach (range(1, 12) as $m)
                     <option value="{{ $m }}">
-                        {{ \Carbon\Carbon::createFromFormat('!m', $m)->translatedFormat('F') }}
+                        {{ \Carbon\Carbon::createFromFormat('!m', $m)->locale('id')->translatedFormat('F') }}
                     </option>
                 @endforeach
             </select>
@@ -71,7 +71,18 @@
             <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 {{-- Tombol Download Template --}}
                 @can('template-jadwal')
-                    <a href="{{ route('jadwal.template', ['month' => $bulan, 'year' => $tahun]) }}"
+                    @php
+                        $canSelectUnit =
+                            auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->nama == 'KEPEGAWAIAN';
+                        $unitId = $canSelectUnit ? $selectedUnit : auth()->user()->unit_id;
+                    @endphp
+
+
+                    <a href="{{ route('jadwal.template', [
+                        'month' => $bulan,
+                        'year' => $tahun,
+                        'unit_id' => $unitId,
+                    ]) }}"
                         class="w-full sm:w-auto flex items-center justify-center text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition">
                         <i class="fas fa-download mr-2"></i> Download Template
                     </a>

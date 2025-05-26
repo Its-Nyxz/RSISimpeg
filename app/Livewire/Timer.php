@@ -8,6 +8,7 @@ use App\Models\Shift;
 use Livewire\Component;
 use App\Models\StatusAbsen;
 use App\Models\JadwalAbsensi;
+use App\Models\OverrideLokasi;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
@@ -37,6 +38,7 @@ class Timer extends Component
     public $absensiTanpaLembur;
     public $isLemburRunning = false;
     public $routeIsDashboard;
+    public $isLokasiDanIpTidakValid = false;
 
     public $latitude;
     public $longitude;
@@ -44,6 +46,19 @@ class Timer extends Component
     public function mount($jadwal_id)
     {
         $this->jadwal_id = $jadwal_id;
+
+        // $ipUser = request()->ip();
+        // $ipPrefix = implode('.', array_slice(explode('.', $ipUser), 0, 3));
+        // $ipPrefixWhitelist = ['192.168.100', '192.168.1', '10.0.0', '192.168.8'];
+        // // $ipKantor = ['127.0.0.1']; // IP jaringan kantor
+
+        // $lokasiTersedia = $this->latitude && $this->longitude;
+        // $ipValid = in_array($ipPrefix, $ipPrefixWhitelist);
+
+        // // Deteksi jika lokasi dan IP keduanya tidak valid
+        // $this->isLokasiDanIpTidakValid = !$lokasiTersedia && !$ipValid;
+        // dd($this->isLokasiDanIpTidakValid, $ipUser);
+
         $this->routeIsDashboard = Request::routeIs('dashboard');
 
         // ✅ Ambil semua data absensi berdasarkan jadwal_id
@@ -526,32 +541,41 @@ class Timer extends Component
 
     private function validasiLokasiAtauIp(): bool
     {
+        // ✅ Jika override aktif, lewati semua validasi lokasi
+        // if (session()->pull('override_lokasi_rsi')) {
+        //     return true;
+        // }
+
         // lat long akunbiz : -7.548218078368806, 110.81261315327455
         // lat long rsi banjar:-7.4021325122156405, 109.61549352397789
 
         $ipUser = request()->ip();
-        $ipKantor = '127.0.0.1'; // IP jaringan kantor
-        // $domainIpKantor = gethostbyname('rsisimpeg.inventa.id');
+        // $ipUser = '192.168.100.121';
+        // $ipKantor = '127.0.0.1'; // IP jaringan kantor
 
-        // 🔐 IP jaringan kantor yang diizinkan
-        $ipWhitelist = [
-            '125.163.32.239',
-            '125.163.32.240',
-            '125.163.32.241'
+        // ✅ Daftar prefix IP lokal yang diizinkan (misalnya WiFi kantor dengan IP dinamis)
+        $ipPrefixWhitelist = [
+            '192.168.100', // artinya IP seperti 192.168.100.xxx akan lolos
+            '192.168.1',    // cadangan jika router di-reset
+            '10.0.0',       // jika pakai Biznet
+            '192.168.8',   // Orbit
         ];
+
+        $ipPrefix = implode('.', array_slice(explode('.', $ipUser), 0, 3)); // hasil: 192.168.100
 
         $lokasiKantor = [
-            'lat' => -7.4021325122156405,
-            'lng' => 109.61549352397789
+            'lat' => -7.548218078368806,
+            'lng' => 110.81261315327455
         ];
+
 
         // Jika tidak ada lokasi, tetap izinkan jika IP cocok
         if (!$this->latitude || !$this->longitude) {
-            if ($ipUser === $ipKantor) {
-                //  if (in_array($ipUser, $ipWhitelist)) {
+            // if ($ipUser === $ipKantor) {
+            if (in_array($ipPrefix, $ipPrefixWhitelist)) {
                 return true;
             } else {
-                $this->dispatch('alert-error', message: 'GPS tidak aktif atau Anda bukan dari jaringan RSI Banjarnegara.');
+                $this->dispatch('alert-error', message: 'Lokasi terlalu jauh atau Anda bukan dari jaringan RSI Banjarnegara.');
                 return false;
             }
         }
@@ -563,8 +587,8 @@ class Timer extends Component
             $lokasiKantor['lng']
         );
 
-        if ($jarak > 100 || $ipUser !== $ipKantor) {
-            //   if ($jarak > 100 && !in_array($ipUser, $ipWhitelist)) {
+        // if ($jarak > 100 || $ipUser !== $ipKantor) {
+        if ($jarak > 100 || !in_array($ipPrefix, $ipPrefixWhitelist)) {
             $this->dispatch('alert-error', message: 'Anda tidak berada di lokasi atau jaringan RSI Banjarnegara.');
             // $this->dispatch('alert-error', message: 'Anda tidak berada di lokasi RSI Banjarnegara.');
             return false;
@@ -582,6 +606,29 @@ class Timer extends Component
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
         return $earthRadius * $c;
     }
+
+    // public function overrideLokasi($alasan = null)
+    // {
+    //     $count = OverrideLokasi::where('user_id', auth()->id())
+    //         ->whereMonth('created_at', now()->month)
+    //         ->whereYear('created_at', now()->year)
+    //         ->count();
+
+    //     if ($count >= 3) {
+    //         $this->dispatch('alert-error', message: 'Anda telah mencapai batas maksimum absensi manual bulan ini.');
+    //         return;
+    //     }
+
+    //     OverrideLokasi::create([
+    //         'user_id' => auth()->id(),
+    //         'jadwal_id' => $this->jadwal_id,
+    //         'keterangan' => $alasan ?: 'Absensi manual tanpa keterangan',
+    //     ]);
+
+    //     session()->put('override_lokasi_rsi', true);
+
+    //     $this->dispatch('alert-success', message: 'Verifikasi manual berhasil. Silakan lanjutkan proses absensi.');
+    // }
 
     public function render()
     {

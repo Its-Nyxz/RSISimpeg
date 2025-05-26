@@ -32,6 +32,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('update:masa-kerja')
             ->dailyAt('01:00')
             ->timezone('Asia/Jakarta');
+
+        $schedule->command('generate:absen-alpha')
+            ->dailyAt('08:15')
+            ->timezone('Asia/Jakarta');
     }
 
     /**

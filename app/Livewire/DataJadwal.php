@@ -11,6 +11,7 @@ use App\Models\UnitKerja;
 use App\Imports\JadwalImport;
 use App\Models\JadwalAbsensi;
 use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Request;
 
@@ -167,38 +168,46 @@ class DataJadwal extends Component
 
     public function import()
     {
-        // Validasi file sebelum diupload
         $this->validate([
-            'file' => 'required|mimes:xlsx,csv,xls|max:2048', // Validasi file
+            'file' => 'required|mimes:xlsx,csv,xls|max:2048',
         ]);
 
-        $fileName = $this->file->getClientOriginalName();
-        // Format bulan ke dalam nama (contoh: Maret)
-        $monthName = Carbon::createFromDate($this->tahun, $this->bulan, 1)->format('F');
+        // Set bahasa Indonesia
+        Carbon::setLocale('id'); // Tambahkan ini
 
-        // Format nama file
-        $expectedFileName = 'jadwal_template_' . auth()->user()->unitKerja->nama . '_' . $monthName . '_' . $this->tahun . '.xlsx';
+        $uploadedFileName = $this->file->getClientOriginalName();
+        $monthName = Carbon::createFromDate($this->tahun, $this->bulan, 1)->translatedFormat('F');
 
-        // dd($fileName, $expectedFileName, $fileName == $expectedFileName);
+        // Dapatkan nama unit berdasarkan role
+        $canSelectUnit = auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->nama === 'KEPEGAWAIAN';
 
-        // Cek apakah nama file sesuai format
-        if ($fileName !== $expectedFileName) {
-            return redirect()->route('jadwal.index')->with('error', 'masukan file sesuai bulan yang dipilih ');
+        $unitNama = $canSelectUnit
+            ? UnitKerja::find($this->selectedUnit)?->nama
+            : auth()->user()->unitKerja->nama;
+
+        if (!$unitNama) {
+            return redirect()->route('jadwal.index')->with('error', 'Unit tidak ditemukan.');
+        }
+
+        $expectedFileName = 'jadwal_template_' . $unitNama . '_' . $monthName . '_' . $this->tahun . '.xlsx';
+        // Validasi nama file
+        if ($uploadedFileName !== $expectedFileName) {
+            return redirect()->route('jadwal.index')->with('error', "Nama file tidak sesuai. Harus: {$expectedFileName}");
         }
 
         try {
-            // Lakukan proses import dengan filter bulan & tahun
+            // Jalankan proses import
             Excel::import(new JadwalImport($this->bulan, $this->tahun), $this->file->getRealPath());
 
-            // Reset input file setelah sukses
             $this->reset('file');
 
-            // Kirim notifikasi sukses ke Livewire
             return redirect()->route('jadwal.index')->with('success', 'Data Jadwal Berhasil Diinput');
-        } catch (\Exception $e) {
-            return redirect()->route('jadwal.index')->with('error', 'Terjadi Kesalahan');
+        } catch (\Throwable $e) {
+            Log::error('Import Gagal: ' . $e->getMessage());
+            return redirect()->route('jadwal.index')->with('error', 'Terjadi kesalahan saat mengimpor file.');
         }
     }
+
 
     public function updated($propertyName)
     {

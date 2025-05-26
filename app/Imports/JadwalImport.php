@@ -50,71 +50,58 @@ class JadwalImport implements ToCollection
                 $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $this->bulan, $this->tahun);
 
                 for ($day = 1; $day <= $daysInMonth; $day++) {
-                    $tanggal_jadwal = "{$this->tahun}-" . str_pad($this->bulan, 2, '0', STR_PAD_LEFT) . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
+                    $tanggal_jadwal = sprintf('%04d-%02d-%02d', $this->tahun, $this->bulan, $day);
+                    $cellValue = isset($row[4 + $day]) ? trim((string)$row[4 + $day]) : '';
+                    $shiftCell = preg_replace('/\s*\(-\)/', '', $cellValue);
 
+                    $shift = null;
 
-                    $shiftCellRaw = isset($row[4 + $day]) ? trim($row[4 + $day]) : null;
-                    $shiftCell = preg_replace('/\s*\(-\)/', '', $shiftCellRaw);
-                    // Jika shift L (libur), ambil shift-nya dari database
-                    if ($shiftCell === 'L') {
-                        $shift = Shift::where('unit_id', $user->unit_id)
-                            ->where('nama_shift', 'L')
-                            ->whereNull('jam_masuk')
-                            ->whereNull('jam_keluar')
-                            ->first();
+                    // === Cell kosong atau "L" → jadikan shift Libur ===
+                    if ($shiftCell === '' || strtoupper($shiftCell) === 'L') {
+                        $shift = Shift::firstOrCreate(
+                            [
+                                'unit_id' => $user->unit_id,
+                                'nama_shift' => 'L',
+                                'jam_masuk' => null,
+                                'jam_keluar' => null,
+                            ],
+                            ['keterangan' => 'Libur']
+                        );
+                    } else {
+                        $nama_shift = null;
+                        $jam_masuk = null;
+                        $jam_keluar = null;
 
-                        if ($shift) {
-                            JadwalAbsensi::updateOrCreate(
-                                [
-                                    'user_id' => $user->id,
-                                    'tanggal_jadwal' => $tanggal_jadwal
-                                ],
-                                [
-                                    'shift_id' => $shift->id
-                                ]
-                            );
-                        }
-
-                        continue; // Lewati parsing lebih lanjut karena sudah diproses
-                    }
-
-                    // Default null
-                    $nama_shift = null;
-                    $jam_masuk = null;
-                    $jam_keluar = null;
-
-                    // Jika bukan libur, parse nama dan jam shift dari format "Pagi (08:00 - 16:00)"
-                    if ($shiftCell && $shiftCell !== 'L') {
+                        // Format lengkap: P (08:00:00 - 16:00:00)
                         if (preg_match('/^(\w)\s*\((\d{2}:\d{2}):\d{2}\s*-\s*(\d{2}:\d{2}):\d{2}\)$/i', $shiftCell, $matches)) {
                             $nama_shift = strtoupper($matches[1]);
                             $jam_masuk = Carbon::createFromFormat('H:i', $matches[2])->format('H:i:s');
                             $jam_keluar = Carbon::createFromFormat('H:i', $matches[3])->format('H:i:s');
+
+                            $shift = Shift::where('unit_id', $user->unit_id)
+                                ->where('nama_shift', $nama_shift)
+                                ->where('jam_masuk', $jam_masuk)
+                                ->where('jam_keluar', $jam_keluar)
+                                ->first();
                         } else {
-                            // Fallback jika tidak cocok formatnya
-                            $nama_shift = $shiftCell;
+                            // Format hanya huruf shift, contoh: "P"
+                            $shift = Shift::where('unit_id', $user->unit_id)
+                                ->where('nama_shift', strtoupper($shiftCell))
+                                ->first();
                         }
                     }
 
-                    if ($nama_shift) {
-                        $shift = Shift::where('unit_id', $user->unit_id)
-                            ->where('nama_shift', $nama_shift)
-                            ->where('jam_masuk', $jam_masuk)
-                            ->where('jam_keluar', $jam_keluar)
-                            ->first();
-
-                        if ($shift) {
-                            if ($user->id && $tanggal_jadwal && $shift->id) {
-                                JadwalAbsensi::updateOrCreate(
-                                    [
-                                        'user_id' => $user->id,
-                                        'tanggal_jadwal' => $tanggal_jadwal
-                                    ],
-                                    [
-                                        'shift_id' => $shift->id
-                                    ]
-                                );
-                            }
-                        }
+                    // Selalu update jika shift ditemukan
+                    if ($shift) {
+                        JadwalAbsensi::updateOrCreate(
+                            [
+                                'user_id' => $user->id,
+                                'tanggal_jadwal' => $tanggal_jadwal,
+                            ],
+                            [
+                                'shift_id' => $shift->id
+                            ]
+                        );
                     }
                 }
             } catch (\Exception $e) {

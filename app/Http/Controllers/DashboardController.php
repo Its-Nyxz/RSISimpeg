@@ -22,7 +22,7 @@ class DashboardController extends Controller
         $tahunIni = $today->year;
 
         // Tambahkan ini supaya setiap buka dashboard langsung cek dan buatkan absen tidak masuk kalau perlu
-        $this->buatAbsenTidakMasukHariIni($user->id);
+        // $this->buatAbsenTidakMasukHariIni($user->id);
 
 
         // Ambil jadwal milik user berdasarkan tanggal hari ini
@@ -105,64 +105,77 @@ class DashboardController extends Controller
             ->count();
     }
 
-    private function buatAbsenTidakMasukHariIni($userId)
-    {
-        $today = now()->toDateString();
+    // private function shiftTelahBerakhir($shift, $tanggalJadwal)
+    // {
+    //     $jamMasuk = Carbon::parse($shift->jam_masuk);
+    //     $jamKeluar = Carbon::parse($shift->jam_keluar);
 
-        $jadwalUserHariIni = JadwalAbsensi::where('user_id', $userId)
-            ->whereDate('tanggal_jadwal', $today)
-            ->get();
+    //     $isShiftMalam = $jamKeluar->lessThan($jamMasuk);
 
-        $statusTidakAbsen = StatusAbsen::where('nama', 'Tidak Absen')->first();
+    //     $shiftEnd = Carbon::parse($tanggalJadwal)
+    //         ->addDays($isShiftMalam ? 1 : 0)
+    //         ->setTimeFrom($jamKeluar);
 
-        foreach ($jadwalUserHariIni as $jadwal) {
-            $shift = $jadwal->shift;
+    //     return now()->greaterThanOrEqualTo($shiftEnd);
+    // }
 
-            if (!$shift) {
-                continue; // Jika tidak ada shift, skip
-            }
+    // private function buatAbsenTidakMasukHariIni($userId)
+    // {
+    //     $today = now()->toDateString();
 
-            $jamMasuk = Carbon::parse($shift->jam_masuk);
-            $jamKeluar = Carbon::parse($shift->jam_keluar);
+    //     $jadwalUserHariIni = JadwalAbsensi::where('user_id', $userId)
+    //         ->whereDate('tanggal_jadwal', $today)
+    //         ->get();
 
-            $isShiftMalam = $jamKeluar->lessThan($jamMasuk); // Apakah shift melewati tengah malam?
+    //     $statusTidakAbsen = StatusAbsen::where('nama', 'Tidak Absen')->first();
+    //     $statusLibur = StatusAbsen::where('nama', 'Libur')->first(); // tambahkan ini jika kamu punya status "Libur"
 
-            // Hitung jam selesai shift
-            if ($isShiftMalam) {
-                // Shift malam: jam keluar di hari besok
-                $shiftEnd = Carbon::parse($jadwal->tanggal_jadwal)
-                    ->addDay() // tambah 1 hari
-                    ->setTimeFrom($jamKeluar);
-            } else {
-                // Shift normal: jam keluar tetap di hari yang sama
-                $shiftEnd = Carbon::parse($jadwal->tanggal_jadwal)
-                    ->setTimeFrom($jamKeluar);
-            }
+    //     foreach ($jadwalUserHariIni as $jadwal) {
+    //         $shift = $jadwal->shift;
 
-            // Cek apakah sekarang sudah lewat jam shift selesai
-            if (now()->lessThan($shiftEnd)) {
-                continue; // belum saatnya buat absen tidak hadir
-            }
+    //         if (!$shift) {
+    //             continue;
+    //         }
 
-            // Sudah lewat jam shift selesai, cek apakah user sudah absen
-            $sudahAbsen = Absen::where('jadwal_id', $jadwal->id)
-                ->where('user_id', $userId)
-                ->exists();
+    //         // Jika shift sudah selesai (termasuk shift malam)
+    //         if (!$this->shiftTelahBerakhir($shift, $jadwal->tanggal_jadwal)) {
+    //             continue;
+    //         }
 
-            if (!$sudahAbsen) {
-                // Buat absen tidak hadir
-                Absen::create([
-                    'jadwal_id' => $jadwal->id,
-                    'user_id' => $userId,
-                    'time_in' => Carbon::parse('00:00:00')->timestamp,
-                    'time_out' => Carbon::parse('00:00:00')->timestamp,
-                    'absent' => 1,
-                    'deskripsi_out' => 'Alpha',
-                    'status_absen_id' => $statusTidakAbsen->id ?? 4,
-                    'keterangan' => $statusTidakAbsen->keterangan ?? 'Tidak melakukan absensi sama sekali',
-                    'present' => 0,
-                ]);
-            }
-        }
-    }
+    //         // Jika belum ada absen
+    //         $sudahAbsen = Absen::where('jadwal_id', $jadwal->id)
+    //             ->where('user_id', $userId)
+    //             ->exists();
+
+    //         if (!$sudahAbsen) {
+    //             // Jika shift adalah libur (misal: shift L)
+    //             if ($shift->nama_shift === 'L') {
+    //                 Absen::create([
+    //                     'jadwal_id' => $jadwal->id,
+    //                     'user_id' => $userId,
+    //                     'time_in' => Carbon::parse('00:00:00')->timestamp,
+    //                     'time_out' => Carbon::parse('00:00:00')->timestamp,
+    //                     'absent' => 0,
+    //                     'deskripsi_out' => 'Libur',
+    //                     'status_absen_id' => $statusLibur->id ?? null,
+    //                     'keterangan' => $statusLibur->keterangan ?? 'Hari Libur',
+    //                     'present' => 1,
+    //                 ]);
+    //             } else {
+    //                 // Jika tidak hadir
+    //                 Absen::create([
+    //                     'jadwal_id' => $jadwal->id,
+    //                     'user_id' => $userId,
+    //                     'time_in' => Carbon::parse('00:00:00')->timestamp,
+    //                     'time_out' => Carbon::parse('00:00:00')->timestamp,
+    //                     'absent' => 1,
+    //                     'deskripsi_out' => 'Alpha',
+    //                     'status_absen_id' => $statusTidakAbsen->id ?? 4,
+    //                     'keterangan' => $statusTidakAbsen->keterangan ?? 'Tidak melakukan absensi sama sekali',
+    //                     'present' => 0,
+    //                 ]);
+    //             }
+    //         }
+    //     }
+    // }
 }

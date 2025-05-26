@@ -32,8 +32,8 @@
         <!-- Informasi Karyawan -->
         <div class="flex flex-col items-center gap-2 mb-6" x-data="{ showDetail: false }">
             <div class="flex justify-between w-full max-w-md mx-auto">
-                <strong>No Urut</strong>
-                <span>{{ $user->id ?? '-' }}</span>
+                <strong>No Urut / NIP</strong>
+                <span>{{ $user->nip ?? '-' }}</span>
             </div>
 
             <div class="flex justify-between w-full max-w-md mx-auto">

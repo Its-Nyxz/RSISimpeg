@@ -65,7 +65,7 @@ class DataShift extends Component
 
         $this->totalShifts = $query->count();
 
-        $this->shifts = $query->orderBy('nama_shift')
+        $this->shifts = $query->orderBy('created_at')
             ->skip(($this->currentPage - 1) * $this->perPage)
             ->take($this->perPage)
             ->get()
