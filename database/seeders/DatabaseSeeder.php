@@ -54,7 +54,7 @@ class DatabaseSeeder extends Seeder
             ProposionalitasPointSeeder::class,
             PointKinerjaSeeder::class,
             PointJamKerjaSeeder::class,
-            // UserSeeder::class, // Tambahkan ini
+            UserSeeder::class, // Tambahkan ini
             RolePermissionSeeder::class,
             HolidaysSeeder::class,
             JenisCutiSeeder::class,
