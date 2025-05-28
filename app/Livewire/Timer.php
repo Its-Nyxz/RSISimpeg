@@ -563,6 +563,7 @@ class Timer extends Component
             '192.168.1',    // cadangan jika router di-reset
             '10.0.0',       // jika pakai Biznet
             '192.168.8',   // Orbit
+            '180.246.120',
         ];
 
         $ipPrefix = implode('.', array_slice(explode('.', $ipUser), 0, 3)); // hasil: 192.168.100
