@@ -537,6 +537,8 @@
                         icon: 'warning',
                         title: 'Di Luar Area RSI Banjarnegara',
                         text: `Jarak Anda: ${Math.round(hasilValidasi.jarak)} meter dari area kantor.`,
+                        timer: 3000,
+                        showConfirmButton: false
                     });
                     // }
                     // return;
