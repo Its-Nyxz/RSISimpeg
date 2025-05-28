@@ -589,10 +589,10 @@ class Timer extends Component
             $lokasiKantor['lat'],
             $lokasiKantor['lng']
         );
-        dd($this->latitude, $this->longitude, $jarak, in_array($ipPrefix, $ipPrefixWhitelist), $ipUser, $ipPrefix, $ipPrefixWhitelist, !in_array($ipPrefix, $ipPrefixWhitelist), ($jarak > 100 || !in_array($ipPrefix, $ipPrefixWhitelist)));
+        // dd($this->latitude, $this->longitude, $jarak, in_array($ipPrefix, $ipPrefixWhitelist), $ipUser, $ipPrefix, $ipPrefixWhitelist, !in_array($ipPrefix, $ipPrefixWhitelist), ($jarak > 100 || !in_array($ipPrefix, $ipPrefixWhitelist)));
 
         // if ($jarak > 100 || $ipUser !== $ipKantor) {
-        if ($jarak > 100 && !in_array($ipPrefix, $ipPrefixWhitelist)) {
+        if ($jarak > 100 || !in_array($ipPrefix, $ipPrefixWhitelist)) {
             $this->dispatch('alert-error', message: 'Anda tidak berada di lokasi atau jaringan RSI Banjarnegara.');
             // $this->dispatch('alert-error', message: 'Anda tidak berada di lokasi RSI Banjarnegara.');
             return false;
