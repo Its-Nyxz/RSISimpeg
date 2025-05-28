@@ -86,12 +86,12 @@
                     <div class="mt-4 flex justify-end gap-2">
                         <button wire:click="$set('showStartModal', false)"
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
-                        <button wire:click="startTimer"
-                            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Mulai</button>
-                        {{-- <button onclick="kirimLokasiKeLivewire()"
+                        {{-- <button wire:click="startTimer"
+                            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Mulai</button> --}}
+                        <button onclick="kirimLokasiKeLivewire()"
                             class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
                             Mulai
-                        </button> --}}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -107,13 +107,13 @@
                     <div class="mt-4 flex justify-end gap-2">
                         <button wire:click="$set('showStopModal', false)"
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
-                        <button wire:click="openWorkReportModal"
-                            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Selesai</button>
-                        {{-- <button onclick="kirimLokasiKeLivewire('stop')"
+                        {{-- <button wire:click="openWorkReportModal"
+                            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Selesai</button> --}}
+                        <button onclick="kirimLokasiKeLivewire('stop')"
                             class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
                             Selesai
-                        </button> --}}
-                    </div> 
+                        </button>
+                    </div>
                 </div>
             </div>
         @endif
@@ -383,11 +383,11 @@
     @endif
 
 
-    {{-- @push('scripts')
+    @push('scripts')
         <script>
             const lokasiKantor = {
-                lat: -7.548218078368806,
-                lng: 110.81261315327455,
+                lat: -7.402330130327286,
+                lng: 109.615622721266,
                 radiusMeter: 100
             };
 
@@ -570,7 +570,7 @@
                 setInterval(ambilLokasiTerbaru, 60000);
             });
         </script>
-    @endpush --}}
+    @endpush
     {{-- @push('scripts')
         <script>
                 function konfirmasiOverrideLokasi() {

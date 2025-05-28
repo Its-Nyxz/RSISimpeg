@@ -546,6 +546,8 @@ class Timer extends Component
         //     return true;
         // }
 
+        // -7.402330130327286, 109.6156227212665
+
         // lat long akunbiz : -7.548218078368806, 110.81261315327455
         // lat long rsi banjar:-7.4021325122156405, 109.61549352397789
 
@@ -556,6 +558,7 @@ class Timer extends Component
         // ✅ Daftar prefix IP lokal yang diizinkan (misalnya WiFi kantor dengan IP dinamis)
         $ipPrefixWhitelist = [
             '192.168.100', // artinya IP seperti 192.168.100.xxx akan lolos
+            '192.168.31', // artinya IP seperti 192.168.31.xxx akan lolos
             '192.168.1',    // cadangan jika router di-reset
             '10.0.0',       // jika pakai Biznet
             '192.168.8',   // Orbit
@@ -564,8 +567,8 @@ class Timer extends Component
         $ipPrefix = implode('.', array_slice(explode('.', $ipUser), 0, 3)); // hasil: 192.168.100
 
         $lokasiKantor = [
-            'lat' => -7.548218078368806,
-            'lng' => 110.81261315327455
+            'lat' => -7.402330130327286,
+            'lng' => 109.6156227212665
         ];
 
 
