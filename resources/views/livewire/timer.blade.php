@@ -569,7 +569,7 @@
                 }, 2000); // cek setiap 2 detik
 
                 // Refresh lokasi setiap 60 detik
-                setInterval(ambilLokasiTerbaru, 60000);
+                setInterval(ambilLokasiTerbaru, 30000);
             });
         </script>
     @endpush
