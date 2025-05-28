@@ -572,7 +572,6 @@ class Timer extends Component
             'lng' => 109.6156227212665
         ];
 
-
         // Jika tidak ada lokasi, tetap izinkan jika IP cocok
         if (!$this->latitude || !$this->longitude) {
             // if ($ipUser === $ipKantor) {
@@ -590,7 +589,7 @@ class Timer extends Component
             $lokasiKantor['lat'],
             $lokasiKantor['lng']
         );
-        // dd(in_array($ipPrefix, $ipPrefixWhitelist), $ipUser, $ipPrefix, $ipPrefixWhitelist, !in_array($ipPrefix, $ipPrefixWhitelist), ($jarak > 100 || !in_array($ipPrefix, $ipPrefixWhitelist)));
+        dd($this->latitude, $this->longitude, $jarak, in_array($ipPrefix, $ipPrefixWhitelist), $ipUser, $ipPrefix, $ipPrefixWhitelist, !in_array($ipPrefix, $ipPrefixWhitelist), ($jarak > 100 || !in_array($ipPrefix, $ipPrefixWhitelist)));
 
         // if ($jarak > 100 || $ipUser !== $ipKantor) {
         if ($jarak > 100 && !in_array($ipPrefix, $ipPrefixWhitelist)) {
