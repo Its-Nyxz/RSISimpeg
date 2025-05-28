@@ -538,18 +538,18 @@
                         title: 'Di Luar Area RSI Banjarnegara',
                         text: `Jarak Anda: ${Math.round(hasilValidasi.jarak)} meter dari area kantor.`,
                     });
+                    // }
+                    // return;
                 }
-                return;
-            }
 
-            @this.set('latitude', lokasiTerakhir.lat);
-            @this.set('longitude', lokasiTerakhir.lng);
+                @this.set('latitude', lokasiTerakhir.lat);
+                @this.set('longitude', lokasiTerakhir.lng);
 
-            if (aksi === 'start') {
-                @this.call('startTimer');
-            } else if (aksi === 'stop') {
-                @this.call('openWorkReportModal');
-            }
+                if (aksi === 'start') {
+                    @this.call('startTimer');
+                } else if (aksi === 'stop') {
+                    @this.call('openWorkReportModal');
+                }
             };
 
             document.addEventListener('DOMContentLoaded', () => {
