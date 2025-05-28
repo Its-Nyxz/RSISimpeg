@@ -590,7 +590,7 @@ class Timer extends Component
             $lokasiKantor['lat'],
             $lokasiKantor['lng']
         );
-        dd(in_array($ipPrefix, $ipPrefixWhitelist), $ipUser, $ipPrefix, $ipPrefixWhitelist, ($jarak > 100 || !in_array($ipPrefix, $ipPrefixWhitelist)));
+        // dd(in_array($ipPrefix, $ipPrefixWhitelist), $ipUser, $ipPrefix, $ipPrefixWhitelist, ($jarak > 100 || !in_array($ipPrefix, $ipPrefixWhitelist)));
 
         // if ($jarak > 100 || $ipUser !== $ipKantor) {
         if ($jarak > 100 || !in_array($ipPrefix, $ipPrefixWhitelist)) {
