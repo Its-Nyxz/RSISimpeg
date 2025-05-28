@@ -522,34 +522,34 @@
                 const lastUpdate = JSON.parse(localStorage.getItem('lokasi_sebelumnya'));
                 const now = Date.now();
                 const ageInSeconds = lastUpdate ? (now - lastUpdate.waktu) / 1000 : null;
-                // console.log("Usia lokasi terakhir:", ageInSeconds, "detik");
-                // if (!hasilValidasi.valid) {
-                //     if (ageInSeconds !== null && ageInSeconds < 15) {
-                //         Swal.fire({
-                //             icon: 'info',
-                //             title: 'Menunggu Lokasi Akurat',
-                //             text: 'Lokasi belum terdeteksi dengan akurat. Silakan tunggu beberapa saat dan coba kembali.',
-                //             timer: 3000,
-                //             showConfirmButton: false
-                //         });
-                //     } else {
-                //         Swal.fire({
-                //             icon: 'warning',
-                //             title: 'Di Luar Area RSI Banjarnegara',
-                //             text: `Jarak Anda: ${Math.round(hasilValidasi.jarak)} meter dari area kantor.`,
-                //         });
-                //     }
-                //     return;
-                // }
-
-                @this.set('latitude', lokasiTerakhir.lat);
-                @this.set('longitude', lokasiTerakhir.lng);
-
-                if (aksi === 'start') {
-                    @this.call('startTimer');
-                } else if (aksi === 'stop') {
-                    @this.call('openWorkReportModal');
+                console.log("Usia lokasi terakhir:", ageInSeconds, "detik");
+                if (!hasilValidasi.valid) {
+                    // if (ageInSeconds !== null && ageInSeconds < 15) {
+                    //     Swal.fire({
+                    //         icon: 'info',
+                    //         title: 'Menunggu Lokasi Akurat',
+                    //         text: 'Lokasi belum terdeteksi dengan akurat. Silakan tunggu beberapa saat dan coba kembali.',
+                    //         timer: 3000,
+                    //         showConfirmButton: false
+                    //     });
+                    // } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Di Luar Area RSI Banjarnegara',
+                        text: `Jarak Anda: ${Math.round(hasilValidasi.jarak)} meter dari area kantor.`,
+                    });
                 }
+                return;
+            }
+
+            @this.set('latitude', lokasiTerakhir.lat);
+            @this.set('longitude', lokasiTerakhir.lng);
+
+            if (aksi === 'start') {
+                @this.call('startTimer');
+            } else if (aksi === 'stop') {
+                @this.call('openWorkReportModal');
+            }
             };
 
             document.addEventListener('DOMContentLoaded', () => {
