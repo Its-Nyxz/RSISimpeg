@@ -174,7 +174,7 @@ class Timer extends Component
 
     public function startTimer()
     {
-        if (!$this->validasiLokasiAtauIp()) return;
+        // if (!$this->validasiLokasiAtauIp()) return;
 
         if (!$this->isRunning) {
             $this->isRunning = true;
@@ -234,7 +234,7 @@ class Timer extends Component
 
     public function openWorkReportModal()
     {
-        if (!$this->validasiLokasiAtauIp()) return;
+        // if (!$this->validasiLokasiAtauIp()) return;
 
         if ($this->isRunning) {
             $this->timeOut = now()->timestamp;
@@ -287,7 +287,7 @@ class Timer extends Component
 
     public function completeWorkReport()
     {
-        if (!$this->validasiLokasiAtauIp()) return;
+        // if (!$this->validasiLokasiAtauIp()) return;
 
         if (!$this->timeOut) return;
 

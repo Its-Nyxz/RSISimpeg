@@ -86,12 +86,12 @@
                     <div class="mt-4 flex justify-end gap-2">
                         <button wire:click="$set('showStartModal', false)"
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
-                        {{-- <button wire:click="startTimer"
-                            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Mulai</button> --}}
-                        <button onclick="kirimLokasiKeLivewire()"
+                        <button wire:click="startTimer"
+                            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Mulai</button>
+                        {{-- <button onclick="kirimLokasiKeLivewire()"
                             class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
                             Mulai
-                        </button>
+                        </button> --}}
                     </div>
                 </div>
             </div>
@@ -107,12 +107,12 @@
                     <div class="mt-4 flex justify-end gap-2">
                         <button wire:click="$set('showStopModal', false)"
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
-                        {{-- <button wire:click="openWorkReportModal"
-                            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Selesai</button> --}}
-                        <button onclick="kirimLokasiKeLivewire('stop')"
+                        <button wire:click="openWorkReportModal"
+                            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Selesai</button>
+                        {{-- <button onclick="kirimLokasiKeLivewire('stop')"
                             class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
                             Selesai
-                        </button>
+                        </button> --}}
                     </div>
                 </div>
             </div>
@@ -383,7 +383,7 @@
     @endif
 
 
-    @push('scripts')
+    {{-- @push('scripts')
         <script>
             const lokasiKantor = {
                 lat: -7.402330130327286,
@@ -523,26 +523,26 @@
                 const now = Date.now();
                 const ageInSeconds = lastUpdate ? (now - lastUpdate.waktu) / 1000 : null;
                 console.log("Usia lokasi terakhir:", ageInSeconds, "detik");
-                // if (!hasilValidasi.valid) {
-                // if (ageInSeconds !== null && ageInSeconds < 15) {
-                //     Swal.fire({
-                //         icon: 'info',
-                //         title: 'Menunggu Lokasi Akurat',
-                //         text: 'Lokasi belum terdeteksi dengan akurat. Silakan tunggu beberapa saat dan coba kembali.',
-                //         timer: 3000,
-                //         showConfirmButton: false
-                //     });
-                // } else {
-                // Swal.fire({
-                //     icon: 'warning',
-                //     title: 'Di Luar Area RSI Banjarnegara',
-                //     text: `Jarak Anda: ${Math.round(hasilValidasi.jarak)} meter dari area kantor.`,
-                //     timer: 3000,
-                //     showConfirmButton: false
-                // });
-                // }
-                // return;
-                // }
+                if (!hasilValidasi.valid) {
+                    if (ageInSeconds !== null && ageInSeconds < 15) {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Menunggu Lokasi Akurat',
+                            text: 'Lokasi belum terdeteksi dengan akurat. Silakan tunggu beberapa saat dan coba kembali.',
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Di Luar Area RSI Banjarnegara',
+                            text: `Jarak Anda: ${Math.round(hasilValidasi.jarak)} meter dari area kantor.`,
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                    }
+                    return;
+                }
 
                 @this.set('latitude', lokasiTerakhir.lat);
                 @this.set('longitude', lokasiTerakhir.lng);
@@ -572,7 +572,7 @@
                 setInterval(ambilLokasiTerbaru, 30000);
             });
         </script>
-    @endpush
+    @endpush --}}
     {{-- @push('scripts')
         <script>
                 function konfirmasiOverrideLokasi() {
