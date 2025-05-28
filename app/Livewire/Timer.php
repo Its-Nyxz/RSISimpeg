@@ -557,12 +557,12 @@ class Timer extends Component
 
         // ✅ Daftar prefix IP lokal yang diizinkan (misalnya WiFi kantor dengan IP dinamis)
         $ipPrefixWhitelist = [
+            '180.246.120',
             '192.168.100', // artinya IP seperti 192.168.100.xxx akan lolos
             '192.168.31', // artinya IP seperti 192.168.31.xxx akan lolos
             '192.168.1',    // cadangan jika router di-reset
             '10.0.0',       // jika pakai Biznet
             '192.168.8',   // Orbit
-            '180.246.120',
         ];
 
         $ipPrefix = implode('.', array_slice(explode('.', $ipUser), 0, 3)); // hasil: 192.168.100
@@ -590,10 +590,10 @@ class Timer extends Component
             $lokasiKantor['lat'],
             $lokasiKantor['lng']
         );
-        dd(in_array($ipPrefix, $ipPrefixWhitelist), $ipUser, $ipPrefix, $ipPrefixWhitelist, !in_array($ipPrefix, $ipPrefixWhitelist), ($jarak > 100 || !in_array($ipPrefix, $ipPrefixWhitelist)));
+        // dd(in_array($ipPrefix, $ipPrefixWhitelist), $ipUser, $ipPrefix, $ipPrefixWhitelist, !in_array($ipPrefix, $ipPrefixWhitelist), ($jarak > 100 || !in_array($ipPrefix, $ipPrefixWhitelist)));
 
         // if ($jarak > 100 || $ipUser !== $ipKantor) {
-        if ($jarak > 100 || !in_array($ipPrefix, $ipPrefixWhitelist)) {
+        if ($jarak > 100 && !in_array($ipPrefix, $ipPrefixWhitelist)) {
             $this->dispatch('alert-error', message: 'Anda tidak berada di lokasi atau jaringan RSI Banjarnegara.');
             // $this->dispatch('alert-error', message: 'Anda tidak berada di lokasi RSI Banjarnegara.');
             return false;
