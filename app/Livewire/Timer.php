@@ -554,7 +554,6 @@ class Timer extends Component
         $ipUser = request()->ip();
         // $ipUser = '192.168.100.121';
         // $ipKantor = '127.0.0.1'; // IP jaringan kantor
-        dd($ipUser);
 
         // ✅ Daftar prefix IP lokal yang diizinkan (misalnya WiFi kantor dengan IP dinamis)
         $ipPrefixWhitelist = [
