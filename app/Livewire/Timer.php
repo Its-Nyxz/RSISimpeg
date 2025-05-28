@@ -174,7 +174,7 @@ class Timer extends Component
 
     public function startTimer()
     {
-        // if (!$this->validasiLokasiAtauIp()) return;
+        if (!$this->validasiLokasiAtauIp()) return;
 
         if (!$this->isRunning) {
             $this->isRunning = true;
@@ -234,7 +234,7 @@ class Timer extends Component
 
     public function openWorkReportModal()
     {
-        // if (!$this->validasiLokasiAtauIp()) return;
+        if (!$this->validasiLokasiAtauIp()) return;
 
         if ($this->isRunning) {
             $this->timeOut = now()->timestamp;
@@ -287,7 +287,7 @@ class Timer extends Component
 
     public function completeWorkReport()
     {
-        // if (!$this->validasiLokasiAtauIp()) return;
+        if (!$this->validasiLokasiAtauIp()) return;
 
         if (!$this->timeOut) return;
 
@@ -554,6 +554,7 @@ class Timer extends Component
         $ipUser = request()->ip();
         // $ipUser = '192.168.100.121';
         // $ipKantor = '127.0.0.1'; // IP jaringan kantor
+        dd($ipUser);
 
         // ✅ Daftar prefix IP lokal yang diizinkan (misalnya WiFi kantor dengan IP dinamis)
         $ipPrefixWhitelist = [
@@ -571,7 +572,6 @@ class Timer extends Component
             'lng' => 109.6156227212665
         ];
 
-        dd($ipUser);
         // Jika tidak ada lokasi, tetap izinkan jika IP cocok
         if (!$this->latitude || !$this->longitude) {
             // if ($ipUser === $ipKantor) {
