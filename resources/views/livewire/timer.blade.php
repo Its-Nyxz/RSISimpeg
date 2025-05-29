@@ -383,13 +383,47 @@
     @endif
 
 
-    {{-- @push('scripts')
+    @push('scripts')
         <script>
             const lokasiKantor = {
                 lat: -7.402330130327286,
                 lng: 109.615622721266,
                 radiusMeter: 100
             };
+
+            const polygonArea = [{
+                    lat: -7.401462324660784,
+                    lng: 109.61574443318705
+                },
+                {
+                    lat: -7.40206468637885,
+                    lng: 109.61591235565817
+                },
+                {
+                    lat: -7.401966177920016,
+                    lng: 109.61618451323585
+                },
+                {
+                    lat: -7.402782968146411,
+                    lng: 109.6164214758092
+                },
+                {
+                    lat: -7.403165037042953,
+                    lng: 109.61580592184652
+                },
+                {
+                    lat: -7.403230824029308,
+                    lng: 109.61515910978147
+                },
+                {
+                    lat: -7.4017712054383935,
+                    lng: 109.61499327224521
+                },
+                {
+                    lat: -7.40146214270284,
+                    lng: 109.6157440761346
+                }
+            ];
 
             let lokasiTerakhir = null;
             let sudahPeringatkan = {
@@ -407,6 +441,25 @@
                     Math.sin(dLon / 2) ** 2;
                 const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
                 return R * c;
+            }
+
+            function isInsidePolygon(point, polygon) {
+                let x = point.lat,
+                    y = point.lng;
+                let inside = false;
+
+                for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+                    let xi = polygon[i].lat,
+                        yi = polygon[i].lng;
+                    let xj = polygon[j].lat,
+                        yj = polygon[j].lng;
+
+                    let intersect = ((yi > y) !== (yj > y)) &&
+                        (x < (xj - xi) * (y - yi) / (yj - yi + 1e-10) + xi);
+                    if (intersect) inside = !inside;
+                }
+
+                return inside;
             }
 
             function simpanLokasi(lat, lng) {
@@ -506,6 +559,16 @@
                 };
             }
 
+            function validasiLokasiPolygon(lat, lng) {
+                const point = {
+                    lat: lat,
+                    lng: lng
+                };
+                return {
+                    valid: isInsidePolygon(point, polygonArea)
+                };
+            }
+
             window.kirimLokasiKeLivewire = function(aksi = 'start') {
                 if (!lokasiTerakhir) {
                     Swal.fire({
@@ -516,33 +579,46 @@
                     return;
                 }
 
-                const hasilValidasi = validasiJarak(lokasiTerakhir.lat, lokasiTerakhir.lng);
+                // const hasilValidasi = validasiJarak(lokasiTerakhir.lat, lokasiTerakhir.lng);
+
+                const hasilValidasi = validasiLokasiPolygon(lokasiTerakhir.lat, lokasiTerakhir.lng);
+
+                if (!hasilValidasi.valid) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Di Luar Area RSI',
+                        text: 'Anda tidak berada di dalam area kantor.',
+                        timer: 3000,
+                        showConfirmButton: false
+                    });
+                    return;
+                }
 
                 // Jika jarak tidak valid DAN lokasi terakhir belum diperbarui dalam 15 detik
                 const lastUpdate = JSON.parse(localStorage.getItem('lokasi_sebelumnya'));
                 const now = Date.now();
                 const ageInSeconds = lastUpdate ? (now - lastUpdate.waktu) / 1000 : null;
                 console.log("Usia lokasi terakhir:", ageInSeconds, "detik");
-                if (!hasilValidasi.valid) {
-                    if (ageInSeconds !== null && ageInSeconds < 15) {
-                        Swal.fire({
-                            icon: 'info',
-                            title: 'Menunggu Lokasi Akurat',
-                            text: 'Lokasi belum terdeteksi dengan akurat. Silakan tunggu beberapa saat dan coba kembali.',
-                            timer: 3000,
-                            showConfirmButton: false
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Di Luar Area RSI Banjarnegara',
-                            text: `Jarak Anda: ${Math.round(hasilValidasi.jarak)} meter dari area kantor.`,
-                            timer: 3000,
-                            showConfirmButton: false
-                        });
-                    }
-                    return;
-                }
+                // if (!hasilValidasi.valid) {
+                //     if (ageInSeconds !== null && ageInSeconds < 15) {
+                //         Swal.fire({
+                //             icon: 'info',
+                //             title: 'Menunggu Lokasi Akurat',
+                //             text: 'Lokasi belum terdeteksi dengan akurat. Silakan tunggu beberapa saat dan coba kembali.',
+                //             timer: 3000,
+                //             showConfirmButton: false
+                //         });
+                //     } else {
+                //         Swal.fire({
+                //             icon: 'warning',
+                //             title: 'Di Luar Area RSI Banjarnegara',
+                //             text: `Jarak Anda: ${Math.round(hasilValidasi.jarak)} meter dari area kantor.`,
+                //             timer: 3000,
+                //             showConfirmButton: false
+                //         });
+                //     }
+                //     return;
+                // }
 
                 @this.set('latitude', lokasiTerakhir.lat);
                 @this.set('longitude', lokasiTerakhir.lng);
@@ -572,5 +648,5 @@
                 setInterval(ambilLokasiTerbaru, 30000);
             });
         </script>
-    @endpush --}}
+    @endpush
 </div>

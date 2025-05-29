@@ -567,9 +567,20 @@ class Timer extends Component
 
         $ipPrefix = implode('.', array_slice(explode('.', $ipUser), 0, 3)); // hasil: 192.168.100
 
-        $lokasiKantor = [
-            'lat' => -7.402330130327286,
-            'lng' => 109.6156227212665
+        // $lokasiKantor = [
+        //     'lat' => -7.402330130327286,
+        //     'lng' => 109.6156227212665
+        // ];
+
+        $polygon = [
+            [-7.401462324660784, 109.61574443318705],
+            [-7.40206468637885, 109.61591235565817],
+            [-7.401966177920016, 109.61618451323585],
+            [-7.402782968146411, 109.6164214758092],
+            [-7.403165037042953, 109.61580592184652],
+            [-7.403230824029308, 109.61515910978147],
+            [-7.4017712054383935, 109.61499327224521],
+            [-7.40146214270284, 109.6157440761346] // titik akhir = awal
         ];
 
         // Jika tidak ada lokasi, tetap izinkan jika IP cocok
@@ -583,20 +594,28 @@ class Timer extends Component
             }
         }
 
-        $jarak = $this->hitungJarakMeter(
-            $this->latitude,
-            $this->longitude,
-            $lokasiKantor['lat'],
-            $lokasiKantor['lng']
-        );
+        // $jarak = $this->hitungJarakMeter(
+        //     $this->latitude,
+        //     $this->longitude,
+        //     $lokasiKantor['lat'],
+        //     $lokasiKantor['lng']
+        // );
         // dd($this->latitude, $this->longitude, $jarak, in_array($ipPrefix, $ipPrefixWhitelist), $ipUser, $ipPrefix, $ipPrefixWhitelist, !in_array($ipPrefix, $ipPrefixWhitelist), ($jarak > 100 || !in_array($ipPrefix, $ipPrefixWhitelist)));
 
         // if ($jarak > 100 || $ipUser !== $ipKantor) {
-        if ($jarak > 100 || !in_array($ipPrefix, $ipPrefixWhitelist)) {
-            $this->dispatch('alert-error', message: 'Anda tidak berada di lokasi atau jaringan RSI Banjarnegara.');
-            // $this->dispatch('alert-error', message: 'Anda tidak berada di lokasi RSI Banjarnegara.');
+        // if ($jarak > 100 || !in_array($ipPrefix, $ipPrefixWhitelist)) {
+        //     $this->dispatch('alert-error', message: 'Anda tidak berada di lokasi atau jaringan RSI Banjarnegara.');
+        //     // $this->dispatch('alert-error', message: 'Anda tidak berada di lokasi RSI Banjarnegara.');
+        //     return false;
+        // }
+
+        $lokasiValid = $this->isPointInPolygon($this->latitude, $this->longitude, $polygon);
+
+        if (!$lokasiValid && !in_array($ipPrefix, $ipPrefixWhitelist)) {
+            $this->dispatch('alert-error', message: 'Anda tidak berada di area RSI Banjarnegara.');
             return false;
         }
+
 
         return true;
     }
@@ -610,6 +629,31 @@ class Timer extends Component
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
         return $earthRadius * $c;
     }
+
+    private function isPointInPolygon($lat, $lng, array $polygon): bool
+    {
+        $inside = false;
+        $j = count($polygon) - 1;
+
+        for ($i = 0; $i < count($polygon); $i++) {
+            $lat_i = $polygon[$i][0];
+            $lng_i = $polygon[$i][1];
+            $lat_j = $polygon[$j][0];
+            $lng_j = $polygon[$j][1];
+
+            $intersect = (($lng_i > $lng) != ($lng_j > $lng)) &&
+                ($lat < ($lat_j - $lat_i) * ($lng - $lng_i) / ($lng_j - $lng_i + 1e-10) + $lat_i);
+
+            if ($intersect) {
+                $inside = !$inside;
+            }
+
+            $j = $i;
+        }
+
+        return $inside;
+    }
+
 
     public function render()
     {
