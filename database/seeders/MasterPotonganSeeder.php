@@ -26,7 +26,6 @@ class MasterPotonganSeeder extends Seeder
             ['nama' => 'rekonsiliasi bpjs kesehatan'],
             ['nama' => 'bpjs kesehatan ortu/tambahan'],
             ['nama' => 'pph21'],
-            ['nama' => 'kurban'],
             ['nama' => 'rawat inap'],
             ['nama' => 'amaliah romadhon'],
             ['nama' => 'dansos karyawan'],

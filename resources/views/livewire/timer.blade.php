@@ -573,36 +573,4 @@
             });
         </script>
     @endpush --}}
-    {{-- @push('scripts')
-        <script>
-                function konfirmasiOverrideLokasi() {
-                    Swal.fire({
-                        title: 'Lanjutkan Absensi Manual',
-                        html: `
-        <p class="mb-2 text-sm text-gray-700">
-            Sistem tidak dapat mendeteksi lokasi atau jaringan RSI Anda.<br>
-            Jika Anda memang berada di lingkungan RSI, silakan masukkan alasan untuk melanjutkan absensi manual:
-        </p>
-        <textarea id="overrideReason" class="swal2-textarea" placeholder="Tulis alasan Anda di sini..."></textarea>
-    `,
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Kirim & Lanjutkan',
-                        cancelButtonText: 'Batal',
-                        preConfirm: () => {
-                            const reason = document.getElementById('overrideReason').value;
-                            if (!reason.trim()) {
-                                Swal.showValidationMessage('Alasan wajib diisi untuk melanjutkan absensi manual.');
-                            }
-                            return reason;
-                        }
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            const reason = result.value;
-                            @this.call('overrideLokasi', reason);
-                        }
-                    });
-                }
-        </script>
-    @endpush --}}
 </div>

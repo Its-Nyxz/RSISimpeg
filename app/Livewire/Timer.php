@@ -611,29 +611,6 @@ class Timer extends Component
         return $earthRadius * $c;
     }
 
-    // public function overrideLokasi($alasan = null)
-    // {
-    //     $count = OverrideLokasi::where('user_id', auth()->id())
-    //         ->whereMonth('created_at', now()->month)
-    //         ->whereYear('created_at', now()->year)
-    //         ->count();
-
-    //     if ($count >= 3) {
-    //         $this->dispatch('alert-error', message: 'Anda telah mencapai batas maksimum absensi manual bulan ini.');
-    //         return;
-    //     }
-
-    //     OverrideLokasi::create([
-    //         'user_id' => auth()->id(),
-    //         'jadwal_id' => $this->jadwal_id,
-    //         'keterangan' => $alasan ?: 'Absensi manual tanpa keterangan',
-    //     ]);
-
-    //     session()->put('override_lokasi_rsi', true);
-
-    //     $this->dispatch('alert-success', message: 'Verifikasi manual berhasil. Silakan lanjutkan proses absensi.');
-    // }
-
     public function render()
     {
         return view('livewire.timer');

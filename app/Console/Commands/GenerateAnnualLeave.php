@@ -37,7 +37,10 @@ class GenerateAnnualLeave extends Command
             $alreadyGenerated = SisaCutiTahunan::where('tahun', $currentYear)->exists();
 
             if (!$alreadyGenerated) {
-                $users = User::all();
+                // Ambil hanya user dengan jenis karyawan 'Tetap'
+                $users = User::whereHas('jenisKaryawan', function ($query) {
+                    $query->where('nama', 'Tetap');
+                })->get();
 
                 foreach ($users as $user) {
                     $jatahCuti = MasterJatahCuti::where('tahun', $currentYear)
@@ -50,7 +53,7 @@ class GenerateAnnualLeave extends Command
                     ]);
                 }
 
-                $this->info('Sisa cuti berhasil digenerate.');
+                $this->info('Sisa cuti berhasil digenerate untuk karyawan tetap.');
             } else {
                 $this->info('Data sudah ada untuk tahun ini.');
             }

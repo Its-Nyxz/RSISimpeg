@@ -122,7 +122,9 @@ class AddPotongan extends Component
                 return Carbon::parse($jadwal->tanggal_jadwal)->between($start, $end);
             })->count();
 
+            // $proporsi = $totalHariJadwal > 0 ? ($hariJadwalAktif / $totalHariJadwal) : 1;
             $proporsi = $hariJadwalAktif / max($totalHariJadwal, 1);
+
             $nominal = max(0, $kategori->nominal);
             $nama_jabatan = strtolower(preg_replace('/\s*\(.*?\)/', '', $kategori->nama));
 
@@ -145,7 +147,8 @@ class AddPotongan extends Component
                     break;
             }
         }
-        // dd($this->user->jenis);
+
+
         $this->isKaryawanTetap = strtolower($this->user->jenis?->nama ?? '') === 'tetap';
         $jenisKaryawan = strtolower($this->user->jenis?->nama ?? ''); // <- e.g. "part time", "kontrak", "magang"
 
@@ -181,6 +184,8 @@ class AddPotongan extends Component
             $total_bruto = $this->gapok + $this->nom_jabatan + $this->nom_fungsi + $this->nom_umum
                 + $this->nom_makan + $this->nom_transport + $this->nom_khusus;
         }
+
+
         $this->gajiBruto = GajiBruto::where('user_id', $this->user->id)
             ->where('bulan_penggajian', $this->bulan)
             ->where('tahun_penggajian', $this->tahun)
@@ -229,6 +234,7 @@ class AddPotongan extends Component
                 $this->updatePotonganInputs(); // belum ada potongan → hitung semua otomatis
             }
         } else {
+
             // Jika belum ada → hitung otomatis & buat data baru
             $this->gajiBruto = GajiBruto::create([
                 'user_id'        => $this->user->id,

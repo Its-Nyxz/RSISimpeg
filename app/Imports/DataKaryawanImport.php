@@ -5,6 +5,10 @@ namespace App\Imports;
 use App\Models\User;
 use Illuminate\Support\Str;
 use App\Models\JenisKaryawan;
+use App\Models\RiwayatJabatan;
+use App\Models\KategoriJabatan;
+use App\Models\MasterJatahCuti;
+use App\Models\SisaCutiTahunan;
 use App\Models\MasterPendidikan;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -92,9 +96,51 @@ class DataKaryawanImport implements ToCollection
                         $user->nip = $nip;
                         $user->save();
                     }
+
+                    if ($jabatanStrukturalId && $jabatanStrukturalId != $user->jabatan_id) {
+                        $kategori = KategoriJabatan::find($jabatanStrukturalId);
+                        if ($kategori && $kategori->tunjangan) {
+                            // Tutup riwayat lama
+                            RiwayatJabatan::where('user_id', $user->id)
+                                ->where('kategori_jabatan_id', $user->jabatan_id)
+                                ->where('tunjangan', $kategori->tunjangan)
+                                ->whereNull('tanggal_selesai')
+                                ->update(['tanggal_selesai' => now()]);
+
+                            // Tambah riwayat baru
+                            RiwayatJabatan::create([
+                                'user_id' => $user->id,
+                                'kategori_jabatan_id' => $jabatanStrukturalId,
+                                'tunjangan' => strtolower($kategori->tunjangan),
+                                'tanggal_mulai' => $tmtDate ?? now(),
+                                'tanggal_selesai' => null,
+                            ]);
+                        }
+                    }
+
+                    if ($jabatanFungsionalId && $jabatanFungsionalId != $user->fungsi_id) {
+                        $kategori = KategoriJabatan::find($jabatanFungsionalId);
+                        if ($kategori && $kategori->tunjangan) {
+                            // Tutup riwayat lama
+                            RiwayatJabatan::where('user_id', $user->id)
+                                ->where('kategori_jabatan_id', $user->fungsi_id)
+                                ->where('tunjangan', $kategori->tunjangan)
+                                ->whereNull('tanggal_selesai')
+                                ->update(['tanggal_selesai' => now()]);
+
+                            // Tambah riwayat baru
+                            RiwayatJabatan::create([
+                                'user_id' => $user->id,
+                                'kategori_jabatan_id' => $jabatanFungsionalId,
+                                'tunjangan' => strtolower($kategori->tunjangan),
+                                'tanggal_mulai' => $tmtDate ?? now(),
+                                'tanggal_selesai' => null,
+                            ]);
+                        }
+                    }
                 } else {
                     // Jika belum ada user sama sekali, buat baru
-                    User::create([
+                    $userBaru = User::create([
                         'name' => $name,
                         'slug' => $slug,
                         'nip' => $nip,
@@ -121,6 +167,55 @@ class DataKaryawanImport implements ToCollection
                         'gol_id' => $golonganId,
                         'password' => Hash::make('123'),
                     ]);
+
+                    // === Generate cuti tahunan jika jenis karyawan adalah Tetap (id = 1) ===
+                    $jenisNama = strtolower(JenisKaryawan::find($jenisKarId)?->nama ?? '');
+                    if ($jenisNama === 'tetap') {
+                        $currentYear = now()->year;
+
+                        $sudahAda = SisaCutiTahunan::where('user_id', $userBaru->id)
+                            ->where('tahun', $currentYear)
+                            ->exists();
+
+                        if (!$sudahAda) {
+                            $jatahCuti = MasterJatahCuti::where('tahun', $currentYear)
+                                ->value('jumlah_cuti') ?? 12;
+
+                            SisaCutiTahunan::create([
+                                'user_id' => $userBaru->id,
+                                'tahun' => $currentYear,
+                                'sisa_cuti' => $jatahCuti,
+                            ]);
+                        }
+                    }
+
+                    // Buat riwayat jabatan jika ada
+                    if ($jabatanStrukturalId) {
+                        $kategori = KategoriJabatan::find($jabatanStrukturalId);
+                        if ($kategori && $kategori->tunjangan) {
+                            RiwayatJabatan::create([
+                                'user_id' => $userBaru->id,
+                                'kategori_jabatan_id' => $jabatanStrukturalId,
+                                'tunjangan' => strtolower($kategori->tunjangan),
+                                'tanggal_mulai' => $tmtDate ?? now(),
+                                'tanggal_selesai' => null,
+                            ]);
+                        }
+                    }
+
+                    // Buat riwayat fungsional jika ada
+                    if ($jabatanFungsionalId) {
+                        $kategori = KategoriJabatan::find($jabatanFungsionalId);
+                        if ($kategori && $kategori->tunjangan) {
+                            RiwayatJabatan::create([
+                                'user_id' => $userBaru->id,
+                                'kategori_jabatan_id' => $jabatanFungsionalId,
+                                'tunjangan' => strtolower($kategori->tunjangan),
+                                'tanggal_mulai' => $tmtDate ?? now(),
+                                'tanggal_selesai' => null,
+                            ]);
+                        }
+                    }
                 }
             } catch (\Exception $e) {
                 Log::error('Gagal import row: ', [
@@ -132,10 +227,10 @@ class DataKaryawanImport implements ToCollection
         });
     }
 
-    public function chunkSize(): int
-    {
-        return 100; // proses 100 baris per batch
-    }
+    // public function chunkSize(): int
+    // {
+    //     return 100; // proses 100 baris per batch
+    // }
 
     private function hitungGolonganId($pendidikanId, $jenisKaryawanId, $masaKerja)
     {

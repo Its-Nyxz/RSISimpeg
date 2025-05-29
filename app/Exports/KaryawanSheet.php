@@ -46,14 +46,14 @@ class KaryawanSheet implements FromArray, WithHeadings, WithTitle, WithEvents
 
         // 2. Data dari model User
         $users = User::with([
-            'pendidikanUser', // pastikan relasi ini sesuai model Anda
+            'pendidikanUser',
             'unitKerja',
             'kategorijabatan',
             'kategorifungsional',
             'jenis',
             'khusus',
             'kategoriPPH',
-        ])->get();
+        ])->where('id', '!=', 1)->get();
 
         foreach ($users as $user) {
             $data[] = [

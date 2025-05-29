@@ -10,7 +10,7 @@
                     <i class="fa-solid fa-file-circle-plus text-lg"></i>
                 </button>
                 <div
-                    class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded shadow opacity-0 group-hover:opacity-100 transition">
+                    class="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded shadow opacity-0 group-hover:opacity-100 transition">
                     Tambah SP
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>
@@ -32,7 +32,7 @@
                     <i class="fa-solid fa-clock-rotate-left text-lg"></i>
                 </button>
                 <div
-                    class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded shadow opacity-0 group-hover:opacity-100 transition">
+                    class="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded shadow opacity-0 group-hover:opacity-100 transition">
                     Tambah History
                     <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>
@@ -53,7 +53,7 @@
                 <i class="fa-solid fa-arrow-left text-lg"></i>
             </a>
             <div
-                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded shadow opacity-0 group-hover:opacity-100 transition">
+                class="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded shadow opacity-0 group-hover:opacity-100 transition">
                 Kembali
                 <div class="tooltip-arrow" data-popper-arrow></div>
             </div>
@@ -339,22 +339,33 @@
         @push('scripts')
             <script type="module">
                 Livewire.on('konfirmasi-phk', () => {
+                    const dari = @this.get('phkDari');
+
+                    let keterangan = '';
+                    if (dari === 'SP1') {
+                        keterangan = '<b>4x Tingkat II (SP1)</b>';
+                    } else if (dari === 'SP2') {
+                        keterangan = '<b>1x Tingkat III (SP2)</b>';
+                    } else {
+                        keterangan = 'SP melebihi batas toleransi';
+                    }
+
                     Swal.fire({
                         title: 'PHK Otomatis?',
-                        html: 'Karyawan telah menerima <b>5x SP II</b> dan <b>2x SP III</b>.<br>Menambah SP ini akan <b>berakibat PHK</b>.<br><br><b>Lanjutkan?</b>',
+                        html: `Karyawan telah menerima ${keterangan}.<br>Menambah SP ini akan <b>berakibat PHK</b>.<br><br><b>Lanjutkan?</b>`,
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonText: 'Ya, lanjutkan PHK',
                         cancelButtonText: 'Batal'
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            // Panggil ulang dengan konfirmasi
                             @this.call('tambahSP', true);
                         }
                     });
                 });
             </script>
         @endpush
+
     </div>
     <div class="w-full mb-6">
         <x-card-tanpa-title>

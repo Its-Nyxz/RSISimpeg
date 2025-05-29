@@ -16,6 +16,8 @@ use App\Models\MasterJabatan;
 use App\Models\MasterGolongan;
 use App\Models\RiwayatJabatan;
 use App\Models\KategoriJabatan;
+use App\Models\MasterJatahCuti;
+use App\Models\SisaCutiTahunan;
 use App\Models\MasterPendidikan;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
@@ -332,11 +334,11 @@ class KaryawanForm extends Component
         // } elseif (!$kategoriJabatan) {
         //     return back()->with('error', 'Kategori Jabatan tidak ditemukan.');
         // }
+        $jenis = JenisKaryawan::find($this->selectedJenisKaryawan)?->nama;
+
         if ($this->tmt) {
             $start = Carbon::parse($this->tmt);
             $now = Carbon::now();
-
-            $jenis = JenisKaryawan::find($this->selectedJenisKaryawan)?->nama;
 
             if (strtolower($jenis) === 'kontrak') {
                 // Hitung dalam bulan
@@ -377,11 +379,51 @@ class KaryawanForm extends Component
             'password' => Hash::make('123'),
         ]);
 
-
         // Update roles jika user baru dibuat atau diperbarui
         if (!empty($this->selectedRoles)) {
             $roles = Role::whereIn('id', (array) $this->selectedRoles)->pluck('name')->toArray();
             $user->syncRoles($roles);
+        }
+
+        if (strtolower($jenis) === 'tetap') {
+            $currentYear = Carbon::now('Asia/Jakarta')->year;
+
+            $sudahAda = SisaCutiTahunan::where('user_id', $user->id)
+                ->where('tahun', $currentYear)
+                ->exists();
+
+            if (!$sudahAda) {
+                $jatahCuti = MasterJatahCuti::where('tahun', $currentYear)
+                    ->value('jumlah_cuti') ?? 12;
+
+                SisaCutiTahunan::create([
+                    'user_id' => $user->id,
+                    'tahun' => $currentYear,
+                    'sisa_cuti' => $jatahCuti,
+                ]);
+            }
+        }
+
+        // Tambahkan riwayat jabatan jika ada
+        if ($kategoriJabatan) {
+            RiwayatJabatan::create([
+                'user_id' => $user->id,
+                'kategori_jabatan_id' => $kategoriJabatan->id,
+                'tunjangan' => $kategoriJabatan->tunjangan,
+                'tanggal_mulai' => now(),
+                'tanggal_selesai' => null,
+            ]);
+        }
+
+        // Tambahkan riwayat fungsional jika ada
+        if ($kategoriFungsional) {
+            RiwayatJabatan::create([
+                'user_id' => $user->id,
+                'kategori_jabatan_id' => $kategoriFungsional->id,
+                'tunjangan' => $kategoriFungsional->tunjangan,
+                'tanggal_mulai' => now(),
+                'tanggal_selesai' => null,
+            ]);
         }
         return redirect()->route('datakaryawan.index')->with('success', 'Karyawan berhasil diTambah.');
     }

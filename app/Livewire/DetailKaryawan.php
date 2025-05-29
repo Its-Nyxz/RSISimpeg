@@ -41,6 +41,7 @@ class DetailKaryawan extends Component
     public $listSP;
     public $gapokSebelumnya;
     public $gapokPenyesuaian;
+    public $phkDari;
 
     public function mount($user)
     {
@@ -239,30 +240,24 @@ class DetailKaryawan extends Component
 
         $isPhk = $this->tingkat === 'IV';
 
-        // Hitung SP1 dan SP2 saat ini
+        // Hitung jumlah SP
         $sp1Count = PeringatanKaryawan::where('user_id', $user->id)->where('sanksi', 1)->count();
         $sp2Count = PeringatanKaryawan::where('user_id', $user->id)->where('sanksi', 2)->count();
 
-        // ✅ Blokir penambahan jika batas tercapai
-        if ($sanksi === 1 && $sp1Count >= 5) {
-            return redirect()->route('detailkaryawan.show', $user->id)->with('error', 'Tidak dapat menambahkan SP Tingkat II. Karyawan sudah menerima 5 SP.');
-        }
-
-        if ($sanksi === 2 && $sp2Count >= 2) {
-            return redirect()->route('detailkaryawan.show', $user->id)->with('error', 'Tidak dapat menambahkan SP Tingkat III. Karyawan sudah menerima 2 SP.');
-        }
-
-        // 🔁 Cek potensi PHK otomatis (setelah SP ini disimpan)
+        // === PHK otomatis jika melewati batas SP
         $willBePhk = false;
-        if (
-            ($sanksi === 1 && ($sp1Count + 1) >= 5 && $sp2Count >= 2) ||
-            ($sanksi === 2 && ($sp2Count + 1) >= 2 && $sp1Count >= 5)
-        ) {
+
+        if ($sanksi === 1 && $sp1Count >= 4) {
             $willBePhk = true;
+            $this->phkDari = 'SP1';
+        } elseif ($sanksi === 2 && $sp2Count >= 1) {
+            $willBePhk = true;
+            $this->phkDari = 'SP2';
         }
 
+        // Tampilkan konfirmasi sebelum PHK otomatis
         if ($willBePhk && !$confirmed_phk) {
-            $this->dispatch('konfirmasi-phk'); // Livewire event
+            $this->dispatch('konfirmasi-phk');
             return;
         }
 
@@ -277,35 +272,46 @@ class DetailKaryawan extends Component
             'is_phk' => $isPhk,
         ]);
 
-        // ✅ Update status PHK jika SP IV atau otomatis PHK karena akumulasi
+        // === Lakukan PHK bila perlu
         if ($isPhk || $willBePhk) {
+            $alasanResign = match (true) {
+                $isPhk => 'Diberhentikan melalui SP Tingkat IV',
+                $sanksi === 1 => 'Diberhentikan otomatis karena menerima SP Tingkat II (SP1) sebanyak 5 kali',
+                $sanksi === 2 => 'Diberhentikan otomatis karena menerima SP Tingkat III (SP2) sebanyak 2 kali',
+            };
+
             $user->update([
                 'status_karyawan' => 0,
-                'alasan_resign' => $isPhk
-                    ? 'Diberhentikan melalui SP Tingkat IV'
-                    : 'Diberhentikan karena akumulasi SP Tingkat II (5x) dan Tingkat III (2x)',
+                'alasan_resign' => $alasanResign,
             ]);
 
-            Notification::send($user, new UserNotification(
-                'Anda telah diberhentikan dari status karyawan karena pelanggaran berat.' .
-                    ($isPhk ? ' SP IV diterbitkan.' : ' SP II dan SP III melebihi batas.'),
-                '/profil'
-            ));
+            $notifMsg = match (true) {
+                $isPhk => 'Anda telah diberhentikan dari status karyawan karena pelanggaran berat. SP Tingkat IV telah diterbitkan.',
+                $sanksi === 1 => 'Anda telah diberhentikan karena telah menerima SP Tingkat II (SP1) sebanyak 5 kali.',
+                $sanksi === 2 => 'Anda telah diberhentikan karena telah menerima SP Tingkat III (SP2) sebanyak 2 kali.',
+                default => 'Anda telah diberhentikan karena pelanggaran berat.',
+            };
+
+            Notification::send($user, new UserNotification($notifMsg, '/peringatan'));
+        } else {
+            // === Kirim notifikasi SP biasa (jika tidak PHK)
+            $admin = auth()->user();
+            $message = 'Anda telah diberikan Surat Peringatan Tingkat <strong>' . $this->tingkat . '</strong> oleh <strong>' . $admin->name . '</strong>.' .
+                '<br><span class="text-red-600 font-semibold">Jenis Pelanggaran:</span> ' . $this->jenis_pelanggaran .
+                ($this->keterangan ? '<br><em>Catatan:</em> ' . $this->keterangan : '');
+
+            Notification::send($user, new UserNotification($message, '/peringatan'));
         }
 
-        // ✅ Kirim notifikasi SP normal
-        $admin = auth()->user();
-        $message = 'Anda telah diberikan Surat Peringatan Tingkat <strong>' . $this->tingkat . '</strong> oleh <strong>' . $admin->name . '</strong>.' .
-            '<br><span class="text-red-600 font-semibold">Jenis Pelanggaran:</span> ' . $this->jenis_pelanggaran .
-            ($this->keterangan ? '<br><em>Catatan:</em> ' . $this->keterangan : '');
+        // === Flash message ke UI
+        $messageSuccess = match (true) {
+            $isPhk => 'Karyawan berhasil diberhentikan melalui SP Tingkat IV.',
+            $sanksi === 1 && $sp1Count >= 4 => 'Karyawan diberhentikan otomatis karena SP Tingkat II (SP1) ke-5.',
+            $sanksi === 2 && $sp2Count >= 1 => 'Karyawan diberhentikan otomatis karena SP Tingkat III (SP2) ke-2.',
+            default => 'Surat Peringatan berhasil ditambahkan.',
+        };
 
-        Notification::send($user, new UserNotification($message, '/peringatan'));
-
-        $messageSuccess = $isPhk
-            ? 'Karyawan berhasil diberhentikan melalui Surat Peringatan Tingkat IV.'
-            : 'Surat Peringatan berhasil ditambahkan.';
-
-        return redirect()->route('detailkaryawan.show', $this->user_id)
+        return redirect()->route('detailkaryawan.show', $user->id)
             ->with('success', $messageSuccess);
     }
 

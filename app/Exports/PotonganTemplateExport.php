@@ -26,16 +26,17 @@ class PotonganTemplateExport implements FromView
 
     public function view(): View
     {
-        $users = User::with([
-            'unitKerja',
-            'jenis',
-            'golongan.gapoks',
-            'kategorijabatan.masterjabatan',
-            'kategorijabatan.masterfungsi',
-            'kategorijabatan.masterumum',
-            'riwayatJabatan.kategori',
-            'khusus',
-        ])
+        $users = User::where('id', '!=', 1)
+            ->with([
+                'unitKerja',
+                'jenis',
+                'golongan.gapoks',
+                'kategorijabatan.masterjabatan',
+                'kategorijabatan.masterfungsi',
+                'kategorijabatan.masterumum',
+                'riwayatJabatan.kategori',
+                'khusus',
+            ])
             ->when($this->unitId, fn($q) => $q->where('unit_id', $this->unitId))
             ->when($this->jenisId, fn($q) => $q->where('jenis_id', $this->jenisId))
             ->when($this->keyword, fn($q) => $q->where('name', 'like', "%{$this->keyword}%"))
@@ -136,31 +137,45 @@ class PotonganTemplateExport implements FromView
                 return $start <= $periodeSelesai && $end >= $periodeMulai;
             });
 
-            foreach ($riwayats as $r) {
-                $kategori = $r->kategori;
+            foreach ($riwayats as $riwayat) {
+                $kategori = $riwayat->kategori;
                 if (!$kategori) continue;
 
-                $nom = $kategori->nominal ?? 0;
-                $nama_jabatan = strtolower(preg_replace('/\s*\(.*?\)/', '', $kategori->nama));
-                $isKaSeksi = Str::contains($nama_jabatan, ['ka. seksi', 'ka. instalasi']);
+                $start = Carbon::parse(max($riwayat->tanggal_mulai, $periodeMulai));
+                $end = Carbon::parse(min($riwayat->tanggal_selesai ?? $periodeSelesai, $periodeSelesai));
 
-                $start = Carbon::parse(max($r->tanggal_mulai, $periodeMulai));
-                $end = Carbon::parse(min($r->tanggal_selesai ?? $periodeSelesai, $periodeSelesai));
-                $hariJadwalAktif = $jadwalUser->filter(fn($j) => Carbon::parse($j->tanggal_jadwal)->between($start, $end))->count();
+                $hariJadwalAktif = $jadwalUser->filter(function ($jadwal) use ($start, $end) {
+                    return Carbon::parse($jadwal->tanggal_jadwal)->between($start, $end);
+                })->count();
+
+                // $proporsi = $totalHariJadwal > 0
+                //     ? ($hariJadwalAktif / $totalHariJadwal)
+                //     : 1;
                 $proporsi = $hariJadwalAktif / max($totalHariJadwal, 1);
 
-                switch ($r->tunjangan) {
+                $nominal = max(0, $kategori->nominal);
+                $nama_jabatan = strtolower(preg_replace('/\s*\(.*?\)/', '', $kategori->nama));
+
+                $isKaSeksiOrInstalasi = Str::contains($nama_jabatan, ['ka. seksi', 'ka. instalasi']);
+                $isManajerOrWadir     = Str::contains($nama_jabatan, ['manajer', 'wadir']);
+
+                switch ($riwayat->tunjangan) {
                     case 'jabatan':
-                        $nom_jabatan += ($isKaSeksi ? 0.5 : 1) * $nom * $proporsi;
+                        if ($isKaSeksiOrInstalasi) {
+                            $nom_jabatan += $nominal * 0.5 * $proporsi;
+                        } else {
+                            $nom_jabatan += $nominal * $proporsi;
+                        }
                         break;
                     case 'fungsi':
-                        $nom_fungsi += $nom * $proporsi;
+                        $nom_fungsi += $nominal * $proporsi;
                         break;
                     case 'umum':
-                        $nom_umum += $nom * $proporsi;
+                        $nom_umum += $nominal * $proporsi;
                         break;
                 }
             }
+
 
             $user->setAttribute('nom_gapok', $gapok);
             $user->setAttribute('nom_jabatan', $nom_jabatan);

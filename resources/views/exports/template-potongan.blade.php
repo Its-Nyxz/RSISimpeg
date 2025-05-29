@@ -1,21 +1,21 @@
 <table border="1" cellspacing="0" cellpadding="5">
-    <thead>
+    <thead style="background-color: #f0f0f0; font-weight: bold;">
         <tr>
             <th>Slug</th>
-            <th>Nama</th>
+            <th>Nama Lengkap</th>
             <th>Unit Kerja</th>
             <th>Jenis Karyawan</th>
             <th>Gaji Pokok</th>
-            <th>Tunj. Jabatan</th>
-            <th>Tunj. Fungsi</th>
-            <th>Tunj. Umum</th>
-            <th>Tunj. Makan</th>
-            <th>Tunj. Transport</th>
-            <th>Tunj. Khusus</th>
-            <th>Tunj. Kinerja</th>
-            <th>Total Bruto</th>
+            <th>Tunjangan Jabatan</th>
+            <th>Tunjangan Fungsional</th>
+            <th>Tunjangan Umum</th>
+            <th>Tunjangan Makan</th>
+            <th>Tunjangan Transport</th>
+            <th>Tunjangan Khusus</th>
+            <th>Tunjangan Kinerja</th>
+            <th>Total Gaji Bruto</th>
             @foreach ($masterPotongans as $potongan)
-                <th>{{ strtoupper($potongan->nama) }}</th>
+                <th>{{ ucwords(str_replace('-', ' ', $potongan->nama)) }}</th>
             @endforeach
         </tr>
     </thead>
