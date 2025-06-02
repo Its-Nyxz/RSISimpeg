@@ -162,7 +162,7 @@ class Timer extends Component
 
     public function startTimer()
     {
-        if (!$this->validasiLokasiAtauIp()) return;
+        // if (!$this->validasiLokasiAtauIp()) return;
 
         if (!$this->isRunning) {
             $this->isRunning = true;
@@ -222,7 +222,7 @@ class Timer extends Component
 
     public function openWorkReportModal()
     {
-        if (!$this->validasiLokasiAtauIp()) return;
+        // if (!$this->validasiLokasiAtauIp()) return;
 
         if ($this->isRunning) {
             $this->timeOut = now()->timestamp;
@@ -275,7 +275,7 @@ class Timer extends Component
 
     public function completeWorkReport()
     {
-        if (!$this->validasiLokasiAtauIp()) return;
+        // if (!$this->validasiLokasiAtauIp()) return;
 
         if (!$this->timeOut) return;
 
@@ -565,7 +565,7 @@ class Timer extends Component
         //     'lng' => 109.6156227212665
         // ];
 
-        $polygon = [
+        $polygonRSI = [
             [-7.401462324660784, 109.61574443318705],
             [-7.40206468637885, 109.61591235565817],
             [-7.401966177920016, 109.61618451323585],
@@ -573,7 +573,15 @@ class Timer extends Component
             [-7.403165037042953, 109.61580592184652],
             [-7.403230824029308, 109.61515910978147],
             [-7.4017712054383935, 109.61499327224521],
-            [-7.40146214270284, 109.6157440761346] // titik akhir = awal
+            [-7.40146214270284, 109.6157440761346]
+        ];
+
+        $polygonRumah = [
+            [-7.6037, 110.7837],
+            [-7.6037, 110.8055],
+            [-7.5460, 110.8055],
+            [-7.5460, 110.7837],
+            [-7.6037, 110.7837]
         ];
 
         // Jika tidak ada lokasi, tetap izinkan jika IP cocok
@@ -602,8 +610,10 @@ class Timer extends Component
         //     return false;
         // }
 
-        $lokasiValid = $this->isPointInPolygon($this->latitude, $this->longitude, $polygon);
-
+        $lokasiValid = $this->isPointInPolygon($this->latitude, $this->longitude, $polygonRSI);
+        //  ||
+        //     $this->isPointInPolygon($this->latitude, $this->longitude, $polygonRumah);
+        dd($lokasiValid, !$lokasiValid, !$lokasiValid && !in_array($ipPrefix, $ipPrefixWhitelist));
         if (!$lokasiValid && !in_array($ipPrefix, $ipPrefixWhitelist)) {
             $this->dispatch('alert-error', message: 'Anda tidak berada di area RSI Banjarnegara.');
             return false;
