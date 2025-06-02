@@ -47,18 +47,6 @@ class Timer extends Component
     {
         $this->jadwal_id = $jadwal_id;
 
-        // $ipUser = request()->ip();
-        // $ipPrefix = implode('.', array_slice(explode('.', $ipUser), 0, 3));
-        // $ipPrefixWhitelist = ['192.168.100', '192.168.1', '10.0.0', '192.168.8'];
-        // // $ipKantor = ['127.0.0.1']; // IP jaringan kantor
-
-        // $lokasiTersedia = $this->latitude && $this->longitude;
-        // $ipValid = in_array($ipPrefix, $ipPrefixWhitelist);
-
-        // // Deteksi jika lokasi dan IP keduanya tidak valid
-        // $this->isLokasiDanIpTidakValid = !$lokasiTersedia && !$ipValid;
-        // dd($this->isLokasiDanIpTidakValid, $ipUser);
-
         $this->routeIsDashboard = Request::routeIs('dashboard');
 
         // ✅ Ambil semua data absensi berdasarkan jadwal_id
@@ -558,14 +546,19 @@ class Timer extends Component
         // ✅ Daftar prefix IP lokal yang diizinkan (misalnya WiFi kantor dengan IP dinamis)
         $ipPrefixWhitelist = [
             '180.246.120',
+            '180.246.121',
+            '180.247',       // Ini sudah mencakup 180.247.0.0 – 180.247.255.255
+            '180.246',       // Ini lebih luas, semua 180.246.x.x
             '192.168.100', // artinya IP seperti 192.168.100.xxx akan lolos
             '192.168.31', // artinya IP seperti 192.168.31.xxx akan lolos
             '192.168.1',    // cadangan jika router di-reset
             '10.0.0',       // jika pakai Biznet
             '192.168.8',   // Orbit
+            '1.1',        // artinya IP seperti 1.1.1.1 atau 1.1.200.5
+            '1.11',       // untuk 1.11.x.x
         ];
 
-        $ipPrefix = implode('.', array_slice(explode('.', $ipUser), 0, 3)); // hasil: 192.168.100
+        $ipPrefix = implode('.', array_slice(explode('.', $ipUser), 0, 2)); // hasil: 192.168.100
 
         // $lokasiKantor = [
         //     'lat' => -7.402330130327286,

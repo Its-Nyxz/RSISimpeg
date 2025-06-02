@@ -68,12 +68,6 @@
                     Selesai Lembur
                 </button>
             </div>
-            {{-- @if ($isLokasiDanIpTidakValid)
-                <button onclick="konfirmasiOverrideLokasi()"
-                    class="text-sm text-red-600 mt-2 underline hover:text-red-800">
-                    Lanjutkan Absensi Manual (Saya sedang di RSI)
-                </button>
-            @endif --}}
         </div>
 
         {{-- Modal untuk Mulai Timer --}}
@@ -383,7 +377,7 @@
     @endif
 
 
-    @push('scripts')
+    {{-- @push('scripts')
         <script>
             const lokasiKantor = {
                 lat: -7.402330130327286,
@@ -648,5 +642,5 @@
                 setInterval(ambilLokasiTerbaru, 30000);
             });
         </script>
-    @endpush
+    @endpush --}}
 </div>
