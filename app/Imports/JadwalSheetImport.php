@@ -24,7 +24,7 @@ class JadwalSheetImport implements ToCollection
     public function collection(Collection $rows)
     {
         $header = $rows->first()->toArray();
-        Log::info("Cek baris pertama: " . json_encode($header));
+        // Log::info("Cek baris pertama: " . json_encode($header));
 
         if (strtoupper(trim($header[0])) === 'NO') {
             $rows->shift(); // hapus header
@@ -32,16 +32,16 @@ class JadwalSheetImport implements ToCollection
 
         foreach ($rows as $row) {
             try {
-                if (empty($row[1])) {
-                    Log::warning("Baris nama kosong: " . json_encode($row));
-                    continue;
-                }
+                // if (empty($row[1])) {
+                //     Log::warning("Baris nama kosong: " . json_encode($row));
+                //     continue;
+                // }
 
                 $user = User::where('slug', Str::slug($row[1]))->first();
-                if (!$user) {
-                    Log::warning("User tidak ditemukan: " . $row[1]);
-                    continue;
-                }
+                // if (!$user) {
+                //     Log::warning("User tidak ditemukan: " . $row[1]);
+                //     continue;
+                // }
 
                 $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $this->bulan, $this->tahun);
 
@@ -64,12 +64,22 @@ class JadwalSheetImport implements ToCollection
                         );
                     } else {
                         // Format seperti "P (07:30:00-14:30:00)"
-                        if (preg_match('/^(\w)\s*\((\d{2}:\d{2}:\d{2})\s*-\s*(\d{2}:\d{2}:\d{2})\)$/i', $shiftCell, $matches)) {
+                        if (preg_match('/^(\w)\s*\((\d{2}:\d{2})(?::\d{2})?\s*-\s*(\d{2}:\d{2})(?::\d{2})?\)$/i', $shiftCell, $matches)) {
+                            $namaShift = strtoupper($matches[1]);
+
+                            // Gunakan format sesuai DB Anda (HH:MM)
+                            $jamMasuk = substr($matches[2], 0, 5); // ambil 07:30 dari 07:30 atau 07:30:00
+                            $jamKeluar = substr($matches[3], 0, 5);
+
                             $shift = Shift::where('unit_id', $user->unit_id)
-                                ->where('nama_shift', strtoupper($matches[1]))
-                                ->where('jam_masuk', $matches[2])
-                                ->where('jam_keluar', $matches[3])
+                                ->where('nama_shift', $namaShift)
+                                ->where('jam_masuk', $jamMasuk)
+                                ->where('jam_keluar', $jamKeluar)
                                 ->first();
+
+                            if (!$shift) {
+                                Log::warning("Shift tidak ditemukan: $namaShift ($jamMasuk - $jamKeluar) untuk user {$user->name}");
+                            }
                         } else {
                             $shift = Shift::where('unit_id', $user->unit_id)
                                 ->where('nama_shift', strtoupper($shiftCell))

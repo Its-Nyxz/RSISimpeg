@@ -83,8 +83,12 @@
                         <button wire:click="startTimer"
                             class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Mulai</button>
                         {{-- <button onclick="kirimLokasiKeLivewire()"
+                        <button wire:click="startTimer"
+                            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Mulai</button>
+                        {{-- <button onclick="kirimLokasiKeLivewire()"
                             class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
                             Mulai
+                        </button> --}}
                         </button> --}}
                     </div>
                 </div>
@@ -104,8 +108,12 @@
                         <button wire:click="openWorkReportModal"
                             class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Selesai</button>
                         {{-- <button onclick="kirimLokasiKeLivewire('stop')"
+                        <button wire:click="openWorkReportModal"
+                            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Selesai</button>
+                        {{-- <button onclick="kirimLokasiKeLivewire('stop')"
                             class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
                             Selesai
+                        </button> --}}
                         </button> --}}
                     </div>
                 </div>
@@ -685,8 +693,8 @@
                         simpanLokasi(latitude, longitude);
                         deteksiEmulator();
                         deteksiDevTools();
-                        // console.log("Latitude:", latitude);
-                        // console.log("Longitude:", longitude);
+                        console.log("Latitude:", latitude);
+                        console.log("Longitude:", longitude);
                     },
                     function() {
                         Swal.fire('Gagal', 'Izin lokasi dibutuhkan.', 'error');
@@ -797,5 +805,6 @@
                 setInterval(ambilLokasiTerbaru, 30000);
             });
         </script>
+    @endpush --}}
     @endpush --}}
 </div>
