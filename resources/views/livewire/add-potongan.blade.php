@@ -136,7 +136,7 @@
             <!-- Total Bruto -->
             <div class="flex justify-between w-full max-w-md mx-auto">
                 <strong>Total Bruto</strong>
-                <span>Rp {{ number_format($this->gajiBruto->total_bruto, 0, ',', '.') }}</span>
+                <span>Rp {{ number_format($total_bruto, 0, ',', '.') }}</span>
             </div>
         </div>
 

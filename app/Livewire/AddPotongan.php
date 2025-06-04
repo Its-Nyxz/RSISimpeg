@@ -33,6 +33,7 @@ class AddPotongan extends Component
     public $showNotif = false;
     public $potonganInputs = []; // [master_potongan_id => nominal]
     public $masterPotongans = [];
+    public $total_bruto = 0;
 
     public function mount(User $user, $bulan = null, $tahun = null)
     {
@@ -89,169 +90,193 @@ class AddPotongan extends Component
             })
             ->count();
 
-        // Proporsi kehadiran aktual
-        // $proporsiHybrid = $jadwalValid / max($totalHariJadwal, 1);
+        // Cek apakah semua jadwal adalah shift libur
+        $semuaLibur = $jadwalUser->every(function ($jadwal) {
+            return optional($jadwal->shift)->jam_masuk === null && optional($jadwal->shift)->jam_keluar === null;
+        });
 
-        // Terapkan hanya ke makan dan transport
-        // $this->nom_makan = $base_makan * $proporsiHybrid;
-        // $this->nom_transport = $base_transport * $proporsiHybrid;
-        $this->nom_makan = $base_makan;
-        $this->nom_transport = $base_transport;
+        // Jika semua shift libur dan ada jadwal
+        $liburTotalSebulan = $semuaLibur && $totalHariJadwal > 0;
+        if ($liburTotalSebulan) {
+            // Reset semua komponen penghasilan ke 0
+            $this->gapok = 0;
+            $this->nom_jabatan = 0;
+            $this->nom_fungsi = 0;
+            $this->nom_umum = 0;
+            $this->nom_makan = 0;
+            $this->nom_transport = 0;
+            $this->nom_khusus = 0;
+            $this->tunjanganTukin = 0;
 
-        // Ambil semua riwayat jabatan yang aktif selama bulan ini
-        $riwayatJabatanAktif = $this->user->riwayatJabatan()
-            ->where(function ($q) use ($periodeMulai, $periodeSelesai) {
-                $q->whereDate('tanggal_mulai', '<=', $periodeSelesai)
-                    ->where(function ($q2) use ($periodeMulai) {
-                        $q2->whereNull('tanggal_selesai')
-                            ->orWhere('tanggal_selesai', '>=', $periodeMulai);
-                    });
-            })
-            ->with('kategori')
-            ->get();
-
-        foreach ($riwayatJabatanAktif as $riwayat) {
-            $kategori = $riwayat->kategori;
-            if (!$kategori) continue;
-
-            $start = Carbon::parse(max($riwayat->tanggal_mulai, $periodeMulai));
-            $end = Carbon::parse(min($riwayat->tanggal_selesai ?? $periodeSelesai, $periodeSelesai));
-
-            // Hitung jadwal yang aktif selama masa jabatan ini
-            $hariJadwalAktif = $jadwalUser->filter(function ($jadwal) use ($start, $end) {
-                return Carbon::parse($jadwal->tanggal_jadwal)->between($start, $end);
-            })->count();
-
-            // $proporsi = $totalHariJadwal > 0 ? ($hariJadwalAktif / $totalHariJadwal) : 1;
-            $proporsi = $hariJadwalAktif / max($totalHariJadwal, 1);
-
-            $nominal = max(0, $kategori->nominal);
-            $nama_jabatan = strtolower(preg_replace('/\s*\(.*?\)/', '', $kategori->nama));
-
-            $isKaSeksiOrInstalasi = Str::contains($nama_jabatan, ['ka. seksi', 'ka. instalasi']);
-            $isManajerOrWadir     = Str::contains($nama_jabatan, ['manajer', 'wadir']);
-
-            switch ($riwayat->tunjangan) {
-                case 'jabatan':
-                    if ($isKaSeksiOrInstalasi) {
-                        $this->nom_jabatan += $nominal * 0.5 * $proporsi;
-                    } else {
-                        $this->nom_jabatan += $nominal * $proporsi;
-                    }
-                    break;
-                case 'fungsi':
-                    $this->nom_fungsi += $nominal * $proporsi;
-                    break;
-                case 'umum':
-                    $this->nom_umum += $nominal * $proporsi;
-                    break;
-            }
-        }
-
-
-        $this->isKaryawanTetap = strtolower($this->user->jenis?->nama ?? '') === 'tetap';
-        $jenisKaryawan = strtolower($this->user->jenis?->nama ?? ''); // <- e.g. "part time", "kontrak", "magang"
-
-        if (!$this->isKaryawanTetap) {
-            if ($jenisKaryawan === 'kontrak' && $this->user->jabatan_id) {
-                $gapokKontrak = GapokKontrak::where('kategori_jabatan_id', $this->user->jabatan_id)
-                    ->where('min_masa_kerja', '<=', $this->masaKerjaTahun)
-                    ->where('max_masa_kerja', '>=', $this->masaKerjaTahun)
-                    ->first();
-
-                $this->gapok = $gapokKontrak?->nominal ?? 0;
-            } else {
-                $this->gapok = GajiBruto::where('user_id', $this->user->id)
-                    ->where('bulan_penggajian', $this->bulan)
-                    ->where('tahun_penggajian', $this->tahun)
-                    ->value('nom_gapok') ?? 0;
-            }
-
-            $total_bruto = $this->gapok + $this->nom_makan + $this->nom_transport;
-            if ($jenisKaryawan === 'part time') {
-                $total_bruto += $this->nom_jabatan + $this->nom_fungsi + $this->nom_umum;
-            } else {
-                $this->nom_jabatan = $this->nom_fungsi = $this->nom_umum = 0;
-            }
+            $total_bruto = 0;
+            $this->total_bruto = $total_bruto;
         } else {
-            $this->gapok = optional(
-                $this->user->golongan?->gapoks
-                    ->where('masa_kerja', '<=', $this->masaKerjaTahun)
-                    ->sortByDesc('masa_kerja')
-                    ->first()
-            )->nominal_gapok ?? 0;
+            // Proporsi kehadiran aktual
+            // $proporsiHybrid = $jadwalValid / max($totalHariJadwal, 1);
 
-            $total_bruto = $this->gapok + $this->nom_jabatan + $this->nom_fungsi + $this->nom_umum
-                + $this->nom_makan + $this->nom_transport + $this->nom_khusus;
-        }
+            // Terapkan hanya ke makan dan transport
+            // $this->nom_makan = $base_makan * $proporsiHybrid;
+            // $this->nom_transport = $base_transport * $proporsiHybrid;
+            $this->nom_makan = $base_makan;
+            $this->nom_transport = $base_transport;
+
+            // Ambil semua riwayat jabatan yang aktif selama bulan ini
+            $riwayatJabatanAktif = $this->user->riwayatJabatan()
+                ->where(function ($q) use ($periodeMulai, $periodeSelesai) {
+                    $q->whereDate('tanggal_mulai', '<=', $periodeSelesai)
+                        ->where(function ($q2) use ($periodeMulai) {
+                            $q2->whereNull('tanggal_selesai')
+                                ->orWhere('tanggal_selesai', '>=', $periodeMulai);
+                        });
+                })
+                ->with('kategori')
+                ->get();
+
+            foreach ($riwayatJabatanAktif as $riwayat) {
+                $kategori = $riwayat->kategori;
+                if (!$kategori) continue;
+
+                $start = Carbon::parse(max($riwayat->tanggal_mulai, $periodeMulai));
+                $end = Carbon::parse(min($riwayat->tanggal_selesai ?? $periodeSelesai, $periodeSelesai));
+
+                // Hitung jadwal yang aktif selama masa jabatan ini
+                $hariJadwalAktif = $jadwalUser->filter(function ($jadwal) use ($start, $end) {
+                    return Carbon::parse($jadwal->tanggal_jadwal)->between($start, $end);
+                })->count();
+
+                // $proporsi = $totalHariJadwal > 0 ? ($hariJadwalAktif / $totalHariJadwal) : 1;
+                $proporsi = $hariJadwalAktif / max($totalHariJadwal, 1);
+
+                $nominal = max(0, $kategori->nominal);
+                $nama_jabatan = strtolower(preg_replace('/\s*\(.*?\)/', '', $kategori->nama));
+
+                $isKaSeksiOrInstalasi = Str::contains($nama_jabatan, ['ka. seksi', 'ka. instalasi']);
+                $isManajerOrWadir     = Str::contains($nama_jabatan, ['manajer', 'wadir']);
+
+                switch ($riwayat->tunjangan) {
+                    case 'jabatan':
+                        if ($isKaSeksiOrInstalasi) {
+                            $this->nom_jabatan += $nominal * 0.5 * $proporsi;
+                        } else {
+                            $this->nom_jabatan += $nominal * $proporsi;
+                        }
+                        break;
+                    case 'fungsi':
+                        $this->nom_fungsi += $nominal * $proporsi;
+                        break;
+                    case 'umum':
+                        $this->nom_umum += $nominal * $proporsi;
+                        break;
+                }
+            }
 
 
-        $this->gajiBruto = GajiBruto::where('user_id', $this->user->id)
-            ->where('bulan_penggajian', $this->bulan)
-            ->where('tahun_penggajian', $this->tahun)
-            ->first();
+            $this->isKaryawanTetap = strtolower($this->user->jenis?->nama ?? '') === 'tetap';
+            $jenisKaryawan = strtolower($this->user->jenis?->nama ?? ''); // <- e.g. "part time", "kontrak", "magang"
 
-        $this->masterPotongans = MasterPotongan::orderBy('id')->get(); // pastikan urut
-        $this->tunjanganTukin = $this->gajiBruto->nom_lainnya ?? 0;
+            if (!$this->isKaryawanTetap) {
+                if ($jenisKaryawan === 'kontrak' && $this->user->jabatan_id) {
+                    $gapokKontrak = GapokKontrak::where('kategori_jabatan_id', $this->user->jabatan_id)
+                        ->where('min_masa_kerja', '<=', $this->masaKerjaTahun)
+                        ->where('max_masa_kerja', '>=', $this->masaKerjaTahun)
+                        ->first();
 
-        if ($this->gajiBruto) {
-            // Jika sudah ada, ambil dan isi ulang ke variabel komponen
-            $this->gapok         = $this->gajiBruto->nom_gapok;
-            $this->nom_jabatan   = $this->gajiBruto->nom_jabatan;
-            $this->nom_fungsi    = $this->gajiBruto->nom_fungsi;
-            $this->nom_umum      = $this->gajiBruto->nom_umum;
-            $this->nom_makan     = $this->gajiBruto->nom_makan;
-            $this->nom_transport = $this->gajiBruto->nom_transport;
-            $this->nom_khusus    = $this->gajiBruto->nom_khusus;
-            $this->tunjanganTukin = $this->gajiBruto->nom_lainnya;
+                    $this->gapok = $gapokKontrak?->nominal ?? 0;
+                } else {
+                    $this->gapok = GajiBruto::where('user_id', $this->user->id)
+                        ->where('bulan_penggajian', $this->bulan)
+                        ->where('tahun_penggajian', $this->tahun)
+                        ->value('nom_gapok') ?? 0;
+                }
 
-            // Cek apakah potongan sudah ada
-            $potonganTersimpan = Potongan::where('bruto_id', $this->gajiBruto->id)->get();
+                $total_bruto = $this->gapok + $this->nom_makan + $this->nom_transport;
+                if ($jenisKaryawan === 'part time') {
+                    $total_bruto += $this->nom_jabatan + $this->nom_fungsi + $this->nom_umum;
+                } else {
+                    $this->nom_jabatan = $this->nom_fungsi = $this->nom_umum = 0;
+                }
+                $this->total_bruto = $total_bruto;
+            } else {
+                $this->gapok = optional(
+                    $this->user->golongan?->gapoks
+                        ->where('masa_kerja', '<=', $this->masaKerjaTahun)
+                        ->sortByDesc('masa_kerja')
+                        ->first()
+                )->nominal_gapok ?? 0;
 
-            if ($potonganTersimpan->isNotEmpty()) {
-                // Ambil semua nilai yang tersimpan
-                $this->potonganInputs = $potonganTersimpan->mapWithKeys(function ($p) {
-                    return [$p->master_potongan_id => (int) $p->nominal];
-                })->toArray();
+                $total_bruto = $this->gapok + $this->nom_jabatan + $this->nom_fungsi + $this->nom_umum
+                    + $this->nom_makan + $this->nom_transport + $this->nom_khusus;
+                $this->total_bruto = $total_bruto;
+            }
 
 
-                foreach ($this->masterPotongans as $potongan) {
-                    $id = $potongan->id;
-                    $slug = $potongan->slug;
+            $this->gajiBruto = GajiBruto::where('user_id', $this->user->id)
+                ->where('bulan_penggajian', $this->bulan)
+                ->where('tahun_penggajian', $this->tahun)
+                ->first();
 
-                    $isOtomatis = Str::contains($slug, ['pph', 'bpjs', 'idi', 'ibi', 'dansos-karyawan']);
+            $this->masterPotongans = MasterPotongan::orderBy('id')->get(); // pastikan urut
+            $this->tunjanganTukin = $this->gajiBruto->nom_lainnya ?? 0;
 
-                    if (
-                        $isOtomatis &&
-                        (!array_key_exists($id, $this->potonganInputs) || ((int) $this->potonganInputs[$id]) === 0)
-                    ) {
-                        // Hitung ulang nilai otomatis ini
-                        $this->updatePotonganInputs(); // panggil seluruh logika otomatis
-                        break; // cukup satu kali panggil, akan update semua otomatis
+            if ($this->gajiBruto) {
+                // Jika sudah ada, ambil dan isi ulang ke variabel komponen
+                $this->gapok         = $this->gajiBruto->nom_gapok;
+                $this->nom_jabatan   = $this->gajiBruto->nom_jabatan;
+                $this->nom_fungsi    = $this->gajiBruto->nom_fungsi;
+                $this->nom_umum      = $this->gajiBruto->nom_umum;
+                $this->nom_makan     = $this->gajiBruto->nom_makan;
+                $this->nom_transport = $this->gajiBruto->nom_transport;
+                $this->nom_khusus    = $this->gajiBruto->nom_khusus;
+                $this->tunjanganTukin = $this->gajiBruto->nom_lainnya;
+
+                // Cek apakah potongan sudah ada
+                $potonganTersimpan = Potongan::where('bruto_id', $this->gajiBruto->id)->get();
+
+                if ($potonganTersimpan->isNotEmpty()) {
+                    // Ambil semua nilai yang tersimpan
+                    $this->potonganInputs = $potonganTersimpan->mapWithKeys(function ($p) {
+                        return [$p->master_potongan_id => (int) $p->nominal];
+                    })->toArray();
+
+
+                    foreach ($this->masterPotongans as $potongan) {
+                        $id = $potongan->id;
+                        $slug = $potongan->slug;
+
+                        $isOtomatis = Str::contains($slug, ['pph', 'bpjs', 'idi', 'ibi', 'dansos-karyawan']);
+
+                        if (
+                            $isOtomatis &&
+                            (!array_key_exists($id, $this->potonganInputs) || ((int) $this->potonganInputs[$id]) === 0)
+                        ) {
+                            // Hitung ulang nilai otomatis ini
+                            $this->updatePotonganInputs(); // panggil seluruh logika otomatis
+                            break; // cukup satu kali panggil, akan update semua otomatis
+                        }
                     }
+                } else {
+                    $this->updatePotonganInputs(); // belum ada potongan → hitung semua otomatis
                 }
             } else {
-                $this->updatePotonganInputs(); // belum ada potongan → hitung semua otomatis
-            }
-        } else {
 
-            // Jika belum ada → hitung otomatis & buat data baru
-            $this->gajiBruto = GajiBruto::create([
-                'user_id'        => $this->user->id,
-                'bulan_penggajian' => $this->bulan,
-                'tahun_penggajian' => $this->tahun,
-                'nom_gapok'      => $this->gapok,
-                'nom_jabatan'    => $this->nom_jabatan,
-                'nom_fungsi'     => $this->nom_fungsi,
-                'nom_umum'       => $this->nom_umum,
-                'nom_khusus'     => $this->nom_khusus,
-                'nom_makan'      => $this->nom_makan,
-                'nom_transport'  => $this->nom_transport,
-                'nom_lainnya'    => $this->tunjanganTukin,
-                'total_bruto'    => $total_bruto,
-                'created_at'     => now(),
-            ]);
-            $this->updatePotonganInputs();
+                // Jika belum ada → hitung otomatis & buat data baru
+                $this->gajiBruto = GajiBruto::create([
+                    'user_id'        => $this->user->id,
+                    'bulan_penggajian' => $this->bulan,
+                    'tahun_penggajian' => $this->tahun,
+                    'nom_gapok'      => $this->gapok ?? 0,
+                    'nom_jabatan'    => $this->nom_jabatan ?? 0,
+                    'nom_fungsi'     => $this->nom_fungsi ?? 0,
+                    'nom_umum'       => $this->nom_umum ?? 0,
+                    'nom_khusus'     => $this->nom_khusus ?? 0,
+                    'nom_makan'      => $this->nom_makan ?? 0,
+                    'nom_transport'  => $this->nom_transport ?? 0,
+                    'nom_lainnya'    => $this->tunjanganTukin ?? 0,
+                    'total_bruto'    => $this->total_bruto ?? 0,
+                    'created_at'     => now(),
+                ]);
+                $this->updatePotonganInputs();
+            }
         }
     }
 
@@ -288,9 +313,10 @@ class AddPotongan extends Component
                 $total_bruto += $this->nom_jabatan + $this->nom_fungsi;
             }
         }
+        $this->total_bruto = $total_bruto;
 
         $this->gajiBruto->update([
-            'total_bruto' => $total_bruto,
+            'total_bruto' => $this->total_bruto,
             'nom_gapok'   => $this->gapok,
             'nom_lainnya' => $this->tunjanganTukin,
         ]);

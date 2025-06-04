@@ -80,12 +80,12 @@
                     <div class="mt-4 flex justify-end gap-2">
                         <button wire:click="$set('showStartModal', false)"
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
-                        {{-- <button wire:click="startTimer"
-                            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Mulai</button> --}}
-                        <button onclick="kirimLokasiKeLivewire()"
+                        <button wire:click="startTimer"
+                            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Mulai</button>
+                        {{-- <button onclick="kirimLokasiKeLivewire()"
                             class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
                             Mulai
-                        </button>
+                        </button> --}}
                     </div>
                 </div>
             </div>
@@ -101,12 +101,12 @@
                     <div class="mt-4 flex justify-end gap-2">
                         <button wire:click="$set('showStopModal', false)"
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
-                        {{-- <button wire:click="openWorkReportModal"
-                            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Selesai</button> --}}
-                        <button onclick="kirimLokasiKeLivewire('stop')"
+                        <button wire:click="openWorkReportModal"
+                            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Selesai</button>
+                        {{-- <button onclick="kirimLokasiKeLivewire('stop')"
                             class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
                             Selesai
-                        </button>
+                        </button> --}}
                     </div>
                 </div>
             </div>
@@ -376,7 +376,7 @@
         <p class="font-semibold text-gray-600">{{ $this->absensiTanpaLembur->first()->deskripsi_out ?? '-' }}</p>
     @endif
 
-
+    {{-- 
     @push('scripts')
         <script>
             const lokasiKantor = {
@@ -385,83 +385,192 @@
                 radiusMeter: 100
             };
 
-            const polygonRSI = [{
-                    lat: -7.401462324660784,
-                    lng: 109.61574443318705
-                },
-                {
-                    lat: -7.40206468637885,
-                    lng: 109.61591235565817
-                },
-                {
-                    lat: -7.401966177920016,
-                    lng: 109.61618451323585
-                },
-                {
-                    lat: -7.402782968146411,
-                    lng: 109.6164214758092
-                },
-                {
-                    lat: -7.403165037042953,
-                    lng: 109.61580592184652
-                },
-                {
-                    lat: -7.403230824029308,
-                    lng: 109.61515910978147
-                },
-                {
-                    lat: -7.4017712054383935,
-                    lng: 109.61499327224521
-                },
-                {
-                    lat: -7.40146214270284,
-                    lng: 109.6157440761346
-                }
-            ];
-
-            const polygonAkunbiz = [{
-                    lat: -7.548413507144458,
-                    lng: 110.81252863588689
-                },
-                {
-                    lat: -7.548040287781695,
-                    lng: 110.8129615051734
-                },
-                {
-                    lat: -7.548381621290859,
-                    lng: 110.8132859282019
-                },
-                {
-                    lat: -7.548802885218547,
-                    lng: 110.81283553967711
-                },
-                {
-                    lat: -7.548413507144458,
-                    lng: 110.81252863588689
-                } // kembali ke titik awal
-            ];
-
-            const polygonRumah = [{
-                    lat: -7.603560911411364,
-                    lng: 110.78382576729706
-                },
-                {
-                    lat: -7.603661241186458,
-                    lng: 110.78382576729706
-                },
-                {
-                    lat: -7.603661241186458,
-                    lng: 110.78398304726369
-                },
-                {
-                    lat: -7.603560911411364,
-                    lng: 110.78398304726369
-                },
-                {
-                    lat: -7.603560911411364,
-                    lng: 110.78382576729706
-                }
-            ];
+            const areaPolygons = {
+                "RSI": [{
+                        lat: -7.401462324660784,
+                        lng: 109.61574443318705
+                    },
+                    {
+                        lat: -7.40146214270284,
+                        lng: 109.6157440761346
+                    },
+                    {
+                        lat: -7.4017712054383935,
+                        lng: 109.61499327224521
+                    },
+                    {
+                        lat: -7.403230824029308,
+                        lng: 109.61515910978147
+                    },
+                    {
+                        lat: -7.403165037042953,
+                        lng: 109.61580592184652
+                    },
+                    {
+                        lat: -7.402782968146411,
+                        lng: 109.6164214758092
+                    },
+                    {
+                        lat: -7.401966177920016,
+                        lng: 109.61618451323585
+                    },
+                    {
+                        lat: -7.40206468637885,
+                        lng: 109.61591235565817
+                    },
+                    {
+                        lat: -7.401462324660784,
+                        lng: 109.61574443318705
+                    }
+                ],
+                "Akunbiz": [{
+                        lat: -7.548413507144458,
+                        lng: 110.81252863588689
+                    },
+                    {
+                        lat: -7.548802885218547,
+                        lng: 110.81283553967711
+                    },
+                    {
+                        lat: -7.548381621290859,
+                        lng: 110.8132859282019
+                    },
+                    {
+                        lat: -7.548040287781695,
+                        lng: 110.8129615051734
+                    },
+                    {
+                        lat: -7.548413507144458,
+                        lng: 110.81252863588689
+                    }
+                ],
+                "Rumah": [{
+                        lat: -7.603560911411364,
+                        lng: 110.78382576729706
+                    },
+                    {
+                        lat: -7.603661241186458,
+                        lng: 110.78382576729706
+                    },
+                    {
+                        lat: -7.603661241186458,
+                        lng: 110.78398304726369
+                    },
+                    {
+                        lat: -7.603560911411364,
+                        lng: 110.78398304726369
+                    },
+                    {
+                        lat: -7.603560911411364,
+                        lng: 110.78382576729706
+                    }
+                ],
+                "Poliklinik": [{
+                        lat: -7.401821225185401,
+                        lng: 109.61501131827964
+                    },
+                    {
+                        lat: -7.402030471704805,
+                        lng: 109.61503914309628
+                    },
+                    {
+                        lat: -7.401977585231165,
+                        lng: 109.61537304089137
+                    },
+                    {
+                        lat: -7.401747643968704,
+                        lng: 109.61530347885127
+                    },
+                    {
+                        lat: -7.401821225185401,
+                        lng: 109.61501131827964
+                    }
+                ],
+                "Al Zaitun": [{
+                        lat: -7.402653611845423,
+                        lng: 109.615097111463
+                    },
+                    {
+                        lat: -7.4028467621173775,
+                        lng: 109.61511334260632
+                    },
+                    {
+                        lat: -7.4028145704119765,
+                        lng: 109.61525246668793
+                    },
+                    {
+                        lat: -7.402623719534873,
+                        lng: 109.61521304819797
+                    },
+                    {
+                        lat: -7.402653611845423,
+                        lng: 109.615097111463
+                    }
+                ],
+                "Assalam": [{
+                        lat: -7.402324796309088,
+                        lng: 109.61547042774959
+                    },
+                    {
+                        lat: -7.402485754994245,
+                        lng: 109.61550289003463
+                    },
+                    {
+                        lat: -7.402446665033025,
+                        lng: 109.61564433285128
+                    },
+                    {
+                        lat: -7.402306401026351,
+                        lng: 109.61560723309623
+                    },
+                    {
+                        lat: -7.402324796309088,
+                        lng: 109.61547042774959
+                    }
+                ],
+                "Al Amin": [{
+                        lat: -7.402980127731013,
+                        lng: 109.6153057975863
+                    },
+                    {
+                        lat: -7.403101996273804,
+                        lng: 109.61532898493294
+                    },
+                    {
+                        lat: -7.403028415270782,
+                        lng: 109.61549129636131
+                    },
+                    {
+                        lat: -7.402936439000513,
+                        lng: 109.61543564672803
+                    },
+                    {
+                        lat: -7.402980127731013,
+                        lng: 109.6153057975863
+                    }
+                ],
+                "As Syfa": [{
+                        lat: -7.402885852043113,
+                        lng: 109.61561187056475
+                    },
+                    {
+                        lat: -7.403049109930095,
+                        lng: 109.61560259562634
+                    },
+                    {
+                        lat: -7.403039912303285,
+                        lng: 109.61578577566792
+                    },
+                    {
+                        lat: -7.402883552635544,
+                        lng: 109.61576258831974
+                    },
+                    {
+                        lat: -7.402885852043113,
+                        lng: 109.61561187056475
+                    }
+                ]
+            };
 
             let lokasiTerakhir = null;
             let sudahPeringatkan = {
@@ -599,16 +708,22 @@
 
             function validasiLokasiPolygon(lat, lng) {
                 const point = {
-                    lat: lat,
-                    lng: lng
+                    lat,
+                    lng
                 };
-                const isInRSI = isInsidePolygon(point, polygonRSI);
-                const isInAkunbiz = isInsidePolygon(point, polygonAkunbiz);
-                const isInRumah = isInsidePolygon(point, polygonRumah);
+
+                for (const [namaArea, polygon] of Object.entries(areaPolygons)) {
+                    if (isInsidePolygon(point, polygon)) {
+                        return {
+                            valid: true,
+                            lokasi: namaArea
+                        };
+                    }
+                }
 
                 return {
-                    valid: isInRSI || isInAkunbiz || isInRumah,
-                    lokasi: isInRSI ? 'RSI Banjarnegara' : isInAkunbiz ? 'AkunBIZ' : isInRumah ? 'Rumah Kamu' : 'Luar Area'
+                    valid: false,
+                    lokasi: 'Luar Area'
                 };
             }
 
@@ -632,6 +747,7 @@
                 const now = Date.now();
                 const ageInSeconds = lastUpdate ? (now - lastUpdate.waktu) / 1000 : null;
                 console.log("Usia lokasi terakhir:", ageInSeconds, "detik");
+
                 // if (!hasilValidasi.valid) {
                 //     if (ageInSeconds !== null && ageInSeconds < 15) {
                 //         Swal.fire({
@@ -681,5 +797,5 @@
                 setInterval(ambilLokasiTerbaru, 30000);
             });
         </script>
-    @endpush
+    @endpush --}}
 </div>

@@ -162,7 +162,7 @@ class Timer extends Component
 
     public function startTimer()
     {
-        if (!$this->validasiLokasiAtauIp()) return;
+        // if (!$this->validasiLokasiAtauIp()) return;
 
         if (!$this->isRunning) {
             $this->isRunning = true;
@@ -222,7 +222,7 @@ class Timer extends Component
 
     public function openWorkReportModal()
     {
-        if (!$this->validasiLokasiAtauIp()) return;
+        // if (!$this->validasiLokasiAtauIp()) return;
 
         if ($this->isRunning) {
             $this->timeOut = now()->timestamp;
@@ -275,7 +275,7 @@ class Timer extends Component
 
     public function completeWorkReport()
     {
-        if (!$this->validasiLokasiAtauIp()) return;
+        // if (!$this->validasiLokasiAtauIp()) return;
 
         if (!$this->timeOut) return;
 
@@ -527,6 +527,14 @@ class Timer extends Component
             : redirect()->to('/timer'); // Jika diakses dari route lain
     }
 
+    private function isMobileDevice(): bool
+    {
+        $agent = strtolower(request()->header('User-Agent'));
+
+        return preg_match('/android|iphone|ipad|ipod|mobile|blackberry|windows phone/i', $agent);
+    }
+
+
     private function validasiLokasiAtauIp(): bool
     {
         // ✅ Jika override aktif, lewati semua validasi lokasi
@@ -539,53 +547,53 @@ class Timer extends Component
         // lat long akunbiz : -7.548218078368806, 110.81261315327455
         // lat long rsi banjar:-7.4021325122156405, 109.61549352397789
 
-        $ipUser = request()->ip();
+        // $ipUser = request()->ip();
         // $ipUser = '192.168.100.121';
         // $ipKantor = '127.0.0.1'; // IP jaringan kantor
 
         // ✅ Daftar prefix IP lokal yang diizinkan (misalnya WiFi kantor dengan IP dinamis)
-        $ipPrefixWhitelist = [
-            '180.246.120',
-            '180.246.121',
-            '180.247',       // Ini sudah mencakup 180.247.0.0 – 180.247.255.255
-            '180.246',       // Ini lebih luas, semua 180.246.x.x
-            '192.168.100', // artinya IP seperti 192.168.100.xxx akan lolos
-            '192.168.31', // artinya IP seperti 192.168.31.xxx akan lolos
-            '192.168.1',    // cadangan jika router di-reset
-            '10.0.0',       // jika pakai Biznet
-            '192.168.8',   // Orbit
-            '1.1',        // artinya IP seperti 1.1.1.1 atau 1.1.200.5
-            '1.11',       // untuk 1.11.x.x
-        ];
+        // $ipPrefixWhitelist = [
+        //     '180.246.120',
+        //     '180.246.121',
+        //     '180.247',       // Ini sudah mencakup 180.247.0.0 – 180.247.255.255
+        //     '180.246',       // Ini lebih luas, semua 180.246.x.x
+        //     '192.168.100', // artinya IP seperti 192.168.100.xxx akan lolos
+        //     '192.168.31', // artinya IP seperti 192.168.31.xxx akan lolos
+        //     '192.168.1',    // cadangan jika router di-reset
+        //     '10.0.0',       // jika pakai Biznet
+        //     '192.168.8',   // Orbit
+        //     '1.1',        // artinya IP seperti 1.1.1.1 atau 1.1.200.5
+        //     '1.11',       // untuk 1.11.x.x
+        // ];
 
-        $ipPrefix = implode('.', array_slice(explode('.', $ipUser), 0, 2)); // hasil: 192.168.100
+        // $ipPrefix = implode('.', array_slice(explode('.', $ipUser), 0, 2)); // hasil: 192.168.100
 
         // $lokasiKantor = [
         //     'lat' => -7.402330130327286,
         //     'lng' => 109.6156227212665
         // ];
 
-        $polygon = [
-            [-7.401462324660784, 109.61574443318705],
-            [-7.40206468637885, 109.61591235565817],
-            [-7.401966177920016, 109.61618451323585],
-            [-7.402782968146411, 109.6164214758092],
-            [-7.403165037042953, 109.61580592184652],
-            [-7.403230824029308, 109.61515910978147],
-            [-7.4017712054383935, 109.61499327224521],
-            [-7.40146214270284, 109.6157440761346] // titik akhir = awal
-        ];
+        // $polygon = [
+        //     [-7.401462324660784, 109.61574443318705],
+        //     [-7.40206468637885, 109.61591235565817],
+        //     [-7.401966177920016, 109.61618451323585],
+        //     [-7.402782968146411, 109.6164214758092],
+        //     [-7.403165037042953, 109.61580592184652],
+        //     [-7.403230824029308, 109.61515910978147],
+        //     [-7.4017712054383935, 109.61499327224521],
+        //     [-7.40146214270284, 109.6157440761346] // titik akhir = awal
+        // ];
 
         // Jika tidak ada lokasi, tetap izinkan jika IP cocok
-        if (!$this->latitude || !$this->longitude) {
-            // if ($ipUser === $ipKantor) {
-            if (in_array($ipPrefix, $ipPrefixWhitelist)) {
-                return true;
-            } else {
-                $this->dispatch('alert-error', message: 'Lokasi terlalu jauh atau Anda bukan dari jaringan RSI Banjarnegara.');
-                return false;
-            }
-        }
+        // if (!$this->latitude || !$this->longitude) {
+        // if ($ipUser === $ipKantor) {
+        //     if (in_array($ipPrefix, $ipPrefixWhitelist)) {
+        //         return true;
+        //     } else {
+        //         $this->dispatch('alert-error', message: 'Lokasi terlalu jauh atau Anda bukan dari jaringan RSI Banjarnegara.');
+        //         return false;
+        //     }
+        // }
 
         // $jarak = $this->hitungJarakMeter(
         //     $this->latitude,
@@ -602,15 +610,95 @@ class Timer extends Component
         //     return false;
         // }
 
-        $lokasiValid = $this->isPointInPolygon($this->latitude, $this->longitude, $polygon);
+        // $lokasiValid = $this->isPointInPolygon($this->latitude, $this->longitude, $polygon);
 
-        if (!$lokasiValid && !in_array($ipPrefix, $ipPrefixWhitelist)) {
-            $this->dispatch('alert-error', message: 'Anda tidak berada di area RSI Banjarnegara.');
-            return false;
+        // if (!$lokasiValid && !in_array($ipPrefix, $ipPrefixWhitelist)) {
+        // if (!$lokasiValid) {
+        //     $this->dispatch('alert-error', message: 'Anda tidak berada di area RSI Banjarnegara.');
+        //     return false;
+        // }
+
+
+        $user = auth()->user()->load(['kategorijabatan', 'kategorifungsional']);
+
+        // Tambahkan deteksi perangkat
+        // if (!$this->isMobileDevice()) {
+        //     $this->dispatch('alert-error', message: 'Absensi hanya diperbolehkan dari perangkat mobile.');
+        //     return false;
+        // }
+
+
+        $polygons = [
+            'RSI' => [
+                [-7.401462324660784, 109.61574443318705],
+                [-7.40206468637885, 109.61591235565817],
+                [-7.401966177920016, 109.61618451323585],
+                [-7.402782968146411, 109.6164214758092],
+                [-7.403165037042953, 109.61580592184652],
+                [-7.403230824029308, 109.61515910978147],
+                [-7.4017712054383935, 109.61499327224521],
+                [-7.40146214270284, 109.6157440761346]
+            ],
+            'Poliklinik' => [
+                [-7.401821225185401, 109.61501131827964],
+                [-7.402030471704805, 109.61503914309628],
+                [-7.401977585231165, 109.61537304089137],
+                [-7.401747643968704, 109.61530347885127],
+                [-7.401821225185401, 109.61501131827964]
+            ],
+            'Assalam' => [
+                [-7.402324796309088, 109.61547042774959],
+                [-7.402485754994245, 109.61550289003463],
+                [-7.402446665033025, 109.61564433285128],
+                [-7.402306401026351, 109.61560723309623],
+                [-7.402324796309088, 109.61547042774959]
+            ],
+            'Al Zaitun' => [
+                [-7.402653611845423, 109.615097111463],
+                [-7.4028467621173775, 109.61511334260632],
+                [-7.4028145704119765, 109.61525246668793],
+                [-7.402623719534873, 109.61521304819797],
+                [-7.402653611845423, 109.615097111463]
+            ],
+            'Al Amin' => [
+                [-7.402980127731013, 109.6153057975863],
+                [-7.403101996273804, 109.61532898493294],
+                [-7.403028415270782, 109.61549129636131],
+                [-7.402936439000513, 109.61543564672803],
+                [-7.402980127731013, 109.6153057975863]
+            ],
+            'As Syfa' => [
+                [-7.402885852043113, 109.61561187056475],
+                [-7.403049109930095, 109.61560259562634],
+                [-7.403039912303285, 109.61578577566792],
+                [-7.402883552635544, 109.61576258831974],
+                [-7.402885852043113, 109.61561187056475]
+            ]
+        ];
+
+        // Cek apakah user adalah Dokter Spesialis part-time
+
+        $isDokterSpesialisParttime =
+            (
+                optional($user->kategorijabatan)->nama === 'Dokter Spesialis' ||
+                optional($user->kategorifungsional)->nama === 'Dokter Spesialis'
+            )
+            && $user->jenis->nama === 'Part Time';
+
+        // Tentukan area mana yang boleh digunakan user
+        $allowedAreas = $isDokterSpesialisParttime
+            ? array_keys($polygons) // semua area
+            : ['RSI']; // default hanya RSI
+
+        // Cek apakah user berada dalam area yang diizinkan
+        foreach ($allowedAreas as $areaName) {
+            if ($this->isPointInPolygon($this->latitude, $this->longitude, $polygons[$areaName])) {
+                return true; // lokasi valid
+            }
         }
 
-
-        return true;
+        $this->dispatch('alert-error', message: 'Anda tidak berada di area absensi yang diizinkan.');
+        return false;
     }
 
     private function hitungJarakMeter($lat1, $lon1, $lat2, $lon2)

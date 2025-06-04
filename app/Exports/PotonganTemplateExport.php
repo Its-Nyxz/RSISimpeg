@@ -95,170 +95,189 @@ class PotonganTemplateExport implements FromView
                 ->get();
 
             $totalHariJadwal = $jadwalUser->count();
-
-            $jadwalIds = $jadwalUser->pluck('id');
-
-            $absensiValid = $user->jadwalabsensi()
-                ->whereIn('id', $jadwalIds)
-                ->where(function ($query) {
-                    $query->whereHas('absensi', function ($q) {
-                        $q->where('present', 1);
-                    })
-                        ->orWhereHas('shift', function ($q) {
-                            $q->whereNull('jam_masuk')->whereNull('jam_keluar');
-                        });
-                })
-                ->count();
-
-            $proporsiHybrid = $absensiValid / max($totalHariJadwal, 1);
-            // $nom_makan = ($masterTrans?->nom_makan ?? 0) * $proporsiHybrid;
-            // $nom_transport = ($masterTrans?->nom_transport ?? 0) * $proporsiHybrid;
-            $nom_makan = $masterTrans?->nom_makan ?? 0;
-            $nom_transport = $masterTrans?->nom_transport ?? 0;
-
-            if ($jenis === 'tetap') {
-                $gapok = optional(
-                    $user->golongan?->gapoks
-                        ->where('masa_kerja', '<=', $masaKerja)
-                        ->sortByDesc('masa_kerja')
-                        ->first()
-                )?->nominal_gapok ?? 0;
-            } elseif ($jenis === 'kontrak') {
-                $gapokKontrak = GapokKontrak::where('kategori_jabatan_id', $user->jabatan_id)
-                    ->where('min_masa_kerja', '<=', $masaKerja)
-                    ->where('max_masa_kerja', '>=', $masaKerja)
-                    ->first();
-                $gapok = $gapokKontrak?->nominal ?? 0;
-            }
-
-            $riwayats = $user->riwayatJabatan->filter(function ($r) use ($periodeMulai, $periodeSelesai) {
-                $start = Carbon::parse($r->tanggal_mulai);
-                $end = $r->tanggal_selesai ? Carbon::parse($r->tanggal_selesai) : $periodeSelesai;
-                return $start <= $periodeSelesai && $end >= $periodeMulai;
+            // Cek apakah semua shift adalah libur (jam masuk & keluar null)
+            $semuaLibur = $jadwalUser->every(function ($jadwal) {
+                return optional($jadwal->shift)->jam_masuk === null && optional($jadwal->shift)->jam_keluar === null;
             });
 
-            foreach ($riwayats as $riwayat) {
-                $kategori = $riwayat->kategori;
-                if (!$kategori) continue;
+            // Jika semua shift libur dan ada jadwal
+            $liburTotalSebulan = $semuaLibur && $totalHariJadwal > 0;
 
-                $start = Carbon::parse(max($riwayat->tanggal_mulai, $periodeMulai));
-                $end = Carbon::parse(min($riwayat->tanggal_selesai ?? $periodeSelesai, $periodeSelesai));
+            if ($liburTotalSebulan) {
+                // Semua shift libur → tidak mendapatkan gaji dan tunjangan
+                $gapok = 0;
+                $nom_jabatan = 0;
+                $nom_fungsi = 0;
+                $nom_umum = 0;
+                $nom_khusus = 0;
+                $nom_makan = 0;
+                $nom_transport = 0;
+                $tukin = 0;
+            } else {
+                $jadwalIds = $jadwalUser->pluck('id');
 
-                $hariJadwalAktif = $jadwalUser->filter(function ($jadwal) use ($start, $end) {
-                    return Carbon::parse($jadwal->tanggal_jadwal)->between($start, $end);
-                })->count();
+                $absensiValid = $user->jadwalabsensi()
+                    ->whereIn('id', $jadwalIds)
+                    ->where(function ($query) {
+                        $query->whereHas('absensi', function ($q) {
+                            $q->where('present', 1);
+                        })
+                            ->orWhereHas('shift', function ($q) {
+                                $q->whereNull('jam_masuk')->whereNull('jam_keluar');
+                            });
+                    })
+                    ->count();
 
-                // $proporsi = $totalHariJadwal > 0
-                //     ? ($hariJadwalAktif / $totalHariJadwal)
-                //     : 1;
-                $proporsi = $hariJadwalAktif / max($totalHariJadwal, 1);
+                $proporsiHybrid = $absensiValid / max($totalHariJadwal, 1);
+                // $nom_makan = ($masterTrans?->nom_makan ?? 0) * $proporsiHybrid;
+                // $nom_transport = ($masterTrans?->nom_transport ?? 0) * $proporsiHybrid;
+                $nom_makan = $masterTrans?->nom_makan ?? 0;
+                $nom_transport = $masterTrans?->nom_transport ?? 0;
 
-                $nominal = max(0, $kategori->nominal);
-                $nama_jabatan = strtolower(preg_replace('/\s*\(.*?\)/', '', $kategori->nama));
+                if ($jenis === 'tetap') {
+                    $gapok = optional(
+                        $user->golongan?->gapoks
+                            ->where('masa_kerja', '<=', $masaKerja)
+                            ->sortByDesc('masa_kerja')
+                            ->first()
+                    )?->nominal_gapok ?? 0;
+                } elseif ($jenis === 'kontrak') {
+                    $gapokKontrak = GapokKontrak::where('kategori_jabatan_id', $user->jabatan_id)
+                        ->where('min_masa_kerja', '<=', $masaKerja)
+                        ->where('max_masa_kerja', '>=', $masaKerja)
+                        ->first();
+                    $gapok = $gapokKontrak?->nominal ?? 0;
+                }
 
-                $isKaSeksiOrInstalasi = Str::contains($nama_jabatan, ['ka. seksi', 'ka. instalasi']);
-                $isManajerOrWadir     = Str::contains($nama_jabatan, ['manajer', 'wadir']);
+                $riwayats = $user->riwayatJabatan->filter(function ($r) use ($periodeMulai, $periodeSelesai) {
+                    $start = Carbon::parse($r->tanggal_mulai);
+                    $end = $r->tanggal_selesai ? Carbon::parse($r->tanggal_selesai) : $periodeSelesai;
+                    return $start <= $periodeSelesai && $end >= $periodeMulai;
+                });
 
-                switch ($riwayat->tunjangan) {
-                    case 'jabatan':
-                        if ($isKaSeksiOrInstalasi) {
-                            $nom_jabatan += $nominal * 0.5 * $proporsi;
-                        } else {
-                            $nom_jabatan += $nominal * $proporsi;
+                foreach ($riwayats as $riwayat) {
+                    $kategori = $riwayat->kategori;
+                    if (!$kategori) continue;
+
+                    $start = Carbon::parse(max($riwayat->tanggal_mulai, $periodeMulai));
+                    $end = Carbon::parse(min($riwayat->tanggal_selesai ?? $periodeSelesai, $periodeSelesai));
+
+                    $hariJadwalAktif = $jadwalUser->filter(function ($jadwal) use ($start, $end) {
+                        return Carbon::parse($jadwal->tanggal_jadwal)->between($start, $end);
+                    })->count();
+
+                    // $proporsi = $totalHariJadwal > 0
+                    //     ? ($hariJadwalAktif / $totalHariJadwal)
+                    //     : 1;
+                    $proporsi = $hariJadwalAktif / max($totalHariJadwal, 1);
+
+                    $nominal = max(0, $kategori->nominal);
+                    $nama_jabatan = strtolower(preg_replace('/\s*\(.*?\)/', '', $kategori->nama));
+
+                    $isKaSeksiOrInstalasi = Str::contains($nama_jabatan, ['ka. seksi', 'ka. instalasi']);
+                    $isManajerOrWadir     = Str::contains($nama_jabatan, ['manajer', 'wadir']);
+
+                    switch ($riwayat->tunjangan) {
+                        case 'jabatan':
+                            if ($isKaSeksiOrInstalasi) {
+                                $nom_jabatan += $nominal * 0.5 * $proporsi;
+                            } else {
+                                $nom_jabatan += $nominal * $proporsi;
+                            }
+                            break;
+                        case 'fungsi':
+                            $nom_fungsi += $nominal * $proporsi;
+                            break;
+                        case 'umum':
+                            $nom_umum += $nominal * $proporsi;
+                            break;
+                    }
+                }
+
+
+                $user->setAttribute('nom_gapok', $gapok);
+                $user->setAttribute('nom_jabatan', $nom_jabatan);
+                $user->setAttribute('nom_fungsi', $nom_fungsi);
+                $user->setAttribute('nom_umum', $nom_umum);
+                $user->setAttribute('nom_makan', round($nom_makan));
+                $user->setAttribute('nom_transport', round($nom_transport));
+                $user->setAttribute('nom_khusus', $nom_khusus);
+                $tukin = 0; // default manual
+                $total_bruto = $gapok + $nom_jabatan + $nom_fungsi + $nom_umum + $nom_khusus + $nom_makan + $nom_transport + $tukin;
+
+                $user->setAttribute('nom_lainnya', $tukin);
+                $user->setAttribute('total_bruto', round($total_bruto));
+
+                // Potongan Otomatis
+                $potonganOtomasis = [];
+                $bruto = $user->total_bruto;
+                $tunjangan = $nom_jabatan + $nom_fungsi + $nom_umum;
+                $makanTransport = $nom_makan + $nom_transport;
+
+                foreach ($masterPotongans as $item) {
+                    $slug = $item->slug;
+                    $nominal = 0;
+
+                    if (Str::contains($slug, 'pph')) {
+                        $kategoriInduk = $user->kategoriPphInduk();
+                        if ($kategoriInduk) {
+                            $tax = TaxBracket::where('kategoripph_id', $kategoriInduk->id)
+                                ->where('upper_limit', '>=', $bruto)
+                                ->orderBy('upper_limit')
+                                ->first();
+                            $persen = $tax?->persentase ?? 0;
+                            $nominal = round($bruto * $persen);
                         }
-                        break;
-                    case 'fungsi':
-                        $nom_fungsi += $nominal * $proporsi;
-                        break;
-                    case 'umum':
-                        $nom_umum += $nominal * $proporsi;
-                        break;
+                    } elseif (Str::contains($slug, 'bpjs-tenaga-kerja')) {
+                        $nominal = round(0.03 * ($gapok + $tunjangan));
+                    } elseif (Str::contains($slug, 'bpjs-kesehatan-ortu')) {
+                        $nominal = $user->bpjs_ortu ? round(0.01 * ($gapok + $tunjangan + $makanTransport)) : 0;
+                    } elseif (
+                        Str::contains($slug, 'bpjs-kesehatan') &&
+                        !Str::contains($slug, 'ortu') &&
+                        !Str::contains($slug, 'rekonsiliasi')
+                    ) {
+                        $nominal = round(0.01 * ($gapok + $tunjangan + $makanTransport));
+                    }
+
+                    $isDok = Str::contains(strtolower($user->kategorijabatan->nama ?? ''), 'dokter')
+                        || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'dokter');
+                    $isGigi = Str::contains(strtolower($user->kategorijabatan->nama ?? ''), 'dokter gigi')
+                        || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'dokter gigi');
+                    $isBidan = Str::contains(strtolower($user->kategorijabatan->nama ?? ''), 'bidan')
+                        || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'bidan');
+                    $isPerawat = Str::contains(strtolower($user->kategorijabatan->nama ?? ''), 'perawat')
+                        || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'perawat');
+
+                    if ($slug === 'idi' && $isDok && !$isGigi) {
+                        $nominal = $item->nominal;
+                    } elseif ($slug === 'ibi' && $isBidan) {
+                        $nominal = $item->nominal;
+                    } elseif ($slug === 'ppni' && $isPerawat) {
+                        $nominal = $item->nominal;
+                    }
+
+                    if ($slug === 'dansos-karyawan') {
+                        if ($jenis === 'tetap') {
+                            $nominal = round(0.005 * ($gapok + $tunjangan));
+                        } elseif ($jenis === 'kontrak') {
+                            $nominal = round(0.0025 * $bruto);
+                        }
+                    }
+
+                    // Tampilkan semua, meskipun 0
+                    $potonganOtomasis[$item->nama] = $nominal;
                 }
+
+                $user->setAttribute('potonganOtomasis', $potonganOtomasis);
             }
 
-
-            $user->setAttribute('nom_gapok', $gapok);
-            $user->setAttribute('nom_jabatan', $nom_jabatan);
-            $user->setAttribute('nom_fungsi', $nom_fungsi);
-            $user->setAttribute('nom_umum', $nom_umum);
-            $user->setAttribute('nom_makan', round($nom_makan));
-            $user->setAttribute('nom_transport', round($nom_transport));
-            $user->setAttribute('nom_khusus', $nom_khusus);
-            $tukin = 0; // default manual
-            $total_bruto = $gapok + $nom_jabatan + $nom_fungsi + $nom_umum + $nom_khusus + $nom_makan + $nom_transport + $tukin;
-
-            $user->setAttribute('nom_lainnya', $tukin);
-            $user->setAttribute('total_bruto', round($total_bruto));
-
-            // Potongan Otomatis
-            $potonganOtomasis = [];
-            $bruto = $user->total_bruto;
-            $tunjangan = $nom_jabatan + $nom_fungsi + $nom_umum;
-            $makanTransport = $nom_makan + $nom_transport;
-
-            foreach ($masterPotongans as $item) {
-                $slug = $item->slug;
-                $nominal = 0;
-
-                if (Str::contains($slug, 'pph')) {
-                    $kategoriInduk = $user->kategoriPphInduk();
-                    if ($kategoriInduk) {
-                        $tax = TaxBracket::where('kategoripph_id', $kategoriInduk->id)
-                            ->where('upper_limit', '>=', $bruto)
-                            ->orderBy('upper_limit')
-                            ->first();
-                        $persen = $tax?->persentase ?? 0;
-                        $nominal = round($bruto * $persen);
-                    }
-                } elseif (Str::contains($slug, 'bpjs-tenaga-kerja')) {
-                    $nominal = round(0.03 * ($gapok + $tunjangan));
-                } elseif (Str::contains($slug, 'bpjs-kesehatan-ortu')) {
-                    $nominal = $user->bpjs_ortu ? round(0.01 * ($gapok + $tunjangan + $makanTransport)) : 0;
-                } elseif (
-                    Str::contains($slug, 'bpjs-kesehatan') &&
-                    !Str::contains($slug, 'ortu') &&
-                    !Str::contains($slug, 'rekonsiliasi')
-                ) {
-                    $nominal = round(0.01 * ($gapok + $tunjangan + $makanTransport));
-                }
-
-                $isDok = Str::contains(strtolower($user->kategorijabatan->nama ?? ''), 'dokter')
-                    || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'dokter');
-                $isGigi = Str::contains(strtolower($user->kategorijabatan->nama ?? ''), 'dokter gigi')
-                    || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'dokter gigi');
-                $isBidan = Str::contains(strtolower($user->kategorijabatan->nama ?? ''), 'bidan')
-                    || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'bidan');
-                $isPerawat = Str::contains(strtolower($user->kategorijabatan->nama ?? ''), 'perawat')
-                    || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'perawat');
-
-                if ($slug === 'idi' && $isDok && !$isGigi) {
-                    $nominal = $item->nominal;
-                } elseif ($slug === 'ibi' && $isBidan) {
-                    $nominal = $item->nominal;
-                } elseif ($slug === 'ppni' && $isPerawat) {
-                    $nominal = $item->nominal;
-                }
-
-                if ($slug === 'dansos-karyawan') {
-                    if ($jenis === 'tetap') {
-                        $nominal = round(0.005 * ($gapok + $tunjangan));
-                    } elseif ($jenis === 'kontrak') {
-                        $nominal = round(0.0025 * $bruto);
-                    }
-                }
-
-                // Tampilkan semua, meskipun 0
-                $potonganOtomasis[$item->nama] = $nominal;
-            }
-
-            $user->setAttribute('potonganOtomasis', $potonganOtomasis);
+            return view('exports.template-potongan', [
+                'users' => $users,
+                'bulan' => $this->bulan,
+                'tahun' => $this->tahun,
+                'masterPotongans' => $masterPotongans,
+            ]);
         }
-
-        return view('exports.template-potongan', [
-            'users' => $users,
-            'bulan' => $this->bulan,
-            'tahun' => $this->tahun,
-            'masterPotongans' => $masterPotongans,
-        ]);
     }
 }
