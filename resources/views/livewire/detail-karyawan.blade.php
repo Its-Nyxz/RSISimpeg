@@ -470,6 +470,7 @@
                                         <th class="px-2 py-2 sm:px-4">Penyesuaian</th>
                                         <th class="px-2 py-2 sm:px-4">Gol Awal</th>
                                         <th class="px-2 py-2 sm:px-4">Gol Akhir</th>
+                                        <th class="px-2 py-2 sm:px-4">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -487,6 +488,13 @@
                                                 {{ $penyesuaian->golonganAwal->nama ?? '-' }}</td>
                                             <td class="px-2 py-2 sm:px-4">
                                                 {{ $penyesuaian->golonganAkhir->nama ?? '-' }}</td>
+                                            <td class="px-2 py-2 sm:px-4">
+                                                <button type="button"
+                                                    onclick="confirmAlert('Yakin ingin membatalkan penyesuaian ini?', 'Ya, Batalkan!', () => @this.call('batalPenyesuaian',{{ $penyesuaian->id }}))"
+                                                    class="text-red-600 hover:text-red-800 transition">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </td>
                                         </tr>
                                     @empty
                                         <tr>
@@ -584,6 +592,43 @@
                                     @empty
                                         <tr>
                                             <td colspan="5" class="text-center py-2">Belum ada surat peringatan.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full">
+                    <div class="text-lg font-semibold mb-2">Riwayat Pergantian Jabatan</div>
+                    <div class="relative overflow-x-auto max-w-full shadow-md sm:rounded-lg">
+                        <div class="max-h-96 overflow-y-auto">
+                            <table class="w-full text-xs sm:text-sm text-center text-gray-700">
+                                <thead class="uppercase bg-success-400 text-success-900 sticky top-0 z-10">
+                                    <tr>
+                                        <th class="px-2 py-2 sm:px-4">Tanggal Mulai</th>
+                                        <th class="px-2 py-2 sm:px-4">Tanggal Selesai</th>
+                                        <th class="px-2 py-2 sm:px-4">Jabatan</th>
+                                        <th class="px-2 py-2 sm:px-4">Tunjangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($listRiwayat as $riwayat)
+                                        <tr
+                                            class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
+                                            <td class="px-2 py-2 sm:px-4">{{ formatDate($riwayat->tanggal_mulai) }}
+                                            </td>
+                                            <td class="px-2 py-2 sm:px-4">
+                                                {{ formatDate($riwayat->tanggal_selesai) ?? '-' }}
+                                            </td>
+                                            <td class="px-2 py-2 sm:px-4">{{ $riwayat->kategori->nama }}</td>
+                                            <td class="px-2 py-2 sm:px-4">{{ $riwayat->tunjangan ?? '-' }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center py-2">Belum ada Riwayat ganti
+                                                jabatan.
                                             </td>
                                         </tr>
                                     @endforelse

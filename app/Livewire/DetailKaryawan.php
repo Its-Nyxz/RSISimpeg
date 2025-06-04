@@ -15,6 +15,7 @@ use Livewire\WithFileUploads;
 use App\Models\MasterPendidikan;
 use App\Models\MasterPenyesuaian;
 use App\Models\PeringatanKaryawan;
+use App\Models\RiwayatJabatan;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
 
@@ -39,6 +40,7 @@ class DetailKaryawan extends Component
     public $listPenyesuaian;
     public $listGapok;
     public $listSP;
+    public $listRiwayat;
     public $gapokSebelumnya;
     public $gapokPenyesuaian;
     public $phkDari;
@@ -67,12 +69,16 @@ class DetailKaryawan extends Component
         // return CutiKaryawan::with('user')->where('user_id');
         $this->listCuti = CutiKaryawan::with('user')->where('user_id', $this->user_id)->orderBy('created_at', 'desc')->get();
         $this->listIzin = IzinKaryawan::with('user')->where('user_id', $this->user_id)->orderBy('created_at', 'desc')->get();
-        $this->listPenyesuaian = Penyesuaian::with('user')->where('user_id', $this->user_id)->orderBy('created_at', 'desc')->get();
+        $this->listPenyesuaian = Penyesuaian::with('user')->where('user_id', $this->user_id)->where('status_penyesuaian', '<', 2)->orderBy('created_at', 'desc')->get();
         $this->listGapok = Gapok::with('user')->where('user_id', $this->user_id)->orderBy('created_at', 'desc')->get();
         $this->listSP = PeringatanKaryawan::where('user_id', $this->user_id)
             ->orderBy('tanggal_sp', 'desc')
             ->get();
-        // dd($this->viewPendAwal);
+        $this->listRiwayat = RiwayatJabatan::where('user_id', $this->user_id)
+            ->whereNotNull('tanggal_selesai') // hanya yang sudah selesai
+            ->orderBy('tanggal_mulai', 'desc')
+            ->get();
+        // dd($this->listRiwayat);
 
         if ($this->viewPendAwal) {
             $masaKerjaAwal = $this->viewPendAwal->masa_kerja_awal ?? 0;
@@ -196,6 +202,7 @@ class DetailKaryawan extends Component
         // Update data user
         $user->update([
             'kategori_pendidikan' => $this->pend_penyesuaian,
+            'tgl_penyesuaian' => $this->tanggal_penyesuaian,
             'masa_kerja' => $masaKerjaAkhir,
             'gol_id' => $golBaru,
         ]);
@@ -313,6 +320,59 @@ class DetailKaryawan extends Component
 
         return redirect()->route('detailkaryawan.show', $user->id)
             ->with('success', $messageSuccess);
+    }
+
+    public function batalPenyesuaian($id)
+    {
+        $penyesuaian = Penyesuaian::findOrFail($id);
+
+        // Ambil penyesuaian aktif terakhir
+        $latest = Penyesuaian::where('user_id', $penyesuaian->user_id)
+            ->where('status_penyesuaian', 1)
+            ->latest('created_at')
+            ->first();
+
+        // Ambil user saat ini
+        $user = $penyesuaian->user;
+        // Cek apakah yang diminta untuk dibatalkan adalah penyesuaian aktif terakhir
+        if (!$latest || $latest->id !== $penyesuaian->id) {
+            return redirect()->route('detailkaryawan.show', $user->id)
+                ->with('error', 'Hanya penyesuaian terakhir yang aktif yang dapat dibatalkan.');
+        }
+
+
+        // Hitung selisih yang pernah dikurangi
+        $selisih = $penyesuaian->masa_kerja_awal - $penyesuaian->masa_kerja_akhir;
+
+
+        // Hitung masa kerja baru (tambah kembali selisih yang pernah dikurangi)
+        $masaKerjaBaru = $user->masa_kerja + $selisih;
+
+        // Ambil data pendidikan awal (bukan penyesuaian)
+        $pendidikanAwalId = $penyesuaian->penyesuaian->pendidikan_awal;
+        $pendidikanAwal = MasterPendidikan::find($pendidikanAwalId);
+
+        // Hitung ulang golongan berdasarkan pendidikan awal
+        $naikGol = floor($masaKerjaBaru / 4); // 1 kenaikan per 4 tahun
+        $naikGol = min($naikGol, 4); // maksimal 4 kali kenaikan
+
+        $golDihitung = $pendidikanAwal->minim_gol + $naikGol;
+        $golBaru = min($golDihitung, $pendidikanAwal->maxim_gol); // tidak boleh lebih dari maksimal gol
+
+        // Update penyesuaian jadi dibatalkan
+        $penyesuaian->update([
+            'status_penyesuaian' => 2,
+        ]);
+
+        // Update data user (kategori_pendidikan dan masa_kerja + selisih)
+        $user->update([
+            'kategori_pendidikan' => $penyesuaian->penyesuaian->pendidikan_awal,
+            'masa_kerja' => $masaKerjaBaru,
+            'gol_id' => $golBaru,
+        ]);
+
+        return redirect()->route('detailkaryawan.show', $user->id)
+            ->with('success', 'Pendidikan Penyesuaian Berhasil Dibatalkan.');
     }
 
     public function render()

@@ -523,7 +523,7 @@ class KaryawanForm extends Component
                 ->where('kategori_jabatan_id', $oldJabatanId)
                 ->where('tunjangan', 'jabatan')
                 ->whereNull('tanggal_selesai')
-                ->update(['tanggal_selesai' => now()]);
+                ->update(['tanggal_selesai' => now('Asia/Jakarta')]);
 
             RiwayatJabatan::create([
                 'user_id' => $user->id,
@@ -533,6 +533,7 @@ class KaryawanForm extends Component
                 'tanggal_selesai' => null,
             ]);
         }
+        
 
         // Update riwayat fungsional jika berubah
         if ($this->fungsional !== $this->fungsionalAwal && $kategoriFungsional) {
@@ -540,7 +541,7 @@ class KaryawanForm extends Component
                 ->where('kategori_jabatan_id', $oldFungsionalId)
                 ->where('tunjangan', 'fungsi')
                 ->whereNull('tanggal_selesai')
-                ->update(['tanggal_selesai' => now()]);
+                ->update(['tanggal_selesai' => now('Asia/Jakarta')]);
 
             RiwayatJabatan::create([
                 'user_id' => $user->id,
