@@ -806,5 +806,4 @@
             });
         </script>
     @endpush --}}
-    @endpush --}}
 </div>
