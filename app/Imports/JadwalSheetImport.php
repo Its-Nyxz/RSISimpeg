@@ -88,15 +88,33 @@ class JadwalSheetImport implements ToCollection
                     }
 
                     if ($shift) {
-                        JadwalAbsensi::updateOrCreate(
-                            [
+                        $existing = JadwalAbsensi::where('user_id', $user->id)
+                            ->where('tanggal_jadwal', $tanggal_jadwal)
+                            ->first();
+
+                        $isShiftL = strtoupper($shift->nama_shift) === 'L';
+
+                        if (!$existing) {
+                            // Belum ada jadwal, buat baru
+                            JadwalAbsensi::create([
                                 'user_id' => $user->id,
                                 'tanggal_jadwal' => $tanggal_jadwal,
-                            ],
-                            [
                                 'shift_id' => $shift->id,
-                            ]
-                        );
+                            ]);
+                        } else {
+                            $existingShift = $existing->shift;
+                            $existingIsL = strtoupper(optional($existingShift)->nama_shift) === 'L';
+
+                            // Update hanya jika:
+                            // 1. Shift sebelumnya L dan yang baru bukan L
+                            // 2. Shift sebelumnya bukan L dan yang baru bukan L
+                            if (($existingIsL && !$isShiftL) || (!$existingIsL && !$isShiftL)) {
+                                $existing->update([
+                                    'shift_id' => $shift->id,
+                                ]);
+                            }
+                            // selain itu: skip update
+                        }
                     }
                 }
             } catch (\Exception $e) {
