@@ -70,10 +70,14 @@
                         {{-- Jika login sebagai Kepegawaian atau Super Admin --}}
                         @if (auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN' || auth()->user()->hasRole('Super Admin'))
                             <ul class="list-disc list-inside space-y-2">
-                                @foreach ($masaBerlakuPelatihan as $file)
+                                @php
+                                    // Ambil data user yang terkait dengan pelatihan dan pastikan tidak ada duplikasi
+                                    $users = $masaBerlakuPelatihan->pluck('user_id')->unique();
+                                @endphp
+                                @foreach ($users as $userId)
                                     @php
-                                        $selesai = \Carbon\Carbon::parse($file->selesai);
-                                        $totalJamPelatihan = $file->user
+                                        $user = App\Models\User::find($userId);
+                                        $totalJamPelatihan = $user
                                             ->sourceFiles()
                                             ->whereHas('jenisFile', function ($query) {
                                                 $query->where('name', 'like', '%pelatihan%');
@@ -82,10 +86,8 @@
                                             ->sum('jumlah_jam');
                                     @endphp
                                     <li>
-                                        @if (auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN' || auth()->user()->hasRole('Super Admin'))
-                                            <strong>{{ $file->user->name ?? '-' }}</strong> -
-                                        @endif
-                                        Total Jam: <strong>{{ $totalJamPelatihan }} Jam</strong>
+                                        <strong>{{ $user->name ?? '-' }}</strong> - Total Jam:
+                                        <strong>{{ $totalJamPelatihan }} Jam</strong>
                                     </li>
                                 @endforeach
                             </ul>
@@ -93,6 +95,7 @@
                         @else
                             <ul class="list-disc list-inside space-y-2">
                                 @php
+                                    // Total jam pelatihan untuk user yang sedang login
                                     $totalJamPelatihan = auth()
                                         ->user()
                                         ->sourceFiles()

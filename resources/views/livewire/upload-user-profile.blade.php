@@ -43,6 +43,14 @@
 
                 <label>Tanggal Selesai</label>
                 <input type="date" wire:model.live="selesai" class="border rounded p-2" />
+            </div>
+        @elseif($pelatihan)
+            <div class="flex flex-col gap-2">
+                <label>Tanggal Mulai</label>
+                <input type="date" wire:model.live="mulai" class="border rounded p-2" />
+
+                <label>Tanggal Selesai</label>
+                <input type="date" wire:model.live="selesai" class="border rounded p-2" />
 
                 <label>Jumlah Jam</label>
                 <input type="number" wire:model.live="jumlah_jam" class="border rounded p-2" />
