@@ -34,25 +34,64 @@ class DashboardController extends Controller
         $jadwal_id = $jadwal ? $jadwal->id : null;
         // dd($jadwal_id);
 
-        if (auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN' || auth()->user()->hasRole('Super Admin')) {
+        // Menyaring Sertifikat SIP/STR
+        if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN') {
+            // Super Admin atau Kepegawaian melihat semua SIP/STR
             $masaBerlakuSipStr = SourceFile::whereHas('jenisFile', function ($query) {
                 $query->where('name', 'like', '%sip%')
                     ->orWhere('name', 'like', '%str%');
             })
                 ->whereNotNull('selesai')
-                ->whereDate('selesai', '>', now())
+                ->whereDate('selesai', '>=', now()) // Validasi jika selesai setelah tanggal hari ini
                 ->with('user', 'jenisFile')
                 ->get();
+
+            // Super Admin atau Kepegawaian melihat semua sertifikat pelatihan
+            $masaBerlakuPelatihan = SourceFile::whereHas('jenisFile', function ($query) {
+                $query->where('name', 'like', '%pelatihan%'); // Sertifikat pelatihan lainnya
+            })
+                ->whereNotNull('selesai')
+                ->whereDate('selesai', '>=', now()) // Validasi jika selesai setelah tanggal hari ini
+                ->with('user', 'jenisFile')
+                ->get();
+
+            // Menghitung total jumlah jam untuk pelatihan dari semua user
+            $totalJumlahJamPelatihan = SourceFile::whereHas('jenisFile', function ($query) {
+                $query->where('name', 'like', '%pelatihan%'); // Sertifikat pelatihan lainnya
+            })
+                ->whereNotNull('selesai')
+                ->whereDate('selesai', '>=', now())
+                ->sum('jumlah_jam'); // Menghitung total jumlah jam pelatihan
         } else {
+            // Untuk user biasa, hanya melihat SIP/STR dan Sertifikat Pelatihan milik mereka sendiri
             $masaBerlakuSipStr = SourceFile::where('user_id', auth()->id())
                 ->whereHas('jenisFile', function ($query) {
                     $query->where('name', 'like', '%sip%')
                         ->orWhere('name', 'like', '%str%');
                 })
                 ->whereNotNull('selesai')
-                ->whereDate('selesai', '>', now())
+                ->whereDate('selesai', '>=', now()) // Validasi jika selesai setelah tanggal hari ini
                 ->with('jenisFile')
                 ->get();
+
+            // Sertifikat Pelatihan milik user sendiri
+            $masaBerlakuPelatihan = SourceFile::where('user_id', auth()->id())
+                ->whereHas('jenisFile', function ($query) {
+                    $query->where('name', 'like', '%pelatihan%');
+                })
+                ->whereNotNull('selesai')
+                ->whereDate('selesai', '>=', now()) // Validasi jika selesai setelah tanggal hari ini
+                ->with('jenisFile')
+                ->get();
+
+            // Menghitung total jumlah jam untuk pelatihan milik user sendiri
+            $totalJumlahJamPelatihan = SourceFile::where('user_id', auth()->id())
+                ->whereHas('jenisFile', function ($query) {
+                    $query->where('name', 'like', '%pelatihan%');
+                })
+                ->whereNotNull('selesai')
+                ->whereDate('selesai', '>=', now())
+                ->sum('jumlah_jam'); // Menghitung total jumlah jam pelatihan
         }
 
         // Ambil sisa cuti tahunan user berdasarkan tahun sekarang
@@ -80,6 +119,8 @@ class DashboardController extends Controller
         return view('dashboard.index', compact(
             'jadwal_id',
             'masaBerlakuSipStr',
+            'masaBerlakuPelatihan',
+            'totalJumlahJamPelatihan',
             'sisaCutiTahunan',
             'jumlahKeterlambatan',
             'jumlahIzin',

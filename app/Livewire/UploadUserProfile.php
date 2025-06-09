@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use Carbon\Carbon;
 use Livewire\Component;
 use App\Models\JenisFile;
 use App\Models\SourceFile;
@@ -18,6 +19,7 @@ class UploadUserProfile extends Component
     public $selesai;
     public $jenisFiles;
     public $isSipStr = false;
+    public $jumlah_jam;
 
     public function mount()
     {
@@ -27,17 +29,37 @@ class UploadUserProfile extends Component
     public function updatedJenisFileId()
     {
         $jenis = JenisFile::find($this->jenis_file_id);
-        $this->isSipStr = $jenis && (str_contains(strtolower($jenis->name), 'sip') || str_contains(strtolower($jenis->name), 'str'));
+        $this->isSipStr = $jenis && (
+            str_contains(strtolower($jenis->name), 'sip') ||
+            str_contains(strtolower($jenis->name), 'str') ||
+            str_contains(strtolower($jenis->name), 'sertifikat pelatihan')
+        );
     }
 
     public function save()
     {
         $this->validate([
             'jenis_file_id' => 'required|exists:jenis_files,id',
-            'file' => 'required|file|max:10240', // Max 10MB
+            'file' => 'required|file|max:5120', // Max 5MB
             'mulai' => $this->isSipStr ? 'required|date' : 'nullable',
             'selesai' => $this->isSipStr ? 'required|date|after_or_equal:mulai' : 'nullable',
+            'jumlah_jam' => $this->isSipStr ? 'nullable|integer' : 'required|integer', // Untuk sertifikat pelatihan
         ]);
+
+        // Pastikan jumlah jam diisi manual jika tidak ada tanggal mulai dan selesai
+        if ($this->isSipStr && !$this->mulai && !$this->selesai) {
+            if (!$this->jumlah_jam) {
+                session()->flash('error', 'Jumlah jam harus diisi jika tidak ada tanggal mulai dan selesai.');
+                return;
+            }
+        }
+
+        // Hanya menghitung jumlah jam jika belum diisi manual
+        if ($this->isSipStr && !$this->jumlah_jam && $this->mulai && $this->selesai) {
+            $startDate = Carbon::parse($this->mulai);
+            $endDate = Carbon::parse($this->selesai);
+            $this->jumlah_jam = $startDate->diffInHours($endDate); // Menghitung jumlah jam pelatihan
+        }
 
         $path = $this->file->store('dokumen', 'public');
 
@@ -55,10 +77,11 @@ class UploadUserProfile extends Component
             'fileable_type' => Auth::user()::class,
             'mulai' => $this->mulai,
             'selesai' => $this->selesai,
+            'jumlah_jam' => $this->jumlah_jam,
         ]);
 
         session()->flash('success', 'File berhasil diupload.');
-        $this->reset(['file', 'jenis_file_id', 'mulai', 'selesai', 'isSipStr']);
+        $this->reset(['file', 'jenis_file_id', 'mulai', 'selesai', 'isSipStr', 'jumlah_jam']);
     }
 
     public function render()

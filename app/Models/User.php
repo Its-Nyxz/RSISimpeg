@@ -211,4 +211,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(RiwayatJabatan::class, 'user_id');
     }
+
+    public function sourceFiles()
+    {
+        return $this->hasMany(SourceFile::class);
+    }
 }

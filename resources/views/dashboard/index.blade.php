@@ -1,41 +1,121 @@
 <x-body>
-    <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-bold text-success-900">
-            DASHBOARD {{ auth()->user()->unitKerja->nama ?? ' ' }}
-        </h1>
+    <div class="flex items-start justify-between mb-6">
+        <div class="w-2/3">
+            <h1 class="text-2xl font-bold text-success-900 mb-4">
+                DASHBOARD {{ auth()->user()->unitKerja->nama ?? ' ' }}
+            </h1>
 
-        {{-- Notifikasi Masa Berlaku SIP/STR --}}
-        @if (count($masaBerlakuSipStr) > 0)
-            <div
-                class="flex items-center bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 px-4 py-2 rounded-lg text-sm max-w-2xl overflow-y-auto max-h-28">
-                <div>
-                    <p class="font-bold mb-1">PERHATIAN: Masa Berlaku SIP/STR</p>
-                    <ul class="list-disc list-inside space-y-1">
-                        @foreach ($masaBerlakuSipStr as $file)
-                            @php
-                                $selesai = \Carbon\Carbon::parse($file->selesai);
-                                $sisaHari = intval(now()->diffInDays($selesai));
+            {{-- Notifikasi Masa Berlaku SIP/STR --}}
+            @if (count($masaBerlakuSipStr) > 0 || count($masaBerlakuPelatihan) > 0)
+                <div
+                    class="flex items-center bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 px-4 py-2 rounded-lg text-sm max-w-2xl overflow-y-auto max-h-28">
+                    <div>
+                        <p class="font-bold mb-2">PERHATIAN: Masa Berlaku SIP/STR/Pelatihan</p>
+                        <ul class="list-disc list-inside space-y-2">
+                            @foreach ($masaBerlakuSipStr as $file)
+                                @php
+                                    $selesai = \Carbon\Carbon::parse($file->selesai);
+                                    $sisaHari = intval(now()->diffInDays($selesai));
+                                @endphp
+                                <li class="flex items-center">
+                                    @if (auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN' || auth()->user()->hasRole('Super Admin'))
+                                        <strong class="mr-2">{{ $file->user->name ?? '-' }}</strong> -
+                                    @endif
+                                    <span>{{ $file->jenisFile->name ?? '-' }} berakhir
+                                        <strong>{{ $selesai->format('d M Y') }}</strong></span>
+                                    {{-- Kalau sisa hari kurang dari 7 --}}
+                                    @if ($sisaHari <= 7)
+                                        <span class="ml-2 text-red-600 font-bold">(Sisa {{ $sisaHari }} Hari!)</span>
+                                    @endif
+                                </li>
+                            @endforeach
 
-                            @endphp
-                            <li>
-                                @if (auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN' || auth()->user()->hasRole('Super Admin'))
-                                    <strong>{{ $file->user->name ?? '-' }}</strong> -
-                                @endif
-
-                                {{ $file->jenisFile->name ?? '-' }}
-                                berakhir <strong>{{ $selesai->format('d M Y') }}</strong>
-
-                                {{-- Kalau sisa hari kurang dari 7 --}}
+                            {{-- Notifikasi Masa Berlaku Sertifikat Pelatihan yang hampir expired --}}
+                            @foreach ($masaBerlakuPelatihan as $file)
+                                @php
+                                    $selesai = \Carbon\Carbon::parse($file->selesai);
+                                    $sisaHari = intval(now()->diffInDays($selesai));
+                                @endphp
                                 @if ($sisaHari <= 7)
-                                    <span class="ml-2 text-red-600 font-bold">(Sisa {{ $sisaHari }} Hari!)</span>
+                                    {{-- Pelatihan yang hampir expired, ditampilkan di bagian yang sama dengan SIP/STR --}}
+                                    <li class="flex items-center">
+                                        @if (auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN' || auth()->user()->hasRole('Super Admin'))
+                                            <strong class="mr-2">{{ $file->user->name ?? '-' }}</strong> -
+                                        @endif
+                                        <span>{{ $file->jenisFile->name ?? '-' }} berakhir
+                                            <strong>{{ $selesai->format('d M Y') }}</strong></span>
+                                        {{-- Kalau sisa hari kurang dari 7 --}}
+                                        <span class="ml-2 text-red-600 font-bold">(Sisa {{ $sisaHari }}
+                                            Hari!)</span>
+                                    </li>
                                 @endif
-                            </li>
-                        @endforeach
-                    </ul>
+                            @endforeach
+                        </ul>
+                    </div>
                 </div>
-            </div>
-        @endif
+            @endif
+        </div>
+
+        {{-- Card untuk Total Jam Sertifikat Pelatihan --}}
+        <div class="w-1/3 ml-4">
+            {{-- Only display the total jam card if there are pelatihan records or if total jam is greater than 0 --}}
+            @if (count($masaBerlakuPelatihan) > 0 ||
+                    ((auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN' || auth()->user()->hasRole('Super Admin')) &&
+                        $masaBerlakuPelatihan->sum('jumlah_jam') > 0))
+                <div
+                    class="flex items-center bg-blue-100 border-l-4 border-blue-500 text-blue-800 px-4 py-2 rounded-lg text-sm max-w-2xl overflow-y-auto max-h-28">
+                    <div>
+                        <p class="font-bold mb-2">Total Jam Sertifikat Pelatihan</p>
+
+                        {{-- Jika login sebagai Kepegawaian atau Super Admin --}}
+                        @if (auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN' || auth()->user()->hasRole('Super Admin'))
+                            <ul class="list-disc list-inside space-y-2">
+                                @foreach ($masaBerlakuPelatihan as $file)
+                                    @php
+                                        $selesai = \Carbon\Carbon::parse($file->selesai);
+                                        $totalJamPelatihan = $file->user
+                                            ->sourceFiles()
+                                            ->whereHas('jenisFile', function ($query) {
+                                                $query->where('name', 'like', '%pelatihan%');
+                                            })
+                                            ->whereDate('selesai', '>=', now())
+                                            ->sum('jumlah_jam');
+                                    @endphp
+                                    <li>
+                                        @if (auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN' || auth()->user()->hasRole('Super Admin'))
+                                            <strong>{{ $file->user->name ?? '-' }}</strong> -
+                                        @endif
+                                        Total Jam: <strong>{{ $totalJamPelatihan }} Jam</strong>
+                                    </li>
+                                @endforeach
+                            </ul>
+                            {{-- Jika login sebagai User biasa --}}
+                        @else
+                            <ul class="list-disc list-inside space-y-2">
+                                @php
+                                    $totalJamPelatihan = auth()
+                                        ->user()
+                                        ->sourceFiles()
+                                        ->whereHas('jenisFile', function ($query) {
+                                            $query->where('name', 'like', '%pelatihan%');
+                                        })
+                                        ->whereDate('selesai', '>=', now())
+                                        ->sum('jumlah_jam');
+                                @endphp
+                                @if ($totalJamPelatihan > 0)
+                                    <li>Total Jam Sertifikat Pelatihan: <strong>{{ $totalJamPelatihan }} Jam</strong>
+                                    </li>
+                                @endif
+                            </ul>
+                        @endif
+                    </div>
+                </div>
+            @endif
+        </div>
+
     </div>
+
+
     {{-- <livewire:data-absen type="absen" /> --}}
     {{-- <x-card-tanpa-title class="max-w-md">
         <div class="flex flex-col" style="margin-left: 30px;">
