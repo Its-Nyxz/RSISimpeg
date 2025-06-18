@@ -120,7 +120,7 @@ class UpdateKenaikanBerkala extends Command
             $user->save();
 
             // ✅ Kirim notifikasi berhasil
-            $pesanNaik = "Selamat! Gaji Anda telah <span class='text-green-600 font-bold'>naik secara berkala</span>.<br>" .
+            $pesanNaik = "Selamat! Gaji Anda telah <span class='text-success-600 font-bold'>naik secara berkala</span>.<br>" .
                 "Gaji sebelumnya: <strong>Rp " . number_format($gapokLama?->nominal_gapok ?? 0, 0, ',', '.') . "</strong><br>" .
                 "Gaji baru: <strong>Rp " . number_format($gapokBaru->nominal_gapok, 0, ',', '.') . "</strong>";
 

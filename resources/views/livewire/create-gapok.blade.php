@@ -1,41 +1,44 @@
 <div>
     <div class="flex justify-between items-center mb-5">
         <h1 class="text-2xl font-bold text-success-900">Tambah Data Gaji Pokok</h1>
-        <a href="{{ route('fungsional.index') }}" class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
+        <a href="{{ route('fungsional.index') }}"
+            class="flex items-center bg-success-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-success-800 focus:ring-4 focus:outline-none focus:ring-success-300">
             <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
         </a>
     </div>
 
     <form wire:submit.prevent="store">
         <!-- Pilihan Nama Golongan -->
-        <div class="grid grid-cols-2 gap-4 bg-green-100 border border-green-200 rounded-lg shadow-lg p-6">
+        <div class="grid grid-cols-2 gap-4 bg-success-100 border border-success-200 rounded-lg shadow-lg p-6">
             <div class="form-group">
-                <label for="golongan_id" class="block text-sm font-medium text-green-900">Nama Golongan</label>
+                <label for="golongan_id" class="block text-sm font-medium text-success-900">Nama Golongan</label>
                 <div class="relative">
                     <input type="text" id="golongan_nama" wire:model.lazy="golongan_nama"
-                    wire:focus="fetchSuggestions('golongan', $event.target.value)"
-                    wire:input="fetchSuggestions('golongan', $event.target.value)"
-                    placeholder="Cari Nama Golongan..."
-                    class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
-                    autocomplete="off" />
-                    
+                        wire:focus="fetchSuggestions('golongan', $event.target.value)"
+                        wire:input="fetchSuggestions('golongan', $event.target.value)"
+                        placeholder="Cari Nama Golongan..."
+                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5"
+                        autocomplete="off" />
+
                     <ul id="golonganDropdown" class="dropdown {{ empty($suggestions) ? 'hidden' : '' }}">
-                        @foreach($suggestions as $suggestion)
-                            <li class="dropdown-item" wire:click="selectGolongan('{{ $suggestion['id'] }}', '{{ $suggestion['nama'] }}')">
+                        @foreach ($suggestions as $suggestion)
+                            <li class="dropdown-item"
+                                wire:click="selectGolongan('{{ $suggestion['id'] }}', '{{ $suggestion['nama'] }}')">
                                 {{ $suggestion['nama'] }}
                             </li>
                         @endforeach
                     </ul>
                 </div>
-                @error('golongan_id') 
+                @error('golongan_id')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>
 
             <!-- Nominal Gaji Pokok -->
             <div class="form-group">
-                <label for="nominal_gapok" class="block text-sm font-medium text-green-900">Nominal Gaji Pokok</label>
-                <input type="number" id="nominal_gapok" wire:model="nominal_gapok" class="form-control @error('nominal_gapok') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 focus:ring-green-500 focus:border-green-500 p-2.5">
+                <label for="nominal_gapok" class="block text-sm font-medium text-success-900">Nominal Gaji Pokok</label>
+                <input type="number" id="nominal_gapok" wire:model="nominal_gapok"
+                    class="form-control @error('nominal_gapok') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 focus:ring-success-500 focus:border-success-500 p-2.5">
                 @error('nominal_gapok')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
@@ -44,7 +47,8 @@
 
         <!-- Tombol Submit -->
         <div class="form-group col-span-2 flex justify-end mt-4">
-            <button type="submit" class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
+            <button type="submit"
+                class="flex items-center bg-success-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-success-800 focus:ring-4 focus:outline-none focus:ring-success-300">
                 <i class="fa-solid fa-paper-plane mr-2"></i> Simpan
             </button>
         </div>

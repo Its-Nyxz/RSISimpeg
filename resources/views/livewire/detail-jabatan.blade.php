@@ -9,7 +9,7 @@
     @if ($roleId)
         <x-card title="Perizinan">
             @if (session()->has('message'))
-                <div class="text-green-500 font-semibold">{{ session('message') }}</div>
+                <div class="text-success-500 font-semibold">{{ session('message') }}</div>
             @endif
             <div class="space-y-4">
                 @foreach ($permissions as $category => $actions)

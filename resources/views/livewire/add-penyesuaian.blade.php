@@ -8,7 +8,7 @@
                 </td>
                 <td>
                     <select id="pendidikan_awal" wire:model.live="pendidikan_awal"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5">
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5">
                         <option value="">-- Pilih Pendidikan Awal --</option>
                         @foreach ($pendidikans as $pendidikan)
                             <option value="{{ $pendidikan->id }}">{{ $pendidikan->nama }}</option>
@@ -27,7 +27,7 @@
                 </td>
                 <td>
                     <select id="pendidikan_penyesuaian" wire:model.live="pendidikan_penyesuaian"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5">
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5">
                         <option value="">-- Pilih Pendidikan Penyesuaian --</option>
                         @foreach ($pendidikans as $pendidikan)
                             <option value="{{ $pendidikan->id }}">{{ $pendidikan->nama }}</option>
@@ -47,7 +47,7 @@
                 <td>
                     <div class="flex items-center gap-2">
                         <input type="text" id="masa_kerja" wire:model.live="masa_kerja"
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                             placeholder="Contoh: 2" />
                         <span class="text-gray-700 text-sm">tahun</span>
                     </div>

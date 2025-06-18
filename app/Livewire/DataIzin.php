@@ -133,7 +133,7 @@ class DataIzin extends Component
                 $nextUser = User::where('id', $userId)->first();
                 $message = 'Pengajuan Izin anda (' . $nextUser->name .
                     ') mulai <span class="font-bold">' . $izin->tanggal_mulai . ' sampai ' .  $izin->tanggal_selesai .
-                    '</span> ' . '  dengan keterangan "' . $izin->keterangan . '"  telah <span class="text-green-600 font-bold">Disetujui Final</span> oleh ' . $user->name;
+                    '</span> ' . '  dengan keterangan "' . $izin->keterangan . '"  telah <span class="text-success-600 font-bold">Disetujui Final</span> oleh ' . $user->name;
 
 
                 $url = "/pengajuan/ijin";
@@ -147,9 +147,9 @@ class DataIzin extends Component
 
                 $nextUser = User::where('id', $userId)->first();
                 $message = 'Pengajuan Ijin anda (' . $nextUser->name .
-                    ') telah <span class="text-green-600 font-bold">Disetujui Kepala Unit</span> oleh ' . $user->name;
+                    ') telah <span class="text-success-600 font-bold">Disetujui Kepala Unit</span> oleh ' . $user->name;
                 $messagekepegawaian = 'Pengajuan Ijin atas nama (' . $nextUser->name .
-                    ') telah <span class="text-green-600 font-bold">Disetujui Kepala Unit</span> oleh ' . $user->name . ', silahkan melanjutkan persetujuan ';
+                    ') telah <span class="text-success-600 font-bold">Disetujui Kepala Unit</span> oleh ' . $user->name . ', silahkan melanjutkan persetujuan ';
 
                 $url = "/pengajuan/ijin";
                 $urlkepegawaian = "/approvalizin";

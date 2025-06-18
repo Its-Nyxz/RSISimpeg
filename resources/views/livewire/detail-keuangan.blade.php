@@ -54,11 +54,11 @@
                 <!-- Kembali -->
                 <div class="relative group">
                     <a href="{{ route('keuangan.index') }}"
-                        class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-green-700 text-white hover:bg-green-800 transition">
+                        class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-success-700 text-white hover:bg-success-800 transition">
                         <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
                     </a>
                     <a href="{{ route('keuangan.index') }}"
-                        class="sm:hidden p-3 rounded-lg bg-green-700 text-white hover:bg-green-800 transition"
+                        class="sm:hidden p-3 rounded-lg bg-success-700 text-white hover:bg-success-800 transition"
                         aria-label="Kembali">
                         <i class="fa-solid fa-arrow-left"></i>
                     </a>
@@ -70,7 +70,7 @@
     <!-- Slip Gaji dalam Card -->
     <x-card title="{{ $user->username ?? '-' }}" class="mb-6 text-success-900">
         <!-- Header -->
-        <div class="text-center text-green-900 font-bold text-lg mb-4">
+        <div class="text-center text-success-900 font-bold text-lg mb-4">
             SLIP PENERIMAAN GAJI KARYAWAN
         </div>
 
@@ -152,7 +152,7 @@
 
         </div>
 
-        <hr class="border-green-700 mb-6 w-1/2 mx-auto">
+        <hr class="border-success-700 mb-6 w-1/2 mx-auto">
 
         <!-- Bagian Potongan -->
         <div class="text-center">
@@ -171,7 +171,7 @@
                 <p class="text-sm text-gray-500">Tidak ada potongan tersedia.</p>
             @endforelse
 
-            <hr class="border-green-700 my-6 w-1/2 mx-auto">
+            <hr class="border-success-700 my-6 w-1/2 mx-auto">
 
             <div class="flex justify-between w-full max-w-md mx-auto">
                 <strong>Jumlah Potongan</strong>

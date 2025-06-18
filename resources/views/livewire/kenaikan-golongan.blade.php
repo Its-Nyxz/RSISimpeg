@@ -140,7 +140,7 @@
                                 <div class="flex justify-center gap-2">
                                     <button
                                         onclick="confirmAlert('Ingin menyetujui user ini?', 'Ya, Setujui!', () => @this.call('approveKenaikan', {{ $user->id }}))"
-                                        class="bg-green-600 text-white px-3 py-1 rounded-lg flex items-center gap-2">
+                                        class="bg-success-600 text-white px-3 py-1 rounded-lg flex items-center gap-2">
                                         <i class="fa-solid fa-check"></i>
                                     </button>
 
@@ -152,7 +152,7 @@
                                 </div>
                             @else --}}
                             <a href="{{ route('detailkaryawan.show', ['detailkaryawan' => $user->id]) }}"
-                                class="bg-green-700 text-white font-medium rounded-md px-3 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
+                                class="bg-success-700 text-white font-medium rounded-md px-3 py-2 hover:bg-success-800 focus:ring-4 focus:outline-none focus:ring-success-300">
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </a>
                         </td>

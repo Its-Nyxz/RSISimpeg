@@ -287,7 +287,7 @@ class KenaikanGolongan extends Component
         $gapok->save();
 
         // Kirim notifikasi ke user
-        $message = 'Kenaikan golongan Anda dari ' . ($user->golongan->nama ?? '-') . ' ke golongan ' . $gapok->golonganBaru->nama . ' telah <span class="text-green-600 font-bold">disetujui</span> oleh ' . $admin->name . '.';
+        $message = 'Kenaikan golongan Anda dari ' . ($user->golongan->nama ?? '-') . ' ke golongan ' . $gapok->golonganBaru->nama . ' telah <span class="text-success-600 font-bold">disetujui</span> oleh ' . $admin->name . '.';
 
         Notification::send($user, new UserNotification($message, null));
 

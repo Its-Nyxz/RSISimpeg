@@ -6,7 +6,7 @@
             </td>
             <td>
                 <input type="date" id="date" wire:model.live="date"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                     required />
                 @error('date')
                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -19,7 +19,7 @@
             </td>
             <td>
                 <textarea id="description" wire:model.live="description" rows="3"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                     placeholder="Masukkan keterangan..." required></textarea>
                 @error('description')
                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>

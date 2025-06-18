@@ -59,18 +59,18 @@
                         @endif
                         @if ($tipe == 'ijin')
                             <td
-                                class="border border-gray-300 p-2 font-extrabold whitespace-nowrap {{ $pengajuan->status_izin_id == 1 ? 'text-green-900' : ($pengajuan->status_izin_id == 2 ? 'text-red-900' : 'text-gray-900') }}">
+                                class="border border-gray-300 p-2 font-extrabold whitespace-nowrap {{ $pengajuan->status_izin_id == 1 ? 'text-success-900' : ($pengajuan->status_izin_id == 2 ? 'text-red-900' : 'text-gray-900') }}">
                                 {{ $pengajuan->statusIzin->nama_status ?? '-' }}
                             </td>
                         @elseif($tipe == 'cuti')
                             <td
-                                class="border border-gray-300 p-2 font-extrabold whitespace-nowrap {{ $pengajuan->status_cuti_id == 1 ? 'text-green-900' : ($pengajuan->status_cuti_id == 2 ? 'text-red-900' : 'text-gray-900') }}">
+                                class="border border-gray-300 p-2 font-extrabold whitespace-nowrap {{ $pengajuan->status_cuti_id == 1 ? 'text-success-900' : ($pengajuan->status_cuti_id == 2 ? 'text-red-900' : 'text-gray-900') }}">
                                 {{ $pengajuan->statusCuti->nama_status ?? '-' }}
                             </td>
                         @else
                             <td
                                 class="border border-gray-300 p-2 font-extrabold whitespace-nowrap
-                                {{ is_null($pengajuan->is_approved) ? 'text-gray-900' : ($pengajuan->is_approved ? 'text-green-900' : 'text-red-900') }}">
+                                {{ is_null($pengajuan->is_approved) ? 'text-gray-900' : ($pengajuan->is_approved ? 'text-success-900' : 'text-red-900') }}">
                                 {{ is_null($pengajuan->is_approved) ? 'Menunggu' : ($pengajuan->is_approved ? 'Disetujui' : 'Ditolak') }}
                             </td>
                         @endif

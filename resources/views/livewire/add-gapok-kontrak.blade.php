@@ -10,7 +10,7 @@
                 <input id="jabatan" type="text" wire:model.live="jabatan"
                     wire:focus="fetchSuggestions('jabatan', $event.target.value)"
                     wire:input="fetchSuggestions('jabatan', $event.target.value)"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                     placeholder="Cari Jabatan..." wire:blur="hideSuggestions('jabatan')" autocomplete="off">
 
                 @if (!empty($suggestions['jabatan']))
@@ -21,7 +21,7 @@
                                 {{ ucfirst($tunjangan) }}</li>
                             @foreach ($list as $suggestion)
                                 <li wire:click="selectSuggestion('jabatan', '{{ $suggestion }}')"
-                                    class="px-4 py-2 hover:bg-green-700 hover:text-white cursor-pointer transition duration-200">
+                                    class="px-4 py-2 hover:bg-success-700 hover:text-white cursor-pointer transition duration-200">
                                     {{ $suggestion }}
                                 </li>
                             @endforeach
@@ -36,7 +36,7 @@
             </td>
             <td>
                 <input type="number" id="min_masa_kerja" wire:model.live="min_masa_kerja"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                     min="0" placeholder="Masukkan Minimal Masa Kerja" required />
                 @error('min_masa_kerja')
                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -49,7 +49,7 @@
             </td>
             <td>
                 <input type="number" id="max_masa_kerja" wire:model.live="max_masa_kerja"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                     min="0" placeholder="Masukkan Maximal Masa Kerja" required />
                 @error('max_masa_kerja')
                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -62,7 +62,7 @@
             </td>
             <td>
                 <input type="number" id="nominal" wire:model.live="nominal"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                     min="0" placeholder="Masukkan Nominal" required />
                 @error('nominal')
                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>

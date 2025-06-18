@@ -100,7 +100,7 @@
                         <div class="mt-2 flex flex-col gap-2 w-full sm:w-auto">
                             <div class="flex items-center space-x-2">
                                 <span
-                                    class="text-sm text-green-700 font-medium">{{ $file->getClientOriginalName() }}</span>
+                                    class="text-sm text-success-700 font-medium">{{ $file->getClientOriginalName() }}</span>
                                 <button type="button" wire:click="$set('file', null)"
                                     class="text-red-500 hover:text-red-700 font-medium text-sm">
                                     <i class="fas fa-times-circle"></i>
@@ -109,7 +109,7 @@
 
                             <div wire:loading wire:target="file">
                                 <div class="w-full bg-gray-200 rounded-full">
-                                    <div class="bg-green-500 text-xs leading-none py-1 text-center text-white"
+                                    <div class="bg-success-500 text-xs leading-none py-1 text-center text-white"
                                         style="width: 0%;" x-data="{ progress: 0 }" x-init="$watch('progress', value => {
                                             setInterval(() => {
                                                 if (progress < 100) progress += 10;

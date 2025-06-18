@@ -166,7 +166,8 @@
     </aside>
 
     <!-- Header Logo dan Salam -->
-    <div class="py-3 sm:py-24 px-3 h-full bg-gradient-to-b from-yellow-400 via-green-500 to-green-800 overflow-y-auto">
+    <div
+        class="py-3 sm:py-24 px-3 h-full bg-gradient-to-b from-yellow-400 via-success-500 to-success-800 overflow-y-auto">
         <!-- Logo -->
         <div class="flex sm:hidden justify-center w-100 mb-4">
             <img src="{{ asset('img/logo.png') }}" class="mr-3 h-16 " alt="Logo" />

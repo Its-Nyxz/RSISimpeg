@@ -20,7 +20,7 @@
             </div>
             <div>
                 <a href="{{ route('slipgaji.download', $slip->id) }}" target="_blank"
-                    class="inline-flex items-center mt-3 px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+                    class="inline-flex items-center mt-3 px-3 py-1 bg-success-600 text-white text-sm rounded hover:bg-success-700">
                     <i class="fas fa-file-pdf mr-1"></i> Unduh PDF
                 </a>
                 <button wire:click="showDetail({{ $slip->id }})"

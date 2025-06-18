@@ -32,7 +32,7 @@
                         <!-- Status "Baru" -->
                         <div>
                             @if (!$notification->read_at)
-                                <span class="text-xs text-green-500 group-hover:text-white font-semibold ml-2">
+                                <span class="text-xs text-success-500 group-hover:text-white font-semibold ml-2">
                                     Baru
                                 </span>
                             @endif

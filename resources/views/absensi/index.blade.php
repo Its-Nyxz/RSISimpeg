@@ -7,44 +7,45 @@
                 <li class="me-2">
                     <button @click="activeTab = 'jadwalabsen'" :aria-selected="activeTab === 'jadwalabsen'"
                         class="inline-block p-4 transition duration-200 focus:outline-none"
-                        :class="activeTab === 'jadwalabsen' ? 'bg-green-500 text-white' : 'hover:text-white hover:bg-success-300'">
+                        :class="activeTab === 'jadwalabsen' ? 'bg-success-500 text-white' :
+                            'hover:text-white hover:bg-success-300'">
                         Jadwal Absensi
                     </button>
                 </li>
                 <li class="me-2">
                     <button @click="activeTab = 'shift'" :aria-selected="activeTab === 'shift'"
                         class="inline-block p-4 transition duration-200 focus:outline-none"
-                        :class="activeTab === 'shift' ? 'bg-green-500 text-white' : 'hover:text-white hover:bg-success-300'">
+                        :class="activeTab === 'shift' ? 'bg-success-500 text-white' : 'hover:text-white hover:bg-success-300'">
                         Shift
                     </button>
                 </li>
                 <li class="me-2">
                     <button @click="activeTab = 'opsi'" :aria-selected="activeTab === 'opsi'"
                         class="inline-block p-4 transition duration-200 focus:outline-none"
-                        :class="activeTab === 'opsi' ? 'bg-green-500 text-white' : 'hover:text-white hover:bg-success-300'">
+                        :class="activeTab === 'opsi' ? 'bg-success-500 text-white' : 'hover:text-white hover:bg-success-300'">
                         Opsi
                     </button>
                 </li>
                 <li class="me-2">
                     <button @click="activeTab = 'status'" :aria-selected="activeTab === 'status'"
                         class="inline-block p-4 transition duration-200 focus:outline-none"
-                        :class="activeTab === 'status' ? 'bg-green-500 text-white' : 'hover:text-white hover:bg-success-300'">
+                        :class="activeTab === 'status' ? 'bg-success-500 text-white' : 'hover:text-white hover:bg-success-300'">
                         Status
                     </button>
                 </li>
             </ul>
             <div id="defaultTabContent">
                 <div x-show="activeTab === 'jadwalabsen'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
-                    <livewire:data-absensi type="jadwalabsen"/>
+                    <livewire:data-absensi type="jadwalabsen" />
                 </div>
                 <div x-show="activeTab === 'shift'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
-                    <livewire:data-absensi type="shift"/>
+                    <livewire:data-absensi type="shift" />
                 </div>
                 <div x-show="activeTab === 'opsi'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
-                    <livewire:data-absensi type="opsi"/>
+                    <livewire:data-absensi type="opsi" />
                 </div>
                 <div x-show="activeTab === 'status'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
-                    <livewire:data-absensi type="status"/>
+                    <livewire:data-absensi type="status" />
                 </div>
             </div>
         </div>

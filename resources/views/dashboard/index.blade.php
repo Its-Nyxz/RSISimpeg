@@ -135,14 +135,14 @@
                                 <path d="M5 13l4 4L19 7"></path>
                             </svg>
                         </div>
-                        <div class="text-green-600 font-semibold">Cuti Disetujui</div>
+                        <div class="text-success-600 font-semibold">Cuti Disetujui</div>
                     </div>
                     <div class="flex items-baseline space-x-1 mb-4">
-                        <span class="text-3xl font-semibold text-green-600">21</span>
-                        <span class="text-sm text-green-600 ml-2">orang</span>
+                        <span class="text-3xl font-semibold text-success-600">21</span>
+                        <span class="text-sm text-success-600 ml-2">orang</span>
                     </div>
                     <a href="#"
-                        class="inline-flex items-center px-4 py-2 text-white rounded-lg hover:bg-green-700"
+                        class="inline-flex items-center px-4 py-2 text-white rounded-lg hover:bg-success-700"
                         style="background-color: #3C986A; border-radius: 100px;">
                         Lihat
                         <i class="fa-solid fa-circle-chevron-right ml-2" style="color: #ffffff;"></i>
@@ -164,7 +164,7 @@
                         <span class="text-sm text-red-600 ml-2">orang</span>
                     </div>
                     <a href="#"
-                        class="inline-flex items-center px-4 py-2 text-white rounded-lg hover:bg-green-700"
+                        class="inline-flex items-center px-4 py-2 text-white rounded-lg hover:bg-success-700"
                         style="background-color: #D56262; border-radius: 100px;">
                         Lihat
                         <i class="fa-solid fa-circle-chevron-right ml-2" style="color: #ffffff;"></i>
@@ -229,7 +229,7 @@
                         </div>
                         <div class="mt-4 text-left">
                             <a href="/datakaryawan"
-                                class="inline-flex items-center px-4 py-2 text-white rounded-lg hover:bg-green-700"
+                                class="inline-flex items-center px-4 py-2 text-white rounded-lg hover:bg-success-700"
                                 style="background-color: #3C986A; border-radius: 100px; ">
                                 Lihat
                                 <i class="fa-solid fa-circle-chevron-right ml-2" style="color: #ffffff;"></i>
@@ -278,7 +278,7 @@
                     <!-- ✅ Tombol Cuti -->
                     <a href="{{ route('pengajuan.create', ['tipe' => 'cuti']) }}"
                         class="inline-flex items-center px-5 py-3 text-white font-medium rounded-full shadow-md
-                   bg-green-500 hover:bg-green-400 transition-all duration-300 transform hover:-translate-y-1">
+                   bg-success-500 hover:bg-success-400 transition-all duration-300 transform hover:-translate-y-1">
                         Cuti
                         <i class="fa-solid fa-circle-chevron-right ml-2 text-white"></i>
                     </a>

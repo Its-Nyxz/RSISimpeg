@@ -9,7 +9,7 @@
                 </td>
                 <td>
                     <select id="parent" wire:model.live="parent"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5">
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5">
                         <option value="">-- Pilih Kategori Induk --</option>
                         @foreach ($parentList as $item)
                             <option value="{{ $item->id }}">{{ $item->nama }}</option>
@@ -28,7 +28,7 @@
                 </td>
                 <td>
                     <input type="text" id="nama" wire:model.live="nama"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                         placeholder="Contoh: PPh Pasal 21 - Honorer" />
                     @error('nama')
                         <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -43,7 +43,7 @@
                 </td>
                 <td>
                     <textarea id="keterangan" wire:model.live="keterangan"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                         rows="3" placeholder="Contoh: Berlaku untuk masa kerja di bawah 2 tahun."></textarea>
                     @error('keterangan')
                         <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>

@@ -40,11 +40,11 @@
                 <!-- EXPORT -->
                 <div class="relative group">
                     <a href="{{ route('datakaryawan.export') }}" target="_blank"
-                        class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-green-100 text-green-900 hover:bg-green-600 hover:text-white transition">
+                        class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition">
                         <i class="fas fa-file-excel mr-1"></i> Export
                     </a>
                     <a href="{{ route('datakaryawan.export') }}" target="_blank"
-                        class="sm:hidden flex items-center justify-center w-10 h-10 rounded-lg bg-green-100 text-green-900 hover:bg-green-600 hover:text-white transition"
+                        class="sm:hidden flex items-center justify-center w-10 h-10 rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition"
                         aria-label="Export" data-tooltip-target="tooltip-export">
                         <i class="fas fa-file-excel"></i>
                     </a>
@@ -152,7 +152,7 @@
                         <td class="px-6 py-4">
                             @can('detail-data-karyawan')
                                 <a href="{{ route('detailkaryawan.show', ['detailkaryawan' => $user->id]) }}"
-                                    class="bg-green-700 text-white font-medium rounded-md px-3 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
+                                    class="bg-blue-700 text-white font-medium rounded-md px-3 py-2 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
                                     <i class="fa-solid fa-magnifying-glass"></i>
                                 </a>
                             @endcan

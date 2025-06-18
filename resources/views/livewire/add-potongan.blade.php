@@ -7,7 +7,7 @@
         </div>
         <div class="flex space-x-3 justify-end">
             <a href="{{ route('detailkeuangan.show', $user->id) }}"
-                class="bg-green-700 text-white hover:bg-success-800 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                class="bg-success-700 text-white hover:bg-success-800 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                 Kembali
             </a>
         </div>
@@ -25,7 +25,7 @@
     <!-- Slip Gaji dalam Card -->
     <x-card title="{{ $user->nip ?? '-' }}" class="mb-6 text-success-900">
         <!-- Header -->
-        <div class="text-center text-green-900 font-bold text-lg mb-4">
+        <div class="text-center text-success-900 font-bold text-lg mb-4">
             SLIP PENERIMAAN GAJI KARYAWAN
         </div>
 
@@ -140,7 +140,7 @@
             </div>
         </div>
 
-        <hr class="border-green-700 mb-6 w-1/2 mx-auto">
+        <hr class="border-success-700 mb-6 w-1/2 mx-auto">
 
         <!-- Bagian Potongan -->
         <!-- Potongan Inputs -->

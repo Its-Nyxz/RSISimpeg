@@ -46,7 +46,7 @@
                         <td class="px-6 py-4">{{ $tukar->keterangan ?? '-' }}</td>
                         <td
                             class="px-6 py-4 font-extrabold whitespace-nowrap
-                             {{ is_null($tukar->is_approved) ? 'text-gray-900' : ($tukar->is_approved ? 'text-green-900' : 'text-red-900') }}">
+                             {{ is_null($tukar->is_approved) ? 'text-gray-900' : ($tukar->is_approved ? 'text-success-900' : 'text-red-900') }}">
                             {{ is_null($tukar->is_approved) ? 'Menunggu' : ($tukar->is_approved ? 'Disetujui' : 'Ditolak') }}
                         </td>
                         <td class="px-6 py-4 text-center">
@@ -54,7 +54,7 @@
                                 @if (is_null($tukar->is_approved))
                                     <button
                                         onclick="confirmAlert('Ingin menyetujui Tukar Jadwal ini?', 'Ya, Setujui!', () => @this.call('approveTukar', {{ $tukar->id }}, {{ $tukar->user->id }}))"
-                                        class="bg-green-600 text-white px-3 py-1 rounded-lg flex items-center gap-2">
+                                        class="bg-success-600 text-white px-3 py-1 rounded-lg flex items-center gap-2">
                                         <i class="fa-solid fa-check"></i> Disetujui
                                     </button>
                                     <button

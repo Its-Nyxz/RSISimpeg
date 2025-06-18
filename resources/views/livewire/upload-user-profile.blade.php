@@ -1,14 +1,14 @@
 <div class="p-4 space-y-6">
     <div class="flex justify-between items-center mb-5">
-        <h1 class="text-2xl font-bold text-green-700">Upload Dokumen</h1>
+        <h1 class="text-2xl font-bold text-success-700">Upload Dokumen</h1>
         <a href="{{ route('userprofile.index') }}"
-            class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
+            class="flex items-center bg-success-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-success-800 focus:ring-4 focus:outline-none focus:ring-success-300">
             <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
         </a>
     </div>
 
     @if (session()->has('success'))
-        <div class="p-2 bg-green-200 text-green-800 rounded">
+        <div class="p-2 bg-success-200 text-success-800 rounded">
             {{ session('success') }}
         </div>
     @endif
@@ -57,7 +57,8 @@
             </div>
         @endif
 
-        <button wire:click="save" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition mt-4">
+        <button wire:click="save"
+            class="bg-success-600 text-white px-4 py-2 rounded hover:bg-success-700 transition mt-4">
             Upload
         </button>
     </div>
@@ -79,7 +80,7 @@
                     </div>
                     <div class="flex gap-2">
                         <a href="{{ asset('storage/' . $file->path) }}" target="_blank"
-                            class="text-green-700 hover:underline text-sm">Download</a>
+                            class="text-success-700 hover:underline text-sm">Download</a>
                     </div>
                 </div>
             @empty

@@ -27,7 +27,7 @@
             <div class="space-x-2">
                 @if ($peringatan->file_sp)
                     <a href="{{ Storage::url($peringatan->file_sp) }}" target="_blank"
-                        class="inline-flex items-center px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+                        class="inline-flex items-center px-3 py-1 bg-success-600 text-white text-sm rounded hover:bg-success-700">
                         <i class="fas fa-file-pdf mr-1"></i> Unduh
                     </a>
                 @endif

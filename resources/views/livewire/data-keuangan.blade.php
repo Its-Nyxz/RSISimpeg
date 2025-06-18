@@ -72,7 +72,7 @@
                             @if ($file)
                                 <div class="mt-2 flex items-center space-x-2">
                                     <span
-                                        class="text-sm text-green-700 font-medium">{{ $file->getClientOriginalName() }}</span>
+                                        class="text-sm text-success-700 font-medium">{{ $file->getClientOriginalName() }}</span>
 
                                     <!-- Tombol Hapus File -->
                                     <button type="button" wire:click="$set('file', null)"
@@ -85,7 +85,7 @@
                             <!-- Menampilkan Progress Upload -->
                             <div wire:loading wire:target="file" class="mt-2">
                                 <div class="w-full bg-gray-200 rounded-full">
-                                    <div class="bg-green-500 text-xs leading-none py-1 text-center text-white"
+                                    <div class="bg-success-500 text-xs leading-none py-1 text-center text-white"
                                         style="width: 0%;" x-data="{ progress: 0 }" x-init="$watch('progress', value => {
                                             setInterval(() => {
                                                 if (progress < 100) progress += 10;
@@ -158,9 +158,9 @@
                                     'jenis' => $selectedJenisKaryawan,
                                     'keyword' => $search,
                                 ]) }}"
-                                    class="w-10 h-10 flex items-center justify-center rounded-md bg-green-100 hover:bg-green-600 transition"
+                                    class="w-10 h-10 flex items-center justify-center rounded-md bg-success-100 hover:bg-success-600 transition"
                                     data-tooltip-target="tooltip-export-excel">
-                                    <i class="fas fa-file-excel text-green-900 text-lg"></i>
+                                    <i class="fas fa-file-excel text-success-900 text-lg"></i>
                                 </a>
                                 <div id="tooltip-export-excel" role="tooltip"
                                     class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip mt-2 left-1/2 -translate-x-1/2">
@@ -329,7 +329,7 @@
                             <td class="px-6 py-4">{{ $user->unitKerja->nama ?? '-' }}</td>
                             <td class="px-6 py-4 text-center relative">
                                 <a href="{{ route('detailkeuangan.show', ['detailkeuangan' => $user->id]) }}"
-                                    class="flex items-center justify-center w-10 h-10 rounded bg-[#006633] hover:bg-[#004d26] transition"
+                                    class="bg-blue-700 text-white font-medium rounded-md px-3 py-2 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300"
                                     style="margin-left: 40px; border-radius: 20%;"
                                     data-tooltip-target="tooltip-keuangan-{{ $user->id }}">
                                     <i class="fa-solid fa-magnifying-glass text-lg text-white"></i>

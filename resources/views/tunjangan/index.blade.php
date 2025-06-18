@@ -7,35 +7,36 @@
                 <li class="me-2">
                     <button @click="activeTab = 'jabatan'" :aria-selected="activeTab === 'jabatan'"
                         class="inline-block p-4 transition duration-200 focus:outline-none"
-                        :class="activeTab === 'jabatan' ? 'bg-green-500 text-white' : 'hover:text-white hover:bg-success-300'">
+                        :class="activeTab === 'jabatan' ? 'bg-success-500 text-white' : 'hover:text-white hover:bg-success-300'">
                         Tunjangan Jabatan
                     </button>
                 </li>
                 <li class="me-2">
                     <button @click="activeTab = 'fungsional'" :aria-selected="activeTab === 'fungsional'"
                         class="inline-block p-4 transition duration-200 focus:outline-none"
-                        :class="activeTab === 'fungsional' ? 'bg-green-500 text-white' : 'hover:text-white hover:bg-success-300'">
+                        :class="activeTab === 'fungsional' ? 'bg-success-500 text-white' :
+                            'hover:text-white hover:bg-success-300'">
                         Tunjangan Fungsional
                     </button>
                 </li>
                 <li class="me-2">
                     <button @click="activeTab = 'umum'" :aria-selected="activeTab === 'umum'"
                         class="inline-block p-4 transition duration-200 focus:outline-none"
-                        :class="activeTab === 'umum' ? 'bg-green-500 text-white' : 'hover:text-white hover:bg-success-300'">
+                        :class="activeTab === 'umum' ? 'bg-success-500 text-white' : 'hover:text-white hover:bg-success-300'">
                         Tunjangan Umum
                     </button>
                 </li>
                 <li class="me-2">
                     <button @click="activeTab = 'khusus'" :aria-selected="activeTab === 'khusus'"
                         class="inline-block p-4 transition duration-200 focus:outline-none"
-                        :class="activeTab === 'khusus' ? 'bg-green-500 text-white' : 'hover:text-white hover:bg-success-300'">
+                        :class="activeTab === 'khusus' ? 'bg-success-500 text-white' : 'hover:text-white hover:bg-success-300'">
                         Tunjangan Khusus
                     </button>
                 </li>
                 <li class="me-2">
                     <button @click="activeTab = 'tidak-tetap'" :aria-selected="activeTab === 'tidak-tetap'"
                         class="inline-block p-4 transition duration-200 focus:outline-none"
-                        :class="activeTab === 'tidak-tetap' ? 'bg-green-500 text-white' :
+                        :class="activeTab === 'tidak-tetap' ? 'bg-success-500 text-white' :
                             'hover:text-white hover:bg-success-300'">
                         Tunjangan Tidak Tetap
                     </button>
@@ -54,7 +55,7 @@
                     {{-- <livewire:asset-details type="umum" :aset="$aset" /> --}}
                 </div>
                 <div x-show="activeTab === 'khusus'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
-                <livewire:data-tunjangan type="khusus"/>
+                    <livewire:data-tunjangan type="khusus" />
                 </div>
                 <div x-show="activeTab === 'tidak-tetap'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
                     <livewire:data-tunjangan type="tidaktetap" />

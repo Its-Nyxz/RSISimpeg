@@ -34,7 +34,7 @@
                 {{-- Tombol Mulai --}}
                 <button id="startButton" wire:click="$set('showStartModal', true)"
                     class="px-6 py-2 font-bold rounded 
-                {{ $timeOut ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 text-white' }}"
+                {{ $timeOut ? 'bg-gray-400 cursor-not-allowed' : 'bg-success-600 hover:bg-success-700 text-white' }}"
                     style="display: {{ $isRunning ? 'none' : 'inline-block' }}" {{ $timeOut ? 'disabled' : '' }}>
                     Mulai
                 </button>
@@ -81,12 +81,12 @@
                         <button wire:click="$set('showStartModal', false)"
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
                         <button wire:click="startTimer"
-                            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Mulai</button>
+                            class="px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700">Mulai</button>
                         {{-- <button onclick="kirimLokasiKeLivewire()"
                         <button wire:click="startTimer"
-                            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Mulai</button>
+                            class="px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700">Mulai</button>
                         {{-- <button onclick="kirimLokasiKeLivewire()"
-                            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                            class="px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700">
                             Mulai
                         </button> --}}
                         </button> --}}

@@ -170,7 +170,7 @@ class DataCuti extends Component
                 $nextUser = User::find($userId);
                 $message = 'Pengajuan Cuti anda (' . $nextUser->name .
                     ') mulai <span class="font-bold">' . $cuti->tanggal_mulai . ' sampai ' . $cuti->tanggal_selesai .
-                    '</span> telah <span class="text-green-600 font-bold">Disetujui Final</span> oleh ' . $user->name;
+                    '</span> telah <span class="text-success-600 font-bold">Disetujui Final</span> oleh ' . $user->name;
 
                 $url = "/pengajuan/cuti";
                 if ($nextUser) {
@@ -185,9 +185,9 @@ class DataCuti extends Component
 
                 $nextUser = User::find($userId);
                 $message = 'Pengajuan Cuti anda (' . $nextUser->name .
-                    ') telah <span class="text-green-600 font-bold">Disetujui Kepala Unit</span> oleh ' . $user->name;
+                    ') telah <span class="text-success-600 font-bold">Disetujui Kepala Unit</span> oleh ' . $user->name;
                 $messagekepegawaian = 'Pengajuan Cuti atas nama (' . $nextUser->name .
-                    ') telah <span class="text-green-600 font-bold">Disetujui Kepala Unit</span> oleh ' . $user->name . ', silahkan melanjutkan persetujuan ';
+                    ') telah <span class="text-success-600 font-bold">Disetujui Kepala Unit</span> oleh ' . $user->name . ', silahkan melanjutkan persetujuan ';
 
                 $url = "/pengajuan/cuti";
                 $urlkepegawaian = "/approvalcuti";

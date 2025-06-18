@@ -3,7 +3,7 @@
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold text-success-800">Detail Kategori PPh</h2>
         <a href="{{ route('pph.index') }}"
-            class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 text-sm">
+            class="flex items-center bg-success-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-success-800 focus:ring-4 focus:outline-none focus:ring-success-300 text-sm">
             Kembali
         </a>
     </div>

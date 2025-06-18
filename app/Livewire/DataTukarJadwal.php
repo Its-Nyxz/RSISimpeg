@@ -63,10 +63,10 @@ class DataTukarJadwal extends Component
             $nextUser = User::where('id', $userId)->first();
             $message = 'Pengajuan Tukar Jadwal anda (' . $nextUser->name .
                 ') mulai <span class="font-bold">' . $tukar->tanggal .
-                '</span> ' . '  dengan keterangan "' . $tukar->keterangan . '"  telah <span class="text-green-600 font-bold">Disetujui</span> oleh ' . auth()->user()->name;
+                '</span> ' . '  dengan keterangan "' . $tukar->keterangan . '"  telah <span class="text-success-600 font-bold">Disetujui</span> oleh ' . auth()->user()->name;
             $messageKepegawaian = 'Pengajuan Tukar Jadwal atas nama (' . $nextUser->name .
                 ') mulai <span class="font-bold">' . $tukar->tanggal .
-                '</span> ' . '  dengan keterangan "' . $tukar->keterangan . '"  telah <span class="text-green-600 font-bold">Disetujui</span> oleh ' . auth()->user()->name;
+                '</span> ' . '  dengan keterangan "' . $tukar->keterangan . '"  telah <span class="text-success-600 font-bold">Disetujui</span> oleh ' . auth()->user()->name;
 
             $url = "/pengajuan/tukar_jadwal";
             if ($nextUser) {

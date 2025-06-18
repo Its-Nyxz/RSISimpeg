@@ -6,7 +6,7 @@
                 <i class="fas fa-download"></i> Export
             </button>
             <a href="{{ route('aktivitasabsensi.index') }}"
-                class="bg-green-700 text-white hover:bg-success-800 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                class="bg-success-700 text-white hover:bg-success-800 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                 Kembali
             </a>
         </div>

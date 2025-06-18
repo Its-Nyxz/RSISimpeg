@@ -11,7 +11,7 @@
                             </td>
                             <td>
                                 <input type="text" id="nama" wire:model.live="nama"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                                     placeholder="Nama Pegawai" />
                                 @error('nama')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -25,7 +25,7 @@
                             </td>
                             <td>
                                 <input type="text" id="nip" wire:model.live="nip"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                                     placeholder="NIP" />
                                 @error('nip')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -39,7 +39,7 @@
                             </td>
                             <td>
                                 <input type="text" id="email" wire:model.live="email"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                                     placeholder="Email Pegawai" />
                                 @error('email')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -53,7 +53,7 @@
                             </td>
                             <td>
                                 <input type="text" id="no_ktp" wire:model.live="no_ktp"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                                     placeholder="No KTP" />
                                 @error('no_ktp')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -67,7 +67,7 @@
                             </td>
                             <td>
                                 <input type="text" id="no_hp" wire:model.live="no_hp"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                                     placeholder="No HP" />
                                 @error('no_hp')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -81,7 +81,7 @@
                             </td>
                             <td>
                                 <input type="text" id="no_rek" wire:model.live="no_rek"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                                     placeholder="No Rek" />
                                 @error('no_rek')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -96,7 +96,7 @@
                             <td>
                                 <select id="pendidikans" wire:model.live="selectedPendidikan"
                                     wire:input='selectedPendidikan'
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5">
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5">
                                     <option value="">Pilih Pendidikan</option>
                                     @foreach ($pendidikans as $pendidikan)
                                         <option value="{{ $pendidikan->id }}">
@@ -116,7 +116,7 @@
                             </td>
                             <td>
                                 <input type="text" id="namapendidikan" wire:model.live="namapendidikan"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                                     placeholder="Pendidikan Pegawai" />
                                 @error('namapendidikan')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -130,7 +130,7 @@
                             </td>
                             <td>
                                 <input type="text" id="institusi" wire:model.live="institusi"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                                     placeholder="Institusi Pegawai" />
                                 @error('institusi')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -146,13 +146,13 @@
                                 <label class="flex items-center">
                                     <input type="radio" name="jk" id="laki" wire:model.live="jk"
                                         value="1"
-                                        class="form-radio h-4 w-4 text-green-600 border-gray-300 focus:ring-green-500">
+                                        class="form-radio h-4 w-4 text-success-600 border-gray-300 focus:ring-success-500">
                                     <span class="ml-2 text-gray-900">Laki-laki</span>
                                 </label>
                                 <label class="flex items-center">
                                     <input type="radio" name="jk" id="perempuan" wire:model.live="jk"
                                         value="0"
-                                        class="form-radio h-4 w-4 text-green-600 border-gray-300 focus:ring-green-500">
+                                        class="form-radio h-4 w-4 text-success-600 border-gray-300 focus:ring-success-500">
                                     <span class="ml-2 text-gray-900">Perempuan</span>
                                 </label>
                             </td>
@@ -163,7 +163,7 @@
                             </td>
                             <td>
                                 <textarea id="alamat" wire:model.live="alamat"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 "
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5 "
                                     placeholder="Masukkan alamat" rows="3"></textarea>
                                 @error('alamat')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -177,7 +177,7 @@
                             </td>
                             <td>
                                 <input type="text" id="tempat" wire:model.live="tempat"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                                     placeholder="Tempat Lahir" />
                                 @error('tempat')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -192,7 +192,7 @@
                             </td>
                             <td>
                                 <input type="date" id="tanggal_lahir" wire:model.live="tanggal_lahir"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                                     placeholder="Pilih tanggal">
                                 @error('tanggal_lahir')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -271,7 +271,7 @@
                                 <input id="jabatan" type="text" wire:model.live="jabatan"
                                     wire:focus="fetchSuggestions('jabatan', $event.target.value)"
                                     wire:input="fetchSuggestions('jabatan', $event.target.value)"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-700 focus:border-green-700 block w-full p-2.5"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-700 focus:border-success-700 block w-full p-2.5"
                                     placeholder="Cari Jabatan..." wire:blur="hideSuggestions('jabatan')"
                                     autocomplete="off">
 
@@ -283,7 +283,7 @@
                                                 {{ ucfirst($tunjangan) }}</li>
                                             @foreach ($list as $suggestion)
                                                 <li wire:click="selectSuggestion('jabatan', '{{ $suggestion }}')"
-                                                    class="px-4 py-2 hover:bg-green-700 hover:text-white cursor-pointer transition duration-200">
+                                                    class="px-4 py-2 hover:bg-success-700 hover:text-white cursor-pointer transition duration-200">
                                                     {{ $suggestion }}
                                                 </li>
                                             @endforeach
@@ -334,7 +334,7 @@
                                 <input id="fungsional" type="text" wire:model.live="fungsional"
                                     wire:focus="fetchSuggestions('fungsional', $event.target.value)"
                                     wire:input="fetchSuggestions('fungsional', $event.target.value)"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-700 focus:border-green-700 block w-full p-2.5"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-700 focus:border-success-700 block w-full p-2.5"
                                     placeholder="Cari Jabatan..." wire:blur="hideSuggestions('fungsional')"
                                     autocomplete="off">
 
@@ -346,7 +346,7 @@
                                                 {{ ucfirst($tunjangan) }}</li>
                                             @foreach ($list as $suggestion)
                                                 <li wire:click="selectSuggestion('fungsional', '{{ $suggestion }}')"
-                                                    class="px-4 py-2 hover:bg-green-700 hover:text-white cursor-pointer transition duration-200">
+                                                    class="px-4 py-2 hover:bg-success-700 hover:text-white cursor-pointer transition duration-200">
                                                     {{ $suggestion }}
                                                 </li>
                                             @endforeach
@@ -394,7 +394,7 @@
                             </td>
                             <td>
                                 <select id="jenis" wire:model.live="selectedJenisKaryawan"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 ">
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5 ">
                                     <option value="">Pilih Jenis Pegawai</option>
                                     @foreach ($jeniskaryawan as $jenis)
                                         <option value="{{ $jenis->id }}">
@@ -416,7 +416,7 @@
                             <td>
                                 <div>
                                     <select id="type_shift" wire:model.live="typeShift"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 ">
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5 ">
                                         <option value="">Pilih Shift</option>
                                         <option value="1" {{ $typeShift == '1' ? 'selected' : '' }}>Shift
                                         </option>
@@ -433,7 +433,7 @@
                             </td>
                             <td>
                                 <input type="date" id="tmt" wire:model.live="tmt"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                                     placeholder="Pilih tanggal">
                                 @error('tmt')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -449,7 +449,7 @@
                             <td>
                                 <div class="flex items-center">
                                     <input type="text" id="masakerja" wire:model.live="masakerja"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                                         placeholder="Masa Kerja" readonly />
                                     <label for="masakerja"
                                         class="bg-gray-50 border border-gray-300 border-l-0 rounded-r-lg px-3 py-2.5 text-gray-900 text-sm ">
@@ -468,7 +468,7 @@
                             </td>
                             <td>
                                 <input type="text" id="golongan" wire:model.live="selectedGolonganNama"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                                     placeholder="Golongan akan terisi otomatis" readonly />
                                 @error('selectedGolonganNama')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
@@ -542,7 +542,7 @@
                             </td>
                             <td>
                                 <select id="khusus" wire:model.live="khusus"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5">
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5">
                                     <option value="{{ null }}">Pilih Tunjangan Khusus</option>
                                     @foreach ($filteredKhusus as $khus)
                                         <option value="{{ $khus->id }}">
@@ -562,7 +562,7 @@
                             </td>
                             <td>
                                 <select id="pph" wire:model.live="selectedPph"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5">
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5">
                                     <option value="">Pilih Kategori PPH</option>
 
                                     @foreach ($parentPphs as $parent)
@@ -589,7 +589,7 @@
                             <td>
                                 <div>
                                     <select id="roles" wire:model.live="selectedRoles"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 ">
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5 ">
                                         <option value="">Pilih Hak Akses</option>
                                         @foreach ($roles as $role)
                                             <option value="{{ $role->id }}">

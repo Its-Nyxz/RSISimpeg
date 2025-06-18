@@ -149,7 +149,7 @@ class DataKeuangan extends Component
             );
 
             $namaBulan = Carbon::createFromFormat('!m', $this->bulan)->locale('id')->isoFormat('MMMM');
-            $message = 'Slip Gaji Anda bulan ' . $namaBulan . ' telah tersedia, <span class="text-green-600 font-bold">Silahkan Di Cek</span>.';
+            $message = 'Slip Gaji Anda bulan ' . $namaBulan . ' telah tersedia, <span class="text-success-600 font-bold">Silahkan Di Cek</span>.';
             $url = '/slipgaji'; // sesuaikan dengan route ke halaman slip
 
             Notification::send($user, new UserNotification($message, $url));
