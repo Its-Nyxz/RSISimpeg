@@ -74,7 +74,6 @@ class RolePermissionSeeder extends Seeder
             'penyesuaian',
             'approve-izin',
             'approve-cuti'
-
         ];
 
         // Tambahkan permission ke database
