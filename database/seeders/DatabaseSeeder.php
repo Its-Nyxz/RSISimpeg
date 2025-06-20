@@ -123,7 +123,7 @@ class DatabaseSeeder extends Seeder
             StatusAbsenSeeder::class,
             UnitKerjaSeeder::class,
             // LevelPointSeeder::class,
-            LevelUnitSeeder::class,
+            // LevelUnitSeeder::class,
             // TerlibatPointSeeder::class,
             PosisiPointSeeder::class,
             // ShiftSeeder::class,
