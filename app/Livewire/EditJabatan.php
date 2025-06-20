@@ -34,7 +34,7 @@ class EditJabatan extends Component
     public function updateJabatan()
     {
         $this->validate([
-            'katjab_id' => 'required|exists:kategori_jabatan,id',
+            'katjab_id' => 'required|exists:kategori_jabatans,id',
             'kualifikasi' => 'required|string|max:255',
             'nominal' => 'required|numeric|min:0',
             'deskripsi' => 'required|string|max:255',
