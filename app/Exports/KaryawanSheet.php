@@ -37,8 +37,10 @@ class KaryawanSheet implements FromArray, WithHeadings, WithTitle, WithEvents
             '1 - IMP',
             '1 - Direktur',
             '6 - Dokter Spesialis',
+            '6 - Ners',
             '1 - Tetap',
             '1 - Shift',
+            Date::PHPToExcel(Carbon::create('2000-02-03')),
             Date::PHPToExcel(Carbon::create('2000-01-01')),
             '1 - Dokter Spesialis ...',
             '2 - TK0'
@@ -50,6 +52,7 @@ class KaryawanSheet implements FromArray, WithHeadings, WithTitle, WithEvents
             'unitKerja',
             'kategorijabatan',
             'kategorifungsional',
+            'kategoriumum',
             'jenis',
             'khusus',
             'kategoriPPH',
@@ -63,7 +66,7 @@ class KaryawanSheet implements FromArray, WithHeadings, WithTitle, WithEvents
                 $user->no_ktp,
                 $user->no_hp,
                 $user->no_rek,
-                $user->jk,
+                !is_null($user->jk) ? ($user->jk == 1 ? 'Laki-Laki' : 'Perempuan') : null,
                 $user->tempat,
                 $user->tanggal_lahir ? Date::PHPToExcel(Carbon::parse($user->tanggal_lahir)) : null,
                 $user->alamat,
@@ -73,9 +76,11 @@ class KaryawanSheet implements FromArray, WithHeadings, WithTitle, WithEvents
                 optional($user->unitKerja)->id . ' - ' . optional($user->unitKerja)->nama,
                 optional($user->kategorijabatan)->id . ' - ' . optional($user->kategorijabatan)->nama,
                 optional($user->kategorifungsional)->id . ' - ' . optional($user->kategorifungsional)->nama,
-                optional($user->jenis)->id . ' - ' . optional($user->jenis)->nama,
-                $user->type_shift,
+                optional($user->kategoriumum)->id . ' - ' . optional($user->kategoriumum)->nama,
+                optional(value: $user->jenis)->id . ' - ' . optional($user->jenis)->nama,
+                !is_null($user->type_shift) ? ($user->type_shift == 1 ? 'Shift' : 'Non Shift') : null,
                 $user->tmt ? Date::PHPToExcel(Carbon::parse($user->tmt)) : null,
+                $user->tmt_masuk ? Date::PHPToExcel(Carbon::parse($user->tmt_masuk)) : null,
                 optional($user->khusus)->id . ' - ' . optional($user->khusus)->nama,
                 optional($user->kategoriPPH)->id . ' - ' . optional($user->kategoriPPH)->nama,
             ];
@@ -103,9 +108,11 @@ class KaryawanSheet implements FromArray, WithHeadings, WithTitle, WithEvents
             'Unit Kerja',
             'Jabatan Struktural',
             'Jabatan Fungsional',
+            'Jabatan Fungsional 2',
             'Jenis Karyawan',
             'Shift',
             'TMT',
+            'TMT Masuk',
             'Tunjangan Khusus',
             'Kategori PPH'
         ];
@@ -128,9 +135,10 @@ class KaryawanSheet implements FromArray, WithHeadings, WithTitle, WithEvents
                     'N' => ['B', KaryawanReferenceSheet::$unitKerjaCount],
                     'O' => ['C', KaryawanReferenceSheet::$jabStrukturalCount],
                     'P' => ['D', KaryawanReferenceSheet::$jabFungsionalCount],
-                    'Q' => ['E', KaryawanReferenceSheet::$jenisKarCount],
-                    'T' => ['F', KaryawanReferenceSheet::$khususCount],
-                    'U' => ['G', KaryawanReferenceSheet::$pphCount],
+                    'Q' => ['E', KaryawanReferenceSheet::$jabUmumCount],
+                    'R' => ['F', KaryawanReferenceSheet::$jenisKarCount],
+                    'V' => ['G', KaryawanReferenceSheet::$khususCount],
+                    'W' => ['H', KaryawanReferenceSheet::$pphCount],
                 ];
 
                 foreach ($refs as $col => [$refCol, $count]) {
@@ -162,9 +170,9 @@ class KaryawanSheet implements FromArray, WithHeadings, WithTitle, WithEvents
                     $validation->setSqref($cell);
                     $sheet->setDataValidation($cell, $validation);
                 }
-                // Dropdown Shift langsung di kolom R
+                // Dropdown Shift langsung di kolom S
                 for ($row = 2; $row <= 1000; $row++) {
-                    $cell = "R{$row}";
+                    $cell = "S{$row}";
                     $validation = new DataValidation();
                     $validation->setType(DataValidation::TYPE_LIST);
                     $validation->setErrorStyle(DataValidation::STYLE_STOP);
@@ -180,16 +188,38 @@ class KaryawanSheet implements FromArray, WithHeadings, WithTitle, WithEvents
                         ->getNumberFormat()
                         ->setFormatCode('yyyy-mm-dd');
                 }
-                // Format kolom TMT (S) sebagai tanggal
+                // Format kolom TMT (T) sebagai tanggal
                 for ($row = 2; $row <= 1000; $row++) {
-                    $sheet->getStyle("S{$row}")
+                    $sheet->getStyle("T{$row}")
+                        ->getNumberFormat()
+                        ->setFormatCode('yyyy-mm-dd');
+                }
+                // Format kolom TMT masuk (U) sebagai tanggal
+                for ($row = 2; $row <= 1000; $row++) {
+                    $sheet->getStyle("U{$row}")
                         ->getNumberFormat()
                         ->setFormatCode('yyyy-mm-dd');
                 }
 
                 // Validasi TMT >= Tanggal Lahir
                 for ($row = 2; $row <= 1000; $row++) {
-                    $cell = "S{$row}"; // kolom TMT
+                    $cell = "T{$row}"; // kolom TMT
+
+                    $validation = new DataValidation();
+                    $validation->setType(DataValidation::TYPE_CUSTOM);
+                    $validation->setErrorStyle(DataValidation::STYLE_STOP);
+                    $validation->setAllowBlank(true);
+                    $validation->setShowErrorMessage(true);
+                    $validation->setErrorTitle('Tanggal Tidak Valid');
+                    $validation->setError('TMT tidak boleh lebih awal dari Tanggal Lahir.');
+                    $validation->setFormula1("=IF(AND(ISNUMBER(S{$row}),ISNUMBER(I{$row})),S{$row}>=I{$row},TRUE)");
+                    $validation->setSqref($cell);
+
+                    $sheet->setDataValidation($cell, $validation);
+                }
+
+                for ($row = 2; $row <= 1000; $row++) {
+                    $cell = "U{$row}"; // kolom TMT masuk
 
                     $validation = new DataValidation();
                     $validation->setType(DataValidation::TYPE_CUSTOM);
@@ -221,11 +251,13 @@ class KaryawanSheet implements FromArray, WithHeadings, WithTitle, WithEvents
                     'N' => 25, // Unit Kerja
                     'O' => 25, // Jabatan Struktural
                     'P' => 25, // Jabatan Fungsional
-                    'Q' => 20,
-                    'R' => 15,
-                    'S' => 15,
-                    'T' => 20,
-                    'U' => 20,
+                    'Q' => 25, // Jabatan Umum
+                    'R' => 20, // jenis
+                    'S' => 15, // shift
+                    'T' => 15, // tmt
+                    'U' => 15, // tmt masuk
+                    'V' => 20, // tunj khusus
+                    'W' => 20, // pph
                 ];
 
                 foreach ($customWidths as $col => $width) {
@@ -240,15 +272,15 @@ class KaryawanSheet implements FromArray, WithHeadings, WithTitle, WithEvents
                 }
 
                 // 1. Lock semua sel baris contoh (row 2)
-                $sheet->getStyle('A2:U2')->getProtection()->setLocked(Protection::PROTECTION_PROTECTED);
+                $sheet->getStyle('A2:W2')->getProtection()->setLocked(Protection::PROTECTION_PROTECTED);
 
                 // 2. Unlock semua sel lainnya (data input)
-                $sheet->getStyle('A3:U1000')->getProtection()->setLocked(Protection::PROTECTION_UNPROTECTED);
+                $sheet->getStyle('A3:W1000')->getProtection()->setLocked(Protection::PROTECTION_UNPROTECTED);
 
                 // 3. Aktifkan proteksi sheet
                 $sheet->getProtection()->setSheet(true);
                 $sheet->getProtection()->setPassword('templatekaryawan'); // Optional: tambahkan password
-                $sheet->getStyle('A2:U2')->applyFromArray([
+                $sheet->getStyle('A2:W2')->applyFromArray([
                     'fill' => [
                         'fillType' => 'solid',
                         'startColor' => ['rgb' => 'F0F0F0'],
@@ -257,9 +289,9 @@ class KaryawanSheet implements FromArray, WithHeadings, WithTitle, WithEvents
                         'color' => ['rgb' => '555555'],
                     ],
                 ]);
-                $sheet->getStyle('A1:U1')->getAlignment()->setWrapText(true);
+                $sheet->getStyle('A1:W1')->getAlignment()->setWrapText(true);
 
-                $sheet->getStyle('A1:U1')->applyFromArray([
+                $sheet->getStyle('A1:W1')->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'color' => ['rgb' => 'FFFFFF'],
@@ -279,7 +311,7 @@ class KaryawanSheet implements FromArray, WithHeadings, WithTitle, WithEvents
                         ],
                     ],
                 ]);
-                $sheet->getStyle('A2:U1000')->applyFromArray([
+                $sheet->getStyle('A2:W1000')->applyFromArray([
                     'alignment' => [
                         'horizontal' => Alignment::HORIZONTAL_LEFT,
                         'vertical' => Alignment::VERTICAL_CENTER,
