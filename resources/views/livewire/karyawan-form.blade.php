@@ -389,6 +389,74 @@
                         </tr>
                         <tr>
                             <td style="width: 40%">
+                                <label for="jabatan" class="block mb-2 text-sm font-medium text-gray-900">
+                                    Jabatan Fungsional 2</label>
+                            </td>
+                            <td class="relative">
+                                <input id="umum" type="text" wire:model.live="umum"
+                                    wire:focus="fetchSuggestions('umum', $event.target.value)"
+                                    wire:input="fetchSuggestions('umum', $event.target.value)"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-700 focus:border-success-700 block w-full p-2.5"
+                                    placeholder="Cari Jabatan..." wire:blur="hideSuggestions('umum')"
+                                    autocomplete="off">
+
+                                @if (!empty($suggestions['umum']))
+                                    <ul
+                                        class="absolute z-20 w-full bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-auto">
+                                        @foreach ($suggestions['umum'] as $tunjangan => $list)
+                                            <li class="bg-gray-100 px-4 py-2 font-bold text-gray-600 uppercase">
+                                                {{ ucfirst($tunjangan) }}</li>
+                                            @foreach ($list as $suggestion)
+                                                <li wire:click="selectSuggestion('umum', '{{ $suggestion }}')"
+                                                    class="px-4 py-2 hover:bg-success-700 hover:text-white cursor-pointer transition duration-200">
+                                                    {{ $suggestion }}
+                                                </li>
+                                            @endforeach
+                                        @endforeach
+                                    </ul>
+                                @endif
+
+
+                                @if ($fungsional === $umum && $fungsional !== null && $umum !== null)
+                                    <span class="text-red-600 text-sm">Jabatan Fungsional dan Fungsional 2 tidak boleh
+                                        sama.</span>
+                                @endif
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        Livewire.on('confirmUmumChange', () => {
+                                            Swal.fire({
+                                                title: "Perubahan Jabatan",
+                                                text: "Jabatan Fungsional 2 berubah, jangan lupa untuk mengelola hak akses agar tetap sesuai.",
+                                                icon: "warning",
+                                                showCancelButton: true,
+                                                confirmButtonColor: "#3085d6",
+                                                cancelButtonColor: "#d33",
+                                                confirmButtonText: "Ya, lanjutkan!",
+                                                cancelButtonText: "Batal"
+                                            }).then((result) => {
+                                                if (result.isConfirmed) {
+                                                    setTimeout(() => {
+                                                        document.getElementById('roles')?.focus();
+                                                    }, 300);
+                                                    Livewire.emit('savekaryawan');
+                                                } else {
+                                                    Swal.fire({
+                                                        title: "Perubahan Dibatalkan",
+                                                        text: "Anda membatalkan perubahan jabatan, periksa lagi jabatan anda.",
+                                                        icon: "info",
+                                                        confirmButtonColor: "#3085d6",
+                                                        confirmButtonText: "OK"
+                                                    });
+                                                }
+                                            });
+                                        });
+                                    });
+                                </script>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td style="width: 40%">
                                 <label for="jenis" class="block mb-2 text-sm font-medium text-gray-900">
                                     Jenis <span class="text-sm text-red-500">*</span></label>
                             </td>
@@ -428,7 +496,7 @@
                         </tr>
                         <tr wire:ignore>
                             <td class="w-1/3">
-                                <label for="tmt" class="block mb-2 text-sm font-medium text-gray-900">TMT
+                                <label for="tmt" class="block mb-2 text-sm font-medium text-gray-900">TMT Gaji
                                     <span class="text-sm text-red-500">*</span></label>
                             </td>
                             <td>
@@ -436,6 +504,20 @@
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
                                     placeholder="Pilih tanggal">
                                 @error('tmt')
+                                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                @enderror
+                            </td>
+                        </tr>
+                        <tr wire:ignore>
+                            <td class="w-1/3">
+                                <label for="tmt_masuk" class="block mb-2 text-sm font-medium text-gray-900">TMT Masuk
+                                    <span class="text-sm text-red-500">*</span></label>
+                            </td>
+                            <td>
+                                <input type="date" id="tmt_masuk" wire:model.live="tmt_masuk"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
+                                    placeholder="Pilih tanggal">
+                                @error('tmt_masuk')
                                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                                 @enderror
                             </td>
@@ -487,15 +569,15 @@
                             <script>
                                 document.addEventListener('DOMContentLoaded', function() {
                                     // Select the TMT input element
-                                    const dateInput = document.querySelector("#tmt");
+                                    const dateInput = document.querySelector("#tmt,#tmt_masuk");
 
                                     // Initialize Flatpickr
-                                    flatpickr("#tmt", {
+                                    flatpickr("#tmt,#tmt_masuk", {
                                         altInput: true,
                                         altFormat: "F j, Y",
                                         dateFormat: "Y-m-d",
                                         maxDate: "today", // Restrict future dates
-                                        defaultDate: dateInput.value ? dateInput.value : "today", // Set default date to today
+                                        defaultDate: dateInput.value || null, // Set default date to today
                                         onChange: function(selectedDates, dateStr, instance) {
                                             if (selectedDates.length > 0) {
                                                 const selectedDate = new Date(selectedDates[0]);
@@ -619,17 +701,22 @@
             </div>
         </div>
         <div class="flex justify-end mb-3">
+            @php
+                $disableButton = $fungsional === $umum && $fungsional !== null && $umum !== null;
+            @endphp
+
             @if ($user == null)
                 <button type="button" wire:click="save()"
-                    class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                    class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                    @if ($disableButton) disabled class="opacity-50 cursor-not-allowed" title="Jabatan Fungsional dan Umum tidak boleh sama" @endif>
                     <i class="fa-solid fa-paper-plane mr-2"></i> Simpan
                 </button>
             @else
                 <button type="button" id="confimAlertJabatan" wire:click="updateKaryawan()"
-                    class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">
+                    class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
+                    @if ($disableButton) disabled class="opacity-50 cursor-not-allowed" title="Jabatan Fungsional dan Umum tidak boleh sama" @endif>
                     <i class="fa-solid fa-pen mr-2"></i> Edit
                 </button>
             @endif
-
         </div>
     </form>

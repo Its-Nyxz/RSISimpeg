@@ -71,115 +71,160 @@
         <div class="w-full">
             <x-card title="No KTP : {{ $user->no_ktp ?? '-' }}" class="mb-6 text-success-900">
                 <div style="font-family: 'Gilroy-Regular', sans-serif; font-size: 14px;">
-                    <div class="mb-4"><strong>Nama</strong> : {{ $user->name ?? '-' }}</div>
-                    <div class="mb-4"><strong>Jabatan Struktural</strong> : {{ $user->kategorijabatan->nama ?? '-' }}
-                    </div>
-                    <div class="mb-4"><strong>Jabatan Fungsional</strong> :
-                        {{ $user->kategorifungsional->nama ?? '-' }}
-                    </div>
-                    <div class="mb-4">
-                        <strong>Tempat, Tanggal Lahir</strong> : {{ $user->tempat ?? '-' }},
-                        {{ $user->tanggal_lahir ? formatDate($user->tanggal_lahir) : '-' }}
-                    </div>
-                    <div class="mb-4"><strong>No Rek</strong> : {{ $user->no_rek ?? '-' }}</div>
-                    <div class="mb-4"><strong>Pendidikan</strong> : {{ $user->pendidikanUser->deskripsi ?? '-' }}
-                    </div>
-                    <div class="mb-4"><strong>Institusi</strong> : {{ $user->institusi ?? '-' }}</div>
-                    <div class="mb-4">
-                        <strong>Jenis Kelamin</strong> :
-                        {{ $user->jk === null ? '-' : ($user->jk == 1 ? 'Laki-Laki' : 'Perempuan') }}
-                    </div>
-                    <div class="mb-4"><strong>Alamat</strong> : {{ $user->alamat ?? '-' }}</div>
-                    @php
-                        $isKepegawaian = Auth::user()
-                            ?->getRoleNames()
-                            ?->contains(function ($role) {
-                                return str_contains(strtolower($role), 'kepegawaian');
-                            });
-                    @endphp
+                    <table class="table-auto w-full text-md text-left">
+                        <tbody>
+                            <tr>
+                                <td class="font-semibold w-1/3">Nama</td>
+                                <td>: {{ $user->name ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Jabatan Struktural</td>
+                                <td>: {{ $user->kategorijabatan->nama ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Jabatan Fungsional</td>
+                                <td>
+                                    :
+                                    {{ $user->kategorifungsional?->nama && $user->kategoriumum?->nama
+                                        ? $user->kategorifungsional->nama . ' / ' . $user->kategoriumum->nama
+                                        : $user->kategorifungsional?->nama ?? ($user->kategoriumum?->nama ?? '-') }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Tempat, Tanggal Lahir</td>
+                                <td>: {{ $user->tempat ?? '-' }},
+                                    {{ $user->tanggal_lahir ? formatDate($user->tanggal_lahir) : '-' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">No Rek</td>
+                                <td>: {{ $user->no_rek ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Pendidikan</td>
+                                <td>: {{ $user->pendidikanUser->deskripsi ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Institusi</td>
+                                <td>: {{ $user->institusi ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Jenis Kelamin</td>
+                                <td>: {{ $user->jk === null ? '-' : ($user->jk == 1 ? 'Laki-Laki' : 'Perempuan') }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Alamat</td>
+                                <td>: {{ $user->alamat ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Jenis Karyawan</td>
+                                <td>: {{ $user->jenisKaryawan->nama ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Tanggal Tetap</td>
+                                <td>: {{ $user->tmt ? formatDate($user->tmt) : '-' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Tanggal Masuk</td>
+                                <td>: {{ $user->tmt_masuk ? formatDate($user->tmt_masuk) : '-' }}</td>
+                            </tr>
 
-                    @if ($isKepegawaian)
-                        <div class="mb-4">
-                            <strong>Sisa Cuti Tahunan</strong> : {{ $user->sisaCutiTahunan?->sisa_cuti ?? '0' }} kali
-                        </div>
-                    @endif
-                    {{-- <div class="mb-4"><strong>Hak Akses</strong> : {{ $user->roles->first()->name ?? '-' }}</div> --}}
+                            @php
+                                $isKepegawaian = Auth::user()
+                                    ?->getRoleNames()
+                                    ?->contains(fn($role) => str_contains(strtolower($role), 'kepegawaian'));
+                            @endphp
+
+                            @if ($isKepegawaian)
+                                <tr>
+                                    <td class="font-semibold">Sisa Cuti Tahunan</td>
+                                    <td>: {{ $user->sisaCutiTahunan?->sisa_cuti ?? '0' }} kali</td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
                 </div>
 
-                <!-- Tombol Edit Karyawan -->
+                <!-- Tombol Aksi -->
                 @can('edit-data-karyawan')
                     <div class="mt-4 flex gap-2">
-                        <!-- Tombol Edit -->
+                        <!-- Edit -->
                         <a href="{{ route('editKaryawan.edit', ['id' => $user->id]) }}"
-                            class="px-5 py-2.5 text-sm font-medium text-white bg-success-600 rounded-lg hover:bg-success-700 transition duration-200">
+                            class="px-5 py-2.5 text-md font-medium text-white bg-success-600 rounded-lg hover:bg-success-700 transition duration-200">
                             Edit Karyawan
                         </a>
 
                         @can('resign-kerja')
-                            <!-- Tombol Resign / Kembali Kerja -->
+                            <!-- Resign / Kembali Kerja -->
                             <button x-on:click="$dispatch('open-modal', 'modal-resign')"
-                                class="px-5 py-2.5 text-sm font-medium rounded-lg transition duration-200
-                    {{ $statusKaryawan == 1
-                        ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-600 hover:text-white'
-                        : 'bg-red-100 text-red-800 hover:bg-red-600 hover:text-white' }}">
+                                class="px-5 py-2.5 text-md font-medium rounded-lg transition duration-200
+                                {{ $statusKaryawan == 1
+                                    ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-600 hover:text-white'
+                                    : 'bg-red-100 text-red-800 hover:bg-red-600 hover:text-white' }}">
                                 {{ $statusKaryawan == 1 ? 'Resign Kerja' : 'Kembali Kerja' }}
                             </button>
                         @endcan
                     </div>
                 @endcan
-
             </x-card>
         </div>
 
         <div class="w-full">
-            <x-card title="No recent" class="mb-6 text-success-900">
+            <x-card title="No Recent" class="mb-6 text-success-900">
                 <div style="font-family: 'Gilroy-Regular', sans-serif; font-size: 14px;">
-                    <div class="mb-4">
-                        <strong>Nama</strong>: {{ $viewPendAwal?->user?->name ?? '-' }}
-                    </div>
-                    <div class="mb-4">
-                        <strong>Jabatan</strong>: {{ $viewPendAwal?->user?->kategorijabatan?->nama ?? '-' }}
-                    </div>
-                    <div class="mb-4">
-                        <strong>Tempat Tanggal Lahir</strong>: {{ $viewPendAwal?->user?->tempat ?? '-' }},
-                        {{ $viewPendAwal?->user?->tanggal_lahir ? formatDate($viewPendAwal?->user?->tanggal_lahir) : '-' }}
-                    </div>
-                    <div class="mb-4">
-                        <strong>Tanggal Tetap</strong>:
-                        {{ $viewPendAwal?->user?->tmt ? formatDate($viewPendAwal?->user?->tmt) : '-' }}
-                    </div>
-                    <div class="mb-4">
-                        <strong>Pendidikan Sebelumnya</strong>:
-                        {{ $viewPendAwal?->penyesuaian?->pendidikanAwal?->nama ?? '-' }}
-                    </div>
-                    <div class="mb-4">
-                        <strong>Pendidikan Penyesuaian</strong>:
-                        {{ $viewPendAwal?->penyesuaian?->pendidikanPenyesuaian?->nama ?? '-' }}
-                    </div>
-
-                    <div class="mb-4">
-                        <strong>Tanggal Penyesuaian</strong>:
-                        {{ $viewPendAwal?->tanggal_penyesuaian ? formatDate($viewPendAwal?->tanggal_penyesuaian) : '-' }}
-                    </div>
-                    <div class="mb-4">
-                        <strong>Golongan Awal</strong> :
-                        {{ $viewPendAwal?->golonganAwal?->nama ?? '-' }}
-                    </div>
-                    <div class="mb-4">
-                        <strong>Naik Golongan</strong> :
-                        {{ $viewPendAwal?->golonganAkhir?->nama ?? '-' }}
-                    </div>
-                    <div class="mb-4">
-                        <strong>Gapok Sebelumnya</strong>:
-                        Rp {{ number_format($gapokSebelumnya?->nominal_gapok ?? 0, 0, ',', '.') }}
-                    </div>
-                    <div class="mb-4">
-                        <strong>Gapok Penyesuaian</strong>:
-                        Rp {{ number_format($gapokPenyesuaian?->nominal_gapok ?? 0, 0, ',', '.') }}
-                    </div>
-                    <div class="mb-4">
-                        {{-- <strong>Hak akses</strong> : {{ implode(', ', $roles) }} --}}
-                    </div>
+                    <table class="table-auto w-full text-md text-left">
+                        <tbody>
+                            <tr>
+                                <td class="font-semibold w-1/3">Nama</td>
+                                <td>: {{ $viewPendAwal?->user?->name ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Jabatan</td>
+                                <td>: {{ $viewPendAwal?->user?->kategorijabatan?->nama ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Tempat, Tanggal Lahir</td>
+                                <td>: {{ $viewPendAwal?->user?->tempat ?? '-' }},
+                                    {{ $viewPendAwal?->user?->tanggal_lahir ? formatDate($viewPendAwal->user->tanggal_lahir) : '-' }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Tanggal Tetap</td>
+                                <td>: {{ $viewPendAwal?->user?->tmt ? formatDate($viewPendAwal->user->tmt) : '-' }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Pendidikan Sebelumnya</td>
+                                <td>: {{ $viewPendAwal?->penyesuaian?->pendidikanAwal?->nama ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Pendidikan Penyesuaian</td>
+                                <td>: {{ $viewPendAwal?->penyesuaian?->pendidikanPenyesuaian?->nama ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Tanggal Penyesuaian</td>
+                                <td>:
+                                    {{ $viewPendAwal?->tanggal_penyesuaian ? formatDate($viewPendAwal->tanggal_penyesuaian) : '-' }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Golongan Awal</td>
+                                <td>: {{ $viewPendAwal?->golonganAwal?->nama ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Naik Golongan</td>
+                                <td>: {{ $viewPendAwal?->golonganAkhir?->nama ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Gapok Sebelumnya</td>
+                                <td>: Rp {{ number_format($gapokSebelumnya?->nominal_gapok ?? 0, 0, ',', '.') }}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Gapok Penyesuaian</td>
+                                <td>: Rp {{ number_format($gapokPenyesuaian?->nominal_gapok ?? 0, 0, ',', '.') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </x-card>
         </div>

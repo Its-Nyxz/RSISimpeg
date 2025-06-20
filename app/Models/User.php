@@ -118,6 +118,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(KategoriJabatan::class, 'fungsi_id');
     }
+    public function kategoriumum()
+    {
+        return $this->belongsTo(KategoriJabatan::class, 'umum_id');
+    }
     public function trans()
     {
         return $this->belongsTo(MasterTrans::class, 'trans_id');

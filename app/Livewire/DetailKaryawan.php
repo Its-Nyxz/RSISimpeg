@@ -30,7 +30,7 @@ class DetailKaryawan extends Component
     public $user_id;
     public $alasanResign;
     public $statusKaryawan;
-    public $pend_awal, $pend_penyesuaian, $tanggal_penyesuaian, $tmt;
+    public $pend_awal, $pend_penyesuaian, $tanggal_penyesuaian, $tmt, $tmt_masuk;
     public $pendidikans;
     public $pend_awal_id;
     public $roles;
@@ -53,6 +53,7 @@ class DetailKaryawan extends Component
         $this->pend_awal_id = $user->kategori_pendidikan;
         $this->pend_awal = $user->pendidikanUser->deskripsi ?? null;
         $this->tmt = $user->tmt ? formatDate($user->tmt) : null;
+        $this->tmt_masuk = $user->tmt_masuk ? formatDate($user->tmt_masuk) : null;
         $this->statusKaryawan = $user->status_karyawan;
         $this->alasanResign = $user->alasan_resign;
         $this->pendidikans = MasterPendidikan::all();

@@ -24,7 +24,6 @@ class DataUmum extends Component
                 $query->whereHas('kategorijabatan', function ($q) {
                     $q->where('nama', 'like', '%' . $this->search . '%');
                 })
-                    ->orWhere('kualifikasi', 'like', '%' . $this->search . '%')
                     ->orWhere('nominal', 'like', '%' . $this->search . '%');
             })
             ->get();

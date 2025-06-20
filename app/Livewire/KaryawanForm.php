@@ -64,6 +64,7 @@ class KaryawanForm extends Component
     public $parentPphs;
     public $childPphs;
     public $tmt;
+    public $tmt_masuk;
     public $masakerja;
     public $roles;
     public $typeShift;
@@ -78,12 +79,15 @@ class KaryawanForm extends Component
     public $fungsional;
     public $jabatanAwal;
     public $fungsionalAwal;
+    public $umumAwal;
     public $jabatanChanged = false;
     public $fungsionalChanged = false;
+    public $umumChanged = false;
     public $unit; // Input untuk unit kerja
     public $suggestions = [
         'jabatan' => [],
         'fungsional' => [],
+        'umum' => [],
         'unit' => [],
     ];
     protected $listeners = ['savekaryawan'];
@@ -95,7 +99,7 @@ class KaryawanForm extends Component
         // if ($value) {
         if ($field === 'jabatan') {
             $categories = KategoriJabatan::where('nama', 'like', "%$value%")
-                ->whereIn('tunjangan', ['jabatan', 'umum']) // hanya ambil jabatan tunjangan kabatan & umum
+                ->where('tunjangan', 'jabatan') // hanya ambil jabatan tunjangan kabatan & umum
                 ->get()
                 ->groupBy('tunjangan');
 
@@ -104,7 +108,16 @@ class KaryawanForm extends Component
             }
         } elseif ($field === 'fungsional') {
             $categories = KategoriJabatan::where('nama', 'like', "%$value%")
-                ->where('tunjangan', 'fungsi') // Filter hanya yang tunjangan = 'fungsi'
+                ->whereIn('tunjangan', ['fungsi', 'umum']) // Filter hanya yang tunjangan = 'fungsi'
+                ->get()
+                ->groupBy('tunjangan');
+
+            foreach ($categories as $tunjangan => $katjabList) {
+                $this->suggestions[$field][$tunjangan] = $katjabList->pluck('nama')->toArray();
+            }
+        } elseif ($field === 'umum') {
+            $categories = KategoriJabatan::where('nama', 'like', "%$value%")
+                ->whereIn('tunjangan', ['fungsi', 'umum']) // Filter hanya yang tunjangan = 'fungsi'
                 ->get()
                 ->groupBy('tunjangan');
 
@@ -128,6 +141,11 @@ class KaryawanForm extends Component
                 $this->dispatch('confirmFungsionalChange');
             }
             $this->fungsional = $value;
+        } elseif ($field === 'umum') {
+            if ($this->umumAwal !== $value) {
+                $this->dispatch('confirmUmumChange');
+            }
+            $this->umum = $value;
         } elseif ($field === 'unit') {
             $this->unit = $value;
         }
@@ -263,8 +281,12 @@ class KaryawanForm extends Component
             $this->fungsional = $user->kategorifungsional->nama ?? null;
             $this->fungsionalAwal = $this->fungsional; // Simpan nilai awal jabatan
             $this->fungsionalChanged = false;
+            $this->umum = $user->kategoriumum->nama ?? null;
+            $this->umumAwal = $this->umum; // Simpan nilai awal jabatan
+            $this->umumChanged = false;
             $this->selectedJenisKaryawan = $user->jenis_id;
             $this->tmt = $user->tmt;
+            $this->tmt_masuk = $user->tmt_masuk;
             $this->masakerja = $user->masa_kerja;
             $this->selectedGolonganNama = $user->golongan->nama ?? '';
             $this->gol = $user->gol_id;
@@ -318,6 +340,7 @@ class KaryawanForm extends Component
             'fungsional' => 'nullable',
             'selectedJenisKaryawan' => 'nullable',
             'tmt' => 'nullable',
+            'tmt_masuk' => 'nullable',
             'masakerja' => 'nullable',
             'selectedGolonganNama' => 'nullable',
             'khusus' => 'nullable',
@@ -329,6 +352,7 @@ class KaryawanForm extends Component
         $unit = UnitKerja::where('nama', $this->unit)->first(); // Cari ID berdasarkan nama unit
         $kategoriJabatan = KategoriJabatan::where('nama', $this->jabatan)->first(); // Cari ID berdasarkan nama kategori jabatan
         $kategoriFungsional = KategoriJabatan::where('nama', $this->fungsional)->first(); // Cari ID berdasarkan nama kategori jabatan
+        $kategoriUmum = KategoriJabatan::where('nama', $this->umum)->first();
         // if (!$unit) {
         //     return back()->with('error', 'Unit tidak ditemukan.');
         // } elseif (!$kategoriJabatan) {
@@ -368,8 +392,10 @@ class KaryawanForm extends Component
             'unit_id' => $unit->id ?? null,
             'jabatan_id' => $kategoriJabatan->id ?? null,
             'fungsi_id' => $kategoriFungsional->id ?? null,
+            'umum_id' => $kategoriUmum->id ?? null,
             'jenis_id' => $this->selectedJenisKaryawan ?? null,
             'tmt' => $this->tmt ?? null,
+            'tmt_masuk' => $this->tmt_masuk ?? null,
             'masa_kerja' => $this->masakerja ?? null,
             'gol_id' => $this->selectedGolongan ?? $this->gol ?? null,
             'khusus_id' => $this->khusus !== '' ? $this->khusus : null,
@@ -425,6 +451,17 @@ class KaryawanForm extends Component
                 'tanggal_selesai' => null,
             ]);
         }
+
+        if ($kategoriUmum) {
+            RiwayatJabatan::create([
+                'user_id' => $user->id,
+                'kategori_jabatan_id' => $kategoriUmum->id,
+                'tunjangan' => $kategoriUmum->tunjangan,
+                'tanggal_mulai' => now(),
+                'tanggal_selesai' => null,
+            ]);
+        }
+
         return redirect()->route('datakaryawan.index')->with('success', 'Karyawan berhasil diTambah.');
     }
 
@@ -451,6 +488,7 @@ class KaryawanForm extends Component
             'fungsional' => 'nullable',
             'selectedJenisKaryawan' => 'nullable',
             'tmt' => 'nullable',
+            'tmt_masuk' => 'nullable',
             'masakerja' => 'nullable',
             'selectedGolonganNama' => 'nullable',
             'khusus' => 'nullable',
@@ -461,6 +499,7 @@ class KaryawanForm extends Component
         $unit = UnitKerja::where('nama', $this->unit)->first(); // Cari ID berdasarkan nama unit
         $kategoriJabatan = KategoriJabatan::where('nama', $this->jabatan)->first();
         $kategoriFungsional = KategoriJabatan::where('nama', $this->fungsional)->first(); // Cari ID berdasarkan nama kategori jabatan
+        $kategoriUmum = KategoriJabatan::where('nama', $this->umum)->first();
         // Cari ID berdasarkan nama kategori jabatan
         // if (!$unit) {
         //     return back()->with('error', 'Unit tidak ditemukan.');
@@ -487,6 +526,8 @@ class KaryawanForm extends Component
         // Simpan jabatan dan fungsional lama
         $oldJabatanId = $user->jabatan_id;
         $oldFungsionalId = $user->fungsi_id;
+        $oldUmumId = $user->umum_id;
+
 
         $user = User::findOrFail($this->user_id);
         $user->update([
@@ -507,8 +548,10 @@ class KaryawanForm extends Component
             'unit_id' => $unit->id ?? null,
             'jabatan_id' => $kategoriJabatan->id ?? null,
             'fungsi_id' => $kategoriFungsional->id ?? null,
+            'umum_id' => $kategoriUmum->id ?? null,
             'jenis_id' => $this->selectedJenisKaryawan ?? null,
             'tmt' => $this->tmt ?? null,
+            'tmt_masuk' => $this->tmt_masuk ?? null,
             'masa_kerja' => $this->masakerja ?? null,
             'gol_id' => $this->selectedGolongan ?? $this->gol ?? null,
             'khusus_id' => $this->khusus !== '' ? $this->khusus : null,
@@ -533,7 +576,7 @@ class KaryawanForm extends Component
                 'tanggal_selesai' => null,
             ]);
         }
-        
+
 
         // Update riwayat fungsional jika berubah
         if ($this->fungsional !== $this->fungsionalAwal && $kategoriFungsional) {
@@ -547,6 +590,22 @@ class KaryawanForm extends Component
                 'user_id' => $user->id,
                 'kategori_jabatan_id' => $kategoriFungsional->id,
                 'tunjangan' => $kategoriFungsional->tunjangan,
+                'tanggal_mulai' => now(),
+                'tanggal_selesai' => null,
+            ]);
+        }
+
+        if ($this->umum !== $this->umumAwal && $kategoriUmum) {
+            RiwayatJabatan::where('user_id', $user->id)
+                ->where('kategori_jabatan_id', $oldUmumId)
+                ->where('tunjangan', 'umum')
+                ->whereNull('tanggal_selesai')
+                ->update(['tanggal_selesai' => now('Asia/Jakarta')]);
+
+            RiwayatJabatan::create([
+                'user_id' => $user->id,
+                'kategori_jabatan_id' => $kategoriUmum->id,
+                'tunjangan' => $kategoriUmum->tunjangan,
                 'tanggal_mulai' => now(),
                 'tanggal_selesai' => null,
             ]);
@@ -571,6 +630,11 @@ class KaryawanForm extends Component
             $this->dispatch('confirmFungsionalChange'); // Panggil event ke browser
             return; // Hentikan eksekusi agar tidak langsung menyimpan sebelum konfirmasi
         }
+        if ($this->umum !== $this->umumAwal) {
+            $this->dispatch('confirmUmumChange'); // Panggil event ke browser
+            return; // Hentikan eksekusi agar tidak langsung menyimpan sebelum konfirmasi
+        }
+
         $this->updateKaryawan();
     }
     public function updateKaryawanConfirmed()
@@ -579,6 +643,8 @@ class KaryawanForm extends Component
         $this->jabatanAwal = $this->jabatan; // Update nilai awal agar tidak terdeteksi perubahan lagi
         $this->fungsionalChanged = false; // Reset perubahan
         $this->fungsionalAwal = $this->fungsional; // Update nilai awal agar tidak terdeteksi perubahan lagi
+        $this->umumChanged = false; // Reset perubahan
+        $this->umumAwal = $this->umum; // Update nilai awal agar tidak terdeteksi perubahan lagi
 
         // Lanjutkan proses update karyawan seperti di updateKaryawan()
         $this->updateKaryawan();
