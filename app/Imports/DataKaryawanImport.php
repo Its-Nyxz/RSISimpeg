@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use App\Models\JenisKaryawan;
 use App\Models\RiwayatJabatan;
+use Illuminate\Support\Carbon;
 use App\Models\KategoriJabatan;
 use App\Models\MasterJatahCuti;
 use App\Models\SisaCutiTahunan;
@@ -34,7 +35,16 @@ class DataKaryawanImport implements ToCollection
                 $typeShift = strtolower(trim($row[17])) === 'shift';
                 $tunjanganId  = explode(' - ', $row[19])[0] ?? null;
                 $pphId        = explode(' - ', $row[20])[0] ?? null;
-                $tmtDate = Date::excelToDateTimeObject($row[18]);
+                $tmtDate = null;
+                if (is_numeric($row[18])) {
+                    $tmtDate = Date::excelToDateTimeObject($row[18]);
+                } elseif (!empty($row[18])) {
+                    try {
+                        $tmtDate = Carbon::parse($row[18]);
+                    } catch (\Exception $e) {
+                        Log::warning('Format TMT tidak bisa diparse: ' . $row[18]);
+                    }
+                }
                 $today = now();
 
                 $masaKerja = null;
@@ -74,7 +84,9 @@ class DataKaryawanImport implements ToCollection
                         'no_rek' => $row[5],
                         'jk' => $jk,
                         'tempat' => $row[7],
-                        'tanggal_lahir' => Date::excelToDateTimeObject($row[8] ?? null)?->format('Y-m-d'),
+                        'tanggal_lahir' => is_numeric($row[8] ?? null)
+                            ? Date::excelToDateTimeObject($row[8])->format('Y-m-d')
+                            : null,
                         'alamat' => $row[9],
                         'kategori_pendidikan' => $pendidikanId,
                         'pendidikan' => $row[11],
