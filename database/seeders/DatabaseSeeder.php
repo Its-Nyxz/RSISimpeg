@@ -25,80 +25,80 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
         // Buat Roles jika belum ada
-        // $roles = [
-        //     'Super Admin',
-        // ];
+        $roles = [
+            'Super Admin',
+        ];
 
-        // // Buat role jika belum ada
-        // foreach ($roles as $roleName) {
-        //     Role::firstOrCreate(['name' => $roleName]);
-        // }
+        // Buat role jika belum ada
+        foreach ($roles as $roleName) {
+            Role::firstOrCreate(['name' => $roleName]);
+        }
 
-        // // Daftar permission
-        // $permissions = [
-        //     // 'add-user',
-        //     'timer',
-        //     'list-history',
-        //     'list-history-user',
-        //     'list-history-create',
-        //     'list-history-edit',
-        //     'select-user',
-        //     'master-data',
-        //     'tunjangan',
-        //     'golongan',
-        //     'gaji-pokok',
-        //     'pendidikan',
-        //     'absen',
-        //     'template-jadwal',
-        //     'import-jadwal',
-        //     'tambah-jadwal',
-        //     'edit-jadwal',
-        //     'unit-kerja',
-        //     'potongan',
-        //     'tunjangan-kinerja',
-        //     'kategori-jabatan',
-        //     'kategori-pph',
-        //     'create-data-karyawan',
-        //     'detail-data-karyawan',
-        //     'edit-data-karyawan',
-        //     'tambah-history',
-        //     'tambah-sp',
-        //     'view-kenaikan',
-        //     'approval-cuti',
-        //     'approval-izin',
-        //     'approval-tukar-jadwal',
-        //     'view-import-gaji',
-        //     'view-poin-peran',
-        //     'view-poin-penilaian',
-        //     'view-keuangan',
-        //     'view-kepegawaian',
-        //     'hak-akses',
-        //     'resign-kerja',
-        //     'jatah-cuti',
-        //     'override-lokasi',
-        //     'penyesuaian',
-        //     'approve-izin',
-        //     'approve-cuti'
-        // ];
+        // Daftar permission
+        $permissions = [
+            // 'add-user',
+            'timer',
+            'list-history',
+            'list-history-user',
+            'list-history-create',
+            'list-history-edit',
+            'select-user',
+            'master-data',
+            'tunjangan',
+            'golongan',
+            'gaji-pokok',
+            'pendidikan',
+            'absen',
+            'template-jadwal',
+            'import-jadwal',
+            'tambah-jadwal',
+            'edit-jadwal',
+            'unit-kerja',
+            'potongan',
+            'tunjangan-kinerja',
+            'kategori-jabatan',
+            'kategori-pph',
+            'create-data-karyawan',
+            'detail-data-karyawan',
+            'edit-data-karyawan',
+            'tambah-history',
+            'tambah-sp',
+            'view-kenaikan',
+            'approval-cuti',
+            'approval-izin',
+            'approval-tukar-jadwal',
+            'view-import-gaji',
+            'view-poin-peran',
+            'view-poin-penilaian',
+            'view-keuangan',
+            'view-kepegawaian',
+            'hak-akses',
+            'resign-kerja',
+            'jatah-cuti',
+            'override-lokasi',
+            'penyesuaian',
+            'approve-izin',
+            'approve-cuti'
+        ];
 
-        // foreach ($permissions as $perm) {
-        //     Permission::firstOrCreate(['name' => $perm]);
-        // }
+        foreach ($permissions as $perm) {
+            Permission::firstOrCreate(['name' => $perm]);
+        }
 
-        // // Assign semua permission ke Super Admin
-        // $superAdminRole = Role::where('name', 'Super Admin')->first();
-        // $superAdminRole->syncPermissions(Permission::all());
+        // Assign semua permission ke Super Admin
+        $superAdminRole = Role::where('name', 'Super Admin')->first();
+        $superAdminRole->syncPermissions(Permission::all());
 
-        // // Buat user super admin
-        // $superAdmin = User::firstOrCreate(
-        //     ['email' => 'superadmin@gmail.com'],
-        //     [
-        //         'name' => 'Super Admin',
-        //         'username' => 'superadmin',
-        //         'password' => Hash::make('123'), // password default
-        //         'unit_id' => null,
-        //     ]
-        // );
+        // Buat user super admin
+        $superAdmin = User::firstOrCreate(
+            ['email' => 'superadmin@gmail.com'],
+            [
+                'name' => 'Super Admin',
+                'username' => 'superadmin',
+                'password' => Hash::make('123'), // password default
+                'unit_id' => null,
+            ]
+        );
 
         // // Assign role ke user
         // $superAdmin->assignRole('Super Admin');
