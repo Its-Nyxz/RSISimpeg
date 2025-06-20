@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
         $roles = [
             'Super Admin',
         ];
-        
+
         // Buat role jika belum ada
         foreach ($roles as $roleName) {
             Role::firstOrCreate(['name' => $roleName]);
@@ -103,48 +103,48 @@ class DatabaseSeeder extends Seeder
         // Assign role ke user
         $superAdmin->assignRole('Super Admin');
 
-        // $this->call([
-        //     MasterGolonganSeeder::class,
-        //     MasterPendidikanSeeder::class,
-        //     KategoriJabatanSeeder::class,
-        //     MasterGapokSeeder::class,
-        //     MasterJabatanSeeder::class,
-        //     MasterFungsiSeeder::class,
-        //     MasterUmumSeeder::class,
-        //     MasterKhususSeeder::class,
-        //     MasterPenyesuaianSeeder::class,
-        //     MasterPotonganSeeder::class,
-        //     MasterTransSeeder::class,
-        //     OpsiAbsenSeeder::class,
-        //     JenisFileSeeder::class,
-        //     KategoripphSeeder::class,
-        //     NilaipphSeeder::class,
-        //     JenisKaryawanSeeder::class,
-        //     StatusAbsenSeeder::class,
-        //     UnitKerjaSeeder::class,
-        //     LevelPointSeeder::class,
-        //     LevelUnitSeeder::class,
-        //     TerlibatPointSeeder::class,
-        //     PosisiPointSeeder::class,
-        //     ShiftSeeder::class,
-        //     ShiftPointSeeder::class,
-        //     PkPointSeeder::class,
-        //     PointPelatihanSeeder::class,
-        //     PointPeranSeeder::class,
-        //     MasaKerjaSeeder::class,
-        //     PointJabatanSeeder::class,
-        //     ProposionalitasPointSeeder::class,
-        //     PointKinerjaSeeder::class,
-        //     PointJamKerjaSeeder::class,
-        //     UserSeeder::class, // Tambahkan ini
-        //     RolePermissionSeeder::class,
-        //     HolidaysSeeder::class,
-        //     JenisCutiSeeder::class,
-        //     StatusCutiSeeder::class,
-        //     JenisIzinSeeder::class,
-        //     RiwayatJabatanSeeder::class,
-        //     TaxBracketsSeeder::class,
-        //     GapokKontrakSeeder::class,
-        // ]);
+        $this->call([
+            MasterGolonganSeeder::class,
+            MasterPendidikanSeeder::class,
+            KategoriJabatanSeeder::class,
+            MasterGapokSeeder::class,
+            MasterJabatanSeeder::class,
+            MasterFungsiSeeder::class,
+            MasterUmumSeeder::class,
+            MasterKhususSeeder::class,
+            MasterPenyesuaianSeeder::class,
+            MasterPotonganSeeder::class,
+            MasterTransSeeder::class,
+            OpsiAbsenSeeder::class,
+            JenisFileSeeder::class,
+            KategoripphSeeder::class,
+            NilaipphSeeder::class,
+            JenisKaryawanSeeder::class,
+            StatusAbsenSeeder::class,
+            UnitKerjaSeeder::class,
+            // LevelPointSeeder::class,
+            LevelUnitSeeder::class,
+            // TerlibatPointSeeder::class,
+            PosisiPointSeeder::class,
+            // ShiftSeeder::class,
+            // ShiftPointSeeder::class,
+            // PkPointSeeder::class,
+            // PointPelatihanSeeder::class,
+            // PointPeranSeeder::class,
+            MasaKerjaSeeder::class,
+            // PointJabatanSeeder::class,
+            // ProposionalitasPointSeeder::class,
+            // PointKinerjaSeeder::class,
+            // PointJamKerjaSeeder::class,
+            // UserSeeder::class, // Tambahkan ini
+            // RolePermissionSeeder::class,
+            // HolidaysSeeder::class,
+            // JenisCutiSeeder::class,
+            // StatusCutiSeeder::class,
+            // JenisIzinSeeder::class,
+            // RiwayatJabatanSeeder::class,
+            // TaxBracketsSeeder::class,
+            // GapokKontrakSeeder::class,
+        ]);
     }
 }
