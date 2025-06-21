@@ -100,8 +100,8 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // // Assign role ke user
-        // $superAdmin->assignRole('Super Admin');
+        // Assign role ke user
+        $superAdmin->assignRole('Super Admin');
 
         $this->call([
             // MasterGolonganSeeder::class,

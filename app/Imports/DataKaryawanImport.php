@@ -26,23 +26,42 @@ class DataKaryawanImport implements ToCollection
             return $index > 1 && !empty($row[0]); // lewati header & baris contoh, dan pastikan kolom nama tidak kosong
         })->each(function ($row) {
             try {
-                $jk = strtolower(trim($row[6])) === 'l'; // true if 'L', else false
-                $pendidikanId = explode(' - ', $row[10])[0] ?? null;
+                // Jenis Kelamin: 'L' → true, 'P' → false, lainnya/null → null
+                $jkInput = strtolower(trim($row[6] ?? ''));
+                $jk = $jkInput === 'l' ? true : ($jkInput === 'p' ? false : null);
+                $pendidikanId = trim(explode(' - ', $row[10])[0] ?? null);
+                $pendidikanId = $pendidikanId !== '' ? $pendidikanId : null;
+                if ($pendidikanId && !MasterPendidikan::find($pendidikanId)) {
+                    $pendidikanId = null;
+                }
                 $unitKerjaId  = explode(' - ', $row[13])[0] ?? null;
                 $jabatanStrukturalId = explode(' - ', $row[14])[0] ?? null; // Jabatan Struktural
                 $jabatanFungsionalId = explode(' - ', $row[15])[0] ?? null; // Jabatan Fungsional
-                $jenisKarId   = explode(' - ', $row[16])[0] ?? null;
-                $typeShift = strtolower(trim($row[17])) === 'shift';
-                $tunjanganId  = explode(' - ', $row[19])[0] ?? null;
-                $pphId        = explode(' - ', $row[20])[0] ?? null;
+                $jabatanUmumId = explode(' - ', $row[16])[0] ?? null; // Jabatan Umum
+                $jenisKarId   = explode(' - ', $row[17])[0] ?? null;
+                // Type Shift: 'shift' → true, 'nonshift' → false, lainnya/null → null
+                $shiftInput = strtolower(trim($row[18] ?? ''));
+                $typeShift = $shiftInput === 'shift' ? true : ($shiftInput === 'nonshift' ? false : null);
+                $tunjanganId  = explode(' - ', $row[21])[0] ?? null;
+                $pphId        = explode(' - ', $row[22])[0] ?? null;
                 $tmtDate = null;
-                if (is_numeric($row[18])) {
-                    $tmtDate = Date::excelToDateTimeObject($row[18]);
-                } elseif (!empty($row[18])) {
+                if (is_numeric($row[19])) {
+                    $tmtDate = Date::excelToDateTimeObject($row[19]);
+                } elseif (!empty($row[19])) {
                     try {
-                        $tmtDate = Carbon::parse($row[18]);
+                        $tmtDate = Carbon::parse($row[19]);
                     } catch (\Exception $e) {
-                        Log::warning('Format TMT tidak bisa diparse: ' . $row[18]);
+                        Log::warning('Format TMT tidak bisa diparse: ' . $row[19]);
+                    }
+                }
+                $tmtMasuk    = null;
+                if (is_numeric($row[20])) {
+                    $tmtMasuk = Date::excelToDateTimeObject($row[20]);
+                } elseif (!empty($row[20])) {
+                    try {
+                        $tmtMasuk = Carbon::parse($row[20]);
+                    } catch (\Exception $e) {
+                        Log::warning('Format TMT Masuk tidak bisa diparse: ' . $row[20]);
                     }
                 }
                 $today = now();
@@ -62,6 +81,7 @@ class DataKaryawanImport implements ToCollection
                 $conditions = [];
 
                 $user = null;
+                // Log::info('Cek user berdasarkan NIP/slug', ['nip' => $nip, 'slug' => $slug]);
 
                 if ($nip) {
                     // Coba cari berdasarkan NIP jika ada
@@ -74,6 +94,7 @@ class DataKaryawanImport implements ToCollection
                 }
 
                 if ($user) {
+                    // Log::info('User ditemukan untuk update', ['user_id' => $user->id]);
                     // Jika sudah ada, update
                     $user->update([
                         'name' => $name,
@@ -94,9 +115,11 @@ class DataKaryawanImport implements ToCollection
                         'unit_id' => $unitKerjaId ?: null,
                         'jabatan_id' => $jabatanStrukturalId ?: null,
                         'fungsi_id' => $jabatanFungsionalId ?: null,
+                        'umum_id' => $jabatanUmumId ?: null,
                         'jenis_id' => $jenisKarId ?: null,
                         'type_shift' => $typeShift,
                         'tmt' => $tmtDate?->format('Y-m-d'),
+                        'tmt_masuk' => $tmtMasuk?->format('Y-m-d'),
                         'masa_kerja' => $masaKerja,
                         'tunjangan_khusus_id' => $tunjanganId ?: null,
                         'kategori_id' => $pphId ?: null,
@@ -150,7 +173,29 @@ class DataKaryawanImport implements ToCollection
                             ]);
                         }
                     }
+
+                    if ($jabatanUmumId && $jabatanUmumId != $user->umum_id) {
+                        $kategori = KategoriJabatan::find($jabatanUmumId);
+                        if ($kategori && $kategori->tunjangan) {
+                            // Tutup riwayat lama
+                            RiwayatJabatan::where('user_id', $user->id)
+                                ->where('kategori_jabatan_id', $user->umum_id)
+                                ->where('tunjangan', $kategori->tunjangan)
+                                ->whereNull('tanggal_selesai')
+                                ->update(['tanggal_selesai' => now()]);
+
+                            // Tambah riwayat baru
+                            RiwayatJabatan::create([
+                                'user_id' => $user->id,
+                                'kategori_jabatan_id' => $jabatanUmumId,
+                                'tunjangan' => strtolower($kategori->tunjangan),
+                                'tanggal_mulai' => $tmtDate ?? now(),
+                                'tanggal_selesai' => null,
+                            ]);
+                        }
+                    }
                 } else {
+                    // Log::info('User tidak ditemukan, akan membuat user baru');
                     // Jika belum ada user sama sekali, buat baru
                     $userBaru = User::create([
                         'name' => $name,
@@ -170,9 +215,11 @@ class DataKaryawanImport implements ToCollection
                         'unit_id' => $unitKerjaId ?: null,
                         'jabatan_id' => $jabatanStrukturalId ?: null,
                         'fungsi_id' => $jabatanFungsionalId ?: null,
+                        'umum_id' => $jabatanUmumId ?: null,
                         'jenis_id' => $jenisKarId ?: null,
                         'type_shift' => $typeShift,
                         'tmt' => $tmtDate?->format('Y-m-d'),
+                        'tmt_masuk' => $tmtMasuk?->format('Y-m-d'),
                         'masa_kerja' => $masaKerja,
                         'tunjangan_khusus_id' => $tunjanganId ?: null,
                         'kategori_id' => $pphId ?: null,
@@ -224,6 +271,19 @@ class DataKaryawanImport implements ToCollection
                                 'kategori_jabatan_id' => $jabatanFungsionalId,
                                 'tunjangan' => strtolower($kategori->tunjangan),
                                 'tanggal_mulai' => $tmtDate ?? now(),
+                                'tanggal_selesai' => null,
+                            ]);
+                        }
+                    }
+
+                    if ($jabatanUmumId) {
+                        $kategori = KategoriJabatan::find($jabatanUmumId);
+                        if ($kategori && $kategori->tunjangan) {
+                            RiwayatJabatan::create([
+                                'user_id' => $userBaru->id,
+                                'kategori_jabatan_id' => $jabatanUmumId,
+                                'tunjangan' => strtolower($kategori->tunjangan),
+                                'tanggal_mulai' => $tmtMasuk ?? now(),
                                 'tanggal_selesai' => null,
                             ]);
                         }
