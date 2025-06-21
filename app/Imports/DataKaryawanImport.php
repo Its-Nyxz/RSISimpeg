@@ -38,6 +38,25 @@ class DataKaryawanImport implements ToCollection
                 $jabatanStrukturalId = explode(' - ', $row[14])[0] ?? null; // Jabatan Struktural
                 $jabatanFungsionalId = explode(' - ', $row[15])[0] ?? null; // Jabatan Fungsional
                 $jabatanUmumId = explode(' - ', $row[16])[0] ?? null; // Jabatan Umum
+                
+                // ✅ Validasi: fungsional dan umum tidak boleh sama
+                if ($jabatanFungsionalId && $jabatanUmumId && $jabatanFungsionalId == $jabatanUmumId) {
+                    Log::warning('Fungsional dan Umum tidak boleh sama', [
+                        'row' => $row->toArray(),
+                        'error' => 'Fungsional dan Umum ID sama',
+                    ]);
+                    return; // Skip baris ini
+                }
+
+                // ✅ Validasi: jika ada jabatan struktural, maka hanya salah satu dari fungsional/umum boleh terisi
+                if ($jabatanStrukturalId && $jabatanFungsionalId && $jabatanUmumId) {
+                    Log::warning('Jika ada Jabatan Struktural, tidak boleh isi Fungsional dan Umum sekaligus', [
+                        'row' => $row->toArray(),
+                        'error' => 'Jabatan, Fungsional, dan Umum terisi bersamaan',
+                    ]);
+                    return; // Skip baris ini
+                }
+
                 $jenisKarId   = explode(' - ', $row[17])[0] ?? null;
                 // Type Shift: 'shift' → true, 'nonshift' → false, lainnya/null → null
                 $shiftInput = strtolower(trim($row[18] ?? ''));

@@ -1,5 +1,5 @@
 <header class="z-40 sm:z-50 fixed w-full">
-    <nav class="bg-gradient-to-r from-blue-300 via-blue-500 to-blue-700 text-white px-4 py-4 shadow-xl">
+    <nav class="bg-gradient-to-r from-yellow-300 via-green-500 to-green-700 text-white px-4 py-4 shadow-xl">
         <div class="flex justify-between items-center mx-3">
             <!-- Kiri: Sidebar toggle + Logo -->
             <div class="flex items-center">

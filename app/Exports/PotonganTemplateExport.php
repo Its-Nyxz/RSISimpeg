@@ -34,6 +34,9 @@ class PotonganTemplateExport implements FromView
                 'kategorijabatan.masterjabatan',
                 'kategorijabatan.masterfungsi',
                 'kategorijabatan.masterumum',
+                // 'kategorijabatan',
+                // 'kategorifungsional',
+                // 'kategoriumum',
                 'riwayatJabatan.kategori',
                 'khusus',
             ])
@@ -241,13 +244,17 @@ class PotonganTemplateExport implements FromView
                     }
 
                     $isDok = Str::contains(strtolower($user->kategorijabatan->nama ?? ''), 'dokter')
-                        || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'dokter');
+                        || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'dokter')
+                        || Str::contains(strtolower($user->kategoriumum->nama ?? ''), 'dokter');
                     $isGigi = Str::contains(strtolower($user->kategorijabatan->nama ?? ''), 'dokter gigi')
-                        || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'dokter gigi');
+                        || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'dokter gigi')
+                        || Str::contains(strtolower($user->kategoriumum->nama ?? ''), 'dokter gigi');
                     $isBidan = Str::contains(strtolower($user->kategorijabatan->nama ?? ''), 'bidan')
-                        || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'bidan');
+                        || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'bidan')
+                        || Str::contains(strtolower($user->kategoriumum->nama ?? ''), 'bidan');
                     $isPerawat = Str::contains(strtolower($user->kategorijabatan->nama ?? ''), 'perawat')
-                        || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'perawat');
+                        || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'perawat')
+                        || Str::contains(strtolower($user->kategoriumum->nama ?? ''), 'perawat');
 
                     if ($slug === 'idi' && $isDok && !$isGigi) {
                         $nominal = $item->nominal;
@@ -271,13 +278,13 @@ class PotonganTemplateExport implements FromView
 
                 $user->setAttribute('potonganOtomasis', $potonganOtomasis);
             }
-
-            return view('exports.template-potongan', [
-                'users' => $users,
-                'bulan' => $this->bulan,
-                'tahun' => $this->tahun,
-                'masterPotongans' => $masterPotongans,
-            ]);
         }
+        logger("Cek GajiBruto user {$user->id}: ", ['data' => $gajiBruto]);
+        return view('exports.template-potongan', [
+            'users' => $users,
+            'bulan' => $this->bulan,
+            'tahun' => $this->tahun,
+            'masterPotongans' => $masterPotongans,
+        ]);
     }
 }

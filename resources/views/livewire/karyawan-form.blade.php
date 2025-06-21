@@ -700,21 +700,48 @@
                 </x-card>
             </div>
         </div>
-        <div class="flex justify-end mb-3">
-            @php
-                $disableButton = $fungsional === $umum && $fungsional !== null && $umum !== null;
-            @endphp
+        @php
+            $isJabatanTerisi = !empty($jabatan);
+            $isFungsionalTerisi = !empty($fungsional);
+            $isUmumTerisi = !empty($umum);
+            $minimalSatuTerisi = $isJabatanTerisi || $isFungsionalTerisi || $isUmumTerisi;
 
+            // ✅ Hindari cast ke int, cukup pakai string trim & lowercase untuk aman
+            $disableKarenaDuplikat =
+                $isFungsionalTerisi && $isUmumTerisi && strtolower(trim($fungsional)) === strtolower(trim($umum));
+
+            $disableKarenaKosong = !$minimalSatuTerisi;
+
+            // ❌ Tidak boleh semua terisi
+            $disableKarenaSemuaTerisi = $isJabatanTerisi && $isFungsionalTerisi && $isUmumTerisi;
+
+            $disableButton = $disableKarenaDuplikat || $disableKarenaKosong || $disableKarenaSemuaTerisi;
+        @endphp
+
+        <div class="flex justify-end mb-3">
+            @if ($disableKarenaKosong)
+                <p class="text-md text-red-600 mt-1">Minimal salah satu dari jabatan, fungsional, atau umum harus
+                    diisi.</p>
+            @endif
+
+            @if ($disableKarenaDuplikat)
+                <p class="text-md text-red-600 mt-1">Fungsional dan Funsional 2 tidak boleh sama.</p>
+            @endif
+
+            @if ($disableKarenaSemuaTerisi)
+                <p class="text-md text-red-600 mt-1">Hanya boleh mengisi salah dua: jabatan struktural, fungsional,
+                    atau fungsional 2.</p>
+            @endif
             @if ($user == null)
                 <button type="button" wire:click="save()"
                     class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
-                    @if ($disableButton) disabled class="opacity-50 cursor-not-allowed" title="Jabatan Fungsional dan Umum tidak boleh sama" @endif>
+                    @if ($disableButton) disabled class="opacity-50 cursor-not-allowed" title="Jabatan tidak valid atau fungsional ganda tidak diizinkan" @endif>
                     <i class="fa-solid fa-paper-plane mr-2"></i> Simpan
                 </button>
             @else
                 <button type="button" id="confimAlertJabatan" wire:click="updateKaryawan()"
                     class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
-                    @if ($disableButton) disabled class="opacity-50 cursor-not-allowed" title="Jabatan Fungsional dan Umum tidak boleh sama" @endif>
+                    @if ($disableButton) disabled class="opacity-50 cursor-not-allowed" title="Jabatan tidak valid atau fungsional ganda tidak diizinkan" @endif>
                     <i class="fa-solid fa-pen mr-2"></i> Edit
                 </button>
             @endif

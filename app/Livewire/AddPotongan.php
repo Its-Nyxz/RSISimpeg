@@ -42,10 +42,12 @@ class AddPotongan extends Component
 
         $this->user = User::with([
             'jenis',
-            'kategorijabatan.masterjabatan',
-            'kategorijabatan.masterfungsi',
-            'kategorijabatan.masterumum',
+            // 'kategorijabatan.masterjabatan',
+            // 'kategorijabatan.masterfungsi',
+            // 'kategorijabatan.masterumum',
+            'kategorijabatan',
             'kategorifungsional',
+            'kategoriumum',
             'golongan.gapoks',
         ])->findOrFail($user->id);
 
@@ -152,7 +154,7 @@ class AddPotongan extends Component
 
                 $isKaSeksiOrInstalasi = Str::contains($nama_jabatan, ['ka. seksi', 'ka. instalasi']);
                 $isManajerOrWadir     = Str::contains($nama_jabatan, ['manajer', 'wadir']);
-
+                // dd($riwayat->tunjangan);
                 switch ($riwayat->tunjangan) {
                     case 'jabatan':
                         if ($isKaSeksiOrInstalasi) {
@@ -169,7 +171,7 @@ class AddPotongan extends Component
                         break;
                 }
             }
-
+            // dd($this->nom_jabatan, $this->nom_fungsi, $this->nom_umum);
 
             $this->isKaryawanTetap = strtolower($this->user->jenis?->nama ?? '') === 'tetap';
             $jenisKaryawan = strtolower($this->user->jenis?->nama ?? ''); // <- e.g. "part time", "kontrak", "magang"
@@ -363,11 +365,12 @@ class AddPotongan extends Component
 
             $jabatanKategori = strtolower($this->user->kategorijabatan?->nama ?? '');
             $jabatanFungsional = strtolower($this->user->kategorifungsional?->nama ?? '');
+            $jabatanUmum = strtolower($this->user->kategoriumum?->nama ?? '');
 
-            $isDokter = Str::contains($jabatanKategori, 'dokter') || Str::contains($jabatanFungsional, 'dokter');
-            $isDokterGigi = Str::contains($jabatanKategori, 'dokter gigi') || Str::contains($jabatanFungsional, 'dokter gigi');
-            $isBidan = Str::contains($jabatanKategori, 'bidan') || Str::contains($jabatanFungsional, 'bidan');
-            $isPerawat = Str::contains($jabatanKategori, 'perawat') || Str::contains($jabatanFungsional, 'perawat');
+            $isDokter = Str::contains($jabatanKategori, 'dokter') || Str::contains($jabatanFungsional, 'dokter') || Str::contains($jabatanUmum, 'dokter');
+            $isDokterGigi = Str::contains($jabatanKategori, 'dokter gigi') || Str::contains($jabatanFungsional, 'dokter gigi') || Str::contains($jabatanUmum, 'dokter gigi');
+            $isBidan = Str::contains($jabatanKategori, 'bidan') || Str::contains($jabatanFungsional, 'bidan') || Str::contains($jabatanUmum, 'bidan');
+            $isPerawat = Str::contains($jabatanKategori, 'perawat') || Str::contains($jabatanFungsional, 'perawat') || Str::contains($jabatanUmum, 'perawat');
 
             $slug = $item->slug;
 
@@ -393,7 +396,6 @@ class AddPotongan extends Component
             }
         }
     }
-
 
 
     public function simpan()

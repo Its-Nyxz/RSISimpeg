@@ -144,9 +144,16 @@
                         <td class="px-6 py-4">{{ $user->nip ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $user->alamat ?? '-' }}</td>
                         <td class="px-6 py-4">
-                            {{ $user->kategorifungsional && $user->kategorijabatan
-                                ? $user->kategorijabatan->nama . ' + ' . $user->kategorifungsional->nama
-                                : $user->kategorijabatan->nama ?? '-' }}
+                            {{ $user->kategorijabatan
+                                ? $user->kategorijabatan->nama .
+                                    ($user->kategorifungsional || $user->kategoriumum
+                                        ? ' ( ' .
+                                            ($user->kategorifungsional ? $user->kategorifungsional->nama : '') .
+                                            ($user->kategorifungsional && $user->kategoriumum ? ' + ' : '') .
+                                            ($user->kategoriumum ? $user->kategoriumum->nama : '') .
+                                            ' )'
+                                        : '')
+                                : '-' }}
                         </td>
                         <td class="px-6 py-4">{{ $user->unitKerja->nama ?? '-' }}</td>
                         <td class="px-6 py-4">
