@@ -465,8 +465,6 @@ class KaryawanForm extends Component
         return redirect()->route('datakaryawan.index')->with('success', 'Karyawan berhasil diTambah.');
     }
 
-
-
     public function updateKaryawan()
     {
 
@@ -523,11 +521,31 @@ class KaryawanForm extends Component
         }
 
         $user = User::findOrFail($this->user_id);
-        // Simpan jabatan dan fungsional lama
-        $oldJabatanId = $user->jabatan_id;
-        $oldFungsionalId = $user->fungsi_id;
-        $oldUmumId = $user->umum_id;
 
+        // Ambil ID kategori jabatan aktif terakhir (yang belum selesai)
+        $oldJabatanId = RiwayatJabatan::where('user_id', $user->id)
+            ->where('tunjangan', 'jabatan')
+            ->whereNull('tanggal_selesai')
+            ->latest('tanggal_mulai')
+            ->value('kategori_jabatan_id');
+
+        $oldFungsionalId = RiwayatJabatan::where('user_id', $user->id)
+            ->where('tunjangan', 'fungsi')
+            ->whereNull('tanggal_selesai')
+            ->latest('tanggal_mulai')
+            ->value('kategori_jabatan_id');
+
+        $oldUmumId = RiwayatJabatan::where('user_id', $user->id)
+            ->where('tunjangan', 'umum')
+            ->whereNull('tanggal_selesai')
+            ->latest('tanggal_mulai')
+            ->value('kategori_jabatan_id');
+
+        // Update riwayat jabatan
+        $this->updateRiwayatJabatan($user->id, $oldJabatanId, $kategoriJabatan, 'jabatan');
+        $this->updateRiwayatJabatan($user->id, $oldFungsionalId, $kategoriFungsional, 'fungsi');
+        $this->updateRiwayatJabatan($user->id, $oldUmumId, $kategoriUmum, 'umum');
+        // dd($oldJabatanId, $oldFungsionalId, $oldUmumId);
 
         $user = User::findOrFail($this->user_id);
         $user->update([
@@ -560,56 +578,8 @@ class KaryawanForm extends Component
             'bpjs_ortu' =>  $this->bpjsOrtu ?? null,
         ]);
 
-        // Update riwayat jabatan jika berubah
-        if ($this->jabatan !== $this->jabatanAwal && $kategoriJabatan) {
-            RiwayatJabatan::where('user_id', $user->id)
-                ->where('kategori_jabatan_id', $oldJabatanId)
-                ->where('tunjangan', 'jabatan')
-                ->whereNull('tanggal_selesai')
-                ->update(['tanggal_selesai' => now('Asia/Jakarta')]);
-
-            RiwayatJabatan::create([
-                'user_id' => $user->id,
-                'kategori_jabatan_id' => $kategoriJabatan->id,
-                'tunjangan' => $kategoriJabatan->tunjangan,
-                'tanggal_mulai' => now(),
-                'tanggal_selesai' => null,
-            ]);
-        }
 
 
-        // Update riwayat fungsional jika berubah
-        if ($this->fungsional !== $this->fungsionalAwal && $kategoriFungsional) {
-            RiwayatJabatan::where('user_id', $user->id)
-                ->where('kategori_jabatan_id', $oldFungsionalId)
-                ->where('tunjangan', 'fungsi')
-                ->whereNull('tanggal_selesai')
-                ->update(['tanggal_selesai' => now('Asia/Jakarta')]);
-
-            RiwayatJabatan::create([
-                'user_id' => $user->id,
-                'kategori_jabatan_id' => $kategoriFungsional->id,
-                'tunjangan' => $kategoriFungsional->tunjangan,
-                'tanggal_mulai' => now(),
-                'tanggal_selesai' => null,
-            ]);
-        }
-
-        if ($this->umum !== $this->umumAwal && $kategoriUmum) {
-            RiwayatJabatan::where('user_id', $user->id)
-                ->where('kategori_jabatan_id', $oldUmumId)
-                ->where('tunjangan', 'umum')
-                ->whereNull('tanggal_selesai')
-                ->update(['tanggal_selesai' => now('Asia/Jakarta')]);
-
-            RiwayatJabatan::create([
-                'user_id' => $user->id,
-                'kategori_jabatan_id' => $kategoriUmum->id,
-                'tunjangan' => $kategoriUmum->tunjangan,
-                'tanggal_mulai' => now(),
-                'tanggal_selesai' => null,
-            ]);
-        }
 
         if (!empty($this->selectedRoles)) {
             $roles = Role::whereIn('id', (array) $this->selectedRoles)->pluck('name')->toArray();
@@ -618,6 +588,42 @@ class KaryawanForm extends Component
 
         return redirect()->route('detailkaryawan.show', $this->user_id)
             ->with('success', 'Karyawan berhasil diupdate.');
+    }
+
+    private function updateRiwayatJabatan($userId, $oldId, $newKategori, $tunjangan)
+    {
+        $newId = $newKategori?->id;
+        $tunjanganKey = $tunjangan;
+
+        // Kalau sama-sama null, lanjut tetap tutup riwayat jika ada yang masih aktif
+        if ($oldId === $newId && !is_null($newId)) {
+            logger("Tidak ada perubahan nilai $tunjangan - user $userId - kategori_jabatan_id $newId");
+            return;
+        }
+
+        // Tutup riwayat aktif jika: diubah atau dikosongkan
+        $query = RiwayatJabatan::where('user_id', $userId)
+            ->where('tunjangan', $tunjanganKey)
+            ->whereNull('tanggal_selesai');
+
+        if (!is_null($oldId)) {
+            $query->where('kategori_jabatan_id', $oldId);
+        }
+
+        $updated = $query->update(['tanggal_selesai' => now('Asia/Jakarta')]);
+        logger("Update selesai: $updated untuk $tunjanganKey - user $userId - kategori_jabatan_id " . ($oldId ?? 'null'));
+
+        // Buat riwayat baru jika ada data baru yang berbeda
+        if (!is_null($newId) && $oldId !== $newId) {
+            RiwayatJabatan::create([
+                'user_id' => $userId,
+                'kategori_jabatan_id' => $newId,
+                'tunjangan' => $tunjanganKey,
+                'tanggal_mulai' => now('Asia/Jakarta'),
+                'tanggal_selesai' => null,
+            ]);
+            logger("Riwayat baru ditambahkan untuk $tunjanganKey - user $userId - kategori_jabatan_id $newId");
+        }
     }
 
     public function savekaryawan()

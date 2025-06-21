@@ -144,22 +144,22 @@
                         <td class="px-6 py-4">{{ $user->nip ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $user->alamat ?? '-' }}</td>
                         <td class="px-6 py-4">
-                            {{ $user->kategorijabatan
-                                ? $user->kategorijabatan->nama .
-                                    ($user->kategorifungsional || $user->kategoriumum
-                                        ? ' ( ' .
-                                            ($user->kategorifungsional ? $user->kategorifungsional->nama : '') .
-                                            ($user->kategorifungsional && $user->kategoriumum ? ' + ' : '') .
-                                            ($user->kategoriumum ? $user->kategoriumum->nama : '') .
-                                            ' )'
-                                        : '')
-                                : '-' }}
+                            @if ($user->kategorijabatan)
+                                {{ $user->kategorijabatan->nama }}
+                                @if ($user->kategorifungsional || $user->kategoriumum)
+                                    ({{ $user->kategorifungsional?->nama }}{{ $user->kategorifungsional && $user->kategoriumum ? ' + ' : '' }}{{ $user->kategoriumum?->nama }})
+                                @endif
+                            @elseif ($user->kategorifungsional || $user->kategoriumum)
+                                {{ $user->kategorifungsional?->nama }}{{ $user->kategorifungsional && $user->kategoriumum ? ' + ' : '' }}{{ $user->kategoriumum?->nama }}
+                            @else
+                                -
+                            @endif
                         </td>
                         <td class="px-6 py-4">{{ $user->unitKerja->nama ?? '-' }}</td>
                         <td class="px-6 py-4">
                             @can('detail-data-karyawan')
                                 <a href="{{ route('detailkaryawan.show', ['detailkaryawan' => $user->id]) }}"
-                                    class="bg-blue-700 text-white font-medium rounded-md px-3 py-2 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300">
+                                    class="bg-success-700 text-white font-medium rounded-md px-3 py-2 hover:bg-success-800 focus:ring-4 focus:outline-none focus:ring-success-300">
                                     <i class="fa-solid fa-magnifying-glass"></i>
                                 </a>
                             @endcan

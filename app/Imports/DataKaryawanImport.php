@@ -38,7 +38,7 @@ class DataKaryawanImport implements ToCollection
                 $jabatanStrukturalId = explode(' - ', $row[14])[0] ?? null; // Jabatan Struktural
                 $jabatanFungsionalId = explode(' - ', $row[15])[0] ?? null; // Jabatan Fungsional
                 $jabatanUmumId = explode(' - ', $row[16])[0] ?? null; // Jabatan Umum
-                
+
                 // ✅ Validasi: fungsional dan umum tidak boleh sama
                 if ($jabatanFungsionalId && $jabatanUmumId && $jabatanFungsionalId == $jabatanUmumId) {
                     Log::warning('Fungsional dan Umum tidak boleh sama', [
@@ -151,68 +151,9 @@ class DataKaryawanImport implements ToCollection
                         $user->save();
                     }
 
-                    if ($jabatanStrukturalId && $jabatanStrukturalId != $user->jabatan_id) {
-                        $kategori = KategoriJabatan::find($jabatanStrukturalId);
-                        if ($kategori && $kategori->tunjangan) {
-                            // Tutup riwayat lama
-                            RiwayatJabatan::where('user_id', $user->id)
-                                ->where('kategori_jabatan_id', $user->jabatan_id)
-                                ->where('tunjangan', $kategori->tunjangan)
-                                ->whereNull('tanggal_selesai')
-                                ->update(['tanggal_selesai' => now()]);
-
-                            // Tambah riwayat baru
-                            RiwayatJabatan::create([
-                                'user_id' => $user->id,
-                                'kategori_jabatan_id' => $jabatanStrukturalId,
-                                'tunjangan' => strtolower($kategori->tunjangan),
-                                'tanggal_mulai' => $tmtDate ?? now(),
-                                'tanggal_selesai' => null,
-                            ]);
-                        }
-                    }
-
-                    if ($jabatanFungsionalId && $jabatanFungsionalId != $user->fungsi_id) {
-                        $kategori = KategoriJabatan::find($jabatanFungsionalId);
-                        if ($kategori && $kategori->tunjangan) {
-                            // Tutup riwayat lama
-                            RiwayatJabatan::where('user_id', $user->id)
-                                ->where('kategori_jabatan_id', $user->fungsi_id)
-                                ->where('tunjangan', $kategori->tunjangan)
-                                ->whereNull('tanggal_selesai')
-                                ->update(['tanggal_selesai' => now()]);
-
-                            // Tambah riwayat baru
-                            RiwayatJabatan::create([
-                                'user_id' => $user->id,
-                                'kategori_jabatan_id' => $jabatanFungsionalId,
-                                'tunjangan' => strtolower($kategori->tunjangan),
-                                'tanggal_mulai' => $tmtDate ?? now(),
-                                'tanggal_selesai' => null,
-                            ]);
-                        }
-                    }
-
-                    if ($jabatanUmumId && $jabatanUmumId != $user->umum_id) {
-                        $kategori = KategoriJabatan::find($jabatanUmumId);
-                        if ($kategori && $kategori->tunjangan) {
-                            // Tutup riwayat lama
-                            RiwayatJabatan::where('user_id', $user->id)
-                                ->where('kategori_jabatan_id', $user->umum_id)
-                                ->where('tunjangan', $kategori->tunjangan)
-                                ->whereNull('tanggal_selesai')
-                                ->update(['tanggal_selesai' => now()]);
-
-                            // Tambah riwayat baru
-                            RiwayatJabatan::create([
-                                'user_id' => $user->id,
-                                'kategori_jabatan_id' => $jabatanUmumId,
-                                'tunjangan' => strtolower($kategori->tunjangan),
-                                'tanggal_mulai' => $tmtDate ?? now(),
-                                'tanggal_selesai' => null,
-                            ]);
-                        }
-                    }
+                    $this->updateOrCreateRiwayat($user->id, $jabatanStrukturalId, $user->jabatan_id, 'jabatan', $tmtDate);
+                    $this->updateOrCreateRiwayat($user->id, $jabatanFungsionalId, $user->fungsi_id, 'fungsi', $tmtDate);
+                    $this->updateOrCreateRiwayat($user->id, $jabatanUmumId, $user->umum_id, 'umum', $tmtMasuk);
                 } else {
                     // Log::info('User tidak ditemukan, akan membuat user baru');
                     // Jika belum ada user sama sekali, buat baru
@@ -345,5 +286,28 @@ class DataKaryawanImport implements ToCollection
         }
 
         return $baseGol;
+    }
+
+    private function updateOrCreateRiwayat($userId, $jabatanBaruId, $jabatanLamaId, $tunjangan, $tanggalMulai)
+    {
+        if ($jabatanBaruId && $jabatanBaruId != $jabatanLamaId) {
+            $kategori = KategoriJabatan::find($jabatanBaruId);
+            if ($kategori && $kategori->tunjangan) {
+                // Tutup riwayat lama
+                RiwayatJabatan::where('user_id', $userId)
+                    ->where('tunjangan', $kategori->tunjangan)
+                    ->whereNull('tanggal_selesai')
+                    ->update(['tanggal_selesai' => now('Asia/Jakarta')]);
+
+                // Buat riwayat baru
+                RiwayatJabatan::create([
+                    'user_id' => $userId,
+                    'kategori_jabatan_id' => $jabatanBaruId,
+                    'tunjangan' => strtolower($kategori->tunjangan),
+                    'tanggal_mulai' => $tanggalMulai ?? now(),
+                    'tanggal_selesai' => null,
+                ]);
+            }
+        }
     }
 }

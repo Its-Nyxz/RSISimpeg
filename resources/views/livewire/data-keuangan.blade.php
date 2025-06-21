@@ -322,14 +322,21 @@
                             <td class="px-6 py-4">{{ $user->alamat ?? '-' }}</td>
                             {{-- <td class="px-6 py-4">{{ $user->roles->pluck('name')->implode(', ') ?? '-' }}</td> --}}
                             <td class="px-6 py-4">
-                                {{ $user->kategorifungsional && $user->kategorijabatan
-                                    ? $user->kategorijabatan->nama . ' + ' . $user->kategorifungsional->nama
-                                    : $user->kategorijabatan->nama ?? '-' }}
+                                @if ($user->kategorijabatan)
+                                    {{ $user->kategorijabatan->nama }}
+                                    @if ($user->kategorifungsional || $user->kategoriumum)
+                                        ({{ $user->kategorifungsional?->nama }}{{ $user->kategorifungsional && $user->kategoriumum ? ' + ' : '' }}{{ $user->kategoriumum?->nama }})
+                                    @endif
+                                @elseif ($user->kategorifungsional || $user->kategoriumum)
+                                    {{ $user->kategorifungsional?->nama }}{{ $user->kategorifungsional && $user->kategoriumum ? ' + ' : '' }}{{ $user->kategoriumum?->nama }}
+                                @else
+                                    -
+                                @endif
                             </td>
                             <td class="px-6 py-4">{{ $user->unitKerja->nama ?? '-' }}</td>
                             <td class="px-6 py-4 text-center relative">
                                 <a href="{{ route('detailkeuangan.show', ['detailkeuangan' => $user->id]) }}"
-                                    class="bg-blue-700 text-white font-medium rounded-md px-3 py-2 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300"
+                                    class="bg-success-700 text-white font-medium rounded-md px-3 py-2 hover:bg-success-800 focus:ring-4 focus:outline-none focus:ring-success-300"
                                     style="margin-left: 40px; border-radius: 20%;"
                                     data-tooltip-target="tooltip-keuangan-{{ $user->id }}">
                                     <i class="fa-solid fa-magnifying-glass text-lg text-white"></i>

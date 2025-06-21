@@ -561,52 +561,55 @@
                             </td>
                         </tr>
                         @push('scripts')
-                            <!-- Flatpickr CSS -->
-                            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
-                            <!-- Flatpickr JS -->
-                            <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  
                             <script>
                                 document.addEventListener('DOMContentLoaded', function() {
-                                    // Select the TMT input element
-                                    const dateInput = document.querySelector("#tmt,#tmt_masuk");
+                                    const tmtInput = document.querySelector("#tmt");
+                                    const tmtMasukInput = document.querySelector("#tmt_masuk");
 
-                                    // Initialize Flatpickr
-                                    flatpickr("#tmt,#tmt_masuk", {
+                                    // Flatpickr for TMT
+                                    flatpickr("#tmt", {
                                         altInput: true,
                                         altFormat: "F j, Y",
                                         dateFormat: "Y-m-d",
-                                        maxDate: "today", // Restrict future dates
-                                        defaultDate: dateInput.value || null, // Set default date to today
-                                        onChange: function(selectedDates, dateStr, instance) {
+                                        maxDate: "today",
+                                        defaultDate: tmtInput.value || null,
+                                        onChange: function(selectedDates) {
                                             if (selectedDates.length > 0) {
-                                                const selectedDate = new Date(selectedDates[0]);
-                                                const today = new Date();
-
-                                                let years = today.getFullYear() - selectedDate.getFullYear();
-                                                const monthDiff = today.getMonth() - selectedDate.getMonth();
-
-                                                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < selectedDate
-                                                        .getDate())) {
-                                                    years--;
-                                                }
-
-                                                // Update masa kerja input
-                                                const masaKerjaInput = document.querySelector("#masakerja");
-                                                masaKerjaInput.value = years;
-
-                                                // Trigger Livewire updates
-                                                masaKerjaInput.dispatchEvent(new Event('input', {
-                                                    bubbles: true
-                                                }));
-
-                                                @this.call('selectGolongan')
+                                                calculateMasaKerja(selectedDates[0]);
                                             }
                                         }
                                     });
 
-                                    // Dispatch initial input event to set the initial state
-                                    dateInput.dispatchEvent(new Event('input', {
+                                    // Flatpickr for TMT Masuk
+                                    flatpickr("#tmt_masuk", {
+                                        altInput: true,
+                                        altFormat: "F j, Y",
+                                        dateFormat: "Y-m-d",
+                                        maxDate: "today",
+                                        defaultDate: tmtMasukInput.value || null
+                                    });
+
+                                    function calculateMasaKerja(selectedDate) {
+                                        const today = new Date();
+                                        let years = today.getFullYear() - selectedDate.getFullYear();
+                                        const monthDiff = today.getMonth() - selectedDate.getMonth();
+
+                                        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < selectedDate.getDate())) {
+                                            years--;
+                                        }
+
+                                        const masaKerjaInput = document.querySelector("#masakerja");
+                                        masaKerjaInput.value = years;
+                                        masaKerjaInput.dispatchEvent(new Event('input', {
+                                            bubbles: true
+                                        }));
+
+                                        @this.call('selectGolongan');
+                                    }
+
+                                    // Optional: Trigger input if needed
+                                    tmtInput.dispatchEvent(new Event('input', {
                                         bubbles: true
                                     }));
                                 });
