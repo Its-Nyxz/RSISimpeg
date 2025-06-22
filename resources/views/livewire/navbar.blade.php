@@ -12,8 +12,8 @@
                 <a href="/" class="flex items-center">
                     <img src="{{ asset('img/logo.png') }}" class="mr-3 h-6 sm:h-9 hidden sm:flex" alt="Logo" />
                     <span class="self-center text-[1.2rem] sm:text-xl font-bold whitespace-nowrap text-zinc-950">
-                        SISTEM PENGGAJIAN 
-                        {{-- <span class="font-medium">RSI BANJARNEGARA</span> --}}
+                        SIMPEG
+                        <span class="font-medium">RSI BANJARNEGARA</span>
                     </span>
                 </a>
             </div>
