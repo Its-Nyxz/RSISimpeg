@@ -108,7 +108,7 @@ class KaryawanSheet implements FromArray, WithHeadings, WithTitle, WithEvents
             'Unit Kerja',
             'Jabatan Struktural',
             'Jabatan Fungsional',
-            'Jabatan Fungsional 2',
+            'Jabatan Umum',
             'Jenis Karyawan',
             'Shift',
             'TMT',

@@ -30,13 +30,14 @@ class KaryawanReferenceSheet implements FromArray, WithTitle
         //     ->map(fn($i) => "{$i->id} - {$i->nama}")
         //     ->toArray();
         $jabStruktural  = KategoriJabatan::where('tunjangan', 'jabatan')->get()->map(fn($i) => "{$i->id} - {$i->nama}")->toArray();
-        $jabFungsional  = KategoriJabatan::whereIn('tunjangan', ['fungsi', 'umum'])->get()
-            ->map(fn($i) => "{$i->id} - {$i->nama}")
-            ->toArray();
-        $jabUmum        = KategoriJabatan::whereIn('tunjangan', ['fungsi', 'umum'])->get()
-            ->map(fn($i) => "{$i->id} - {$i->nama}")
-            ->toArray();
-        // $jabUmum = KategoriJabatan::where('tunjangan', 'fungsi')->get()->map(fn($i) => "{$i->id} - {$i->nama}")->toArray();
+        // $jabFungsional  = KategoriJabatan::whereIn('tunjangan', ['fungsi', 'umum'])->get()
+        //     ->map(fn($i) => "{$i->id} - {$i->nama}")
+        //     ->toArray();
+        // $jabUmum        = KategoriJabatan::whereIn('tunjangan', ['fungsi', 'umum'])->get()
+        //     ->map(fn($i) => "{$i->id} - {$i->nama}")
+        //     ->toArray();
+        $jabFungsional = KategoriJabatan::where('tunjangan', 'fungsi')->get()->map(fn($i) => "{$i->id} - {$i->nama}")->toArray();
+        $jabUmum = KategoriJabatan::where('tunjangan', 'umum')->get()->map(fn($i) => "{$i->id} - {$i->nama}")->toArray();
         $jenisKar       = JenisKaryawan::all()->map(fn($i) => "{$i->id} - {$i->nama}")->toArray();
         $khusus         = MasterKhusus::all()->map(fn($i) => "{$i->id} - {$i->nama}")->toArray();
         $pph            = Kategoripph::all()->map(fn($i) => "{$i->id} - {$i->nama}")->toArray();

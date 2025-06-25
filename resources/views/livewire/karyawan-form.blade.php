@@ -390,7 +390,7 @@
                         <tr>
                             <td style="width: 40%">
                                 <label for="jabatan" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Jabatan Fungsional 2</label>
+                                    Jabatan Umum</label>
                             </td>
                             <td class="relative">
                                 <input id="umum" type="text" wire:model.live="umum"
@@ -418,7 +418,7 @@
 
 
                                 @if ($fungsional === $umum && $fungsional !== null && $umum !== null)
-                                    <span class="text-red-600 text-sm">Jabatan Fungsional dan Fungsional 2 tidak boleh
+                                    <span class="text-red-600 text-sm">Jabatan Fungsional dan Umum tidak boleh
                                         sama.</span>
                                 @endif
                                 <script>
@@ -426,7 +426,7 @@
                                         Livewire.on('confirmUmumChange', () => {
                                             Swal.fire({
                                                 title: "Perubahan Jabatan",
-                                                text: "Jabatan Fungsional 2 berubah, jangan lupa untuk mengelola hak akses agar tetap sesuai.",
+                                                text: "Jabatan Umum berubah, jangan lupa untuk mengelola hak akses agar tetap sesuai.",
                                                 icon: "warning",
                                                 showCancelButton: true,
                                                 confirmButtonColor: "#3085d6",
@@ -728,12 +728,12 @@
             @endif
 
             @if ($disableKarenaDuplikat)
-                <p class="text-md text-red-600 mt-1">Fungsional dan Funsional 2 tidak boleh sama.</p>
+                <p class="text-md text-red-600 mt-1">Fungsional dan Umum tidak boleh sama.</p>
             @endif
 
             @if ($disableKarenaSemuaTerisi)
                 <p class="text-md text-red-600 mt-1">Hanya boleh mengisi salah dua: jabatan struktural, fungsional,
-                    atau fungsional 2.</p>
+                    atau umum.</p>
             @endif
             @if ($user == null)
                 <button type="button" wire:click="save()"

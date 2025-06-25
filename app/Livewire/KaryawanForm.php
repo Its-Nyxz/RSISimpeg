@@ -108,7 +108,10 @@ class KaryawanForm extends Component
             }
         } elseif ($field === 'fungsional') {
             $categories = KategoriJabatan::where('nama', 'like', "%$value%")
-                ->whereIn('tunjangan', ['fungsi', 'umum']) // Filter hanya yang tunjangan = 'fungsi'
+                // ->whereIn('tunjangan', ['fungsi', 'umum']) // Filter hanya yang tunjangan = 'fungsi'
+                // ->get()
+                // ->groupBy('tunjangan');
+                ->where('tunjangan', 'fungsi') // hanya ambil jabatan tunjangan kabatan & umum
                 ->get()
                 ->groupBy('tunjangan');
 
@@ -117,9 +120,13 @@ class KaryawanForm extends Component
             }
         } elseif ($field === 'umum') {
             $categories = KategoriJabatan::where('nama', 'like', "%$value%")
-                ->whereIn('tunjangan', ['fungsi', 'umum']) // Filter hanya yang tunjangan = 'fungsi'
+                // ->whereIn('tunjangan', ['fungsi', 'umum']) // Filter hanya yang tunjangan = 'fungsi'
+                // ->get()
+                // ->groupBy('tunjangan');
+                ->where('tunjangan', 'umum') // hanya ambil jabatan tunjangan kabatan & umum
                 ->get()
                 ->groupBy('tunjangan');
+
 
             foreach ($categories as $tunjangan => $katjabList) {
                 $this->suggestions[$field][$tunjangan] = $katjabList->pluck('nama')->toArray();
