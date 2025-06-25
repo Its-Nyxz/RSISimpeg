@@ -118,7 +118,7 @@
                             </tr>
                             <tr>
                                 <td class="font-semibold">Jenis Karyawan</td>
-                                <td>: {{ $user->jenisKaryawan->nama ?? '-' }}</td>
+                                <td>: {{ $user->jenis->nama ?? '-' }}</td>
                             </tr>
                             <tr>
                                 <td class="font-semibold">Tanggal Tetap</td>

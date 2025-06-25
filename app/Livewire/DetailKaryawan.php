@@ -6,16 +6,17 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Gapok;
 use Livewire\Component;
+use App\Models\MasterGapok;
 use App\Models\Penyesuaian;
 use Illuminate\Support\Str;
 use App\Models\CutiKaryawan;
 use App\Models\IzinKaryawan;
-use Livewire\WithFileUploads;
 
+use Livewire\WithFileUploads;
+use App\Models\RiwayatJabatan;
 use App\Models\MasterPendidikan;
 use App\Models\MasterPenyesuaian;
 use App\Models\PeringatanKaryawan;
-use App\Models\RiwayatJabatan;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
 
@@ -88,12 +89,12 @@ class DetailKaryawan extends Component
             $golAwal = $this->viewPendAwal->gol_id_awal;
             $golAkhir = $this->viewPendAwal->gol_id_akhir;
 
-            $this->gapokSebelumnya = \App\Models\MasterGapok::where('gol_id', $golAwal)
+            $this->gapokSebelumnya = MasterGapok::where('gol_id', $golAwal)
                 ->where('masa_kerja', '<=', $masaKerjaAwal)
                 ->orderByDesc('masa_kerja')
                 ->first();
 
-            $this->gapokPenyesuaian = \App\Models\MasterGapok::where('gol_id', $golAkhir)
+            $this->gapokPenyesuaian = MasterGapok::where('gol_id', $golAkhir)
                 ->where('masa_kerja', '<=', $masaKerjaAkhir)
                 ->orderByDesc('masa_kerja')
                 ->first();
