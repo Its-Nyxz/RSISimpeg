@@ -84,10 +84,13 @@
                             <tr>
                                 <td class="font-semibold">Jabatan Fungsional</td>
                                 <td>
-                                    :
-                                    {{ $user->kategorifungsional?->nama && $user->kategoriumum?->nama
-                                        ? $user->kategorifungsional->nama . ' / ' . $user->kategoriumum->nama
-                                        : $user->kategorifungsional?->nama ?? ($user->kategoriumum?->nama ?? '-') }}
+                                    : {{ $user->kategorifungsional?->nama ?? '-' }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold">Jabatan Umum</td>
+                                <td>
+                                    : {{ $user->kategoriumum?->nama ?? '-' }}
                                 </td>
                             </tr>
                             <tr>
