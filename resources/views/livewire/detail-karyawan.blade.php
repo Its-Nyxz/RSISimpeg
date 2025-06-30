@@ -124,14 +124,11 @@
                                 <td>: {{ $user->jenis->nama ?? '-' }}</td>
                             </tr>
                             <tr>
-                                <td class="font-semibold">Tanggal Tetap</td>
-                                <td>: {{ $user->tmt ? formatDate($user->tmt) : '-' }}</td>
+                                <td class="font-semibold">TMT</td>
+                                <td>:
+                                    {{ $user->tmt ? formatDate($user->tmt) : ($user->tmt_masuk ? formatDate($user->tmt_masuk) : '-') }}
+                                </td>
                             </tr>
-                            <tr>
-                                <td class="font-semibold">Tanggal Masuk</td>
-                                <td>: {{ $user->tmt_masuk ? formatDate($user->tmt_masuk) : '-' }}</td>
-                            </tr>
-
                             @php
                                 $isKepegawaian = Auth::user()
                                     ?->getRoleNames()
