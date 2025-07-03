@@ -96,7 +96,7 @@ export default {
                 ],
             },
             colors: {
-                primary: {
+                success: {
                     50: "#ffffff", // Putih
                     100: "#d4e9f8",
                     200: "#a9d4f2",
@@ -122,7 +122,7 @@ export default {
                     100: "#e9ecef",
                     50: "#f8f9fa",
                 },
-                success: {
+                primary: {
                     950: "#0f3d19",
                     900: "#146823",
                     800: "#19692c",

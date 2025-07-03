@@ -1,5 +1,5 @@
 <header class="z-40 sm:z-50 fixed w-full">
-    <nav class="bg-gradient-to-r from-yellow-300 via-green-500 to-green-700 text-white px-4 py-4 shadow-xl">
+    <nav class="bg-gradient-to-r from-blue-300 via-blue-500 to-blue-700 text-white px-4 py-4 shadow-xl">
         <div class="flex justify-between items-center mx-3">
             <!-- Kiri: Sidebar toggle + Logo -->
             <div class="flex items-center">
@@ -12,8 +12,8 @@
                 <a href="/" class="flex items-center">
                     <img src="{{ asset('img/logo.png') }}" class="mr-3 h-6 sm:h-9 hidden sm:flex" alt="Logo" />
                     <span class="self-center text-[1.2rem] sm:text-xl font-bold whitespace-nowrap text-zinc-950">
-                        SIMPEG
-                        <span class="font-medium">RSI BANJARNEGARA</span>
+                        SISTEM PENGGAJIAN
+                        {{-- <span class="font-medium">RSI BANJARNEGARA</span> --}}
                     </span>
                 </a>
             </div>

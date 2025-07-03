@@ -9,7 +9,7 @@
         <div class="h-full flex flex-col overflow-hidden">
             <!-- Header Logo dan Salam -->
             <div
-                class="py-3 sm:py-24 px-3 h-full bg-gradient-to-b from-yellow-400 via-green-500 to-green-800 overflow-y-auto">
+                class="py-3 sm:py-24 px-3 h-full bg-gradient-to-b from-blue-400 via-blue-500 to-blue-800 overflow-y-auto">
                 {{-- <div class="py-3 sm:py-24 px-3 h-full bg-success-950 overflow-y-auto"> --}}
                 <!-- Logo -->
                 <div class="flex sm:hidden justify-center w-100 mb-4">
