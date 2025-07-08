@@ -175,22 +175,26 @@ class AddPotongan extends Component
 
             $this->isKaryawanTetap = strtolower($this->user->jenis?->nama ?? '') === 'tetap';
             $jenisKaryawan = strtolower($this->user->jenis?->nama ?? ''); // <- e.g. "part time", "kontrak", "magang"
-
             if (!$this->isKaryawanTetap) {
-                if ($jenisKaryawan === 'kontrak' && $this->user->jabatan_id) {
-                    $gapokKontrak = GapokKontrak::where('kategori_jabatan_id', $this->user->jabatan_id)
+                $kategoriJabatanId = $this->user->jabatan_id
+                    ?? $this->user->fungsi_id
+                    ?? $this->user->umum_id;
+                $pendidikanId = $this->user->kategori_pendidikan;
+
+                if ($kategoriJabatanId) {
+                    $gapokKontrak = GapokKontrak::where('kategori_jabatan_id', $kategoriJabatanId)
+                        ->where('pendidikan_id', $pendidikanId)
                         ->where('min_masa_kerja', '<=', $this->masaKerjaTahun)
                         ->where('max_masa_kerja', '>=', $this->masaKerjaTahun)
                         ->first();
 
-                    $this->gapok = $gapokKontrak?->nominal ?? 0;
+                    $this->gapok = $gapokKontrak?->nominal_aktif ?? $gapokKontrak?->nominal ?? 0;
                 } else {
                     $this->gapok = GajiBruto::where('user_id', $this->user->id)
                         ->where('bulan_penggajian', $this->bulan)
                         ->where('tahun_penggajian', $this->tahun)
                         ->value('nom_gapok') ?? 0;
                 }
-
                 $total_bruto = $this->gapok + $this->nom_makan + $this->nom_transport;
                 if ($jenisKaryawan === 'part time') {
                     $total_bruto += $this->nom_jabatan + $this->nom_fungsi + $this->nom_umum;
@@ -220,7 +224,7 @@ class AddPotongan extends Component
             $this->masterPotongans = MasterPotongan::orderBy('id')->get(); // pastikan urut
             $this->tunjanganTukin = $this->gajiBruto->nom_lainnya ?? 0;
 
-            if ($this->gajiBruto) {
+            if ($this->gajiBruto  && $this->gajiBruto->nom_gapok > 0) {
                 // Jika sudah ada, ambil dan isi ulang ke variabel komponen
                 $this->gapok         = $this->gajiBruto->nom_gapok;
                 $this->nom_jabatan   = $this->gajiBruto->nom_jabatan;

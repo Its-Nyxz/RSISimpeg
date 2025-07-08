@@ -43,7 +43,6 @@
 
         <!-- Search & Tambah -->
         <div class="flex items-center gap-3 w-full md:w-auto">
-
             <!-- Pencarian -->
             <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Karyawan..."
                 class="flex-1 md:w-auto rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
@@ -55,88 +54,54 @@
         <table class="w-full text-sm text-center text-gray-700">
             <thead class="text-sm uppercase bg-success-400 text-success-900">
                 <tr>
-                    <th scope="col" class="px-6 py-3" rowspan="2">Nama</th>
-                    <th scope="col" class="px-6 py-3" rowspan="2">Pendidikan</th>
-                    <th scope="col" class="px-6 py-3" rowspan="2">TMT</th>
-                    <th scope="col" class="px-6 py-3" colspan="2">Masa Kerja</th>
-                    <th scope="col" class="px-6 py-3" rowspan="2">Penyesuaian</th>
-                    <th scope="col" class="px-6 py-3" rowspan="2">Gaji Sekarang</th>
-                    <th scope="col" class="px-6 py-3" colspan="2">Kenaikan Gaji Berkala</th>
-                    <th scope="col" class="px-6 py-3" colspan="2">Kenaikan Golongan</th>
-                    <th scope="col" class="px-6 py-3" rowspan="2">Action</th>
+                    <th rowspan="2" class="px-6 py-3">Nama</th>
+                    <th rowspan="2" class="px-6 py-3">Pendidikan</th>
+                    <th rowspan="2" class="px-6 py-3">TMT</th>
+                    <th rowspan="2" class="px-6 py-3">Masa Kerja<br>(Bulan)</th>
+                    <th rowspan="2" class="px-6 py-3">Gaji<br>Sekarang</th>
+                    <th colspan="2" class="px-6 py-3">Kenaikan Gaji Berkala</th>
+                    <th rowspan="2" class="px-6 py-3">Action</th>
                 </tr>
                 <tr>
-                    <th scope="col" class="px-6 py-3">Tahun</th>
-                    <th scope="col" class="px-6 py-3">Bulan</th>
-                    <th scope="col" class="px-6 py-3">Waktu</th>
-                    <th scope="col" class="px-6 py-3">Gaji</th>
-                    <th scope="col" class="px-6 py-3">Waktu</th>
-                    <th scope="col" class="px-6 py-3">Gaji</th>
+                    <th class="px-6 py-3">Waktu</th>
+                    <th class="px-6 py-3">Gaji</th>
                 </tr>
-
             </thead>
             <tbody>
                 @forelse ($users as $user)
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
-                        <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
+                        <td class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
                             {{ $user->name }}
                         </td>
-                        <td class="px-6 py-4">{{ $user->pendidikanUser->nama ?? '-' }}</td>
-                        <td class="px-6 py-4">{{ $user->tmt ? formatDate($user->tmt) : '-' }}</td>
-                        <td class="px-6 py-4">{{ $user->masa_kerja_tahun ?? '-' }}</td>
-                        <td class="px-6 py-4">{{ $user->masa_kerja_bulan ?? '-' }}</td>
-                        <td class="px-6 py-4">{{ $user->masa_kerja_golongan ?? '-' }}</td>
-                        <td class="px-6 py-4">Rp {{ number_format($user->gaji_sekarang ?? 0, 0, ',', '.') }}</td>
+                        <td class="px-6 py-4">
+                            {{ $user->pendidikanUser->nama ?? '-' }}
+                        </td>
+                        <td class="px-6 py-4">
+                            {{ $user->tmt ? formatDate($user->tmt) : '-' }}
+                        </td>
+                        <td class="px-6 py-4">
+                            {{ intval($user->masa_kerja_total) }}
+                        </td>
+                        <td class="px-6 py-4">
+                            Rp {{ number_format($user->gaji_sekarang ?? 0, 0, ',', '.') }}
+                        </td>
                         <td class="px-6 py-4">
                             {{ $user->kenaikan_berkala_waktu ? formatDate($user->kenaikan_berkala_waktu) : '-' }}
                         </td>
-                        <td class="px-6 py-4">Rp
+                        <td class="px-6 py-4">
+                            Rp
                             {{ $user->kenaikan_berkala_gaji ? number_format($user->kenaikan_berkala_gaji, 0, ',', '.') : '-' }}
                         </td>
                         <td class="px-6 py-4">
-                            @if ($user->kenaikan_golongan_waktu)
-                                <span class="{{ $user->golongan_tertinggi ? 'text-red-600 font-semibold' : '' }}">
-                                    {{ formatDate($user->kenaikan_golongan_waktu) }}
-                                </span>
-                            @else
-                                -
-                            @endif
-                        </td>
-                        <td class="px-6 py-4">
-                            @if ($user->kenaikan_golongan_gaji)
-                                <span class="{{ $user->golongan_tertinggi ? 'text-red-600 font-semibold' : '' }}">
-                                    Rp {{ number_format($user->kenaikan_golongan_gaji, 0, ',', '.') }}
-                                </span>
-                            @else
-                                -
-                            @endif
-                        </td>
-                        <td class="px-6 py-4">
-                            {{-- @if ($isKepegawaian && $user->pendingGolonganGapok)
-                                <div class="flex justify-center gap-2">
-                                    <button
-                                        onclick="confirmAlert('Ingin menyetujui user ini?', 'Ya, Setujui!', () => @this.call('approveKenaikan', {{ $user->id }}))"
-                                        class="bg-success-600 text-white px-3 py-1 rounded-lg flex items-center gap-2">
-                                        <i class="fa-solid fa-check"></i>
-                                    </button>
-
-                                    <button
-                                        onclick="confirmRejectWithReason('Ingin menolak user ini?', 'Ya, Tolak!', (reason) => @this.call('rejectKenaikan', {{ $user->id }} ,reason))"
-                                        class="bg-red-600 text-white px-3 py-1 rounded-lg flex items-center gap-2">
-                                        <i class="fa-solid fa-xmark"></i>
-                                    </button>
-                                </div>
-                            @else --}}
                             <a href="{{ route('detailkaryawan.show', ['detailkaryawan' => $user->id]) }}"
                                 class="bg-success-700 text-white font-medium rounded-md px-3 py-2 hover:bg-success-800 focus:ring-4 focus:outline-none focus:ring-success-300">
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </a>
                         </td>
-                        {{-- @endif --}}
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center px-6 py-4">Tidak ada data Karyawan.</td>
+                        <td colspan="8" class="text-center px-6 py-4">Tidak ada data Karyawan.</td>
                     </tr>
                 @endforelse
             </tbody>

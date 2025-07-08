@@ -19,15 +19,13 @@ class DataGapokKontrak extends Component
 
     public function loadData()
     {
-        // $this->gapoks =
-        return GapokKontrak::with('kategoriJabatan')->when($this->search, function ($query) {
-            $query->where('nominal', 'like', '%' . $this->search . '%')
-                ->orWhereHas('kategoriJabatan', function ($subQuery) {
-                    $subQuery->where('nama', 'like', '%' . $this->search . '%');
-                });
-        })
-            // ->get()
-            // ->toArray();
+        return GapokKontrak::with(['kategoriJabatan', 'pendidikan', 'penyesuaian'])
+            ->when($this->search, function ($query) {
+                $query->where('nominal', 'like', '%' . $this->search . '%')
+                    ->orWhereHas('kategoriJabatan', function ($subQuery) {
+                        $subQuery->where('nama', 'like', '%' . $this->search . '%');
+                    });
+            })
             ->paginate(15);
     }
 

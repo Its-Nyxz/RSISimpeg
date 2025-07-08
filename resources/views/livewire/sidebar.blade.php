@@ -129,8 +129,18 @@
                         @can('view-kepegawaian')
                             <livewire:side-link title="Kepegawaian" icon="fa-solid fa-people-group" :child="array_filter([
                                 ['title' => 'Data Karyawan', 'href' => '/datakaryawan'],
+                                // auth()->user()->can('view-kenaikan')
+                                //     ? ['title' => 'Kenaikan', 'href' => '/kenaikan']
+                                //     : null,
                                 auth()->user()->can('view-kenaikan')
-                                    ? ['title' => 'Kenaikan', 'href' => '/kenaikan']
+                                    ? [
+                                        'title' => 'Kenaikan',
+                                        'href' => '/#',
+                                        'child' => [
+                                            ['title' => 'Karyawan Tetap', 'href' => '/kenaikan'],
+                                            ['title' => 'Karyawan Kontrak', 'href' => '/kenaikankontrak'],
+                                        ],
+                                    ]
                                     : null,
                                 auth()->user()->can('approval-cuti')
                                     ? ['title' => 'Approval Cuti', 'href' => '/approvalcuti']

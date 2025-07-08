@@ -145,11 +145,17 @@ class PotonganTemplateExport implements FromView
                             ->first()
                     )?->nominal_gapok ?? 0;
                 } elseif ($jenis === 'kontrak') {
-                    $gapokKontrak = GapokKontrak::where('kategori_jabatan_id', $user->jabatan_id)
+                    $kategoriJabatanId = $user->jabatan_id
+                        ?? $user->fungsi_id
+                        ?? $user->umum_id;
+                    $pendidikanId = $user->kategori_pendidikan;
+
+                    $gapokKontrak = GapokKontrak::where('kategori_jabatan_id', $kategoriJabatanId)
+                        ->where('pendidikan_id', $pendidikanId)
                         ->where('min_masa_kerja', '<=', $masaKerja)
                         ->where('max_masa_kerja', '>=', $masaKerja)
                         ->first();
-                    $gapok = $gapokKontrak?->nominal ?? 0;
+                    $gapok = $gapokKontrak?->nominal_aktif ?? $gapokKontrak?->nominal ?? 0;
                 }
 
                 $riwayats = $user->riwayatJabatan->filter(function ($r) use ($periodeMulai, $periodeSelesai) {
@@ -157,43 +163,45 @@ class PotonganTemplateExport implements FromView
                     $end = $r->tanggal_selesai ? Carbon::parse($r->tanggal_selesai) : $periodeSelesai;
                     return $start <= $periodeSelesai && $end >= $periodeMulai;
                 });
+                $isKaryawanTetap = strtolower($user->jenis?->nama ?? '') === 'tetap';
+                if ($isKaryawanTetap) {
+                    foreach ($riwayats as $riwayat) {
+                        $kategori = $riwayat->kategori;
+                        if (!$kategori) continue;
 
-                foreach ($riwayats as $riwayat) {
-                    $kategori = $riwayat->kategori;
-                    if (!$kategori) continue;
+                        $start = Carbon::parse(max($riwayat->tanggal_mulai, $periodeMulai));
+                        $end = Carbon::parse(min($riwayat->tanggal_selesai ?? $periodeSelesai, $periodeSelesai));
 
-                    $start = Carbon::parse(max($riwayat->tanggal_mulai, $periodeMulai));
-                    $end = Carbon::parse(min($riwayat->tanggal_selesai ?? $periodeSelesai, $periodeSelesai));
+                        $hariJadwalAktif = $jadwalUser->filter(function ($jadwal) use ($start, $end) {
+                            return Carbon::parse($jadwal->tanggal_jadwal)->between($start, $end);
+                        })->count();
 
-                    $hariJadwalAktif = $jadwalUser->filter(function ($jadwal) use ($start, $end) {
-                        return Carbon::parse($jadwal->tanggal_jadwal)->between($start, $end);
-                    })->count();
+                        // $proporsi = $totalHariJadwal > 0
+                        //     ? ($hariJadwalAktif / $totalHariJadwal)
+                        //     : 1;
+                        $proporsi = $hariJadwalAktif / max($totalHariJadwal, 1);
 
-                    // $proporsi = $totalHariJadwal > 0
-                    //     ? ($hariJadwalAktif / $totalHariJadwal)
-                    //     : 1;
-                    $proporsi = $hariJadwalAktif / max($totalHariJadwal, 1);
+                        $nominal = max(0, $kategori->nominal);
+                        $nama_jabatan = strtolower(preg_replace('/\s*\(.*?\)/', '', $kategori->nama));
 
-                    $nominal = max(0, $kategori->nominal);
-                    $nama_jabatan = strtolower(preg_replace('/\s*\(.*?\)/', '', $kategori->nama));
+                        $isKaSeksiOrInstalasi = Str::contains($nama_jabatan, ['ka. seksi', 'ka. instalasi']);
+                        $isManajerOrWadir     = Str::contains($nama_jabatan, ['manajer', 'wadir']);
 
-                    $isKaSeksiOrInstalasi = Str::contains($nama_jabatan, ['ka. seksi', 'ka. instalasi']);
-                    $isManajerOrWadir     = Str::contains($nama_jabatan, ['manajer', 'wadir']);
-
-                    switch ($riwayat->tunjangan) {
-                        case 'jabatan':
-                            if ($isKaSeksiOrInstalasi) {
-                                $nom_jabatan += $nominal * 0.5 * $proporsi;
-                            } else {
-                                $nom_jabatan += $nominal * $proporsi;
-                            }
-                            break;
-                        case 'fungsi':
-                            $nom_fungsi += $nominal * $proporsi;
-                            break;
-                        case 'umum':
-                            $nom_umum += $nominal * $proporsi;
-                            break;
+                        switch ($riwayat->tunjangan) {
+                            case 'jabatan':
+                                if ($isKaSeksiOrInstalasi) {
+                                    $nom_jabatan += $nominal * 0.5 * $proporsi;
+                                } else {
+                                    $nom_jabatan += $nominal * $proporsi;
+                                }
+                                break;
+                            case 'fungsi':
+                                $nom_fungsi += $nominal * $proporsi;
+                                break;
+                            case 'umum':
+                                $nom_umum += $nominal * $proporsi;
+                                break;
+                        }
                     }
                 }
 

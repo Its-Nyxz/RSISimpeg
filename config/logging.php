@@ -144,6 +144,12 @@ return [
             'path' => storage_path('logs/kenaikan-golongan.log'),
             'level' => 'info',
         ],
+
+        'kenaikan_kontrak' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/kenaikan_kontrak.log'),
+            'level' => 'info',
+        ],
     ],
 
 ];

@@ -8,7 +8,7 @@
                 class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
 
             <!-- Tombol Tambah Gaji Pokok -->
-         <div class="flex items-center gap-2 mt-2 sm:mt-0">
+            <div class="flex items-center gap-2 mt-2 sm:mt-0">
                 <!-- Mobile Icon Only -->
                 <a href="{{ route('gapokkontrak.create') }}"
                     class="sm:hidden p-3 rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition"
@@ -35,6 +35,7 @@
             <thead class="text-sm uppercase bg-success-400 text-success-900">
                 <tr>
                     <th scope="col" class="px-6 py-3">Kategori Jabatan</th>
+                    <th scope="col" class="px-6 py-3">Pendidikan</th>
                     <th scope="col" class="px-6 py-3">Minimal Masa Kerja</th>
                     <th scope="col" class="px-6 py-3">Maximal Masa Kerja</th>
                     <th scope="col" class="px-6 py-3">Nominal</th>
@@ -47,9 +48,13 @@
                         <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
                             {{ $kontrak['kategoriJabatan']['nama'] }}
                         </td>
+                        <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
+                            {{ $kontrak['pendidikan']['nama'] }}
+                        </td>
                         <td class="px-6 py-4">{{ $kontrak['min_masa_kerja'] }} Bulan</td>
                         <td class="px-6 py-4">{{ $kontrak['max_masa_kerja'] }} Bulan</td>
-                        <td class="px-6 py-4">{{ rupiah($kontrak['nominal']) }}</td>
+                        <td class="px-6 py-4">
+                            {{ rupiah($kontrak['nominal_aktif']) }}</td>
                         <td class="px-6 py-4">
                             <a href="{{ route('gapokkontrak.edit', $kontrak['id']) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"

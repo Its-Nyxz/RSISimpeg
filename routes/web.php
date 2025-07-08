@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\Kategoripph;
 use App\Models\MasterFungsi;
 use App\Livewire\UserProfile;
+use App\Models\MasterJatahCuti;
 use App\Livewire\UploadUserProfile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -14,8 +16,10 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HolidaysController;
+use App\Http\Controllers\KenaikanController;
 use App\Http\Controllers\KeuanganController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GajiNettoController;
 use App\Http\Controllers\LevelUnitController;
 use App\Http\Controllers\MasaKerjaController;
 use App\Http\Controllers\OpsiAbsenController;
@@ -24,6 +28,8 @@ use App\Http\Controllers\UnitKerjaController;
 use App\Http\Controllers\ImportGajiController;
 use App\Http\Controllers\MasterUmumController;
 use App\Http\Controllers\PointPeranController;
+
+use App\Http\Controllers\KategoripphController;
 use App\Http\Controllers\MasterGapokController;
 use App\Http\Controllers\MasterTransController;
 use App\Http\Controllers\StatusAbsenController;
@@ -31,40 +37,35 @@ use App\Http\Controllers\TukarJadwalController;
 
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\DataKaryawanController;
+use App\Http\Controllers\GapokKontrakController;
+
 use App\Http\Controllers\MasterFungsiController;
 use App\Http\Controllers\MasterKhususController;
 use App\Http\Controllers\TukinJabatanController;
-
 use App\Http\Controllers\DetailJabatanController;
 use App\Http\Controllers\JadwalAbsensiController;
 use App\Http\Controllers\MasterAbsensiController;
 
 use App\Http\Controllers\MasterJabatanController;
 use App\Http\Controllers\DetailKaryawanController;
+
 use App\Http\Controllers\DetailKeuanganController;
 use App\Http\Controllers\MasterGolonganController;
 use App\Http\Controllers\MasterPotonganController;
+use App\Http\Controllers\OverrideLokasiController;
 use App\Http\Controllers\KategoriJabatanController;
-
+use App\Http\Controllers\KenaikanKontrakController;
+use App\Http\Controllers\MasterJatahCutiController;
 use App\Http\Controllers\MasterTunjanganController;
 use App\Http\Controllers\PeranFungsionalController;
-
 use App\Http\Controllers\AktivitasAbsensiController;
-use App\Http\Controllers\GajiNettoController;
-use App\Http\Controllers\GapokKontrakController;
-use App\Http\Controllers\KategoripphController;
-use App\Http\Controllers\KenaikanController;
 use App\Http\Controllers\MasterPendidikanController;
 use App\Http\Controllers\PenilaianPekerjaController;
 use App\Http\Controllers\PerizinanJabatanController;
 use App\Http\Controllers\TunjanganKinerjaController;
-use App\Http\Controllers\MasterJatahCutiController;
 use App\Http\Controllers\MasterPenyesuaianController;
-use App\Http\Controllers\OverrideLokasiController;
 use App\Http\Controllers\PeringatanKaryawanController;
 use App\Http\Controllers\ProposionalitasPointController;
-use App\Models\Kategoripph;
-use App\Models\MasterJatahCuti;
 
 Route::get('/', function () {
     return redirect()->to('/login');
@@ -118,6 +119,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('jadwal', JadwalAbsensiController::class);
     Route::resource('status', StatusAbsenController::class);
     Route::resource('kenaikan', KenaikanController::class);
+    Route::resource('kenaikankontrak', KenaikanKontrakController::class);
     Route::resource('penilaian', PenilaianPekerjaController::class);
     Route::resource('jabatanperizinan', PerizinanJabatanController::class);
     Route::resource('detail', DetailJabatanController::class);

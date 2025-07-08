@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\GapokKontrak;
 use App\Models\KategoriJabatan;
 use Illuminate\Database\Seeder;
+use App\Models\MasterPendidikan;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class GapokKontrakSeeder extends Seeder
@@ -187,6 +188,37 @@ class GapokKontrakSeeder extends Seeder
             ['Elektromedik', 49, 60, 2480000],
         ];
 
+        $pendidikanMap = [
+            'Dokter Umum' => 'S1 - Dokter',
+            'Dokter Gigi' => 'S1 - Dokter',
+            'Apoteker' => 'S1 - Apoteker',
+            'Ners' => 'S1 - Nurse',
+            'Bidan' => 'S1 - Nurse',
+            'Psikologi Klinik' => 'S1 - Umum',
+            'Penata Anastesi' => 'S1 - Umum',
+            'Okupasi Terapi' => 'DIII',
+            'Terapi Wicara' => 'DIII',
+            'Perawat Diploma' => 'DIII',
+            'Radiografer' => 'DIII',
+            'Analis Kesehatan' => 'DIII',
+            'Kesehatan Lingkungan / Sanitarian' => 'DIII',
+            'Fisioterapis' => 'DIII',
+            'Perekam Medik' => 'DIII',
+            'Elektromedik' => 'DIII',
+            'Tenaga Teknis Kefarmasian (TTK)' => 'DIII',
+            'Ahli Gizi / Dietisien' => 'DIII',
+            'Staf Administrasi IRJ' => 'SLTA',
+            'Cleaning Service' => 'SLTA',
+            'Staf SDM' => 'DIII',
+            'Staf Keuangan' => 'DIII',
+            'Staf Asuransi' => 'DIII',
+            'Staf Aset dan Logistik' => 'DIII',
+            'Pelaksana IPAL' => 'SLTA',
+            'Staf Unit Pengamanan' => 'SLTA',
+            'Staf Instalasi Gizi' => 'SLTA',
+            'Staf Unit Transportasi' => 'SLTA',
+        ];
+
         foreach ($data as [$nama, $min, $max, $nominal]) {
             $katjab = KategoriJabatan::where('nama', $nama)->first();
             if (!$katjab) {
@@ -194,8 +226,16 @@ class GapokKontrakSeeder extends Seeder
                 continue;
             }
 
+            $pendidikanNama = $pendidikanMap[$nama] ?? null;
+            $pendidikanId = null;
+
+            if ($pendidikanNama) {
+                $pendidikanId = MasterPendidikan::where('nama', $pendidikanNama)->value('id');
+            }
+
             GapokKontrak::create([
                 'kategori_jabatan_id' => $katjab->id,
+                'pendidikan_id' => $pendidikanId,
                 'min_masa_kerja' => $min,
                 'max_masa_kerja' => $max,
                 'nominal' => $nominal,
