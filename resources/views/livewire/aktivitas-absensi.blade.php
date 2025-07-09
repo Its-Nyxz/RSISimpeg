@@ -1,7 +1,7 @@
 <div class="container mx-auto mt-6 p-6 bg-white shadow-md rounded-lg">
     <!-- Header -->
     <div class="py-2 mb-3">
-        <h1 class="text-2xl font-bold text-blue-700">List History Absensi</h1>
+        <h1 class="text-2xl font-bold text-green-700">List History Absensi</h1>
     </div>
 
     <!-- Filter & Tombol Aksi -->
@@ -84,7 +84,7 @@
     <!-- Absensi Table -->
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-center text-gray-700">
-            <thead class="text-center text-sm bg-blue-300 text-blue-900">
+            <thead class="text-center text-sm bg-green-300 text-green-900">
                 <tr>
                     <th scope="col" class="px-6 py-3">Hari</th>
                     <th scope="col" class="px-6 py-3">Tanggal</th>
@@ -111,8 +111,8 @@
                                     : ($item['late']
                                         ? 'bg-red-400'
                                         : ($loop->even
-                                            ? 'bg-blue-100'
-                                            : 'bg-blue-50')))) }} border-b border-blue-300 hover:bg-blue-200">
+                                            ? 'bg-green-100'
+                                            : 'bg-green-50')))) }} border-b border-green-300 hover:bg-green-200">
                         <td class="px-6 py-4 font-medium text-blue-900 whitespace-nowrap">
                             {{ $item['hari'] }}
                         </td>
