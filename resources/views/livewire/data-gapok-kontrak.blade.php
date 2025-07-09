@@ -49,7 +49,7 @@
                             {{ $kontrak['kategoriJabatan']['nama'] }}
                         </td>
                         <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
-                            {{ $kontrak['pendidikan']['nama'] }}
+                            {{ $kontrak['pendidikan']['nama'] ?? '-' }}
                         </td>
                         <td class="px-6 py-4">{{ $kontrak['min_masa_kerja'] }} Bulan</td>
                         <td class="px-6 py-4">{{ $kontrak['max_masa_kerja'] }} Bulan</td>
