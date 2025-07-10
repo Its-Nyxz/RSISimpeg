@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use Request;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Absen;
@@ -9,9 +10,10 @@ use Livewire\Component;
 use App\Models\Holidays;
 use Illuminate\Support\Str;
 use App\Models\JadwalAbsensi;
+use App\Exports\AbsensiExport;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
-use Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AktivitasAbsensi extends Component
 {
@@ -221,6 +223,18 @@ class AktivitasAbsensi extends Component
             "Laporan Absensi {$user->name} Bulan {$month} Tahun {$year}.pdf"
         );
     }
+
+    public function exportExcelHistory()
+    {
+        $month = Carbon::createFromFormat('m', $this->month)->locale('id')->translatedFormat('F');
+        $year = $this->year;
+        $user = User::find($this->selectedUserId);
+        $title = "Bulan $month Tahun $year";
+        $items = $this->items;
+
+        return Excel::download(new AbsensiExport($items, $user, $title), "Laporan_Absensi_{$user->name}_{$month}_{$year}.xlsx");
+    }
+
     public function render()
     {
         return view('livewire.aktivitas-absensi', [

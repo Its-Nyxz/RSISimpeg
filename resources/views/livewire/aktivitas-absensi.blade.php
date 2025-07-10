@@ -40,7 +40,7 @@
             <div class="relative group">
                 <!-- Mobile Icon -->
                 <button wire:click="exportPdfHistory"
-                    class="sm:hidden w-12 h-12 flex items-center justify-center rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition"
+                    class="sm:hidden w-12 h-12 flex items-center justify-center rounded-lg bg-blue-100 text-blue-900 hover:bg-blue-600 hover:text-white transition"
                     aria-label="Export PDF">
                     <i class="fas fa-download text-lg"></i>
                 </button>
@@ -51,8 +51,28 @@
                 </div>
                 <!-- Desktop Full -->
                 <button wire:click="exportPdfHistory"
-                    class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition">
+                    class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-blue-100 text-blue-900 hover:bg-blue-600 hover:text-white transition">
                     <i class="fas fa-download mr-1"></i> Export
+                </button>
+            </div>
+
+            <!-- Tombol Export Excel -->
+            <div class="relative group">
+                <!-- Mobile Icon -->
+                <button wire:click="exportExcelHistory"
+                    class="sm:hidden w-12 h-12 flex items-center justify-center rounded-lg bg-yellow-100 text-yellow-900 hover:bg-yellow-600 hover:text-white transition"
+                    aria-label="Export Excel">
+                    <i class="fas fa-file-excel text-lg"></i>
+                </button>
+                <!-- Tooltip -->
+                <div
+                    class="absolute z-10 hidden group-hover:flex bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-800 rounded shadow">
+                    Export Excel
+                </div>
+                <!-- Desktop Full -->
+                <button wire:click="exportExcelHistory"
+                    class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-yellow-100 text-yellow-900 hover:bg-yellow-600 hover:text-white transition">
+                    <i class="fas fa-file-excel mr-1"></i> Excel
                 </button>
             </div>
 
