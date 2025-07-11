@@ -16,6 +16,7 @@ class AktivitasAbsensiShow extends Component
     public $realKeluarFormatted;
     public $isLembur = false;
     public $lemburFormatted = '-';
+    public $keteranganDinas = null;
 
     public function mount($absen)
     {
@@ -65,6 +66,16 @@ class AktivitasAbsensiShow extends Component
 
             $this->lemburFormatted = gmdate('H:i:s', $totalLemburDetik);
         }
+
+        $dinasLuar = Absen::where('user_id', $absen->user_id)
+            ->where('jadwal_id', $absen->jadwal_id)
+            ->where('is_dinas', true)
+            ->first();
+
+        if ($dinasLuar) {
+            $this->keteranganDinas = $dinasLuar->deskripsi_in ?? '-';
+        }
+        // dd($dinasLuar);
     }
 
     public function exportPdf()

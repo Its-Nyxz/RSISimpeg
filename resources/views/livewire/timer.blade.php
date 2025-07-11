@@ -80,15 +80,11 @@
                     <div class="mt-4 flex justify-end gap-2">
                         <button wire:click="$set('showStartModal', false)"
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
-                        <button wire:click="startTimer"
-                            class="px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700">Mulai</button>
-                        {{-- <button onclick="kirimLokasiKeLivewire()"
-                        <button wire:click="startTimer"
-                            class="px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700">Mulai</button>
-                        {{-- <button onclick="kirimLokasiKeLivewire()"
+                        {{-- <button wire:click="startTimer"
+                            class="px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700">Mulai</button> --}}
+                        <button onclick="kirimLokasiKeLivewire()"
                             class="px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700">
                             Mulai
-                        </button> --}}
                         </button>
                     </div>
                 </div>
@@ -105,16 +101,12 @@
                     <div class="mt-4 flex justify-end gap-2">
                         <button wire:click="$set('showStopModal', false)"
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
-                        <button wire:click="openWorkReportModal"
-                            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Selesai</button>
-                        {{-- <button onclick="kirimLokasiKeLivewire('stop')"
-                        <button wire:click="openWorkReportModal"
-                            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Selesai</button>
-                        {{-- <button onclick="kirimLokasiKeLivewire('stop')"
+                        {{-- <button wire:click="openWorkReportModal"
+                            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Selesai</button> --}}
+                        <button onclick="kirimLokasiKeLivewire('stop')"
                             class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
                             Selesai
-                        </button> --}}
-                        </button> --}}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -127,6 +119,14 @@
                     <h2 class="text-xl font-bold mb-4">Dinas Keluar</h2>
                     <textarea wire:model="deskripsi_dinas" class="w-full p-2 border rounded-md"
                         placeholder="Masukkan keterangan dinas keluar..."></textarea>
+
+                    <div class="mt-4">
+                        <label class="flex items-center gap-2">
+                            <input type="checkbox" wire:model.live="akanKembali" class="form-checkbox text-blue-600">
+                            <span class="text-sm text-gray-700">Saya akan kembali bekerja setelah dinas</span>
+                        </label>
+                    </div>
+
                     <div class="mt-4 flex justify-end gap-2">
                         <button wire:click="$set('showDinasModal', false)"
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
@@ -384,14 +384,14 @@
         <p class="font-semibold text-gray-600">{{ $this->absensiTanpaLembur->first()->deskripsi_out ?? '-' }}</p>
     @endif
 
-    {{-- 
+
     @push('scripts')
         <script>
-            const lokasiKantor = {
-                lat: -7.402330130327286,
-                lng: 109.615622721266,
-                radiusMeter: 100
-            };
+            // const lokasiKantor = {
+            //     lat: -7.402330130327286,
+            //     lng: 109.615622721266,
+            //     radiusMeter: 100
+            // };
 
             const areaPolygons = {
                 "RSI": [{
@@ -706,13 +706,13 @@
                 );
             }
 
-            function validasiJarak(lat, lng) {
-                const jarak = hitungJarakMeter(lat, lng, lokasiKantor.lat, lokasiKantor.lng);
-                return {
-                    jarak,
-                    valid: jarak <= lokasiKantor.radiusMeter
-                };
-            }
+            // function validasiJarak(lat, lng) {
+            //     const jarak = hitungJarakMeter(lat, lng, lokasiKantor.lat, lokasiKantor.lng);
+            //     return {
+            //         jarak,
+            //         valid: jarak <= lokasiKantor.radiusMeter
+            //     };
+            // }
 
             function validasiLokasiPolygon(lat, lng) {
                 const point = {
@@ -805,5 +805,5 @@
                 setInterval(ambilLokasiTerbaru, 30000);
             });
         </script>
-    @endpush --}}
+    @endpush
 </div>

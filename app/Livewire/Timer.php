@@ -43,6 +43,8 @@ class Timer extends Component
     public $latitude;
     public $longitude;
 
+    public $akanKembali = false;
+
     public function mount($jadwal_id)
     {
         $this->jadwal_id = $jadwal_id;
@@ -162,8 +164,7 @@ class Timer extends Component
 
     public function startTimer()
     {
-        // if (!$this->validasiLokasiAtauIp()) return;
-        // if (!$this->validasiLokasiAtauIp()) return;
+        if (!$this->validasiLokasiAtauIp()) return;
 
         if (!$this->isRunning) {
             $this->isRunning = true;
@@ -223,8 +224,7 @@ class Timer extends Component
 
     public function openWorkReportModal()
     {
-        // if (!$this->validasiLokasiAtauIp()) return;
-        // if (!$this->validasiLokasiAtauIp()) return;
+        if (!$this->validasiLokasiAtauIp()) return;
 
         if ($this->isRunning) {
             $this->timeOut = now()->timestamp;
@@ -277,8 +277,7 @@ class Timer extends Component
 
     public function completeWorkReport()
     {
-        // if (!$this->validasiLokasiAtauIp()) return;
-        // if (!$this->validasiLokasiAtauIp()) return;
+        if (!$this->validasiLokasiAtauIp()) return;
 
         if (!$this->timeOut) return;
 
@@ -400,21 +399,41 @@ class Timer extends Component
             return;
         }
 
-        Absen::updateOrCreate(
-            [
-                'jadwal_id' => $this->jadwal_id,
-                'user_id' => $user->id,
-            ],
-            [
-                'time_in' => Carbon::parse($shift->jam_masuk),
-                'time_out' => Carbon::parse($shift->jam_keluar),
-                'deskripsi_out' => $this->deskripsi_dinas,
-                'status_absen_id' => 1,
-                'present' => 1,
-                'is_dinas' => true,
-                'keterangan' => "Dinas Keluar Terhitung Hadir dan 8 Jam kerja",
-            ]
-        );
+        if ($this->akanKembali) {
+            // ✅ Jika akan kembali → hanya update keterangan (tidak isi time_out)
+            Absen::updateOrCreate(
+                [
+                    'jadwal_id' => $this->jadwal_id,
+                    'user_id' => $user->id,
+                    'is_lembur' => false
+                ],
+                [
+                    'deskripsi_in' =>  'Dinas keluar: ' . ($this->deskripsi_dinas ?? '-'),
+                    'late' => false,
+                    'present' => 1,
+                    'status_absen_id' => 1,
+                    'is_dinas' => true,
+                ]
+            );
+        } else {
+            // ✅ Tidak kembali → isi time_in & time_out sesuai shift
+            Absen::updateOrCreate(
+                [
+                    'jadwal_id' => $this->jadwal_id,
+                    'user_id' => $user->id,
+                    'is_lembur' => false
+                ],
+                [
+                    'time_in' => Carbon::parse($shift->jam_masuk),
+                    'time_out' => Carbon::parse($shift->jam_keluar),
+                    'deskripsi_out' => $this->deskripsi_dinas,
+                    'status_absen_id' => 1,
+                    'present' => 1,
+                    'is_dinas' => true,
+                    'keterangan' => "Dinas Keluar Terhitung Hadir dan 8 Jam kerja",
+                ]
+            );
+        }
 
         $this->deskripsi_dinas = null;
         $this->showDinasModal = false;
@@ -571,21 +590,21 @@ class Timer extends Component
 
         // $ipPrefix = implode('.', array_slice(explode('.', $ipUser), 0, 2)); // hasil: 192.168.100
 
-        // $lokasiKantor = [
-        //     'lat' => -7.402330130327286,
-        //     'lng' => 109.6156227212665
-        // ];
+        $lokasiKantor = [
+            'lat' => -7.402330130327286,
+            'lng' => 109.6156227212665
+        ];
 
-        // $polygon = [
-        //     [-7.401462324660784, 109.61574443318705],
-        //     [-7.40206468637885, 109.61591235565817],
-        //     [-7.401966177920016, 109.61618451323585],
-        //     [-7.402782968146411, 109.6164214758092],
-        //     [-7.403165037042953, 109.61580592184652],
-        //     [-7.403230824029308, 109.61515910978147],
-        //     [-7.4017712054383935, 109.61499327224521],
-        //     [-7.40146214270284, 109.6157440761346] // titik akhir = awal
-        // ];
+        $polygon = [
+            [-7.401462324660784, 109.61574443318705],
+            [-7.40206468637885, 109.61591235565817],
+            [-7.401966177920016, 109.61618451323585],
+            [-7.402782968146411, 109.6164214758092],
+            [-7.403165037042953, 109.61580592184652],
+            [-7.403230824029308, 109.61515910978147],
+            [-7.4017712054383935, 109.61499327224521],
+            [-7.40146214270284, 109.6157440761346] // titik akhir = awal
+        ];
 
         // Jika tidak ada lokasi, tetap izinkan jika IP cocok
         // if (!$this->latitude || !$this->longitude) {
@@ -613,22 +632,22 @@ class Timer extends Component
         //     return false;
         // }
 
-        // $lokasiValid = $this->isPointInPolygon($this->latitude, $this->longitude, $polygon);
+        $lokasiValid = $this->isPointInPolygon($this->latitude, $this->longitude, $polygon);
 
         // if (!$lokasiValid && !in_array($ipPrefix, $ipPrefixWhitelist)) {
-        // if (!$lokasiValid) {
-        //     $this->dispatch('alert-error', message: 'Anda tidak berada di area RSI Banjarnegara.');
-        //     return false;
-        // }
+        if (!$lokasiValid) {
+            $this->dispatch('alert-error', message: 'Anda tidak berada di area RSI Banjarnegara.');
+            return false;
+        }
 
 
         $user = auth()->user()->load(['kategorijabatan', 'kategorifungsional']);
 
         // Tambahkan deteksi perangkat
-        // if (!$this->isMobileDevice()) {
-        //     $this->dispatch('alert-error', message: 'Absensi hanya diperbolehkan dari perangkat mobile.');
-        //     return false;
-        // }
+        if (!$this->isMobileDevice()) {
+            $this->dispatch('alert-error', message: 'Absensi hanya diperbolehkan dari perangkat mobile.');
+            return false;
+        }
 
 
         $polygons = [

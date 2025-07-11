@@ -133,7 +133,7 @@
                                         : ($loop->even
                                             ? 'bg-green-100'
                                             : 'bg-green-50')))) }} border-b border-green-300 hover:bg-green-200">
-                        <td class="px-6 py-4 font-medium text-blue-900 whitespace-nowrap">
+                        <td class="px-6 py-4 font-medium text-green-900 whitespace-nowrap">
                             {{ $item['hari'] }}
                         </td>
                         <td class="px-6 py-4">{{ $item['tanggal'] }}</td>

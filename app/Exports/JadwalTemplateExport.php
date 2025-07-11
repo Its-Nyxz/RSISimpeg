@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Models\JadwalAbsensi;
 use DateTime;
 use Carbon\Carbon;
 use App\Models\User;
@@ -50,8 +51,16 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
 
             // Kosongkan kolom shift untuk setiap hari dalam satu bulan
             for ($day = 1; $day <= $daysInMonth; $day++) {
-                $row[] = null;
+                $tanggal = Carbon::create($this->year, $this->month, $day)->format('Y-m-d');
+
+                $jadwal = JadwalAbsensi::with('shift')
+                    ->where('user_id', $user->id)
+                    ->whereDate('tanggal_jadwal', $tanggal)
+                    ->first();
+
+                $row[] = $jadwal && $jadwal->shift ? $jadwal->shift->nama_shift : null;
             }
+
 
             $data[] = $row;
         }

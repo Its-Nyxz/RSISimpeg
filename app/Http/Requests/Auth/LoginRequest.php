@@ -44,30 +44,25 @@ class LoginRequest extends FormRequest
 
         $loginInput = $this->input('login');
 
-        // Deteksi apakah input adalah email, nomor HP, NIP, atau username
-        if (filter_var($loginInput, FILTER_VALIDATE_EMAIL)) {
-            $fieldType = 'email';
-        } elseif (preg_match('/^\+?\d{10,15}$/', $loginInput)) { // Nomor HP (10-15 digit, bisa pakai +62)
-            $fieldType = 'no_hp';
-        } elseif (is_numeric($loginInput)) {
-            $fieldType = 'nip';
-        } else {
-            $fieldType = 'username';
+        if (!filter_var($loginInput, FILTER_VALIDATE_EMAIL)) {
+            throw ValidationException::withMessages([
+                'email' => __('auth.invalid_email'),
+            ]);
         }
 
         // Cari user berdasarkan salah satu field
-        $user = User::where($fieldType, $loginInput)->first();
+        $user = User::where('email', $loginInput)->first();
 
         if (!$user) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'login' => __('auth.user_not_found', ['field' => $fieldType]),
+                'login' => __('auth.user_not_found', ['field' => 'email']),
             ]);
         }
 
         // Proses login
-        if (!Auth::attempt([$fieldType => $loginInput, 'password' => $this->input('password')], $this->boolean('remember'))) {
+        if (!Auth::attempt(['email' => $loginInput, 'password' => $this->input('password')], $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([

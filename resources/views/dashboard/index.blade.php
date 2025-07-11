@@ -17,17 +17,17 @@
                                     $selesai = \Carbon\Carbon::parse($file->selesai);
                                     $sisaHari = intval(now()->diffInDays($selesai));
                                 @endphp
-                                <li class="flex items-center">
-                                    @if (auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN' || auth()->user()->hasRole('Super Admin'))
-                                        <strong class="mr-2">{{ $file->user->name ?? '-' }}</strong> -
-                                    @endif
-                                    <span>{{ $file->jenisFile->name ?? '-' }} berakhir
-                                        <strong>{{ $selesai->format('d M Y') }}</strong></span>
-                                    {{-- Kalau sisa hari kurang dari 7 --}}
-                                    @if ($sisaHari <= 7)
+                                {{-- Kalau sisa hari kurang dari 7 --}}
+                                @if ($sisaHari <= 7)
+                                    <li class="flex items-center">
+                                        @if (auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN' || auth()->user()->hasRole('Super Admin'))
+                                            <strong class="mr-2">{{ $file->user->name ?? '-' }}</strong> -
+                                        @endif
+                                        <span>{{ $file->jenisFile->name ?? '-' }} berakhir
+                                            <strong>{{ $selesai->format('d M Y') }}</strong></span>
                                         <span class="ml-2 text-red-600 font-bold">(Sisa {{ $sisaHari }} Hari!)</span>
-                                    @endif
-                                </li>
+                                    </li>
+                                @endif
                             @endforeach
 
                             {{-- Notifikasi Masa Berlaku Sertifikat Pelatihan yang hampir expired --}}

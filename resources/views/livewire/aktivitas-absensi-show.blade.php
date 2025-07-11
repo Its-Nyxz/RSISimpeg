@@ -45,7 +45,13 @@
                         <div class="mb-4"><strong>Real Time Jam Masuk</strong> : {{ $realMasukFormatted }}</div>
                         <div class="mb-4"><strong>Real Time Jam Keluar</strong> : {{ $realKeluarFormatted }}</div>
                         <div class="mb-4"><strong>Rencana Kerja</strong> :
-                            {{ $absen->deskripsi_in ?? '-' }}</div>
+                            {{ $absen->deskripsi_in ?? '-' }}
+                            @if (!empty($keteranganDinas))
+                                <div class="mb-4 text-success-700 text-sm">
+                                    {{ $keteranganDinas }}
+                                </div>
+                            @endif
+                        </div>
                         <div class="mb-4"><strong>Laporan Kerja</strong> :
                             {{ $absen->deskripsi_out ?? '-' }}</div>
                         <div class="mb-4"><strong>Status Lembur</strong> : {{ $isLembur ? 'Ya' : 'Tidak' }}</div>

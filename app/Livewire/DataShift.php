@@ -23,8 +23,9 @@ class DataShift extends Component
         $this->loadData();
     }
 
-    public function updatedSelectedUnit()
+    public function updateSearch($value)
     {
+        $this->search = $value;
         $this->currentPage = 1;
         $this->loadData();
     }
@@ -34,7 +35,6 @@ class DataShift extends Component
         $this->currentPage = 1;
         $this->loadData();
     }
-
     public function nextPage()
     {
         $this->currentPage++;

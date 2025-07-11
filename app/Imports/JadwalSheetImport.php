@@ -63,12 +63,9 @@ class JadwalSheetImport implements ToCollection
                             ['keterangan' => 'Libur']
                         );
                     } else {
-                        // Format seperti "P (07:30:00-14:30:00)"
-                        if (preg_match('/^(\w)\s*\((\d{2}:\d{2})(?::\d{2})?\s*-\s*(\d{2}:\d{2})(?::\d{2})?\)$/i', $shiftCell, $matches)) {
-                            $namaShift = strtoupper($matches[1]);
-
-                            // Gunakan format sesuai DB Anda (HH:MM)
-                            $jamMasuk = substr($matches[2], 0, 5); // ambil 07:30 dari 07:30 atau 07:30:00
+                        if (preg_match('/^(.+?)\s*\((\d{2}:\d{2})(?::\d{2})?\s*-\s*(\d{2}:\d{2})(?::\d{2})?\)$/', $shiftCell, $matches)) {
+                            $namaShift = trim($matches[1]); // Bisa "P", "Pendek", "Shift A", dll.
+                            $jamMasuk = substr($matches[2], 0, 5); // Ambil HH:MM
                             $jamKeluar = substr($matches[3], 0, 5);
 
                             $shift = Shift::where('unit_id', $user->unit_id)
