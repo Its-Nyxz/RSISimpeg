@@ -100,11 +100,15 @@ class PotonganTemplateExport implements FromView
             $totalHariJadwal = $jadwalUser->count();
             // Cek apakah semua shift adalah libur (jam masuk & keluar null)
             $semuaLibur = $jadwalUser->every(function ($jadwal) {
-                return optional($jadwal->shift)->jam_masuk === null && optional($jadwal->shift)->jam_keluar === null;
+                $namaShift = strtolower(optional($jadwal->shift)->nama_shift);
+                return in_array($namaShift, ['l', 'libur']);
             });
 
+            $semuaC = $jadwalUser->every(function ($jadwal) {
+                return in_array(strtolower(optional($jadwal->shift)->nama_shift), ['c', 'cuti']);
+            });
             // Jika semua shift libur dan ada jadwal
-            $liburTotalSebulan = $semuaLibur && $totalHariJadwal > 0;
+            $liburTotalSebulan = $semuaLibur && !$semuaC && $totalHariJadwal > 0;
 
             if ($liburTotalSebulan) {
                 // Semua shift libur → tidak mendapatkan gaji dan tunjangan
@@ -116,6 +120,117 @@ class PotonganTemplateExport implements FromView
                 $nom_makan = 0;
                 $nom_transport = 0;
                 $tukin = 0;
+            } elseif ($semuaC) {
+                // Semua cuti → hanya dapat gapok
+                if ($jenis === 'tetap') {
+                    $gapok = optional(
+                        $user->golongan?->gapoks
+                            ->where('masa_kerja', '<=', $masaKerja)
+                            ->sortByDesc('masa_kerja')
+                            ->first()
+                    )?->nominal_gapok ?? 0;
+                } elseif ($jenis === 'kontrak') {
+                    $kategoriJabatanId = $user->jabatan_id
+                        ?? $user->fungsi_id
+                        ?? $user->umum_id;
+                    $pendidikanId = $user->kategori_pendidikan;
+
+                    $gapokKontrak = GapokKontrak::where('kategori_jabatan_id', $kategoriJabatanId)
+                        ->where('pendidikan_id', $pendidikanId)
+                        ->where('min_masa_kerja', '<=', $masaKerja)
+                        ->where('max_masa_kerja', '>=', $masaKerja)
+                        ->first();
+                    $gapok = $gapokKontrak?->nominal_aktif ?? $gapokKontrak?->nominal ?? 0;
+                }
+
+                $nom_jabatan = 0;
+                $nom_fungsi = 0;
+                $nom_umum = 0;
+                $nom_khusus = 0;
+                $nom_makan = 0;
+                $nom_transport = 0;
+                $tukin = 0;
+
+                // Potongan Otomatis
+                $potonganOtomasis = [];
+                $bruto = $user->total_bruto;
+                $tunjangan = $nom_jabatan + $nom_fungsi + $nom_umum;
+                $makanTransport = $nom_makan + $nom_transport;
+
+                $total_bruto = $gapok;
+                $user->setAttribute('nom_gapok', $gapok);
+                $user->setAttribute('nom_jabatan', 0);
+                $user->setAttribute('nom_fungsi', 0);
+                $user->setAttribute('nom_umum', 0);
+                $user->setAttribute('nom_khusus', 0);
+                $user->setAttribute('nom_makan', 0);
+                $user->setAttribute('nom_transport', 0);
+                $user->setAttribute('nom_lainnya', 0);
+                $user->setAttribute('total_bruto', $total_bruto);
+
+                // Sekarang bisa pakai
+                $bruto = $total_bruto;
+
+                foreach ($masterPotongans as $item) {
+                    $slug = $item->slug;
+                    $nominal = 0;
+
+                    if (Str::contains($slug, 'pph')) {
+                        $kategoriInduk = $user->kategoriPphInduk();
+                        if ($kategoriInduk) {
+                            $tax = TaxBracket::where('kategoripph_id', $kategoriInduk->id)
+                                ->where('upper_limit', '>=', $bruto)
+                                ->orderBy('upper_limit')
+                                ->first();
+                            $persen = $tax?->persentase ?? 0;
+                            $nominal = round($bruto * $persen);
+                        }
+                    } elseif (Str::contains($slug, 'bpjs-tenaga-kerja')) {
+                        $nominal = round(0.03 * ($gapok + $tunjangan));
+                    } elseif (Str::contains($slug, 'bpjs-kesehatan-ortu')) {
+                        $nominal = $user->bpjs_ortu ? round(0.01 * ($gapok + $tunjangan + $makanTransport)) : 0;
+                    } elseif (
+                        Str::contains($slug, 'bpjs-kesehatan') &&
+                        !Str::contains($slug, 'ortu') &&
+                        !Str::contains($slug, 'rekonsiliasi')
+                    ) {
+                        $nominal = round(0.01 * ($gapok + $tunjangan + $makanTransport));
+                    }
+
+                    $isDok = Str::contains(strtolower($user->kategorijabatan->nama ?? ''), 'dokter')
+                        || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'dokter')
+                        || Str::contains(strtolower($user->kategoriumum->nama ?? ''), 'dokter');
+                    $isGigi = Str::contains(strtolower($user->kategorijabatan->nama ?? ''), 'dokter gigi')
+                        || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'dokter gigi')
+                        || Str::contains(strtolower($user->kategoriumum->nama ?? ''), 'dokter gigi');
+                    $isBidan = Str::contains(strtolower($user->kategorijabatan->nama ?? ''), 'bidan')
+                        || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'bidan')
+                        || Str::contains(strtolower($user->kategoriumum->nama ?? ''), 'bidan');
+                    $isPerawat = Str::contains(strtolower($user->kategorijabatan->nama ?? ''), 'perawat')
+                        || Str::contains(strtolower($user->kategorifungsional->nama ?? ''), 'perawat')
+                        || Str::contains(strtolower($user->kategoriumum->nama ?? ''), 'perawat');
+
+                    if ($slug === 'idi' && $isDok && !$isGigi) {
+                        $nominal = $item->nominal;
+                    } elseif ($slug === 'ibi' && $isBidan) {
+                        $nominal = $item->nominal;
+                    } elseif ($slug === 'ppni' && $isPerawat) {
+                        $nominal = $item->nominal;
+                    }
+
+                    if ($slug === 'dansos-karyawan') {
+                        if ($jenis === 'tetap') {
+                            $nominal = round(0.005 * ($gapok + $tunjangan));
+                        } elseif ($jenis === 'kontrak') {
+                            $nominal = round(0.0025 * $bruto);
+                        }
+                    }
+
+                    // Tampilkan semua, meskipun 0
+                    $potonganOtomasis[$item->nama] = $nominal;
+                }
+
+                $user->setAttribute('potonganOtomasis', $potonganOtomasis);
             } else {
                 $jadwalIds = $jadwalUser->pluck('id');
 

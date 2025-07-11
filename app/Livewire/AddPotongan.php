@@ -74,7 +74,6 @@ class AddPotongan extends Component
         $jadwalUser = $this->user->jadwalabsensi()
             ->whereBetween('tanggal_jadwal', [$periodeMulai->toDateString(), $periodeSelesai->toDateString()])
             ->get();
-
         // Hitung total hari dijadwalkan
         $totalHariJadwal = $jadwalUser->count();
 
@@ -94,11 +93,16 @@ class AddPotongan extends Component
 
         // Cek apakah semua jadwal adalah shift libur
         $semuaLibur = $jadwalUser->every(function ($jadwal) {
-            return optional($jadwal->shift)->jam_masuk === null && optional($jadwal->shift)->jam_keluar === null;
+            $namaShift = strtolower(optional($jadwal->shift)->nama_shift);
+            return in_array($namaShift, ['l', 'libur']);
         });
 
+        $semuaC = $jadwalUser->every(function ($jadwal) {
+            return in_array(strtolower(optional($jadwal->shift)->nama_shift), ['c', 'cuti']);
+        });
         // Jika semua shift libur dan ada jadwal
-        $liburTotalSebulan = $semuaLibur && $totalHariJadwal > 0;
+        $liburTotalSebulan = $semuaLibur && !$semuaC && $totalHariJadwal > 0;
+
         if ($liburTotalSebulan) {
             // Reset semua komponen penghasilan ke 0
             $this->gapok = 0;
@@ -112,6 +116,78 @@ class AddPotongan extends Component
 
             $total_bruto = 0;
             $this->total_bruto = $total_bruto;
+        } elseif ($semuaC) {
+            // ✅ Semua shift C → hanya dapat gapok, tidak dapat tunjangan apa pun
+            $this->nom_jabatan   = 0;
+            $this->nom_fungsi    = 0;
+            $this->nom_umum      = 0;
+            $this->nom_makan     = 0;
+            $this->nom_transport = 0;
+            $this->nom_khusus    = 0;
+            $this->tunjanganTukin = 0;
+
+            $this->isKaryawanTetap = strtolower($this->user->jenis?->nama ?? '') === 'tetap';
+            $jenisKaryawan = strtolower($this->user->jenis?->nama ?? '');
+
+            if (!$this->isKaryawanTetap) {
+                // Karyawan Kontrak, Magang, Part Time
+                $kategoriJabatanId = $this->user->jabatan_id
+                    ?? $this->user->fungsi_id
+                    ?? $this->user->umum_id;
+
+                $pendidikanId = $this->user->kategori_pendidikan;
+
+                if ($kategoriJabatanId) {
+                    $gapokKontrak = GapokKontrak::where('kategori_jabatan_id', $kategoriJabatanId)
+                        ->where('pendidikan_id', $pendidikanId)
+                        ->where('min_masa_kerja', '<=', $this->masaKerjaTahun)
+                        ->where('max_masa_kerja', '>=', $this->masaKerjaTahun)
+                        ->first();
+
+                    $this->gapok = $gapokKontrak?->nominal_aktif ?? $gapokKontrak?->nominal ?? 0;
+                } else {
+                    $this->gapok = GajiBruto::where('user_id', $this->user->id)
+                        ->where('bulan_penggajian', $this->bulan)
+                        ->where('tahun_penggajian', $this->tahun)
+                        ->value('nom_gapok') ?? 0;
+                }
+
+                $this->total_bruto = $this->gapok;
+            } else {
+                // Karyawan Tetap
+                $this->gapok = optional(
+                    $this->user->golongan?->gapoks
+                        ->where('masa_kerja', '<=', $this->masaKerjaTahun)
+                        ->sortByDesc('masa_kerja')
+                        ->first()
+                )->nominal_gapok ?? 0;
+
+                $this->total_bruto = $this->gapok;
+            }
+
+            $this->masterPotongans = MasterPotongan::orderBy('id')->get();
+
+            $this->gajiBruto = GajiBruto::updateOrCreate(
+                [
+                    'user_id' => $this->user->id,
+                    'bulan_penggajian' => $this->bulan,
+                    'tahun_penggajian' => $this->tahun,
+                ],
+                [
+                    'nom_gapok' => $this->gapok,
+                    'nom_jabatan' => 0,
+                    'nom_fungsi' => 0,
+                    'nom_umum' => 0,
+                    'nom_khusus' => 0,
+                    'nom_makan' => 0,
+                    'nom_transport' => 0,
+                    'nom_lainnya' => 0,
+                    'total_bruto' => $this->total_bruto,
+                    'created_at' => now(),
+                ]
+            );
+
+            $this->updatePotonganInputs();
         } else {
             // Proporsi kehadiran aktual
             // $proporsiHybrid = $jadwalValid / max($totalHariJadwal, 1);
@@ -332,8 +408,7 @@ class AddPotongan extends Component
     {
         $this->potonganInputs = [];
 
-
-        $bruto = $this->gajiBruto->total_bruto;
+        $bruto = $this->gajiBruto?->total_bruto ?? $this->total_bruto;
         $gapok = $this->gapok;
         $tunjangan = $this->nom_jabatan + $this->nom_fungsi + $this->nom_umum;
         $makanTransport = $this->nom_makan + $this->nom_transport;
