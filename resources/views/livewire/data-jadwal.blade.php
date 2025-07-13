@@ -192,20 +192,29 @@
 
                         @foreach ($tanggalJadwal as $tanggal)
                             @php
-                                $shiftData = $filteredShifts[$user_id][$tanggal] ?? null;
-                                $isSpecialShift = in_array($shiftData['nama_shift'] ?? '', ['I', 'C']);
+                                $shifts = $filteredShifts[$user_id][$tanggal] ?? [];
+                                $isSpecialShift = collect($shifts)
+                                    ->pluck('nama_shift')
+                                    ->contains(function ($val) {
+                                        return in_array($val, ['I', 'C']);
+                                    });
                             @endphp
 
                             <td
                                 class="px-2 py-3 text-center
-                        {{ $isHoliday || $isSpecialShift ? 'bg-red-200 text-red-600' : ($hari === 'Sunday' ? 'bg-red-200 text-red-600' : '') }}">
+                                {{ $isHoliday || $isSpecialShift ? 'bg-red-200 text-red-600' : ($hari === 'Sunday' ? 'bg-red-200 text-red-600' : '') }}">
 
-                                @if ($shiftData)
-                                    <button
-                                        wire:click="showShiftDetail('{{ $shiftData['nama_shift'] }}', '{{ $shiftData['jam_masuk'] }}', '{{ $shiftData['jam_keluar'] }}', `{{ $shiftData['keterangan'] ?? '-' }}`)"
-                                        class="hover:text-blue-700 hover:underline transition duration-150">
-                                        {{ $shiftData['nama_shift'] ?? '-' }}
-                                    </button>
+                                @if (count($shifts))
+                                    @foreach ($shifts as $shift)
+                                        <button
+                                            wire:click="showShiftDetail('{{ $shift['nama_shift'] }}', '{{ $shift['jam_masuk'] }}', '{{ $shift['jam_keluar'] }}', `{{ $shift['keterangan'] }}`, '{{ $user_id }}', '{{ $tanggal }}')"
+                                            class="hover:text-blue-700 hover:underline transition duration-150">
+                                            {{ $shift['nama_shift'] }}
+                                        </button>
+                                        @if (!$loop->last)
+                                            <span class="text-gray-400">|</span>
+                                        @endif
+                                    @endforeach
                                 @else
                                     -
                                 @endif
@@ -278,6 +287,47 @@
                     <div><strong>Keterangan:</strong> {{ $shiftKeterangan ?? '-' }}</div>
                 </div>
 
+                @php
+                    $canEditShift = auth()
+                        ->user()
+                        ->hasAnyRole([
+                            'Super Admin',
+                            'Kepala Seksi Kepegawaian',
+                            'Kepala Seksi Keuangan',
+                            'Kepala Unit',
+                            'Kepala Sub Unit',
+                            'Kepala Instalasi',
+                            'Kepala Ruang',
+                            'Kepala Seksi',
+                        ]);
+                @endphp
+
+                @if ($canEditShift)
+                    <div class="mt-6 border-t pt-4">
+                        <h3 class="text-sm font-semibold mb-2">Ubah Shift</h3>
+
+                        <label for="selectedShiftId" class="block text-sm font-medium">Pilih Shift Baru</label>
+                        <select wire:model="selectedShiftId" id="selectedShiftId"
+                            class="w-full mt-1 border rounded px-3 py-2">
+                            <option value="">-- Pilih Shift --</option>
+                            @foreach ($dataShifts as $shift)
+                                <option value="{{ $shift->id }}">
+                                    {{ $shift->nama_shift }} ({{ $shift->jam_masuk }} - {{ $shift->jam_keluar }})
+                                </option>
+                            @endforeach
+                        </select>
+
+                        @error('selectedShiftId')
+                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
+                        @enderror
+
+                        <button wire:click="updateShift"
+                            class="mt-3 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-150">
+                            Simpan Perubahan
+                        </button>
+                    </div>
+                @endif
+
                 <!-- Tombol Tutup -->
                 <div class="mt-6 text-center">
                     <button wire:click="$set('showModalDetailShift', false)"
@@ -285,6 +335,7 @@
                         Tutup
                     </button>
                 </div>
+
             </div>
         </div>
     @endif

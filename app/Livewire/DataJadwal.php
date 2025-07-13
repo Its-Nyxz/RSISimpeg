@@ -13,6 +13,8 @@ use App\Models\JadwalAbsensi;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Notifications\UserNotification;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Request;
 
 class DataJadwal extends Component
@@ -37,6 +39,9 @@ class DataJadwal extends Component
     public $shiftJamMasuk;
     public $shiftJamKeluar;
     public $shiftKeterangan;
+    public $selectedShiftId;
+    public $currentUserId;
+    public $currentShiftDate;
 
     public function mount()
     {
@@ -120,13 +125,30 @@ class DataJadwal extends Component
 
         $this->filteredShifts = [];
         foreach ($jadwalData as $jadwal) {
-            $this->filteredShifts[$jadwal->user_id][$jadwal->tanggal_jadwal] = [
-                'nama_shift' => optional($jadwal->shift)->nama_shift,
-                'jam_masuk' => optional($jadwal->shift)->jam_masuk,
-                'jam_keluar' => optional($jadwal->shift)->jam_keluar,
-                'keterangan' => optional($jadwal->shift)->keterangan,
+            $userId = $jadwal->user_id;
+            $tanggal = $jadwal->tanggal_jadwal;
+
+            $shift = $jadwal->shift;
+
+            $shiftData = [
+                'nama_shift' => $shift->nama_shift ?? '-',
+                'jam_masuk' => $shift->jam_masuk ?? '-',
+                'jam_keluar' => $shift->jam_keluar ?? '-',
+                'keterangan' => $shift->keterangan ?? '-',
             ];
+
+            // Simpan dalam array
+            $this->filteredShifts[$userId][$tanggal][] = $shiftData;
         }
+        foreach ($this->filteredShifts as $userId => $tanggalShifts) {
+            foreach ($tanggalShifts as $tanggal => $shifts) {
+                $this->filteredShifts[$userId][$tanggal] = collect($shifts)
+                    ->sortBy('jam_masuk')
+                    ->values()
+                    ->toArray();
+            }
+        }
+        // dd($this->filteredShifts);
     }
 
     // Fungsi untuk menandai tanggal merah (libur nasional atau Minggu)
@@ -216,14 +238,74 @@ class DataJadwal extends Component
         }
     }
 
-    public function showShiftDetail($nama_shift, $jam_masuk, $jam_keluar, $keterangan)
+    public function showShiftDetail($nama_shift, $jam_masuk, $jam_keluar, $keterangan, $userId = null, $tanggal = null)
     {
         $this->shiftNama = $nama_shift;
         $this->shiftJamMasuk = $jam_masuk;
         $this->shiftJamKeluar = $jam_keluar;
         $this->shiftKeterangan = $keterangan;
+        $this->currentUserId = $userId;
+        $this->currentShiftDate = $tanggal;
+
+        // Siapkan daftar shift
+        $unitId = auth()->user()->unit_id;
+        $this->dataShifts = Shift::where('unit_id', $unitId)->get();
+
         $this->showModalDetailShift = true;
     }
+
+    public function updateShift()
+    {
+        $allowedRoles = [
+            'Super Admin',
+            'Kepala Seksi Kepegawaian',
+            'Kepala Seksi Keuangan',
+            'Kepala Unit',
+            'Kepala Sub Unit',
+            'Kepala Instalasi',
+            'Kepala Ruang',
+            'Kepala Seksi',
+        ];
+
+        if (!auth()->user()->hasAnyRole($allowedRoles)) {
+            abort(403, 'Tidak memiliki akses untuk mengubah shift.');
+        }
+
+        $this->validate([
+            'selectedShiftId' => 'required|exists:shifts,id',
+        ]);
+
+        if (!$this->currentUserId || !$this->currentShiftDate) {
+            return redirect()->route('jadwal.index')->with('error', 'Data Tidak Lengkap.');
+        }
+
+        $jadwal = JadwalAbsensi::where('user_id', $this->currentUserId)
+            ->where('tanggal_jadwal', $this->currentShiftDate)
+            ->first();
+
+        if ($jadwal) {
+            $jadwal->update(['shift_id' => $this->selectedShiftId]);
+
+            // Ambil user dan shift baru
+            $user = auth()->user();
+            $targetUser = User::find($this->currentUserId);
+            $shiftBaru = Shift::find($this->selectedShiftId);
+
+            if ($targetUser && $shiftBaru) {
+                $jamMasuk = $shiftBaru->jam_masuk ?? '-';
+                $jamKeluar = $shiftBaru->jam_keluar ?? '-';
+
+                $message = 'Shift Anda pada tanggal <span class="font-bold">' . $this->currentShiftDate . '</span> telah diubah oleh <strong>' . $user->name . '</strong> menjadi <strong>' . $shiftBaru->nama_shift . '</strong> (' . $jamMasuk . ' - ' . $jamKeluar . ').';
+                $url = "/jadwal";
+
+                Notification::send($targetUser, new UserNotification($message, $url));
+            }
+            return redirect()->route('jadwal.index')->with('success', 'Shift Berhasil diubah.');
+        } else {
+            return redirect()->route('jadwal.index')->with('error', 'Jadwal Tidak ditemukan.');
+        }
+    }
+
 
     public function render()
     {

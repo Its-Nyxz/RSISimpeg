@@ -76,8 +76,8 @@ class CreateJadwal extends Component
 
     public function mount($id = null, $tipe = null)
     {
-        if ($id) {
-            $jadwal = JadwalAbsensi::find($id);
+        if ($tipe) {
+            $jadwal = JadwalAbsensi::find($tipe);
 
             if ($jadwal) {
                 $this->user_id = $jadwal->user_id;
@@ -102,15 +102,50 @@ class CreateJadwal extends Component
     {
         $this->validate();
 
-        JadwalAbsensi::updateOrCreate(
-            [
+        // JadwalAbsensi::updateOrCreate(
+        //     [
+        //         'user_id' => $this->user_id,
+        //         'tanggal_jadwal' => $this->tanggal,
+        //     ],
+        //     [
+        //         'shift_id' => $this->shift_id,
+        //     ]
+        // );
+
+        // Jika mode edit (id != null dan bukan 'edit'), maka update berdasarkan $id
+        if ($this->tipe && $this->id !== 'edit') {
+            $jadwal = JadwalAbsensi::find($this->id);
+            if ($jadwal) {
+                $jadwal->update([
+                    'user_id' => $this->user_id,
+                    'shift_id' => $this->shift_id,
+                    'tanggal_jadwal' => $this->tanggal,
+                ]);
+            }
+        } else {
+            // Tambah baru (create)
+            JadwalAbsensi::create([
                 'user_id' => $this->user_id,
-                'tanggal_jadwal' => $this->tanggal,
-            ],
-            [
                 'shift_id' => $this->shift_id,
-            ]
-        );
+                'tanggal_jadwal' => $this->tanggal,
+            ]);
+
+            $targetUser = User::find($this->user_id);
+            $shiftBaru = Shift::find($this->shift_id);
+            $penginput = auth()->user();
+
+            if ($targetUser && $shiftBaru) {
+                $jamMasuk = $shiftBaru->jam_masuk ?? '-';
+                $jamKeluar = $shiftBaru->jam_keluar ?? '-';
+
+                $message = 'Anda mendapatkan jadwal baru pada tanggal <span class="font-bold">' . $this->tanggal .
+                    '</span> dengan shift <strong>' . $shiftBaru->nama_shift . '</strong> (' . $jamMasuk . ' - ' . $jamKeluar .
+                    '), ditambahkan oleh <strong>' . $penginput->name . '</strong>.';
+                $url = '/jadwal';
+
+                Notification::send($targetUser, new UserNotification($message, $url));
+            }
+        }
 
         if ($this->isPergantianJadwal) {
 

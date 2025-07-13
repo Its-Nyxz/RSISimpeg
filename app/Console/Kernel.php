@@ -34,11 +34,15 @@ class Kernel extends ConsoleKernel
             ->timezone('Asia/Jakarta');
 
         $schedule->command('generate:absen-alpha')
-            ->dailyAt('08:15')
+            ->dailyAt('08:00')
             ->timezone('Asia/Jakarta');
 
         $schedule->command('kenaikan:kontrak')
             ->dailyAt('00:30')
+            ->timezone('Asia/Jakarta');
+
+        $schedule->command('app:generate-absen-timeout')
+            ->dailyAt('04:00')
             ->timezone('Asia/Jakarta');
     }
 

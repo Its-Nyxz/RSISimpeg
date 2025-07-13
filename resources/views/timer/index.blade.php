@@ -1,7 +1,19 @@
 <x-body>
     {{-- @if ($jadwal_id) --}}
     {{-- Jika jadwal tersedia, tampilkan komponen timer --}}
-    <livewire:timer :jadwal_id="$jadwal_id" />
+    @forelse ($jadwals as $jadwal)
+        <div class="mb-6 p-4 border rounded shadow-sm">
+            <div class="mb-2 font-semibold text-gray-700">
+                Jadwal Shift: {{ $jadwal->shift->nama_shift }}
+                ({{ $jadwal->shift->jam_masuk }} - {{ $jadwal->shift->jam_keluar }})
+            </div>
+
+            {{-- Timer Livewire untuk masing-masing jadwal --}}
+            <livewire:timer :jadwal_id="$jadwal->id" :wire:key="'timer-'.$jadwal->id" :id="'timer-' . $jadwal->id" />
+        </div>
+    @empty
+        <div class="text-gray-500 text-center">Tidak ada jadwal absensi hari ini.</div>
+    @endforelse
     {{-- @else --}}
     {{-- Jika tidak ada jadwal, tampilkan pesan dengan Flowbite --}}
     {{-- <div class="flex items-center p-4 mb-4 text-yellow-800 border border-yellow-300 rounded-lg bg-yellow-50"

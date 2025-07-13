@@ -164,12 +164,12 @@ class Timer extends Component
 
     public function startTimer()
     {
-        if (!$this->validasiLokasiAtauIp()) return;
+        // if (!$this->validasiLokasiAtauIp()) return;
 
         if (!$this->isRunning) {
             $this->isRunning = true;
             $this->timeIn = now()->timestamp;
-
+            // dd($this->jadwal_id);
             $jadwal = JadwalAbsensi::find($this->jadwal_id);
             if (!$jadwal) {
                 $this->dispatch('alert-error', message: 'Jadwal tidak ditemukan.');
@@ -224,12 +224,12 @@ class Timer extends Component
 
     public function openWorkReportModal()
     {
-        if (!$this->validasiLokasiAtauIp()) return;
+        // if (!$this->validasiLokasiAtauIp()) return;
 
         if ($this->isRunning) {
             $this->timeOut = now()->timestamp;
             $this->isRunning = false;
-
+            dd($this->jadwal_id);
             $timeIn = Carbon::createFromTimestamp($this->timeIn);
             $timeOut = Carbon::createFromTimestamp($this->timeOut);
 
@@ -277,7 +277,7 @@ class Timer extends Component
 
     public function completeWorkReport()
     {
-        if (!$this->validasiLokasiAtauIp()) return;
+        // if (!$this->validasiLokasiAtauIp()) return;
 
         if (!$this->timeOut) return;
 

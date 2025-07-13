@@ -3,10 +3,10 @@
     <div class="p-4 text-left">
         {{-- Tanggal --}}
         <p class="text-gray-500">{{ now()->locale('id')->translatedFormat('l, d F Y') }}</p>
-
+        <div class="text-sm text-gray-500">Timer untuk Jadwal ID: {{ $jadwal_id }}</div>
         <div id="mainTimerContainer" style="display: {{ $isLemburRunning ? 'none' : 'block' }};">
             {{-- Timer Utama --}}
-            <h1 id="timerDisplay"
+            <h1 id="timerDisplay-{{ $jadwal_id }}"
                 class="font-bold text-center 
                     text-4xl sm:text-6xl lg:text-8xl   {{-- Ukuran lebih kecil di mobile --}}
                     py-2 sm:py-4">
@@ -17,7 +17,7 @@
 
         <div id="lemburContainer" style="display: {{ $isLemburRunning ? 'block' : 'none' }};">
             {{-- Timer Lembur --}}
-            <h1 id="lemburDisplay"
+            <h1 id="lemburDisplay-{{ $jadwal_id }}"
                 class="font-bold text-center 
                     text-3xl sm:text-5xl lg:text-6xl {{-- Ukuran lembur lebih kecil di mobile --}}
                     text-yellow-500 
@@ -32,7 +32,7 @@
         <div class="px-4 py-6 text-center">
             <div class="flex flex-col items-center space-y-2">
                 {{-- Tombol Mulai --}}
-                <button id="startButton" wire:click="$set('showStartModal', true)"
+                <button id="startButton-{{ $jadwal_id }}" wire:click="$set('showStartModal', true)"
                     class="px-6 py-2 font-bold rounded 
                 {{ $timeOut ? 'bg-gray-400 cursor-not-allowed' : 'bg-success-600 hover:bg-success-700 text-white' }}"
                     style="display: {{ $isRunning ? 'none' : 'inline-block' }}" {{ $timeOut ? 'disabled' : '' }}>
@@ -40,7 +40,7 @@
                 </button>
 
                 {{-- Tombol Selesai --}}
-                <button id="stopButton" wire:click="$set('showStopModal', true)"
+                <button id="stopButton-{{ $jadwal_id }}" wire:click="$set('showStopModal', true)"
                     class="px-6 py-2 font-bold rounded 
                 {{ !$isRunning || $timeOut ? 'bg-gray-600 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700 text-white' }}"
                     style="display: {{ $isRunning ? 'inline-block' : 'none' }}"
@@ -82,7 +82,7 @@
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
                         {{-- <button wire:click="startTimer"
                             class="px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700">Mulai</button> --}}
-                        <button onclick="kirimLokasiKeLivewire()"
+                        <button onclick="kirimLokasiKeLivewire({{ $jadwal_id }}, 'start')"
                             class="px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700">
                             Mulai
                         </button>
@@ -103,7 +103,7 @@
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
                         {{-- <button wire:click="openWorkReportModal"
                             class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Selesai</button> --}}
-                        <button onclick="kirimLokasiKeLivewire('stop')"
+                        <button onclick="kirimLokasiKeLivewire({{ $jadwal_id }}, 'stop')"
                             class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
                             Selesai
                         </button>
@@ -226,7 +226,7 @@
                 const minutes = Math.floor((timeElapsed % 3600) / 60).toString().padStart(2, '0');
                 const seconds = (timeElapsed % 60).toString().padStart(2, '0');
 
-                const display = document.getElementById('timerDisplay');
+                const display = document.getElementById('timerDisplay-{{ $jadwal_id }}');
 
                 if (days > 0) {
                     // Jika sudah lebih dari 24 jam → Tampilkan format dengan hari
@@ -289,7 +289,7 @@
                 updateTimerDisplay();
 
                 // Efek visual saat timer berhenti
-                const display = document.getElementById('timerDisplay');
+                const display = document.getElementById('timerDisplay-{{ $jadwal_id }}');
                 display.classList.add('text-gray-600', 'opacity-50');
             }
 
@@ -298,7 +298,7 @@
                 const minutes = Math.floor((timeElapsedLembur % 3600) / 60).toString().padStart(2, '0');
                 const seconds = (timeElapsedLembur % 60).toString().padStart(2, '0');
 
-                const display = document.getElementById('lemburDisplay');
+                const display = document.getElementById('lemburDisplay-{{ $jadwal_id }}');
                 if (display) {
                     display.innerText = `${hours}:${minutes}:${seconds}`;
                 }
@@ -735,7 +735,7 @@
                 };
             }
 
-            window.kirimLokasiKeLivewire = function(aksi = 'start') {
+            window.kirimLokasiKeLivewire = function(jadwalId, aksi = 'start') {
                 if (!lokasiTerakhir) {
                     Swal.fire({
                         icon: 'info',
