@@ -44,37 +44,7 @@ class Timer extends Component
     public $longitude;
 
     public $akanKembali = false;
-    public $showingModalForId = null;
-    public $isActive = false;
-    public $activeId;
 
-    public function updatedActiveId($value)
-    {
-        $expectedId = 'timer-' . $this->jadwal_id;
-        $this->isActive = $value === $expectedId;
-    }
-
-    protected $listeners = ['activate-timer' => 'handleActivateTimer'];
-
-    public function handleActivateTimer($activeId)
-    {
-        $expectedId = 'timer-' . $this->jadwal_id;
-
-        $this->isActive = $activeId === $expectedId;
-
-        if (!$this->isActive) {
-            // Reset modal-modal jika komponen ini tidak aktif
-            $this->reset([
-                'showStartModal',
-                'showStopModal',
-                'showDinasModal',
-                'showOvertimeModal',
-                'showLemburModal',
-            ]);
-        }
-
-        logger("🧩 Komponen {$expectedId} menerima → {$activeId} | isActive: " . ($this->isActive ? '✅' : '❌'));
-    }
     public function mount($jadwal_id)
     {
         $this->jadwal_id = $jadwal_id;
@@ -187,35 +157,19 @@ class Timer extends Component
             $this->timeElapsedLembur = $durationInSeconds;
         }
     }
-    public function openStartModal($id)
+    public function openStartModal()
     {
-        $expectedId = 'timer-' . $this->jadwal_id;
-
-        if ($expectedId !== 'timer-' . $id || !$this->isActive) {
-            logger("⛔ openStartModal() ditolak di {$expectedId} karena tidak aktif.");
-            return;
-        }
-
         $this->showStartModal = true;
-        logger("✅ openStartModal() dijalankan di komponen: {$expectedId}");
-    }
-
-    public function updatedShowStartModal($value)
-    {
-        if ($value && !$this->isActive) {
-            logger("⛔ [Timer {$this->jadwal_id}] Tidak aktif tapi diminta tampilkan modal. Dicegah.");
-            $this->showStartModal = false;
-        }
     }
 
     public function startTimer()
     {
-        // if (!$this->validasiLokasiAtauIp()) return;
+        if (!$this->validasiLokasiAtauIp()) return;
 
         if (!$this->isRunning) {
             $this->isRunning = true;
             $this->timeIn = now()->timestamp;
-            dd($this->jadwal_id);
+            // dd($this->jadwal_id);
             $jadwal = JadwalAbsensi::find($this->jadwal_id);
             if (!$jadwal) {
                 $this->dispatch('alert-error', message: 'Jadwal tidak ditemukan.');
@@ -270,7 +224,7 @@ class Timer extends Component
 
     public function openWorkReportModal()
     {
-        // if (!$this->validasiLokasiAtauIp()) return;
+        if (!$this->validasiLokasiAtauIp()) return;
 
         if ($this->isRunning) {
             $this->timeOut = now()->timestamp;
@@ -323,7 +277,7 @@ class Timer extends Component
 
     public function completeWorkReport()
     {
-        // if (!$this->validasiLokasiAtauIp()) return;
+        if (!$this->validasiLokasiAtauIp()) return;
 
         if (!$this->timeOut) return;
 
@@ -434,33 +388,41 @@ class Timer extends Component
         $jadwal = JadwalAbsensi::find($this->jadwal_id);
 
         if (!$jadwal) {
-            session()->flash('error', 'Jadwal tidak ditemukan.');
+            $this->dispatch('alert-error', 'Jadwal tidak ditemukan.');
             return;
         }
 
         $shift = Shift::find($jadwal->shift_id);
 
         if (!$shift) {
-            session()->flash('error', 'Shift tidak ditemukan.');
+            $this->dispatch('alert-error', 'Shift tidak ditemukan.');
             return;
         }
 
         if ($this->akanKembali) {
-            // ✅ Jika akan kembali → hanya update keterangan (tidak isi time_out)
-            Absen::updateOrCreate(
-                [
-                    'jadwal_id' => $this->jadwal_id,
-                    'user_id' => $user->id,
-                    'is_lembur' => false
-                ],
-                [
-                    'deskripsi_in' =>  'Dinas keluar: ' . ($this->deskripsi_dinas ?? '-'),
-                    'late' => false,
-                    'present' => 1,
-                    'status_absen_id' => 1,
-                    'is_dinas' => true,
-                ]
-            );
+            // ✅ Cari absen yang sudah ada
+            $absen = Absen::where('jadwal_id', $this->jadwal_id)
+                ->where('user_id', $user->id)
+                ->where(function ($q) {
+                    $q->where('is_lembur', false)->orWhereNull('is_lembur');
+                })
+                ->first();
+
+            if (!$absen) {
+                $this->dispatch('alert-error', 'Absensi belum dimulai, tidak bisa dinas keluar.');
+                return;
+            }
+
+            // Tambahkan keterangan dengan separator jika sudah ada sebelumnya
+            $deskripsiLama = $absen->deskripsi_in;
+            $deskripsiBaru = 'Dinas keluar: ' . ($this->deskripsi_dinas ?? '-');
+
+            $absen->update([
+                'is_dinas' => true,
+                'deskripsi_in' => $deskripsiLama
+                    ? $deskripsiLama . ' | ' . $deskripsiBaru
+                    : $deskripsiBaru,
+            ]);
         } else {
             // ✅ Tidak kembali → isi time_in & time_out sesuai shift
             Absen::updateOrCreate(
@@ -500,7 +462,8 @@ class Timer extends Component
             $this->dispatch('alert-error', message: 'Lembur sudah berjalan.');
             return;
         }
-        $this->timeInLembur = now()->timestamp;
+        $now = now(); // akan pakai timezone dari config/app.php
+        $this->timeInLembur = $now->timestamp;
         $this->isLemburRunning = true;
 
         // ✅ Simpan data lembur sebagai record baru
@@ -508,7 +471,7 @@ class Timer extends Component
             'jadwal_id' => $this->jadwal_id,
             'user_id' => Auth::id(),
             'time_in' => $this->timeInLembur,
-            'deskripsi_in' => 'Mulai lembur: ' .  Carbon::createFromTimestamp($this->timeInLembur)->format('H:i:s'),
+            'deskripsi_in' => 'Mulai lembur: ' . $now->format('H:i:s'),
             'deskripsi_lembur' => $this->deskripsi_lembur ?: '-',
             'status_absen_id' => StatusAbsen::where('nama', 'Lembur')->value('id') ?? null,
             'present' => 1,
@@ -531,24 +494,23 @@ class Timer extends Component
             $this->dispatch('alert-error', message: 'Lembur belum dimulai.');
             return;
         }
-        // Waktu mulai lembur (timestamp) dan waktu selesai lembur (timestamp saat ini)
-        $waktuMulaiLembur = $this->timeInLembur;  // time_in lembur sebagai timestamp
-        $waktuSelesaiLembur = Carbon::now()->timestamp;  // Waktu selesai lembur menggunakan timestamp saat ini
 
-        if ($waktuSelesaiLembur < $waktuMulaiLembur) {
-            // ✅ Jika waktu selesai lebih kecil → berarti sudah melewati tengah malam
-            $waktuSelesaiLembur += 86400; // Tambahkan 1 hari dalam detik (24 jam * 60 menit * 60 detik)
+        // Gunakan waktu lokal dari konfigurasi timezone
+        $now = now();
+        $waktuMulaiLembur = Carbon::createFromTimestamp($this->timeInLembur, 'Asia/Jakarta');
+        $waktuSelesaiLembur = $now;
+
+        // Jika selesai lebih kecil dari mulai, asumsikan lembur melewati tengah malam
+        if ($waktuSelesaiLembur->lt($waktuMulaiLembur)) {
+            $waktuSelesaiLembur->addDay(); // Tambahkan 1 hari
         }
 
-        // Menghitung durasi lembur dalam detik
-        $durasiLembur = $waktuSelesaiLembur - $waktuMulaiLembur; // Durasi dalam detik
+        $durasiLembur = max(0, $waktuMulaiLembur->diffInSeconds($waktuSelesaiLembur, false));
 
         if ($durasiLembur <= 0) {
             $this->dispatch('alert-error', message: 'Durasi lembur tidak valid.');
             return;
         }
-
-        $time_out_lembur = now()->timestamp;
 
         // ✅ Perbarui absen lembur terakhir dengan `is_lembur = true`
         $lembur = Absen::where('jadwal_id', $this->jadwal_id)
@@ -559,8 +521,8 @@ class Timer extends Component
 
         if ($lembur) {
             $lembur->update([
-                'time_out' => $time_out_lembur,
-                'deskripsi_out' => 'Selesai lembur: ' . Carbon::createFromTimestamp($time_out_lembur)->format('H:i:s'),
+                'time_out' => $waktuSelesaiLembur->timestamp,
+                'deskripsi_out' => 'Selesai lembur: ' . $waktuSelesaiLembur->format('H:i:s'),
                 'keterangan' => "Total lembur: " . gmdate('H:i:s', $durasiLembur),
                 'status_absen_id' => StatusAbsen::where('nama', 'Lembur')->value('id'),
             ]);

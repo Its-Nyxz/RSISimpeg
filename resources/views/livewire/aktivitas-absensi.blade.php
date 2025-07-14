@@ -21,7 +21,8 @@
                 <select wire:model.live="month"
                     class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-success-500">
                     @foreach (range(1, 12) as $m)
-                        <option value="{{ $m }}">{{ \Carbon\Carbon::create(null, $m)->translatedFormat('F') }}
+                        <option value="{{ $m }}">
+                            {{ \Carbon\Carbon::create(null, $m)->translatedFormat('F') }}
                         </option>
                     @endforeach
                 </select>
@@ -137,17 +138,12 @@
                                 {{ $item['hari'] }}
                             </td>
                             <td class="px-6 py-4">{{ $item['tanggal'] }}</td>
-                            <td class="px-6 py-4">{{ $item['jam_kerja'] }}</td>
-                            <td class="px-6 py-4">{{ $item['rencana_kerja'] }}</td>
-                            <td class="px-6 py-4">
-                                {{ $item['laporan_kerja'] }}
-                                {{-- <div class="text-sm text-gray-600 mt-1"> <!-- Tambahkan div untuk keterangan -->
-                                    <span class="font-medium">Keterangan:</span> {{ $item['keterangan'] ?? '-' }}
-                                </div> --}}
-                            </td>
-                            <th class="px-6 py-4">{{ $item['jam_lembur'] }}</th>
-                            <th class="px-6 py-4"> {!! $item['laporan_lembur'] !!}</th>
-                            <td class="px-6 py-4">{{ $item['feedback'] }}</td>
+                            <td class="px-6 py-4">{!! $item['jam_kerja'] !!}</td>
+                            <td class="px-6 py-4">{!! $item['jam_lembur'] !!}</td>
+                            <td class="px-6 py-4">{!! $item['rencana_kerja'] !!}</td>
+                            <td class="px-6 py-4">{!! $item['laporan_kerja'] !!}</td>
+                            <td class="px-6 py-4">{!! $item['laporan_lembur'] !!}</td>
+                            <td class="px-6 py-4">{!! $item['feedback'] !!}</td>
                             <td class="px-6 py-4">
                                 <div class="flex gap-2">
                                     @can('list-history-edit')

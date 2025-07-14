@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user(); // Ambil user yang sedang login
         $today = now();
@@ -26,13 +26,18 @@ class DashboardController extends Controller
 
 
         // Ambil jadwal milik user berdasarkan tanggal hari ini
-        $jadwal = $user->jadwalabsensi()
-            ->whereDate('tanggal_jadwal', now()->toDateString()) // Cari berdasarkan tanggal hari ini
-            ->first();
+        $jadwals = $user->jadwalabsensi()
+            ->whereDate('tanggal_jadwal', now()->toDateString())
+            ->with('shift')
+            ->get();
 
-        // Jika tidak ada jadwal, jadwal_id akan bernilai null
-        $jadwal_id = $jadwal ? $jadwal->id : null;
-        // dd($jadwal_id);
+        // Pilih salah satu jadwal
+        $selectedJadwal = $request->get('jadwal_id')
+            ? $jadwals->firstWhere('id', $request->get('jadwal_id'))
+            : $jadwals->first();
+
+        $jadwal_id = $selectedJadwal?->id;
+
 
         // Menyaring Sertifikat SIP/STR
         if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN') {
@@ -117,7 +122,9 @@ class DashboardController extends Controller
         $jumlahTanpaKeterangan = $this->hitungTanpaKeterangan($user->id, $bulanIni, $tahunIni);
 
         return view('dashboard.index', compact(
+            'jadwals',
             'jadwal_id',
+            'selectedJadwal',
             'masaBerlakuSipStr',
             'masaBerlakuPelatihan',
             'totalJumlahJamPelatihan',

@@ -16,6 +16,7 @@ class GenerateAbsenTimeout extends Command
         $this->info("⏳ Mengecek absensi tanpa time_out...");
 
         $absens = Absen::whereNull('time_out')
+            ->whereNull('is_lembur')
             ->where('present', 1)
             ->whereNull('absent')
             ->with(['jadwalAbsen.shift'])
@@ -41,16 +42,21 @@ class GenerateAbsenTimeout extends Command
                 ->setTimeFrom($jamKeluar);
 
             $now = now();
-            $jamTerlambat = $shiftSelesai->diffInHours($now, false);
+            $jamTerlambat = $now->diffInHours($shiftSelesai, false);
 
-            if ($jamTerlambat < 1 && !$this->option('force')) {
-                $this->line("⏸️  Absen ID {$absen->id} masih dalam toleransi (<6 jam setelah shift).");
+            if ($jamTerlambat <= 1 && !$this->option('force')) {
+                $this->line("⏸️  Absen ID {$absen->id} masih dalam toleransi (<=1 jam setelah shift).");
                 continue;
             }
 
+            $keteranganLama = $absen->keterangan;
+            $keteranganBaru = 'Timer otomatis ditutup oleh sistem (shift melebihi 1 jam)';
+
             $absen->update([
                 'time_out' => $shiftSelesai->timestamp,
-                'keterangan' => 'Timer otomatis ditutup oleh sistem (shift melebihi 6 jam)',
+                'keterangan' => $keteranganLama
+                    ? $keteranganLama . ' , ' . $keteranganBaru
+                    : $keteranganBaru,
                 'deskripsi_out' => 'Timer otomatis ditutup oleh sistem',
             ]);
 
