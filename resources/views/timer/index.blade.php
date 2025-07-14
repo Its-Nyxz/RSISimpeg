@@ -1,31 +1,95 @@
 <x-body>
-    {{-- @if ($jadwal_id) --}}
-    {{-- Jika jadwal tersedia, tampilkan komponen timer --}}
-    @forelse ($jadwals as $jadwal)
-        <div class="mb-6 p-4 border rounded shadow-sm">
-            <div class="mb-2 font-semibold text-gray-700">
-                Jadwal Shift: {{ $jadwal->shift->nama_shift }}
-                ({{ $jadwal->shift->jam_masuk }} - {{ $jadwal->shift->jam_keluar }})
+    @if ($jadwals->isEmpty())
+        <div class="text-gray-500 text-center mt-10">Tidak ada jadwal absensi hari ini.</div>
+    @else
+        {{-- Carousel Container --}}
+        <div class="relative w-full max-w-5xl mx-auto px-4 py-6">
+            {{-- Carousel Viewport (penting: overflow-x-hidden) --}}
+            <div class="overflow-x-hidden">
+                {{-- Carousel Inner (slide wrapper) --}}
+                <div id="carousel-inner" class="flex transition-transform duration-500 ease-in-out" style="width: 100%;">
+
+                    @foreach ($jadwals as $jadwal)
+                        {{-- Slide --}}
+                        <div class="min-w-full flex-shrink-0 px-4 box-border">
+                            <div class="p-6 rounded-lg border border-gray-200 shadow-md bg-white h-full">
+                                <div class="mb-4 text-lg font-semibold text-gray-800">
+                                    Jadwal Shift: {{ $jadwal->shift->nama_shift }}
+                                    <span class="block text-sm text-gray-500">
+                                        ({{ $jadwal->shift->jam_masuk }} - {{ $jadwal->shift->jam_keluar }})
+                                    </span>
+                                </div>
+
+                                {{-- Timer Livewire --}}
+                                <livewire:timer :jadwal_id="$jadwal->id" :wire:key="'timer-' . $jadwal->id" />
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
             </div>
 
-            {{-- Timer Livewire untuk masing-masing jadwal --}}
-            <livewire:timer :jadwal_id="$jadwal->id" :wire:key="'timer-'.$jadwal->id" :id="'timer-' . $jadwal->id" />
-        </div>
-    @empty
-        <div class="text-gray-500 text-center">Tidak ada jadwal absensi hari ini.</div>
-    @endforelse
-    {{-- @else --}}
-    {{-- Jika tidak ada jadwal, tampilkan pesan dengan Flowbite --}}
-    {{-- <div class="flex items-center p-4 mb-4 text-yellow-800 border border-yellow-300 rounded-lg bg-yellow-50"
-            role="alert">
-            <svg class="flex-shrink-0 w-6 h-6 text-yellow-800" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M13 16h-1v-4h-1m1-4h.01M12 20h.01M20.2 7c.7 1.6 1.8 2.4 1.8 4.5 0 3-1 4.5-3 5-1.5.4-2.5.5-4 1.5m-4 0c-1.5-1-2.5-1.1-4-1.5-2-.5-3-2-3-5 0-2.1 1.1-2.9 1.8-4.5" />
-            </svg>
-            <div class="ml-3 text-sm font-medium">
-                Tidak ada jadwal yang tersedia untuk hari ini. Silakan hubungi atasan atau admin jika ada kesalahan.
+            {{-- Tombol Navigasi --}}
+            <div class="absolute inset-y-0 left-0 flex items-center z-10 px-2">
+                <button onclick="showPrev()"
+                    class="bg-gray-600 hover:bg-gray-800 text-white w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-md focus:outline-none">
+                    ‹
+                </button>
+            </div>
+            <div class="absolute inset-y-0 right-0 flex items-center z-10 px-2">
+                <button onclick="showNext()"
+                    class="bg-green-600 hover:bg-green-800 text-white w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-md focus:outline-none">
+                    ›
+                </button>
+            </div>
+
+            {{-- Indikator --}}
+            <div class="mt-6 text-center text-sm text-green-600">
+                Menampilkan shift ke-<span id="shift-number">1</span> dari {{ count($jadwals) }}
             </div>
         </div>
-    @endif --}}
+
+        {{-- Script Carousel --}}
+        <script>
+            const totalSlides = {{ count($jadwals) }};
+            const carouselInner = document.getElementById('carousel-inner');
+            const shiftNum = document.getElementById('shift-number');
+            const jadwalIds = @json($jadwals->pluck('id')); // [1901, 1902, 1903, ...]
+            let currentIndex = 0;
+
+            function updateCarousel() {
+                const offset = -currentIndex * 100;
+                carouselInner.style.transform = `translateX(${offset}%)`;
+                shiftNum.textContent = currentIndex + 1;
+
+                updateActiveComponent();
+            }
+
+            function updateActiveComponent() {
+                const activeId = 'timer-' + jadwalIds[currentIndex];
+
+                console.log(`🌀 Geser ke shift index: ${currentIndex} → Komponen Aktif: ${activeId}`);
+
+                Livewire.dispatch('activate-timer', {
+                    activeId: 'timer-' + jadwalIds[currentIndex]
+                });
+            }
+
+            window.showNext = function() {
+                currentIndex = (currentIndex + 1) % totalSlides;
+                updateCarousel();
+            };
+
+            window.showPrev = function() {
+                currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+                updateCarousel();
+            };
+
+            document.addEventListener('livewire:load', () => {
+                Livewire.hook('message.processed', () => {
+                    updateCarousel();
+                });
+            });
+        </script>
+
+    @endif
 </x-body>

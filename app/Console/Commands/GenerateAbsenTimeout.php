@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 
 class GenerateAbsenTimeout extends Command
 {
-    protected $signature = 'app:generate-absen-timeout {--force}';
+    protected $signature = 'generate:absen-timeout {--force}';
     protected $description = 'Menutup otomatis absensi yang belum selesai jika shift sudah lewat 6 jam';
 
     public function handle()
@@ -17,14 +17,14 @@ class GenerateAbsenTimeout extends Command
 
         $absens = Absen::whereNull('time_out')
             ->where('present', 1)
-            ->where('is_lembur', false)
-            ->with(['jadwal.shift'])
+            ->whereNull('absent')
+            ->with(['jadwalAbsen.shift'])
             ->get();
 
         $updated = 0;
 
         foreach ($absens as $absen) {
-            $jadwal = $absen->jadwal;
+            $jadwal = $absen->jadwalAbsen;
             $shift = $jadwal?->shift;
 
             if (!$jadwal || !$shift) {
@@ -43,7 +43,7 @@ class GenerateAbsenTimeout extends Command
             $now = now();
             $jamTerlambat = $shiftSelesai->diffInHours($now, false);
 
-            if ($jamTerlambat < 6 && !$this->option('force')) {
+            if ($jamTerlambat < 1 && !$this->option('force')) {
                 $this->line("⏸️  Absen ID {$absen->id} masih dalam toleransi (<6 jam setelah shift).");
                 continue;
             }
@@ -51,6 +51,7 @@ class GenerateAbsenTimeout extends Command
             $absen->update([
                 'time_out' => $shiftSelesai->timestamp,
                 'keterangan' => 'Timer otomatis ditutup oleh sistem (shift melebihi 6 jam)',
+                'deskripsi_out' => 'Timer otomatis ditutup oleh sistem',
             ]);
 
             $this->info("✅ Timer absen ID {$absen->id} ditutup otomatis.");

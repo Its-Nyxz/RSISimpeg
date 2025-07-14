@@ -1,5 +1,12 @@
 <div>
-
+    @dump($isActive)
+    <div class="text-sm text-gray-400">
+        ID: timer-{{ $jadwal_id }} | isActive: {{ json_encode($isActive) }}
+    </div>
+    <div class="text-xs text-gray-400">
+        [timer-{{ $jadwal_id }}] isActive: {{ $isActive ? '✅' : '❌' }} | showStartModal:
+        {{ $showStartModal ? '🟢' : '⚪' }}
+    </div>
     <div class="p-4 text-left">
         {{-- Tanggal --}}
         <p class="text-gray-500">{{ now()->locale('id')->translatedFormat('l, d F Y') }}</p>
@@ -32,7 +39,7 @@
         <div class="px-4 py-6 text-center">
             <div class="flex flex-col items-center space-y-2">
                 {{-- Tombol Mulai --}}
-                <button id="startButton-{{ $jadwal_id }}" wire:click="$set('showStartModal', true)"
+                <button id="startButton-{{ $jadwal_id }}" wire:click="openStartModal({{ $jadwal_id }})"
                     class="px-6 py-2 font-bold rounded 
                 {{ $timeOut ? 'bg-gray-400 cursor-not-allowed' : 'bg-success-600 hover:bg-success-700 text-white' }}"
                     style="display: {{ $isRunning ? 'none' : 'inline-block' }}" {{ $timeOut ? 'disabled' : '' }}>
@@ -71,17 +78,17 @@
         </div>
 
         {{-- Modal untuk Mulai Timer --}}
-        @if ($showStartModal)
+        @if ($showStartModal && $isActive)
             <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                 <div class="bg-white p-6 rounded-md w-96">
                     <h2 class="text-xl font-bold mb-4">Mulai Timer</h2>
                     <textarea wire:model.defer="deskripsi_in" class="w-full p-2 border rounded-md"
                         placeholder="Masukkan deskripsi pekerjaan..."></textarea>
                     <div class="mt-4 flex justify-end gap-2">
-                        <button wire:click="$set('showStartModal', false)"
+                        <button wire:click="$set('showStartModal', false); $set('showingModalForId', null)"
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
                         {{-- <button wire:click="startTimer"
-                            class="px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700">Mulai</button> --}}
+                        class="px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700">Mulai</button> --}}
                         <button onclick="kirimLokasiKeLivewire({{ $jadwal_id }}, 'start')"
                             class="px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700">
                             Mulai
@@ -92,7 +99,7 @@
         @endif
 
         {{-- Modal untuk Selesai Timer --}}
-        @if ($showStopModal)
+        @if ($isActive && $showStopModal)
             <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                 <div class="bg-white p-6 rounded-md w-96">
                     <h2 class="text-xl font-bold mb-4">Selesai Timer</h2>
@@ -384,426 +391,433 @@
         <p class="font-semibold text-gray-600">{{ $this->absensiTanpaLembur->first()->deskripsi_out ?? '-' }}</p>
     @endif
 
+    @once
+        @push('scripts')
+            <script>
+                // const lokasiKantor = {
+                //     lat: -7.402330130327286,
+                //     lng: 109.615622721266,
+                //     radiusMeter: 100
+                // };
 
-    @push('scripts')
-        <script>
-            // const lokasiKantor = {
-            //     lat: -7.402330130327286,
-            //     lng: 109.615622721266,
-            //     radiusMeter: 100
-            // };
-
-            const areaPolygons = {
-                "RSI": [{
-                        lat: -7.401462324660784,
-                        lng: 109.61574443318705
-                    },
-                    {
-                        lat: -7.40146214270284,
-                        lng: 109.6157440761346
-                    },
-                    {
-                        lat: -7.4017712054383935,
-                        lng: 109.61499327224521
-                    },
-                    {
-                        lat: -7.403230824029308,
-                        lng: 109.61515910978147
-                    },
-                    {
-                        lat: -7.403165037042953,
-                        lng: 109.61580592184652
-                    },
-                    {
-                        lat: -7.402782968146411,
-                        lng: 109.6164214758092
-                    },
-                    {
-                        lat: -7.401966177920016,
-                        lng: 109.61618451323585
-                    },
-                    {
-                        lat: -7.40206468637885,
-                        lng: 109.61591235565817
-                    },
-                    {
-                        lat: -7.401462324660784,
-                        lng: 109.61574443318705
-                    }
-                ],
-                "Akunbiz": [{
-                        lat: -7.548413507144458,
-                        lng: 110.81252863588689
-                    },
-                    {
-                        lat: -7.548802885218547,
-                        lng: 110.81283553967711
-                    },
-                    {
-                        lat: -7.548381621290859,
-                        lng: 110.8132859282019
-                    },
-                    {
-                        lat: -7.548040287781695,
-                        lng: 110.8129615051734
-                    },
-                    {
-                        lat: -7.548413507144458,
-                        lng: 110.81252863588689
-                    }
-                ],
-                "Rumah": [{
-                        lat: -7.603560911411364,
-                        lng: 110.78382576729706
-                    },
-                    {
-                        lat: -7.603661241186458,
-                        lng: 110.78382576729706
-                    },
-                    {
-                        lat: -7.603661241186458,
-                        lng: 110.78398304726369
-                    },
-                    {
-                        lat: -7.603560911411364,
-                        lng: 110.78398304726369
-                    },
-                    {
-                        lat: -7.603560911411364,
-                        lng: 110.78382576729706
-                    }
-                ],
-                "Poliklinik": [{
-                        lat: -7.401821225185401,
-                        lng: 109.61501131827964
-                    },
-                    {
-                        lat: -7.402030471704805,
-                        lng: 109.61503914309628
-                    },
-                    {
-                        lat: -7.401977585231165,
-                        lng: 109.61537304089137
-                    },
-                    {
-                        lat: -7.401747643968704,
-                        lng: 109.61530347885127
-                    },
-                    {
-                        lat: -7.401821225185401,
-                        lng: 109.61501131827964
-                    }
-                ],
-                "Al Zaitun": [{
-                        lat: -7.402653611845423,
-                        lng: 109.615097111463
-                    },
-                    {
-                        lat: -7.4028467621173775,
-                        lng: 109.61511334260632
-                    },
-                    {
-                        lat: -7.4028145704119765,
-                        lng: 109.61525246668793
-                    },
-                    {
-                        lat: -7.402623719534873,
-                        lng: 109.61521304819797
-                    },
-                    {
-                        lat: -7.402653611845423,
-                        lng: 109.615097111463
-                    }
-                ],
-                "Assalam": [{
-                        lat: -7.402324796309088,
-                        lng: 109.61547042774959
-                    },
-                    {
-                        lat: -7.402485754994245,
-                        lng: 109.61550289003463
-                    },
-                    {
-                        lat: -7.402446665033025,
-                        lng: 109.61564433285128
-                    },
-                    {
-                        lat: -7.402306401026351,
-                        lng: 109.61560723309623
-                    },
-                    {
-                        lat: -7.402324796309088,
-                        lng: 109.61547042774959
-                    }
-                ],
-                "Al Amin": [{
-                        lat: -7.402980127731013,
-                        lng: 109.6153057975863
-                    },
-                    {
-                        lat: -7.403101996273804,
-                        lng: 109.61532898493294
-                    },
-                    {
-                        lat: -7.403028415270782,
-                        lng: 109.61549129636131
-                    },
-                    {
-                        lat: -7.402936439000513,
-                        lng: 109.61543564672803
-                    },
-                    {
-                        lat: -7.402980127731013,
-                        lng: 109.6153057975863
-                    }
-                ],
-                "As Syfa": [{
-                        lat: -7.402885852043113,
-                        lng: 109.61561187056475
-                    },
-                    {
-                        lat: -7.403049109930095,
-                        lng: 109.61560259562634
-                    },
-                    {
-                        lat: -7.403039912303285,
-                        lng: 109.61578577566792
-                    },
-                    {
-                        lat: -7.402883552635544,
-                        lng: 109.61576258831974
-                    },
-                    {
-                        lat: -7.402885852043113,
-                        lng: 109.61561187056475
-                    }
-                ]
-            };
-
-            let lokasiTerakhir = null;
-            let sudahPeringatkan = {
-                gerak: false,
-                emulator: false,
-                devtools: false
-            };
-
-            function hitungJarakMeter(lat1, lon1, lat2, lon2) {
-                const R = 6371000;
-                const dLat = (lat2 - lat1) * Math.PI / 180;
-                const dLon = (lon2 - lon1) * Math.PI / 180;
-                const a = Math.sin(dLat / 2) ** 2 +
-                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                    Math.sin(dLon / 2) ** 2;
-                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                return R * c;
-            }
-
-            function isInsidePolygon(point, polygon) {
-                let x = point.lat,
-                    y = point.lng;
-                let inside = false;
-
-                for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-                    let xi = polygon[i].lat,
-                        yi = polygon[i].lng;
-                    let xj = polygon[j].lat,
-                        yj = polygon[j].lng;
-
-                    let intersect = ((yi > y) !== (yj > y)) &&
-                        (x < (xj - xi) * (y - yi) / (yj - yi + 1e-10) + xi);
-                    if (intersect) inside = !inside;
-                }
-
-                return inside;
-            }
-
-            function simpanLokasi(lat, lng) {
-                const prev = JSON.parse(localStorage.getItem('lokasi_sebelumnya'));
-                const now = {
-                    lat,
-                    lng,
-                    waktu: Date.now()
+                const areaPolygons = {
+                    "RSI": [{
+                            lat: -7.401462324660784,
+                            lng: 109.61574443318705
+                        },
+                        {
+                            lat: -7.40146214270284,
+                            lng: 109.6157440761346
+                        },
+                        {
+                            lat: -7.4017712054383935,
+                            lng: 109.61499327224521
+                        },
+                        {
+                            lat: -7.403230824029308,
+                            lng: 109.61515910978147
+                        },
+                        {
+                            lat: -7.403165037042953,
+                            lng: 109.61580592184652
+                        },
+                        {
+                            lat: -7.402782968146411,
+                            lng: 109.6164214758092
+                        },
+                        {
+                            lat: -7.401966177920016,
+                            lng: 109.61618451323585
+                        },
+                        {
+                            lat: -7.40206468637885,
+                            lng: 109.61591235565817
+                        },
+                        {
+                            lat: -7.401462324660784,
+                            lng: 109.61574443318705
+                        }
+                    ],
+                    "Akunbiz": [{
+                            lat: -7.548413507144458,
+                            lng: 110.81252863588689
+                        },
+                        {
+                            lat: -7.548802885218547,
+                            lng: 110.81283553967711
+                        },
+                        {
+                            lat: -7.548381621290859,
+                            lng: 110.8132859282019
+                        },
+                        {
+                            lat: -7.548040287781695,
+                            lng: 110.8129615051734
+                        },
+                        {
+                            lat: -7.548413507144458,
+                            lng: 110.81252863588689
+                        }
+                    ],
+                    "Rumah": [{
+                            lat: -7.603560911411364,
+                            lng: 110.78382576729706
+                        },
+                        {
+                            lat: -7.603661241186458,
+                            lng: 110.78382576729706
+                        },
+                        {
+                            lat: -7.603661241186458,
+                            lng: 110.78398304726369
+                        },
+                        {
+                            lat: -7.603560911411364,
+                            lng: 110.78398304726369
+                        },
+                        {
+                            lat: -7.603560911411364,
+                            lng: 110.78382576729706
+                        }
+                    ],
+                    "Poliklinik": [{
+                            lat: -7.401821225185401,
+                            lng: 109.61501131827964
+                        },
+                        {
+                            lat: -7.402030471704805,
+                            lng: 109.61503914309628
+                        },
+                        {
+                            lat: -7.401977585231165,
+                            lng: 109.61537304089137
+                        },
+                        {
+                            lat: -7.401747643968704,
+                            lng: 109.61530347885127
+                        },
+                        {
+                            lat: -7.401821225185401,
+                            lng: 109.61501131827964
+                        }
+                    ],
+                    "Al Zaitun": [{
+                            lat: -7.402653611845423,
+                            lng: 109.615097111463
+                        },
+                        {
+                            lat: -7.4028467621173775,
+                            lng: 109.61511334260632
+                        },
+                        {
+                            lat: -7.4028145704119765,
+                            lng: 109.61525246668793
+                        },
+                        {
+                            lat: -7.402623719534873,
+                            lng: 109.61521304819797
+                        },
+                        {
+                            lat: -7.402653611845423,
+                            lng: 109.615097111463
+                        }
+                    ],
+                    "Assalam": [{
+                            lat: -7.402324796309088,
+                            lng: 109.61547042774959
+                        },
+                        {
+                            lat: -7.402485754994245,
+                            lng: 109.61550289003463
+                        },
+                        {
+                            lat: -7.402446665033025,
+                            lng: 109.61564433285128
+                        },
+                        {
+                            lat: -7.402306401026351,
+                            lng: 109.61560723309623
+                        },
+                        {
+                            lat: -7.402324796309088,
+                            lng: 109.61547042774959
+                        }
+                    ],
+                    "Al Amin": [{
+                            lat: -7.402980127731013,
+                            lng: 109.6153057975863
+                        },
+                        {
+                            lat: -7.403101996273804,
+                            lng: 109.61532898493294
+                        },
+                        {
+                            lat: -7.403028415270782,
+                            lng: 109.61549129636131
+                        },
+                        {
+                            lat: -7.402936439000513,
+                            lng: 109.61543564672803
+                        },
+                        {
+                            lat: -7.402980127731013,
+                            lng: 109.6153057975863
+                        }
+                    ],
+                    "As Syfa": [{
+                            lat: -7.402885852043113,
+                            lng: 109.61561187056475
+                        },
+                        {
+                            lat: -7.403049109930095,
+                            lng: 109.61560259562634
+                        },
+                        {
+                            lat: -7.403039912303285,
+                            lng: 109.61578577566792
+                        },
+                        {
+                            lat: -7.402883552635544,
+                            lng: 109.61576258831974
+                        },
+                        {
+                            lat: -7.402885852043113,
+                            lng: 109.61561187056475
+                        }
+                    ]
                 };
 
-                if (prev) {
-                    const jarak = hitungJarakMeter(lat, lng, prev.lat, prev.lng);
-                    const waktu = (now.waktu - prev.waktu) / 1000;
+                let lokasiTerakhir = null;
+                let sudahPeringatkan = {
+                    gerak: false,
+                    emulator: false,
+                    devtools: false
+                };
 
-                    if (jarak > 1000 && waktu < 30 && !sudahPeringatkan.gerak) {
-                        sudahPeringatkan.gerak = true;
+                function hitungJarakMeter(lat1, lon1, lat2, lon2) {
+                    const R = 6371000;
+                    const dLat = (lat2 - lat1) * Math.PI / 180;
+                    const dLon = (lon2 - lon1) * Math.PI / 180;
+                    const a = Math.sin(dLat / 2) ** 2 +
+                        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                        Math.sin(dLon / 2) ** 2;
+                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                    return R * c;
+                }
+
+                function isInsidePolygon(point, polygon) {
+                    let x = point.lat,
+                        y = point.lng;
+                    let inside = false;
+
+                    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+                        let xi = polygon[i].lat,
+                            yi = polygon[i].lng;
+                        let xj = polygon[j].lat,
+                            yj = polygon[j].lng;
+
+                        let intersect = ((yi > y) !== (yj > y)) &&
+                            (x < (xj - xi) * (y - yi) / (yj - yi + 1e-10) + xi);
+                        if (intersect) inside = !inside;
+                    }
+
+                    return inside;
+                }
+
+                function simpanLokasi(lat, lng) {
+                    const prev = JSON.parse(localStorage.getItem('lokasi_sebelumnya'));
+                    const now = {
+                        lat,
+                        lng,
+                        waktu: Date.now()
+                    };
+
+                    if (prev) {
+                        const jarak = hitungJarakMeter(lat, lng, prev.lat, prev.lng);
+                        const waktu = (now.waktu - prev.waktu) / 1000;
+
+                        if (jarak > 1000 && waktu < 30 && !sudahPeringatkan.gerak) {
+                            sudahPeringatkan.gerak = true;
+                            Swal.fire({
+                                icon: 'warning',
+                                title: '🚨 Gerakan Mencurigakan',
+                                text: `Berpindah ${Math.round(jarak)} meter dalam ${waktu} detik.`
+                            });
+                        }
+                    }
+
+                    localStorage.setItem('lokasi_sebelumnya', JSON.stringify(now));
+                }
+
+                function deteksiEmulator() {
+                    const agents = ['Genymotion', 'Emulator', 'SDK', 'Android SDK built', 'X86'];
+                    if (!sudahPeringatkan.emulator && agents.some(agent => navigator.userAgent.includes(agent))) {
+                        sudahPeringatkan.emulator = true;
                         Swal.fire({
                             icon: 'warning',
-                            title: '🚨 Gerakan Mencurigakan',
-                            text: `Berpindah ${Math.round(jarak)} meter dalam ${waktu} detik.`
+                            title: '⚠️ Emulator Terdeteksi',
+                            text: 'Anda tampaknya menggunakan emulator.'
                         });
                     }
                 }
 
-                localStorage.setItem('lokasi_sebelumnya', JSON.stringify(now));
-            }
-
-            function deteksiEmulator() {
-                const agents = ['Genymotion', 'Emulator', 'SDK', 'Android SDK built', 'X86'];
-                if (!sudahPeringatkan.emulator && agents.some(agent => navigator.userAgent.includes(agent))) {
-                    sudahPeringatkan.emulator = true;
-                    Swal.fire({
-                        icon: 'warning',
-                        title: '⚠️ Emulator Terdeteksi',
-                        text: 'Anda tampaknya menggunakan emulator.'
-                    });
-                }
-            }
-
-            function deteksiDevTools() {
-                const element = new Image();
-                Object.defineProperty(element, 'id', {
-                    get: function() {
-                        if (!sudahPeringatkan.devtools) {
-                            sudahPeringatkan.devtools = true;
-                            Swal.fire({
-                                icon: 'warning',
-                                title: '⚠️ DevTools Aktif',
-                                text: 'Developer Tools terdeteksi. Data mungkin tidak valid.'
-                            });
+                function deteksiDevTools() {
+                    const element = new Image();
+                    Object.defineProperty(element, 'id', {
+                        get: function() {
+                            if (!sudahPeringatkan.devtools) {
+                                sudahPeringatkan.devtools = true;
+                                Swal.fire({
+                                    icon: 'warning',
+                                    title: '⚠️ DevTools Aktif',
+                                    text: 'Developer Tools terdeteksi. Data mungkin tidak valid.'
+                                });
+                            }
                         }
-                    }
-                });
-                // console.log(element);
-            }
-
-            function ambilLokasiTerbaru() {
-                if (!navigator.geolocation) {
-                    Swal.fire('Error', 'Browser tidak mendukung Geolocation.', 'error');
-                    return;
-                }
-
-                navigator.geolocation.getCurrentPosition(
-                    function(pos) {
-                        const {
-                            latitude,
-                            longitude,
-                            accuracy
-                        } = pos.coords;
-                        lokasiTerakhir = {
-                            lat: latitude,
-                            lng: longitude,
-                            accuracy
-                        };
-
-                        simpanLokasi(latitude, longitude);
-                        deteksiEmulator();
-                        deteksiDevTools();
-                        console.log("Latitude:", latitude);
-                        console.log("Longitude:", longitude);
-                    },
-                    function() {
-                        Swal.fire('Gagal', 'Izin lokasi dibutuhkan.', 'error');
-                    }, {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 30000
-                    }
-                );
-            }
-
-            // function validasiJarak(lat, lng) {
-            //     const jarak = hitungJarakMeter(lat, lng, lokasiKantor.lat, lokasiKantor.lng);
-            //     return {
-            //         jarak,
-            //         valid: jarak <= lokasiKantor.radiusMeter
-            //     };
-            // }
-
-            function validasiLokasiPolygon(lat, lng) {
-                const point = {
-                    lat,
-                    lng
-                };
-
-                for (const [namaArea, polygon] of Object.entries(areaPolygons)) {
-                    if (isInsidePolygon(point, polygon)) {
-                        return {
-                            valid: true,
-                            lokasi: namaArea
-                        };
-                    }
-                }
-
-                return {
-                    valid: false,
-                    lokasi: 'Luar Area'
-                };
-            }
-
-            window.kirimLokasiKeLivewire = function(jadwalId, aksi = 'start') {
-                if (!lokasiTerakhir) {
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Menunggu Lokasi',
-                        text: 'Sistem sedang mencoba mendeteksi lokasi Anda. Mohon tunggu beberapa saat.',
                     });
-                    return;
+                    // console.log(element);
                 }
 
-                // const hasilValidasi = validasiJarak(lokasiTerakhir.lat, lokasiTerakhir.lng);
+                function ambilLokasiTerbaru() {
+                    if (!navigator.geolocation) {
+                        Swal.fire('Error', 'Browser tidak mendukung Geolocation.', 'error');
+                        return;
+                    }
 
-                const hasilValidasi = validasiLokasiPolygon(lokasiTerakhir.lat, lokasiTerakhir.lng);
-                console.log("📍 Lokasi valid di area:", hasilValidasi.lokasi);
+                    navigator.geolocation.getCurrentPosition(
+                        function(pos) {
+                            const {
+                                latitude,
+                                longitude,
+                                accuracy
+                            } = pos.coords;
+                            lokasiTerakhir = {
+                                lat: latitude,
+                                lng: longitude,
+                                accuracy
+                            };
 
-                // Jika jarak tidak valid DAN lokasi terakhir belum diperbarui dalam 15 detik
-                const lastUpdate = JSON.parse(localStorage.getItem('lokasi_sebelumnya'));
-                const now = Date.now();
-                const ageInSeconds = lastUpdate ? (now - lastUpdate.waktu) / 1000 : null;
-                console.log("Usia lokasi terakhir:", ageInSeconds, "detik");
+                            simpanLokasi(latitude, longitude);
+                            deteksiEmulator();
+                            deteksiDevTools();
+                            console.log("Latitude:", latitude);
+                            console.log("Longitude:", longitude);
+                        },
+                        function() {
+                            Swal.fire('Gagal', 'Izin lokasi dibutuhkan.', 'error');
+                        }, {
+                            enableHighAccuracy: true,
+                            timeout: 10000,
+                            maximumAge: 30000
+                        }
+                    );
+                }
 
-                // if (!hasilValidasi.valid) {
-                //     if (ageInSeconds !== null && ageInSeconds < 15) {
-                //         Swal.fire({
-                //             icon: 'info',
-                //             title: 'Menunggu Lokasi Akurat',
-                //             text: 'Lokasi belum terdeteksi dengan akurat. Silakan tunggu beberapa saat dan coba kembali.',
-                //             timer: 3000,
-                //             showConfirmButton: false
-                //         });
-                //     } else {
-                //         Swal.fire({
-                //             icon: 'warning',
-                //             title: 'Di Luar Area RSI Banjarnegara',
-                //             text: `Jarak Anda: ${Math.round(hasilValidasi.jarak)} meter dari area kantor.`,
-                //             timer: 3000,
-                //             showConfirmButton: false
-                //         });
-                //     }
-                //     return;
+                // function validasiJarak(lat, lng) {
+                //     const jarak = hitungJarakMeter(lat, lng, lokasiKantor.lat, lokasiKantor.lng);
+                //     return {
+                //         jarak,
+                //         valid: jarak <= lokasiKantor.radiusMeter
+                //     };
                 // }
 
-                @this.set('latitude', lokasiTerakhir.lat);
-                @this.set('longitude', lokasiTerakhir.lng);
+                function validasiLokasiPolygon(lat, lng) {
+                    const point = {
+                        lat,
+                        lng
+                    };
 
-                if (aksi === 'start') {
-                    @this.call('startTimer');
-                } else if (aksi === 'stop') {
-                    @this.call('openWorkReportModal');
-                }
-            };
-
-            document.addEventListener('DOMContentLoaded', () => {
-                // Ambil lokasi pertama kali
-                ambilLokasiTerbaru();
-
-                // Pastikan `lokasiTerakhir` tersedia sebelum memungkinkan aksi absensi
-                let cekInterval = setInterval(() => {
-                    if (lokasiTerakhir) {
-                        clearInterval(cekInterval);
-                        console.log('✅ Lokasi awal berhasil didapat.');
-                    } else {
-                        console.log('⏳ Menunggu lokasi awal...');
+                    for (const [namaArea, polygon] of Object.entries(areaPolygons)) {
+                        if (isInsidePolygon(point, polygon)) {
+                            return {
+                                valid: true,
+                                lokasi: namaArea
+                            };
+                        }
                     }
-                }, 2000); // cek setiap 2 detik
 
-                // Refresh lokasi setiap 60 detik
-                setInterval(ambilLokasiTerbaru, 30000);
-            });
-        </script>
-    @endpush
+                    return {
+                        valid: false,
+                        lokasi: 'Luar Area'
+                    };
+                }
+
+                window.kirimLokasiKeLivewire = function(jadwalId, aksi = 'start') {
+                    if (!lokasiTerakhir) {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Menunggu Lokasi',
+                            text: 'Sistem sedang mencoba mendeteksi lokasi Anda. Mohon tunggu beberapa saat.',
+                        });
+                        return;
+                    }
+
+                    // const hasilValidasi = validasiJarak(lokasiTerakhir.lat, lokasiTerakhir.lng);
+
+                    const hasilValidasi = validasiLokasiPolygon(lokasiTerakhir.lat, lokasiTerakhir.lng);
+                    console.log("📍 Lokasi valid di area:", hasilValidasi.lokasi);
+
+                    // Jika jarak tidak valid DAN lokasi terakhir belum diperbarui dalam 15 detik
+                    const lastUpdate = JSON.parse(localStorage.getItem('lokasi_sebelumnya'));
+                    const now = Date.now();
+                    const ageInSeconds = lastUpdate ? (now - lastUpdate.waktu) / 1000 : null;
+                    console.log("Usia lokasi terakhir:", ageInSeconds, "detik");
+
+                    // if (!hasilValidasi.valid) {
+                    //     if (ageInSeconds !== null && ageInSeconds < 15) {
+                    //         Swal.fire({
+                    //             icon: 'info',
+                    //             title: 'Menunggu Lokasi Akurat',
+                    //             text: 'Lokasi belum terdeteksi dengan akurat. Silakan tunggu beberapa saat dan coba kembali.',
+                    //             timer: 3000,
+                    //             showConfirmButton: false
+                    //         });
+                    //     } else {
+                    //         Swal.fire({
+                    //             icon: 'warning',
+                    //             title: 'Di Luar Area RSI Banjarnegara',
+                    //             text: `Jarak Anda: ${Math.round(hasilValidasi.jarak)} meter dari area kantor.`,
+                    //             timer: 3000,
+                    //             showConfirmButton: false
+                    //         });
+                    //     }
+                    //     return;
+                    // }
+
+                    const component = Livewire.find('timer-' + jadwalId);
+                    if (!component) {
+                        console.error('Component tidak ditemukan:', jadwalId);
+                        return;
+                    }
+
+                    component.set('latitude', lokasiTerakhir.lat);
+                    component.set('longitude', lokasiTerakhir.lng);
+
+                    if (aksi === 'start') {
+                        component.call('startTimer');
+                    } else if (aksi === 'stop') {
+                        component.call('openWorkReportModal');
+                    }
+                };
+
+                document.addEventListener('DOMContentLoaded', () => {
+                    // Ambil lokasi pertama kali
+                    ambilLokasiTerbaru();
+
+                    // Pastikan `lokasiTerakhir` tersedia sebelum memungkinkan aksi absensi
+                    let cekInterval = setInterval(() => {
+                        if (lokasiTerakhir) {
+                            clearInterval(cekInterval);
+                            console.log('✅ Lokasi awal berhasil didapat.');
+                        } else {
+                            console.log('⏳ Menunggu lokasi awal...');
+                        }
+                    }, 2000); // cek setiap 2 detik
+
+                    // Refresh lokasi setiap 60 detik
+                    setInterval(ambilLokasiTerbaru, 30000);
+                });
+            </script>
+        @endpush
+    @endonce
 </div>

@@ -44,7 +44,37 @@ class Timer extends Component
     public $longitude;
 
     public $akanKembali = false;
+    public $showingModalForId = null;
+    public $isActive = false;
+    public $activeId;
 
+    public function updatedActiveId($value)
+    {
+        $expectedId = 'timer-' . $this->jadwal_id;
+        $this->isActive = $value === $expectedId;
+    }
+
+    protected $listeners = ['activate-timer' => 'handleActivateTimer'];
+
+    public function handleActivateTimer($activeId)
+    {
+        $expectedId = 'timer-' . $this->jadwal_id;
+
+        $this->isActive = $activeId === $expectedId;
+
+        if (!$this->isActive) {
+            // Reset modal-modal jika komponen ini tidak aktif
+            $this->reset([
+                'showStartModal',
+                'showStopModal',
+                'showDinasModal',
+                'showOvertimeModal',
+                'showLemburModal',
+            ]);
+        }
+
+        logger("🧩 Komponen {$expectedId} menerima → {$activeId} | isActive: " . ($this->isActive ? '✅' : '❌'));
+    }
     public function mount($jadwal_id)
     {
         $this->jadwal_id = $jadwal_id;
@@ -157,9 +187,25 @@ class Timer extends Component
             $this->timeElapsedLembur = $durationInSeconds;
         }
     }
-    public function openStartModal()
+    public function openStartModal($id)
     {
+        $expectedId = 'timer-' . $this->jadwal_id;
+
+        if ($expectedId !== 'timer-' . $id || !$this->isActive) {
+            logger("⛔ openStartModal() ditolak di {$expectedId} karena tidak aktif.");
+            return;
+        }
+
         $this->showStartModal = true;
+        logger("✅ openStartModal() dijalankan di komponen: {$expectedId}");
+    }
+
+    public function updatedShowStartModal($value)
+    {
+        if ($value && !$this->isActive) {
+            logger("⛔ [Timer {$this->jadwal_id}] Tidak aktif tapi diminta tampilkan modal. Dicegah.");
+            $this->showStartModal = false;
+        }
     }
 
     public function startTimer()
@@ -169,7 +215,7 @@ class Timer extends Component
         if (!$this->isRunning) {
             $this->isRunning = true;
             $this->timeIn = now()->timestamp;
-            // dd($this->jadwal_id);
+            dd($this->jadwal_id);
             $jadwal = JadwalAbsensi::find($this->jadwal_id);
             if (!$jadwal) {
                 $this->dispatch('alert-error', message: 'Jadwal tidak ditemukan.');
@@ -229,7 +275,7 @@ class Timer extends Component
         if ($this->isRunning) {
             $this->timeOut = now()->timestamp;
             $this->isRunning = false;
-            dd($this->jadwal_id);
+            // dd($this->jadwal_id);
             $timeIn = Carbon::createFromTimestamp($this->timeIn);
             $timeOut = Carbon::createFromTimestamp($this->timeOut);
 
@@ -430,7 +476,7 @@ class Timer extends Component
                     'status_absen_id' => 1,
                     'present' => 1,
                     'is_dinas' => true,
-                    'keterangan' => "Dinas Keluar Terhitung Hadir dan 8 Jam kerja",
+                    'keterangan' => "Dinas Keluar Terhitung Hadir",
                 ]
             );
         }
