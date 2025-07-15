@@ -603,16 +603,6 @@ class Timer extends Component
             'lng' => 109.6156227212665
         ];
 
-        $polygon = [
-            [-7.401462324660784, 109.61574443318705],
-            [-7.40206468637885, 109.61591235565817],
-            [-7.401966177920016, 109.61618451323585],
-            [-7.402782968146411, 109.6164214758092],
-            [-7.403165037042953, 109.61580592184652],
-            [-7.403230824029308, 109.61515910978147],
-            [-7.4017712054383935, 109.61499327224521],
-            [-7.40146214270284, 109.6157440761346] // titik akhir = awal
-        ];
 
         // Jika tidak ada lokasi, tetap izinkan jika IP cocok
         // if (!$this->latitude || !$this->longitude) {
@@ -638,7 +628,18 @@ class Timer extends Component
         //     $this->dispatch('alert-error', message: 'Anda tidak berada di lokasi atau jaringan RSI Banjarnegara.');
         //     // $this->dispatch('alert-error', message: 'Anda tidak berada di lokasi RSI Banjarnegara.');
         //     return false;
-        // }
+        // }  
+        $polygon = [
+            [-7.401462324660784, 109.61574443318705],
+            [-7.40206468637885, 109.61591235565817],
+            [-7.401966177920016, 109.61618451323585],
+            [-7.402782968146411, 109.6164214758092],
+            [-7.403165037042953, 109.61580592184652],
+            [-7.403230824029308, 109.61515910978147],
+            [-7.4017712054383935, 109.61499327224521],
+            [-7.40146214270284, 109.6157440761346] // titik akhir = awal
+        ];
+
 
         $lokasiValid = $this->isPointInPolygon($this->latitude, $this->longitude, $polygon);
 
@@ -649,7 +650,7 @@ class Timer extends Component
         }
 
 
-        $user = auth()->user()->load(['kategorijabatan', 'kategorifungsional']);
+        $user = auth()->user()->load(['kategorijabatan', 'kategorifungsional', 'unitKerja']);
 
         // Tambahkan deteksi perangkat
         if (!$this->isMobileDevice()) {
@@ -697,14 +698,46 @@ class Timer extends Component
                 [-7.402936439000513, 109.61543564672803],
                 [-7.402980127731013, 109.6153057975863]
             ],
-            'As Syfa' => [
+            'As Syfa, Azizah, Linen' => [
                 [-7.402885852043113, 109.61561187056475],
                 [-7.403049109930095, 109.61560259562634],
                 [-7.403039912303285, 109.61578577566792],
                 [-7.402883552635544, 109.61576258831974],
                 [-7.402885852043113, 109.61561187056475]
-            ]
+            ],
+            'IGD' => [
+                [-7.401659183958827, 109.61552313374159],
+                [-7.401886996374344, 109.61559330748901],
+                [-7.40184011537265, 109.6157580311268],
+                [-7.4016174305459685, 109.61566421990761],
+                [-7.401659183958827, 109.61552313374159]
+            ],
+            'PJBR,Al Munawarah' => [
+                [-7.4020741205731895, 109.61585653258936],
+                [-7.4022450055152405, 109.61590157103598],
+                [-7.402153737430012, 109.61623838028669],
+                [-7.401977026826486, 109.61617963448765],
+                [-7.4020741205731895, 109.61585653258936]
+            ],
+            'Sanitasi, Sarpras, Logistik' => [
+                [-7.402476088495291, 109.61588003072177],
+                [-7.4026314383043825, 109.61579582840909],
+                [-7.402878056011886, 109.61591136181488],
+                [-7.402722706290845, 109.61639503556557],
+                [-7.402396471697884, 109.61628929312644],
+                [-7.402476088495291, 109.61588003072177]
+            ],
+            'Firdaus' => [
+                [-7.402982917042792, 109.61513004268068],
+                [-7.4031868134210015, 109.61514962461365],
+                [-7.403188755291026, 109.61525340885936],
+                [-7.403122731712273, 109.61533956936557],
+                [-7.402942137756085, 109.61527103260005],
+                [-7.402982917042792, 109.61513004268068]
+            ],
         ];
+
+
 
         // Cek apakah user adalah Dokter Spesialis part-time
 
@@ -715,10 +748,35 @@ class Timer extends Component
             )
             && $user->jenis->nama === 'Part Time';
 
+        $unitToAreaMap = [
+            'IGD' => 'IGD',
+            'PJBR' => 'PJBR,Al Munawarah',
+            'INST SANITASI' => 'Sanitasi, Sarpras, Logistik',
+            'INST PEML SARPRAS' => 'Sanitasi, Sarpras, Logistik',
+            'ASET & LOGISTIK' => 'Sanitasi, Sarpras, Logistik',
+            'AZIZIAH' => 'As Syfa, Azizah, Linen',
+            'PENGELOLAAN LINEN' => 'As Syfa, Azizah, Linen',
+            'FIRDAUS' => 'Firdaus',
+            'ASSALAM' => 'Assalam',
+            'ALZAITUN' => 'Al Zaitun',
+            'AL AMIN' => 'Al Amin',
+            'ASSYFA' => 'As Syfa, Azizah, Linen'
+        ];
+
+
         // Tentukan area mana yang boleh digunakan user
-        $allowedAreas = $isDokterSpesialisParttime
-            ? array_keys($polygons) // semua area
-            : ['RSI']; // default hanya RSI
+        // 2. Tentukan area mana yang boleh digunakan user
+        if ($isDokterSpesialisParttime) {
+            // Dokter Spesialis Part Time hanya boleh di luar RSI
+            $allowedAreas = array_filter(array_keys($polygons), fn($area) => $area !== 'RSI');
+        } elseif (
+            isset($user->unitKerja->nama)
+            && isset($unitToAreaMap[$user->unitKerja->nama])
+            && isset($polygons[$unitToAreaMap[$user->unitKerja->nama]])
+        ) {
+            // Gunakan area yang dipetakan dari nama unit
+            $allowedAreas = [$unitToAreaMap[$user->unitKerja->nama]];
+        }
 
         // Cek apakah user berada dalam area yang diizinkan
         foreach ($allowedAreas as $areaName) {

@@ -177,46 +177,45 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- Kolom Kiri (Lebih Besar) -->
         <div class="md:col-span-2 space-y-4">
-            <div class="mb-4">
-                <x-card title="Timer">
-                    @if ($jadwals->count() > 1)
-                        <div class="mb-4">
-                            <label for="jadwalSelect" class="block text-sm font-medium text-gray-700 mb-1">
-                                Pilih Jadwal:
-                            </label>
-                            <select id="jadwalSelect" onchange="window.location = '?jadwal_id=' + this.value"
-                                class="block w-full max-w-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
-                                @foreach ($jadwals as $jadwal)
-                                    <option value="{{ $jadwal->id }}"
-                                        {{ $jadwal->id == $jadwal_id ? 'selected' : '' }}>
-                                        {{ $jadwal->shift->nama_shift ?? 'Tanpa Shift' }} -
-                                        {{ \Carbon\Carbon::parse($jadwal->shift?->jam_masuk)->format('H:i') }}
-                                        s/d
-                                        {{ \Carbon\Carbon::parse($jadwal->shift?->jam_keluar)->format('H:i') }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                    @elseif ($jadwals->count() === 1)
-                        <div class="mb-4 text-sm text-gray-700">
-                            <strong>Shift:</strong>
-                            {{ $jadwals[0]->shift->nama_shift ?? 'Tanpa Shift' }} -
-                            {{ \Carbon\Carbon::parse($jadwals[0]->shift?->jam_masuk)->format('H:i') }}
-                            s/d
-                            {{ \Carbon\Carbon::parse($jadwals[0]->shift?->jam_keluar)->format('H:i') }}
-                        </div>
-                    @endif
 
-                    @if ($jadwal_id)
-                        <livewire:timer :jadwal_id="$jadwal_id" />
-                    @else
-                        <p class="text-sm text-gray-500">Tidak ada jadwal untuk hari ini.</p>
-                    @endif
-                </x-card>
-            </div>
-            <!-- Kolom Kanan -->
-            <div class="md:col-span-1">
-                {{-- @if (auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN' || auth()->user()->hasRole('Super Admin'))
+            <x-card title="Timer">
+                @if ($jadwals->count() > 1)
+                    <div class="mb-4">
+                        <label for="jadwalSelect" class="block text-sm font-medium text-gray-700 mb-1">
+                            Pilih Jadwal:
+                        </label>
+                        <select id="jadwalSelect" onchange="window.location = '?jadwal_id=' + this.value"
+                            class="block w-full max-w-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
+                            @foreach ($jadwals as $jadwal)
+                                <option value="{{ $jadwal->id }}" {{ $jadwal->id == $jadwal_id ? 'selected' : '' }}>
+                                    {{ $jadwal->shift->nama_shift ?? 'Tanpa Shift' }} -
+                                    {{ \Carbon\Carbon::parse($jadwal->shift?->jam_masuk)->format('H:i') }}
+                                    s/d
+                                    {{ \Carbon\Carbon::parse($jadwal->shift?->jam_keluar)->format('H:i') }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                @elseif ($jadwals->count() === 1)
+                    <div class="mb-4 text-sm text-gray-700">
+                        <strong>Shift:</strong>
+                        {{ $jadwals[0]->shift->nama_shift ?? 'Tanpa Shift' }} -
+                        {{ \Carbon\Carbon::parse($jadwals[0]->shift?->jam_masuk)->format('H:i') }}
+                        s/d
+                        {{ \Carbon\Carbon::parse($jadwals[0]->shift?->jam_keluar)->format('H:i') }}
+                    </div>
+                @endif
+
+                @if ($jadwal_id)
+                    <livewire:timer :jadwal_id="$jadwal_id" />
+                @else
+                    <livewire:timer :jadwal_id="$jadwal_id" />
+                @endif
+            </x-card>
+        </div>
+        <!-- Kolom Kanan -->
+        <div class="md:col-span-1">
+            {{-- @if (auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN' || auth()->user()->hasRole('Super Admin'))
                 <x-card title="Total Karyawan" class="mb-4">
                     <div class="flex flex-col items-left" style="margin-left: 30px;">
                         <div class="flex items-left gap-6 mb-4">
@@ -271,78 +270,79 @@
                     </div>
                 </x-card>
             @endif --}}
-                <x-card title="Detail" class="mb-4">
-                    <div class="flex flex-col gap-4 p-4">
+            <x-card title="Detail" class="mb-4">
+                <div class="flex flex-col gap-4 p-4">
+                    <div class="flex justify-between">
+                        <div class="font-semibold">Sisa Cuti Tahunan</div>
+                        <div>{{ $sisaCutiTahunan }} kali</div>
+                    </div>
+                    <div class="flex justify-between">
+                        <div class="font-semibold">Keterlambatan Per Bulan</div>
+                        <div>{{ $jumlahKeterlambatan }} kali </div>
+                    </div>
+                    <div class="font-semibold">
+                        Izin :
+                    </div>
+                    <div class="ml-4 flex flex-col gap-2">
                         <div class="flex justify-between">
-                            <div class="font-semibold">Sisa Cuti Tahunan</div>
-                            <div>{{ $sisaCutiTahunan }} kali</div>
+                            <div>Sakit</div>
+                            <div>{{ $jumlahIzin['sakit'] }} kali</div>
                         </div>
                         <div class="flex justify-between">
-                            <div class="font-semibold">Keterlambatan Per Bulan</div>
-                            <div>{{ $jumlahKeterlambatan }} kali </div>
+                            <div>Tugas</div>
+                            <div>{{ $jumlahIzin['tugas'] }} kali</div>
                         </div>
-                        <div class="font-semibold">
-                            Izin :
+                        <div class="flex justify-between">
+                            <div>Keluarga</div>
+                            <div>{{ $jumlahIzin['keluarga'] }} kali</div>
                         </div>
-                        <div class="ml-4 flex flex-col gap-2">
-                            <div class="flex justify-between">
-                                <div>Sakit</div>
-                                <div>{{ $jumlahIzin['sakit'] }} kali</div>
-                            </div>
-                            <div class="flex justify-between">
-                                <div>Tugas</div>
-                                <div>{{ $jumlahIzin['tugas'] }} kali</div>
-                            </div>
-                            <div class="flex justify-between">
-                                <div>Keluarga</div>
-                                <div>{{ $jumlahIzin['keluarga'] }} kali</div>
-                            </div>
-                            <div class="flex justify-between">
-                                <div>Tanpa Keterangan</div>
-                                <div>{{ $jumlahTanpaKeterangan }} kali</div>
-                            </div>
+                        <div class="flex justify-between">
+                            <div>Tanpa Keterangan</div>
+                            <div>{{ $jumlahTanpaKeterangan }} kali</div>
                         </div>
                     </div>
-                </x-card>
-
-
-                <x-card title="Pengajuan" class="mb-4">
-                    <div class="flex flex-wrap gap-3 justify-start items-center">
-                        <!-- ✅ Tombol Cuti -->
-                        <a href="{{ route('pengajuan.create', ['tipe' => 'cuti']) }}"
-                            class="inline-flex items-center px-5 py-3 text-white font-medium rounded-full shadow-md
-                   bg-success-500 hover:bg-success-400 transition-all duration-300 transform hover:-translate-y-1">
-                            Cuti
-                            <i class="fa-solid fa-circle-chevron-right ml-2 text-white"></i>
-                        </a>
-
-                        <!-- ✅ Tombol Ijin -->
-                        <a href="{{ route('pengajuan.create', ['tipe' => 'ijin']) }}"
-                            class="inline-flex items-center px-5 py-3 text-white font-medium rounded-full shadow-md
-                   bg-blue-500 hover:bg-blue-400 transition-all duration-300 transform hover:-translate-y-1">
-                            Ijin
-                            <i class="fa-solid fa-circle-chevron-right ml-2 text-white"></i>
-                        </a>
-
-                        <!-- ✅ Tombol Tukar Jadwal -->
-                        <a href="{{ route('pengajuan.create', ['tipe' => 'tukar_jadwal']) }}"
-                            class="inline-flex items-center px-5 py-3 text-white font-medium rounded-full shadow-md
-                   bg-yellow-500 hover:bg-yellow-400 transition-all duration-300 transform hover:-translate-y-1">
-                            Tukar Jadwal
-                            <i class="fa-solid fa-circle-chevron-right ml-2 text-white"></i>
-                        </a>
-                    </div>
-                </x-card>
-
-
-            </div>
-
-        </div>
-        <div>
-            <x-card title="Jadwal Absen">
-                <livewire:data-jadwal />
+                </div>
             </x-card>
+
+
+            <x-card title="Pengajuan" class="mb-4">
+                <div class="flex flex-wrap gap-3 justify-start items-center">
+                    <!-- ✅ Tombol Cuti -->
+                    <a href="{{ route('pengajuan.create', ['tipe' => 'cuti']) }}"
+                        class="inline-flex items-center px-5 py-3 text-white font-medium rounded-full shadow-md
+                   bg-success-500 hover:bg-success-400 transition-all duration-300 transform hover:-translate-y-1">
+                        Cuti
+                        <i class="fa-solid fa-circle-chevron-right ml-2 text-white"></i>
+                    </a>
+
+                    <!-- ✅ Tombol Ijin -->
+                    <a href="{{ route('pengajuan.create', ['tipe' => 'ijin']) }}"
+                        class="inline-flex items-center px-5 py-3 text-white font-medium rounded-full shadow-md
+                   bg-blue-500 hover:bg-blue-400 transition-all duration-300 transform hover:-translate-y-1">
+                        Ijin
+                        <i class="fa-solid fa-circle-chevron-right ml-2 text-white"></i>
+                    </a>
+
+                    <!-- ✅ Tombol Tukar Jadwal -->
+                    <a href="{{ route('pengajuan.create', ['tipe' => 'tukar_jadwal']) }}"
+                        class="inline-flex items-center px-5 py-3 text-white font-medium rounded-full shadow-md
+                   bg-yellow-500 hover:bg-yellow-400 transition-all duration-300 transform hover:-translate-y-1">
+                        Tukar Jadwal
+                        <i class="fa-solid fa-circle-chevron-right ml-2 text-white"></i>
+                    </a>
+                </div>
+            </x-card>
+
+
         </div>
+
+
+    </div>
+    <div>
+        <x-card title="Jadwal Absen">
+            <livewire:data-jadwal />
+        </x-card>
+    </div>
 
 
 </x-body>
