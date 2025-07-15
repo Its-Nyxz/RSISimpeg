@@ -810,34 +810,51 @@
                     lat,
                     lng
                 };
-                let areaTerdekat = null;
-                let jarakTerdekat = Infinity;
+                const areaRSI = [
+                    "RSI",
+                    "IGD",
+                    "Poliklinik",
+                    "Al Zaitun",
+                    "Assalam",
+                    "Al Amin",
+                    "As Syfa, Azizah, Linen",
+                    "PJBR,Al Munawarah",
+                    "Sanitasi, Sarpras, Logistik",
+                    "Firdaus"
+                ];
 
                 for (const [namaArea, polygon] of Object.entries(areaPolygons)) {
                     if (isInsidePolygon(point, polygon)) {
-                        console.log(`✅ Valid: Di dalam area "${namaArea}"`);
-                        return {
-                            valid: true,
-                            lokasi: namaArea,
-                            jarak: 0
-                        };
-                    }
-
-                    // Hitung jarak ke titik pertama dari polygon sebagai pendekatan
-                    const jarak = hitungJarakMeter(lat, lng, polygon[0].lat, polygon[0].lng);
-                    if (jarak < jarakTerdekat) {
-                        jarakTerdekat = jarak;
-                        areaTerdekat = namaArea;
+                        if (areaRSI.includes(namaArea)) {
+                            console.log(`✅ Valid: Di dalam area RSI (${namaArea})`);
+                            return {
+                                valid: true,
+                                lokasi: namaArea,
+                                jarak: 0
+                            };
+                        } else {
+                            console.log(`🚫 Area ditemukan (${namaArea}) tapi bukan bagian dari RSI`);
+                            return {
+                                valid: false,
+                                lokasi: `Luar Area RSI (${namaArea})`,
+                                jarak: 0
+                            };
+                        }
                     }
                 }
 
-                console.log(
-                    `❌ Tidak valid: Di luar semua area, jarak ${Math.round(jarakTerdekat)} meter ke area terdekat "${areaTerdekat}"`
-                );
+                // Jika tidak masuk ke polygon mana pun, cari jarak ke RSI (misalnya titik pusat RSI)
+                const pusatRSI = {
+                    lat: -7.402065,
+                    lng: 109.615913
+                }; // bisa juga ambil dari polygon["RSI"][0]
+                const jarak = hitungJarakMeter(lat, lng, pusatRSI.lat, pusatRSI.lng);
+
+                console.log(`❌ Tidak valid: Di luar semua area RSI, jarak ${Math.round(jarak)} meter`);
                 return {
                     valid: false,
-                    lokasi: `Luar Area (${areaTerdekat})`,
-                    jarak: jarakTerdekat
+                    lokasi: "Luar Area RSI",
+                    jarak: jarak
                 };
             }
 
@@ -875,7 +892,7 @@
                         Swal.fire({
                             icon: 'warning',
                             title: 'Di Luar Area RSI Banjarnegara',
-                            text: `Jarak Anda: ${Math.round(hasilValidasi.jarak)} meter dari area terdekat (${hasilValidasi.lokasi}).`,
+                            text: `Jarak Anda: ${Math.round(hasilValidasi.jarak)} meter dari area RSI.`,
                             timer: 3000,
                             showConfirmButton: false
                         });
