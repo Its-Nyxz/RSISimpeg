@@ -79,11 +79,11 @@
                     <div class="mt-4 flex justify-end gap-2">
                         <button wire:click="$set('showStartModal', false)"
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
-                        <button wire:click="startTimer"
-                            class="px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700">Mulai</button>
-                        {{-- <button onclick="kirimLokasiKeLivewire({{ $jadwal_id }}, 'start')"
+                        {{-- <button wire:click="startTimer"
+                            class="px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700">Mulai</button> --}}
+                        <button onclick="kirimLokasiKeLivewire({{ $jadwal_id }}, 'start')"
                             class="px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700">
-                            Mulai --}}
+                            Mulai
                         </button>
                     </div>
                 </div>
@@ -100,11 +100,11 @@
                     <div class="mt-4 flex justify-end gap-2">
                         <button wire:click="$set('showStopModal', false)"
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
-                        <button wire:click="openWorkReportModal"
-                            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Selesai</button>
-                        {{-- <button onclick="kirimLokasiKeLivewire({{ $jadwal_id }}, 'stop')"
+                        {{-- <button wire:click="openWorkReportModal"
+                            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Selesai</button> --}}
+                        <button onclick="kirimLokasiKeLivewire({{ $jadwal_id }}, 'stop')"
                             class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
-                            Selesai --}}
+                            Selesai
                         </button>
                     </div>
                 </div>
@@ -813,6 +813,7 @@
 
                 for (const [namaArea, polygon] of Object.entries(areaPolygons)) {
                     if (isInsidePolygon(point, polygon)) {
+                        console.log(`✅ Valid: Di dalam area "${namaArea}"`);
                         return {
                             valid: true,
                             lokasi: namaArea
@@ -820,6 +821,7 @@
                     }
                 }
 
+                console.log(`❌ Tidak valid: Di luar semua area`);
                 return {
                     valid: false,
                     lokasi: 'Luar Area'
