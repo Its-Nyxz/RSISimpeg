@@ -858,10 +858,19 @@
                 };
                 const jarak = hitungJarakMeter(lat, lng, pusatAkunbiz.lat, pusatAkunbiz.lng);
 
-                console.log(`❌ Tidak valid: Di luar semua area RSI, jarak ${Math.round(jarak)} meter`);
+                if (jarak <= 100) {
+                    console.log(`✅ Valid: Di dalam radius toleransi 100m dari Akunbiz (jarak ${Math.round(jarak)} m)`);
+                    return {
+                        valid: true,
+                        lokasi: "Sekitar Akunbiz (radius)",
+                        jarak: jarak
+                    };
+                }
+
+                console.log(`❌ Tidak valid: Di luar semua area dan radius, jarak ${Math.round(jarak)} meter`);
                 return {
                     valid: false,
-                    lokasi: "Luar Area RSI",
+                    lokasi: "Luar Area Akunbiz",
                     jarak: jarak
                 };
             }
