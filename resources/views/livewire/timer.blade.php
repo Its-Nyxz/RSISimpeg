@@ -450,27 +450,27 @@
                         lng: 110.81252863588689
                     }
                 ],
-                // "Rumah": [{
-                //         lat: -7.603560911411364,
-                //         lng: 110.78382576729706
-                //     },
-                //     {
-                //         lat: -7.603661241186458,
-                //         lng: 110.78382576729706
-                //     },
-                //     {
-                //         lat: -7.603661241186458,
-                //         lng: 110.78398304726369
-                //     },
-                //     {
-                //         lat: -7.603560911411364,
-                //         lng: 110.78398304726369
-                //     },
-                //     {
-                //         lat: -7.603560911411364,
-                //         lng: 110.78382576729706
-                //     }
-                // ],
+                "Rumah": [{
+                        lat: -7.603560911411364,
+                        lng: 110.78382576729706
+                    },
+                    {
+                        lat: -7.603661241186458,
+                        lng: 110.78382576729706
+                    },
+                    {
+                        lat: -7.603661241186458,
+                        lng: 110.78398304726369
+                    },
+                    {
+                        lat: -7.603560911411364,
+                        lng: 110.78398304726369
+                    },
+                    {
+                        lat: -7.603560911411364,
+                        lng: 110.78382576729706
+                    }
+                ],
                 "Poliklinik": [{
                         lat: -7.401821225185401,
                         lng: 109.61501131827964
@@ -805,121 +805,28 @@
             //     };
             // }
 
-            function jarakTitikKeSegmen(point, p1, p2) {
-                const toRad = Math.PI / 180;
-                const lat = point.lat;
-                const lng = point.lng;
-
-                const x0 = lng,
-                    y0 = lat;
-                const x1 = p1.lng,
-                    y1 = p1.lat;
-                const x2 = p2.lng,
-                    y2 = p2.lat;
-
-                const dx = x2 - x1;
-                const dy = y2 - y1;
-
-                if (dx === 0 && dy === 0) {
-                    return hitungJarakMeter(y0, x0, y1, x1);
-                }
-
-                const t = ((x0 - x1) * dx + (y0 - y1) * dy) / (dx * dx + dy * dy);
-                const tClamped = Math.max(0, Math.min(1, t));
-
-                const xt = x1 + tClamped * dx;
-                const yt = y1 + tClamped * dy;
-
-                return hitungJarakMeter(y0, x0, yt, xt);
-            }
-
-            function jarakKePolygon(point, polygon) {
-                let minJarak = Infinity;
-                for (let i = 0; i < polygon.length; i++) {
-                    const p1 = polygon[i];
-                    const p2 = polygon[(i + 1) % polygon.length];
-                    const jarak = jarakTitikKeSegmen(point, p1, p2);
-                    if (jarak < minJarak) {
-                        minJarak = jarak;
-                    }
-                }
-                return minJarak;
-            }
-
             function validasiLokasiPolygon(lat, lng) {
                 const point = {
                     lat,
                     lng
                 };
-                const areaRSI = [
-                    "RSI",
-                    "Akunbiz",
-                    "IGD",
-                    "Poliklinik",
-                    "Al Zaitun",
-                    "Assalam",
-                    "Al Amin",
-                    "As Syfa, Azizah, Linen",
-                    "PJBR,Al Munawarah",
-                    "Sanitasi, Sarpras, Logistik",
-                    "Firdaus"
-                ];
-                // 1. Cek apakah di dalam area RSI
+
                 for (const [namaArea, polygon] of Object.entries(areaPolygons)) {
                     if (isInsidePolygon(point, polygon)) {
-                        if (areaRSI.includes(namaArea)) {
-                            console.log(`✅ Valid: Di dalam area RSI (${namaArea})`);
-                            return {
-                                valid: true,
-                                lokasi: namaArea,
-                                jarak: 0
-                            };
-                        } else {
-                            console.log(`🚫 Area ditemukan (${namaArea}) tapi bukan bagian dari RSI`);
-                            return {
-                                valid: false,
-                                lokasi: `Luar Area RSI (${namaArea})`,
-                                jarak: 0
-                            };
-                        }
+                        console.log(`✅ Valid: Di dalam area "${namaArea}"`);
+                        return {
+                            valid: true,
+                            lokasi: namaArea
+                        };
                     }
                 }
 
-                // 2. Hitung jarak ke area RSI terdekat
-                let minJarak = Infinity;
-                let areaTerdekat = null;
-
-                for (const [namaArea, polygon] of Object.entries(areaPolygons)) {
-                    if (areaRSI.includes(namaArea)) {
-                        const jarak = jarakKePolygon(point, polygon);
-                        if (jarak < minJarak) {
-                            minJarak = jarak;
-                            areaTerdekat = namaArea;
-                        }
-                    }
-                }
-
-                // 3. Toleransi: masih dianggap valid jika dalam jarak ≤ 10 meter dari area RSI
-                const toleransiMeter = 10;
-                if (minJarak <= toleransiMeter) {
-                    console.log(
-                        `⚠️ Dalam toleransi ${toleransiMeter} meter dari area RSI (${areaTerdekat}), jarak: ${Math.round(minJarak)} m`
-                    );
-                    return {
-                        valid: true,
-                        lokasi: `${areaTerdekat} (±${Math.round(minJarak)}m dari batas)`,
-                        jarak: minJarak
-                    };
-                }
-
-                console.log(`❌ Tidak valid: Di luar semua area RSI, jarak ke ${areaTerdekat}: ${Math.round(minJarak)} meter`);
+                console.log(`❌ Tidak valid: Di luar semua area`);
                 return {
                     valid: false,
-                    lokasi: `Luar Area RSI (dekat ${areaTerdekat})`,
-                    jarak: minJarak
+                    lokasi: 'Luar Area'
                 };
             }
-
 
             window.kirimLokasiKeLivewire = function(aksi = 'start') {
                 if (!lokasiTerakhir) {
@@ -936,14 +843,14 @@
                 const hasilValidasi = validasiLokasiPolygon(lokasiTerakhir.lat, lokasiTerakhir.lng);
                 console.log("📍 Lokasi valid di area:", hasilValidasi.lokasi);
 
-                // Jika jarak tidak valid DAN lokasi terakhir belum diperbarui dalam 5 detik
+                // Jika jarak tidak valid DAN lokasi terakhir belum diperbarui dalam 15 detik
                 const lastUpdate = JSON.parse(localStorage.getItem('lokasi_sebelumnya'));
                 const now = Date.now();
                 const ageInSeconds = lastUpdate ? (now - lastUpdate.waktu) / 1000 : null;
                 console.log("Usia lokasi terakhir:", ageInSeconds, "detik");
 
                 if (!hasilValidasi.valid) {
-                    if (ageInSeconds !== null && ageInSeconds < 5) {
+                    if (ageInSeconds !== null && ageInSeconds < 15) {
                         Swal.fire({
                             icon: 'info',
                             title: 'Menunggu Lokasi Akurat',
@@ -955,7 +862,7 @@
                         Swal.fire({
                             icon: 'warning',
                             title: 'Di Luar Area RSI Banjarnegara',
-                            text: `Jarak Anda: ${Math.round(hasilValidasi.jarak)} meter dari area RSI.`,
+                            text: `Jarak Anda: ${Math.round(hasilValidasi.jarak)} meter dari area kantor.`,
                             timer: 3000,
                             showConfirmButton: false
                         });
