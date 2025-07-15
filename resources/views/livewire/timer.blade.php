@@ -429,27 +429,27 @@
                         lng: 109.61574443318705
                     }
                 ],
-                // "Akunbiz": [{
-                //         lat: -7.548413507144458,
-                //         lng: 110.81252863588689
-                //     },
-                //     {
-                //         lat: -7.548802885218547,
-                //         lng: 110.81283553967711
-                //     },
-                //     {
-                //         lat: -7.548381621290859,
-                //         lng: 110.8132859282019
-                //     },
-                //     {
-                //         lat: -7.548040287781695,
-                //         lng: 110.8129615051734
-                //     },
-                //     {
-                //         lat: -7.548413507144458,
-                //         lng: 110.81252863588689
-                //     }
-                // ],
+                "Akunbiz": [{
+                        lat: -7.548413507144458,
+                        lng: 110.81252863588689
+                    },
+                    {
+                        lat: -7.548802885218547,
+                        lng: 110.81283553967711
+                    },
+                    {
+                        lat: -7.548381621290859,
+                        lng: 110.8132859282019
+                    },
+                    {
+                        lat: -7.548040287781695,
+                        lng: 110.8129615051734
+                    },
+                    {
+                        lat: -7.548413507144458,
+                        lng: 110.81252863588689
+                    }
+                ],
                 // "Rumah": [{
                 //         lat: -7.603560911411364,
                 //         lng: 110.78382576729706
@@ -810,17 +810,21 @@
                     lat,
                     lng
                 };
+                // const areaRSI = [
+                //     "RSI",
+                //     "Akunbiz",
+                //     "IGD",
+                //     "Poliklinik",
+                //     "Al Zaitun",
+                //     "Assalam",
+                //     "Al Amin",
+                //     "As Syfa, Azizah, Linen",
+                //     "PJBR,Al Munawarah",
+                //     "Sanitasi, Sarpras, Logistik",
+                //     "Firdaus"
+                // ];
                 const areaRSI = [
-                    "RSI",
-                    "IGD",
-                    "Poliklinik",
-                    "Al Zaitun",
-                    "Assalam",
-                    "Al Amin",
-                    "As Syfa, Azizah, Linen",
-                    "PJBR,Al Munawarah",
-                    "Sanitasi, Sarpras, Logistik",
-                    "Firdaus"
+                    "Akunbiz"
                 ];
 
                 for (const [namaArea, polygon] of Object.entries(areaPolygons)) {
@@ -848,7 +852,8 @@
                     lat: -7.402065,
                     lng: 109.615913
                 }; // bisa juga ambil dari polygon["RSI"][0]
-                const jarak = hitungJarakMeter(lat, lng, pusatRSI.lat, pusatRSI.lng);
+                const pusatAkunbiz = { lat: -7.548413507144458, lng: 110.81252863588689 };
+                const jarak = hitungJarakMeter(lat, lng, pusatAkunbiz.lat, pusatAkunbiz.lng);
 
                 console.log(`❌ Tidak valid: Di luar semua area RSI, jarak ${Math.round(jarak)} meter`);
                 return {
