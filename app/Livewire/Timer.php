@@ -571,7 +571,7 @@ class Timer extends Component
         // if (session()->pull('override_lokasi_rsi')) {
         //     return true;
         // }
-
+        
         // -7.402330130327286, 109.6156227212665
 
         // lat long akunbiz : -7.548218078368806, 110.81261315327455

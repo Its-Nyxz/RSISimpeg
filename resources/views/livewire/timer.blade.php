@@ -81,7 +81,7 @@
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
                         {{-- <button wire:click="startTimer"
                             class="px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700">Mulai</button> --}}
-                        <button onclick="kirimLokasiKeLivewire({{ $jadwal_id }}, 'start')"
+                        <button onclick="kirimLokasiKeLivewire('start')"
                             class="px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700">
                             Mulai
                         </button>
@@ -102,7 +102,7 @@
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
                         {{-- <button wire:click="openWorkReportModal"
                             class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Selesai</button> --}}
-                        <button onclick="kirimLokasiKeLivewire({{ $jadwal_id }}, 'stop')"
+                        <button onclick="kirimLokasiKeLivewire('stop')"
                             class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
                             Selesai
                         </button>
@@ -893,22 +893,22 @@
 
                 // const hasilValidasi = validasiLokasiPolygon(lokasiTerakhir.lat, lokasiTerakhir.lng);
 
-                const hasilValidasi = validasiLokasiPolygon(lokasiTerakhir.lat, lokasiTerakhir.lng, 20);
-                if (!hasilValidasi.valid) {
-                    // hanya tampilkan alert, tidak memblokir
-                    Swal.fire({
-                        title: 'Peringatan',
-                        text: 'Lokasi Anda mungkin di luar area absensi. Mohon pastikan sudah berada di area yang benar.',
-                        icon: 'warning',
-                    });
-                }
-                console.log("📍 Lokasi valid di area:", hasilValidasi.lokasi);
+                // const hasilValidasi = validasiLokasiPolygon(lokasiTerakhir.lat, lokasiTerakhir.lng, 20);
+                // if (!hasilValidasi.valid) {
+                //     // hanya tampilkan alert, tidak memblokir
+                //     Swal.fire({
+                //         title: 'Peringatan',
+                //         text: 'Lokasi Anda mungkin di luar area absensi. Mohon pastikan sudah berada di area yang benar.',
+                //         icon: 'warning',
+                //     });
+                // }
+                // console.log("📍 Lokasi valid di area:", hasilValidasi.lokasi);
 
                 // Jika jarak tidak valid DAN lokasi terakhir belum diperbarui dalam 5 detik
-                const lastUpdate = JSON.parse(localStorage.getItem('lokasi_sebelumnya'));
-                const now = Date.now();
-                const ageInSeconds = lastUpdate ? (now - lastUpdate.waktu) / 1000 : null;
-                console.log("Usia lokasi terakhir:", ageInSeconds, "detik");
+                // const lastUpdate = JSON.parse(localStorage.getItem('lokasi_sebelumnya'));
+                // const now = Date.now();
+                // const ageInSeconds = lastUpdate ? (now - lastUpdate.waktu) / 1000 : null;
+                // console.log("Usia lokasi terakhir:", ageInSeconds, "detik");
 
                 // if (!hasilValidasi.valid) {
                 //     if (ageInSeconds !== null && ageInSeconds < 5) {
@@ -961,4 +961,69 @@
             });
         </script>
     @endpush
+
+    {{-- @push('scripts')
+        <script>
+            let lokasiTerakhir = null;
+
+            function ambilLokasiTerbaru() {
+                if (!navigator.geolocation) {
+                    Swal.fire('Error', 'Browser tidak mendukung Geolocation.', 'error');
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    function(pos) {
+                        const {
+                            latitude,
+                            longitude
+                        } = pos.coords;
+                        lokasiTerakhir = {
+                            lat: latitude,
+                            lng: longitude
+                        };
+
+                        console.log("📍 Lokasi didapat:", latitude, longitude);
+                    },
+                    function() {
+                        Swal.fire('Gagal', 'Izin lokasi dibutuhkan.', 'error');
+                    }, {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 30000
+                    }
+                );
+            }
+
+            // Fungsi kirim ke Livewire
+            window.kirimLokasiKeLivewire = function(aksi = 'start') {
+                if (!lokasiTerakhir) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Menunggu Lokasi',
+                        text: 'Sistem sedang mencoba mendeteksi lokasi Anda. Mohon tunggu beberapa saat.',
+                    });
+                    return;
+                }
+
+                // Kirim lokasi ke Livewire (biar backend yang validasi polygon)
+                @this.set('latitude', lokasiTerakhir.lat);
+                @this.set('longitude', lokasiTerakhir.lng);
+
+                if (aksi === 'start') {
+                    @this.call('startTimer');
+                } else if (aksi === 'stop') {
+                    @this.call('openWorkReportModal');
+                }
+            };
+
+            document.addEventListener('DOMContentLoaded', () => {
+                ambilLokasiTerbaru();
+
+                // Ambil lokasi ulang setiap 30 detik
+                setInterval(ambilLokasiTerbaru, 30000);
+            });
+        </script>
+    @endpush --}}
+
 </div>
