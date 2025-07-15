@@ -890,6 +890,19 @@
                     }
                 }
 
+                // 3. Toleransi: masih dianggap valid jika dalam jarak ≤ 10 meter dari area RSI
+                const toleransiMeter = 10;
+                if (minJarak <= toleransiMeter) {
+                    console.log(
+                        `⚠️ Dalam toleransi ${toleransiMeter} meter dari area RSI (${areaTerdekat}), jarak: ${Math.round(minJarak)} m`
+                        );
+                    return {
+                        valid: true,
+                        lokasi: `${areaTerdekat} (±${Math.round(minJarak)}m dari batas)`,
+                        jarak: minJarak
+                    };
+                }
+
                 console.log(`❌ Tidak valid: Di luar semua area RSI, jarak ke ${areaTerdekat}: ${Math.round(minJarak)} meter`);
                 return {
                     valid: false,
@@ -897,6 +910,7 @@
                     jarak: minJarak
                 };
             }
+
 
             window.kirimLokasiKeLivewire = function(aksi = 'start') {
                 if (!lokasiTerakhir) {
