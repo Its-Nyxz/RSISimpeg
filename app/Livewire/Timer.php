@@ -648,6 +648,11 @@ class Timer extends Component
             [-7.548413507144458, 110.81252863588689] // titik akhir = awal
         ];
 
+        if (!$this->latitude || !$this->longitude) {
+            $this->dispatch('alert-error', message: 'Lokasi belum tersedia.');
+            return false;
+        }
+
         $lokasiValid = $this->isPointInPolygon($this->latitude, $this->longitude, $polygonAkunbiz);
 
         // if (!$lokasiValid && !in_array($ipPrefix, $ipPrefixWhitelist)) {
@@ -774,22 +779,23 @@ class Timer extends Component
         // Tentukan area mana yang boleh digunakan user
         // 2. Tentukan area mana yang boleh digunakan user
         if ($isDokterSpesialisParttime) {
-            // Dokter Spesialis Part Time hanya boleh di luar RSI
             $allowedAreas = array_filter(array_keys($polygons), fn($area) => $area !== 'RSI');
         } elseif (
             isset($user->unitKerja->nama)
             && isset($unitToAreaMap[$user->unitKerja->nama])
             && isset($polygons[$unitToAreaMap[$user->unitKerja->nama]])
         ) {
-            // Gunakan area yang dipetakan dari nama unit
             $allowedAreas = [$unitToAreaMap[$user->unitKerja->nama]];
+        } else {
+            // fallback agar tetap bisa validasi minimal area RSI
+            $allowedAreas = ['RSI'];
         }
 
         // Cek apakah user berada dalam area yang diizinkan
         foreach ($allowedAreas as $areaName) {
-            if ($this->isPointInPolygon($this->latitude, $this->longitude, $polygons[$areaName])) {
-                return true; // lokasi valid
-            }
+            $result = $this->isPointInPolygon($this->latitude, $this->longitude, $polygons[$areaName]);
+            logger("Cek area: $areaName", ['valid' => $result]);
+            if ($result) return true;
         }
 
         $this->dispatch('alert-error', message: 'Anda tidak berada di area absensi yang diizinkan.');
