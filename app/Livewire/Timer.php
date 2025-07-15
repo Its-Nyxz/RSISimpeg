@@ -655,7 +655,7 @@ class Timer extends Component
             return false;
         }
 
-        $lokasiValid = $this->isPointInPolygon($this->latitude, $this->longitude, $polygonAkunbiz);
+        $lokasiValid = $this->isPointInPolygon($this->latitude, $this->longitude, $polygon);
 
         // if (!$lokasiValid && !in_array($ipPrefix, $ipPrefixWhitelist)) {
         if (!$lokasiValid) {
@@ -691,7 +691,8 @@ class Timer extends Component
                 [-7.403165037042953, 109.61580592184652],
                 [-7.403230824029308, 109.61515910978147],
                 [-7.4017712054383935, 109.61499327224521],
-                [-7.40146214270284, 109.6157440761346]
+                [-7.40146214270284, 109.6157440761346],
+                [-7.401462324660784, 109.61574443318705] // titik penutup
             ],
             'Poliklinik' => [
                 [-7.401821225185401, 109.61501131827964],
@@ -797,7 +798,7 @@ class Timer extends Component
             $allowedAreas = [$unitToAreaMap[$user->unitKerja->nama]];
         } else {
             // fallback agar tetap bisa validasi minimal area RSI
-            $allowedAreas = ['akunbiz'];
+            $allowedAreas = ['RSI'];
         }
 
         // Cek apakah user berada dalam area yang diizinkan
