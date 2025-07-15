@@ -852,7 +852,10 @@
                     lat: -7.402065,
                     lng: 109.615913
                 }; // bisa juga ambil dari polygon["RSI"][0]
-                const pusatAkunbiz = { lat: -7.548413507144458, lng: 110.81252863588689 };
+                const pusatAkunbiz = {
+                    lat: -7.548218078368806,
+                    lng: 110.81261315327455
+                };
                 const jarak = hitungJarakMeter(lat, lng, pusatAkunbiz.lat, pusatAkunbiz.lng);
 
                 console.log(`❌ Tidak valid: Di luar semua area RSI, jarak ${Math.round(jarak)} meter`);
