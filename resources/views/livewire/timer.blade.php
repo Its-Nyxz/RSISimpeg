@@ -805,7 +805,48 @@
             //     };
             // }
 
-            function validasiLokasiPolygon(lat, lng) {
+            function jarakKeSegment(p, a, b) {
+                const R = 6371000; // Earth radius in meters
+                const toRad = deg => deg * Math.PI / 180;
+
+                // Convert points to 2D space
+                const lat1 = toRad(a.lat),
+                    lon1 = toRad(a.lng);
+                const lat2 = toRad(b.lat),
+                    lon2 = toRad(b.lng);
+                const lat3 = toRad(p.lat),
+                    lon3 = toRad(p.lng);
+
+                const A = {
+                    x: R * lon1 * Math.cos(lat1),
+                    y: R * lat1
+                };
+                const B = {
+                    x: R * lon2 * Math.cos(lat2),
+                    y: R * lat2
+                };
+                const P = {
+                    x: R * lon3 * Math.cos(lat3),
+                    y: R * lat3
+                };
+
+                // Proyeksi titik ke garis AB
+                const ABx = B.x - A.x;
+                const ABy = B.y - A.y;
+                const t = ((P.x - A.x) * ABx + (P.y - A.y) * ABy) / (ABx ** 2 + ABy ** 2);
+
+                const tClamped = Math.max(0, Math.min(1, t));
+                const closest = {
+                    x: A.x + tClamped * ABx,
+                    y: A.y + tClamped * ABy
+                };
+
+                const dx = P.x - closest.x;
+                const dy = P.y - closest.y;
+                return Math.sqrt(dx * dx + dy * dy);
+            }
+
+            function validasiLokasiPolygon(lat, lng, toleransi = 20) {
                 const point = {
                     lat,
                     lng
@@ -813,20 +854,30 @@
 
                 for (const [namaArea, polygon] of Object.entries(areaPolygons)) {
                     if (isInsidePolygon(point, polygon)) {
-                        console.log(`✅ Valid: Di dalam area "${namaArea}"`);
                         return {
                             valid: true,
                             lokasi: namaArea
                         };
                     }
+
+                    // Tambahan toleransi: cek jarak ke sisi polygon
+                    for (let i = 0; i < polygon.length - 1; i++) {
+                        const dist = jarakKeSegment(point, polygon[i], polygon[i + 1]);
+                        if (dist <= toleransi) {
+                            return {
+                                valid: true,
+                                lokasi: `${namaArea} (toleransi)`
+                            };
+                        }
+                    }
                 }
 
-                console.log(`❌ Tidak valid: Di luar semua area`);
                 return {
                     valid: false,
                     lokasi: 'Luar Area'
                 };
             }
+
 
             window.kirimLokasiKeLivewire = function(aksi = 'start') {
                 if (!lokasiTerakhir) {
@@ -879,7 +930,6 @@
                     @this.call('openWorkReportModal');
                 }
             };
-
 
             document.addEventListener('DOMContentLoaded', () => {
                 // Ambil lokasi pertama kali
