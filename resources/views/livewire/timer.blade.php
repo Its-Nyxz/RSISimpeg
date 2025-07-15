@@ -852,9 +852,18 @@
                     lng
                 };
                 const areaRSI = [
-                    "Akunbiz" // tambahkan lainnya jika perlu
+                    "RSI",
+                    "Akunbiz",
+                    "IGD",
+                    "Poliklinik",
+                    "Al Zaitun",
+                    "Assalam",
+                    "Al Amin",
+                    "As Syfa, Azizah, Linen",
+                    "PJBR,Al Munawarah",
+                    "Sanitasi, Sarpras, Logistik",
+                    "Firdaus"
                 ];
-
                 // 1. Cek apakah di dalam area RSI
                 for (const [namaArea, polygon] of Object.entries(areaPolygons)) {
                     if (isInsidePolygon(point, polygon)) {
