@@ -810,70 +810,57 @@
                     lat,
                     lng
                 };
-                // const areaRSI = [
-                //     "RSI",
-                //     "Akunbiz",
-                //     "IGD",
-                //     "Poliklinik",
-                //     "Al Zaitun",
-                //     "Assalam",
-                //     "Al Amin",
-                //     "As Syfa, Azizah, Linen",
-                //     "PJBR,Al Munawarah",
-                //     "Sanitasi, Sarpras, Logistik",
-                //     "Firdaus"
-                // ];
-                const areaRSI = [
-                    "Akunbiz"
-                ];
+                const areaRSI = ["Akunbiz"];
+                const TOLERANSI_RADIUS_METER = 100;
 
                 for (const [namaArea, polygon] of Object.entries(areaPolygons)) {
                     if (isInsidePolygon(point, polygon)) {
                         if (areaRSI.includes(namaArea)) {
-                            console.log(`✅ Valid: Di dalam area RSI (${namaArea})`);
+                            console.log(`✅ Valid: Di dalam area (${namaArea})`);
                             return {
                                 valid: true,
                                 lokasi: namaArea,
                                 jarak: 0
                             };
                         } else {
-                            console.log(`🚫 Area ditemukan (${namaArea}) tapi bukan bagian dari RSI`);
+                            console.log(`🚫 Area ditemukan (${namaArea}) tapi bukan area yang diizinkan`);
                             return {
                                 valid: false,
-                                lokasi: `Luar Area RSI (${namaArea})`,
+                                lokasi: `Luar Area Diizinkan (${namaArea})`,
                                 jarak: 0
                             };
                         }
                     }
                 }
 
-                // Jika tidak masuk ke polygon mana pun, cari jarak ke RSI (misalnya titik pusat RSI)
-                const pusatRSI = {
-                    lat: -7.402065,
-                    lng: 109.615913
-                }; // bisa juga ambil dari polygon["RSI"][0]
-                const pusatAkunbiz = {
-                    lat: -7.548218078368806,
-                    lng: 110.81261315327455
-                };
-                const jarak = hitungJarakMeter(lat, lng, pusatAkunbiz.lat, pusatAkunbiz.lng);
+                // Jika tidak di dalam polygon, cek jarak ke semua titik pada polygon Akunbiz
+                const polygonAkunbiz = areaPolygons["Akunbiz"];
+                let jarakTerdekat = Infinity;
 
-                if (jarak <= 100) {
-                    console.log(`✅ Valid: Di dalam radius toleransi 100m dari Akunbiz (jarak ${Math.round(jarak)} m)`);
-                    return {
-                        valid: true,
-                        lokasi: "Sekitar Akunbiz (radius)",
-                        jarak: jarak
-                    };
+                for (const titik of polygonAkunbiz) {
+                    const jarak = hitungJarakMeter(lat, lng, titik.lat, titik.lng);
+                    if (jarak < jarakTerdekat) {
+                        jarakTerdekat = jarak;
+                    }
+
+                    if (jarak <= TOLERANSI_RADIUS_METER) {
+                        console.log(`✅ Valid: Dalam radius ${TOLERANSI_RADIUS_METER}m dari titik area Akunbiz`);
+                        return {
+                            valid: true,
+                            lokasi: "Sekitar Akunbiz (radius)",
+                            jarak: jarak
+                        };
+                    }
                 }
 
-                console.log(`❌ Tidak valid: Di luar semua area dan radius, jarak ${Math.round(jarak)} meter`);
+                console.log(`❌ Tidak valid: Di luar semua area dan radius, jarak terdekat ${Math.round(jarakTerdekat)} meter`);
                 return {
                     valid: false,
                     lokasi: "Luar Area Akunbiz",
-                    jarak: jarak
+                    jarak: jarakTerdekat
                 };
             }
+
 
             window.kirimLokasiKeLivewire = function(aksi = 'start') {
                 if (!lokasiTerakhir) {
