@@ -571,7 +571,7 @@ class Timer extends Component
         // if (session()->pull('override_lokasi_rsi')) {
         //     return true;
         // }
-        
+
         // -7.402330130327286, 109.6156227212665
 
         // lat long akunbiz : -7.548218078368806, 110.81261315327455
@@ -640,8 +640,15 @@ class Timer extends Component
             [-7.40146214270284, 109.6157440761346] // titik akhir = awal
         ];
 
+        $polygonAkunbiz = [
+            [-7.548413507144458, 110.81252863588689],
+            [-7.548802885218547, 110.81283553967711],
+            [-7.548381621290859, 110.8132859282019],
+            [-7.548040287781695, 110.8129615051734],
+            [-7.548413507144458, 110.81252863588689] // titik akhir = awal
+        ];
 
-        $lokasiValid = $this->isPointInPolygon($this->latitude, $this->longitude, $polygon);
+        $lokasiValid = $this->isPointInPolygon($this->latitude, $this->longitude, $polygonAkunbiz);
 
         // if (!$lokasiValid && !in_array($ipPrefix, $ipPrefixWhitelist)) {
         if (!$lokasiValid) {
