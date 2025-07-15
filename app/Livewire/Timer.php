@@ -674,6 +674,15 @@ class Timer extends Component
 
 
         $polygons = [
+            'akunbiz' => [
+                [-7.5480292246177925, 110.81254935825416],
+                [-7.5482477832903925, 110.81246947815623],
+                [-7.548326971187805, 110.81266012532296],
+                [-7.548210828932952, 110.81275385130493],
+                [-7.548082016577297, 110.81279006361632],
+                [-7.5480197220645096, 110.8127133787226],
+                [-7.5480292246177925, 110.81254935825416]
+            ],
             'RSI' => [
                 [-7.401462324660784, 109.61574443318705],
                 [-7.40206468637885, 109.61591235565817],
@@ -788,7 +797,7 @@ class Timer extends Component
             $allowedAreas = [$unitToAreaMap[$user->unitKerja->nama]];
         } else {
             // fallback agar tetap bisa validasi minimal area RSI
-            $allowedAreas = ['RSI'];
+            $allowedAreas = ['akunbiz'];
         }
 
         // Cek apakah user berada dalam area yang diizinkan
