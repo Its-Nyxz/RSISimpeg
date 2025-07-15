@@ -899,8 +899,8 @@
                     }
                 }
 
-                // 3. Toleransi: masih dianggap valid jika dalam jarak ≤ 20 meter dari area RSI
-                const toleransiMeter = 20;
+                // 3. Toleransi: masih dianggap valid jika dalam jarak ≤ 50 meter dari area RSI
+                const toleransiMeter = 50;
                 if (minJarak <= toleransiMeter) {
                     console.log(
                         `⚠️ Dalam toleransi ${toleransiMeter} meter dari area RSI (${areaTerdekat}), jarak: ${Math.round(minJarak)} m`
