@@ -810,21 +810,34 @@
                     lat,
                     lng
                 };
+                let areaTerdekat = null;
+                let jarakTerdekat = Infinity;
 
                 for (const [namaArea, polygon] of Object.entries(areaPolygons)) {
                     if (isInsidePolygon(point, polygon)) {
                         console.log(`✅ Valid: Di dalam area "${namaArea}"`);
                         return {
                             valid: true,
-                            lokasi: namaArea
+                            lokasi: namaArea,
+                            jarak: 0
                         };
+                    }
+
+                    // Hitung jarak ke titik pertama dari polygon sebagai pendekatan
+                    const jarak = hitungJarakMeter(lat, lng, polygon[0].lat, polygon[0].lng);
+                    if (jarak < jarakTerdekat) {
+                        jarakTerdekat = jarak;
+                        areaTerdekat = namaArea;
                     }
                 }
 
-                console.log(`❌ Tidak valid: Di luar semua area`);
+                console.log(
+                    `❌ Tidak valid: Di luar semua area, jarak ${Math.round(jarakTerdekat)} meter ke area terdekat "${areaTerdekat}"`
+                );
                 return {
                     valid: false,
-                    lokasi: 'Luar Area'
+                    lokasi: `Luar Area (${areaTerdekat})`,
+                    jarak: jarakTerdekat
                 };
             }
 
@@ -862,7 +875,7 @@
                         Swal.fire({
                             icon: 'warning',
                             title: 'Di Luar Area RSI Banjarnegara',
-                            text: `Jarak Anda: ${Math.round(hasilValidasi.jarak)} meter dari area kantor.`,
+                            text: `Jarak Anda: ${Math.round(hasilValidasi.jarak)} meter dari area terdekat (${hasilValidasi.lokasi}).`,
                             timer: 3000,
                             showConfirmButton: false
                         });
