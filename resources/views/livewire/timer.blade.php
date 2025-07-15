@@ -805,62 +805,98 @@
             //     };
             // }
 
+            function jarakTitikKeSegmen(point, p1, p2) {
+                const toRad = Math.PI / 180;
+                const lat = point.lat;
+                const lng = point.lng;
+
+                const x0 = lng,
+                    y0 = lat;
+                const x1 = p1.lng,
+                    y1 = p1.lat;
+                const x2 = p2.lng,
+                    y2 = p2.lat;
+
+                const dx = x2 - x1;
+                const dy = y2 - y1;
+
+                if (dx === 0 && dy === 0) {
+                    return hitungJarakMeter(y0, x0, y1, x1);
+                }
+
+                const t = ((x0 - x1) * dx + (y0 - y1) * dy) / (dx * dx + dy * dy);
+                const tClamped = Math.max(0, Math.min(1, t));
+
+                const xt = x1 + tClamped * dx;
+                const yt = y1 + tClamped * dy;
+
+                return hitungJarakMeter(y0, x0, yt, xt);
+            }
+
+            function jarakKePolygon(point, polygon) {
+                let minJarak = Infinity;
+                for (let i = 0; i < polygon.length; i++) {
+                    const p1 = polygon[i];
+                    const p2 = polygon[(i + 1) % polygon.length];
+                    const jarak = jarakTitikKeSegmen(point, p1, p2);
+                    if (jarak < minJarak) {
+                        minJarak = jarak;
+                    }
+                }
+                return minJarak;
+            }
+
             function validasiLokasiPolygon(lat, lng) {
                 const point = {
                     lat,
                     lng
                 };
-                const areaRSI = ["Akunbiz"];
-                const TOLERANSI_RADIUS_METER = 100;
+                const areaRSI = [
+                    "Akunbiz" // tambahkan lainnya jika perlu
+                ];
 
+                // 1. Cek apakah di dalam area RSI
                 for (const [namaArea, polygon] of Object.entries(areaPolygons)) {
                     if (isInsidePolygon(point, polygon)) {
                         if (areaRSI.includes(namaArea)) {
-                            console.log(`✅ Valid: Di dalam area (${namaArea})`);
+                            console.log(`✅ Valid: Di dalam area RSI (${namaArea})`);
                             return {
                                 valid: true,
                                 lokasi: namaArea,
                                 jarak: 0
                             };
                         } else {
-                            console.log(`🚫 Area ditemukan (${namaArea}) tapi bukan area yang diizinkan`);
+                            console.log(`🚫 Area ditemukan (${namaArea}) tapi bukan bagian dari RSI`);
                             return {
                                 valid: false,
-                                lokasi: `Luar Area Diizinkan (${namaArea})`,
+                                lokasi: `Luar Area RSI (${namaArea})`,
                                 jarak: 0
                             };
                         }
                     }
                 }
 
-                // Jika tidak di dalam polygon, cek jarak ke semua titik pada polygon Akunbiz
-                const polygonAkunbiz = areaPolygons["Akunbiz"];
-                let jarakTerdekat = Infinity;
+                // 2. Hitung jarak ke area RSI terdekat
+                let minJarak = Infinity;
+                let areaTerdekat = null;
 
-                for (const titik of polygonAkunbiz) {
-                    const jarak = hitungJarakMeter(lat, lng, titik.lat, titik.lng);
-                    if (jarak < jarakTerdekat) {
-                        jarakTerdekat = jarak;
-                    }
-
-                    if (jarak <= TOLERANSI_RADIUS_METER) {
-                        console.log(`✅ Valid: Dalam radius ${TOLERANSI_RADIUS_METER}m dari titik area Akunbiz`);
-                        return {
-                            valid: true,
-                            lokasi: "Sekitar Akunbiz (radius)",
-                            jarak: jarak
-                        };
+                for (const [namaArea, polygon] of Object.entries(areaPolygons)) {
+                    if (areaRSI.includes(namaArea)) {
+                        const jarak = jarakKePolygon(point, polygon);
+                        if (jarak < minJarak) {
+                            minJarak = jarak;
+                            areaTerdekat = namaArea;
+                        }
                     }
                 }
 
-                console.log(`❌ Tidak valid: Di luar semua area dan radius, jarak terdekat ${Math.round(jarakTerdekat)} meter`);
+                console.log(`❌ Tidak valid: Di luar semua area RSI, jarak ke ${areaTerdekat}: ${Math.round(minJarak)} meter`);
                 return {
                     valid: false,
-                    lokasi: "Luar Area Akunbiz",
-                    jarak: jarakTerdekat
+                    lokasi: `Luar Area RSI (dekat ${areaTerdekat})`,
+                    jarak: minJarak
                 };
             }
-
 
             window.kirimLokasiKeLivewire = function(aksi = 'start') {
                 if (!lokasiTerakhir) {
