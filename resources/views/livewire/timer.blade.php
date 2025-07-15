@@ -843,14 +843,14 @@
                 const hasilValidasi = validasiLokasiPolygon(lokasiTerakhir.lat, lokasiTerakhir.lng);
                 console.log("📍 Lokasi valid di area:", hasilValidasi.lokasi);
 
-                // Jika jarak tidak valid DAN lokasi terakhir belum diperbarui dalam 15 detik
+                // Jika jarak tidak valid DAN lokasi terakhir belum diperbarui dalam 5 detik
                 const lastUpdate = JSON.parse(localStorage.getItem('lokasi_sebelumnya'));
                 const now = Date.now();
                 const ageInSeconds = lastUpdate ? (now - lastUpdate.waktu) / 1000 : null;
                 console.log("Usia lokasi terakhir:", ageInSeconds, "detik");
 
                 if (!hasilValidasi.valid) {
-                    if (ageInSeconds !== null && ageInSeconds < 15) {
+                    if (ageInSeconds !== null && ageInSeconds < 5) {
                         Swal.fire({
                             icon: 'info',
                             title: 'Menunggu Lokasi Akurat',
