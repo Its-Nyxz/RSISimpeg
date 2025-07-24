@@ -306,6 +306,56 @@ class DataJadwal extends Component
         }
     }
 
+    public function deleteShiftFromModal()
+    {
+        $this->authorizeEditShift(); // pastikan user berhak
+
+        if (!$this->currentUserId || !$this->currentShiftDate || !$this->shiftNama) {
+            session()->flash('error', 'Data tidak lengkap.');
+            return;
+        }
+
+        $jadwal = JadwalAbsensi::where('user_id', $this->currentUserId)
+            ->whereDate('tanggal_jadwal', $this->currentShiftDate)
+            ->get();
+
+        // Hanya boleh hapus jika lebih dari 1 shift di hari itu
+        if ($jadwal->count() <= 1) {
+            session()->flash('error', 'Tidak dapat menghapus shift terakhir.');
+            return;
+        }
+
+        $jadwalTarget = $jadwal->firstWhere('shift.nama_shift', $this->shiftNama);
+
+        if ($jadwalTarget) {
+            $jadwalTarget->delete();
+            $this->loadData();
+            $this->showModalDetailShift = false;
+            return redirect()->route('jadwal.index')->with('success', 'Jadwal Shift Berhasil dihapus.');
+        } else {
+            return redirect()->route('jadwal.index')->with('error', 'Jadwal Shift Tidak ditemukan.');
+        }
+    }
+
+    protected function authorizeEditShift()
+    {
+        $allowedRoles = [
+            'Super Admin',
+            'Kepala Seksi Kepegawaian',
+            'Kepala Seksi Keuangan',
+            'Kepala Unit',
+            'Kepala Sub Unit',
+            'Kepala Instalasi',
+            'Kepala Ruang',
+            'Kepala Seksi',
+        ];
+
+        if (!auth()->user()->hasAnyRole($allowedRoles)) {
+            abort(403, 'Anda tidak memiliki izin untuk mengubah atau menghapus shift.');
+        }
+    }
+
+
 
     public function render()
     {
