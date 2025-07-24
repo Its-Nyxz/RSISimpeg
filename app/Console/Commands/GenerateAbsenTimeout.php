@@ -46,14 +46,22 @@ class GenerateAbsenTimeout extends Command
                 ->setTimeFrom($jamKeluar);
 
             $now = now();
-            $jamTerlambat = $now->diffInHours($shiftSelesai, false);
+            // $jamTerlambat = $now->diffInHours($shiftSelesai, false);
 
-            // Cek jika waktu sekarang lebih dari 1 jam setelah shift selesai, dan pastikan not force
-            if ($jamTerlambat <= 1 && !$this->option('force')) {
+            // // Cek jika waktu sekarang lebih dari 1 jam setelah shift selesai, dan pastikan not force
+            // if ($jamTerlambat <= 1 && !$this->option('force')) {
+            //     $this->line("⏸️  Absen ID {$absen->id} masih dalam toleransi (<=1 jam setelah shift).");
+            //     Log::info("⏸️  Absen ID {$absen->id} masih dalam toleransi (<=1 jam setelah shift).");
+            //     continue;
+            // }
+
+            $toleransi = $shiftSelesai->copy()->addHour();
+            if ($now->lessThanOrEqualTo($toleransi) && !$this->option('force')) {
                 $this->line("⏸️  Absen ID {$absen->id} masih dalam toleransi (<=1 jam setelah shift).");
                 Log::info("⏸️  Absen ID {$absen->id} masih dalam toleransi (<=1 jam setelah shift).");
                 continue;
             }
+
 
             $keteranganLama = $absen->keterangan;
             $keteranganBaru = 'Timer otomatis ditutup oleh sistem (shift melebihi 1 jam)';
