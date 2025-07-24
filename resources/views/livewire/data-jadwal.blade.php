@@ -325,9 +325,9 @@
                             class="mt-3 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-150">
                             Simpan Perubahan
                         </button>
-                        <button wire:click="deleteShiftFromModal"
+                        <button type="button"
                             class="mt-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition duration-150"
-                            onclick="confirmAlert('Yakin ingin menghapus Jadwal Shift ini?', 'Ya, hapus!', () => @this.call('destroy', {{ $shift->id }}))"
+                            onclick="confirmAlert('Yakin ingin menghapus Jadwal Shift ini?', 'Ya, hapus!', () => @this.call('deleteShiftFromModal', {{ $shift->id }}))"
                             class="text-danger-900 px-3 py-2 rounded-md border hover:bg-slate-300 relative group">
                             <i class="fa-solid fa-trash"></i>
                         </button>
