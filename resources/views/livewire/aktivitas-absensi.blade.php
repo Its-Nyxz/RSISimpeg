@@ -139,9 +139,9 @@
                             </td>
                             <td class="px-6 py-4">{{ $item['tanggal'] }}</td>
                             <td class="px-6 py-4">{!! $item['jam_kerja'] !!}</td>
-                            <td class="px-6 py-4">{!! $item['jam_lembur'] !!}</td>
                             <td class="px-6 py-4">{!! $item['rencana_kerja'] !!}</td>
                             <td class="px-6 py-4">{!! $item['laporan_kerja'] !!}</td>
+                            <td class="px-6 py-4">{!! $item['jam_lembur'] !!}</td>
                             <td class="px-6 py-4">{!! $item['laporan_lembur'] !!}</td>
                             <td class="px-6 py-4">{!! $item['feedback'] !!}</td>
                             <td class="px-6 py-4">
