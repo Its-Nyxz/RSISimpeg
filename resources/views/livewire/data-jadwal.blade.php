@@ -327,7 +327,7 @@
                         </button>
                         <button type="button"
                             class="mt-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition duration-150"
-                            onclick="confirmAlert('Yakin ingin menghapus Jadwal Shift ini?', 'Ya, hapus!', () => @this.call('deleteShiftFromModal', {{ $shift->id }}))"
+                            onclick="confirmAlert('Yakin ingin menghapus Jadwal Shift ini?', 'Ya, hapus!', () => @this.call('deleteShiftFromModal'))"
                             class="text-danger-900 px-3 py-2 rounded-md border hover:bg-slate-300 relative group">
                             <i class="fa-solid fa-trash"></i>
                         </button>
