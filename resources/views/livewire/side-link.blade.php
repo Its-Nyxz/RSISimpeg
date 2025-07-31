@@ -1,7 +1,27 @@
 @php
-    $isActive1 = isset($href) && request()->is(trim($href, '/')) ? 'bg-gray-100 text-success-950' : 'text-white';
-    $isOpen1 = isset($child) && isActiveMenu($this->child) ? 'block' : 'hidden';
+    $currentPath = request()->path();
+    $hrefPath = trim(parse_url($href, PHP_URL_PATH), '/');
+    $isActive1 = isset($href) && $currentPath === $hrefPath ? 'bg-gray-100 text-success-950' : 'text-white';
+
+    // Cek apakah salah satu child atau subchild aktif
+    $flattenedChildren = collect($child ?? [])->flatMap(function ($item) {
+        return isset($item['child'])
+            ? array_merge(
+                [$item['href']],
+                collect($item['child'])
+                    ->pluck('href')
+                    ->toArray(),
+            )
+            : [$item['href']];
+    });
+
+    $isOpen1 =
+        isset($child) &&
+        $flattenedChildren->contains(function ($link) use ($currentPath) {
+            return trim(parse_url($link, PHP_URL_PATH), '/') === $currentPath;
+        });
 @endphp
+
 @if (isset($child) && empty($child))
     <li>
         <a href="{{ $href }}"
@@ -11,33 +31,46 @@
         </a>
     </li>
 @else
-    <li>
-        <button type="button"
-            class="flex items-center p-2 pl-6 w-full text-base font-medium hover:text-success-950 rounded-lg transition duration-150 group hover:bg-gray-100 {{ $isActive1 }}"
-            aria-controls="{{ Str::slug($title) }}" data-collapse-toggle="{{ Str::slug($title) }}">
+    <li x-data="{ open: {{ $isOpen1 ? 'true' : 'false' }} }">
+        <button @click="open = !open"
+            class="flex items-center p-2 pl-6 w-full text-base font-medium hover:text-success-950 rounded-lg transition duration-150 group hover:bg-gray-100 {{ $isOpen1 ? 'bg-gray-100 text-success-950' : 'text-white' }}">
             <i class="{{ $icon }}"></i>
             <span class="flex-1 ml-3 text-left whitespace-nowrap">{{ $title }}</span>
-            <i class="fa-solid fa-chevron-down ml-2 group-hover:rotate-180 transition-transform"></i>
+            <i :class="open ? 'fa-chevron-up' : 'fa-chevron-down'" class="fa-solid ml-2 transition-transform"></i>
         </button>
-        <ul id="{{ Str::slug($title) }}" class="py-2 space-y-2 {{ $isOpen1 }}">
+
+        <ul x-show="open" x-transition class="py-2 space-y-2">
             @foreach ($child as $item)
                 @php
-                    $isActive2 = isset($item['href']) && request()->is(trim($item['href'], '/')) ? 'bg-gray-100 text-success-950': 'text-white';
-                    $isOpen2 = isset($item['child']) && isActiveMenu($item['child']) ? 'block' : 'hidden';
+                    $childPath = trim(parse_url($item['href'], PHP_URL_PATH), '/');
+                    $subPaths = collect($item['child'] ?? [])
+                        ->pluck('href')
+                        ->map(function ($url) {
+                            return trim(parse_url($url, PHP_URL_PATH), '/');
+                        });
+
+                    $isActive2 =
+                        $currentPath === $childPath || $subPaths->contains($currentPath)
+                            ? 'bg-gray-100 text-success-950'
+                            : 'text-white';
+
+                    $isOpen2 = $subPaths->contains($currentPath);
                 @endphp
-                <li>
+                <li x-data="{ open: {{ $isOpen2 ? 'true' : 'false' }} }">
                     @if (!empty($item['child']))
-                        <button type="button"
-                            class="flex items-center p-2 pl-10 w-full text-base font-medium rounded-lg transition duration-150 group hover:bg-gray-100 hover:text-success-950 {{ $isActive2 }}"
-                            aria-controls="{{ Str::slug($item['title']) }}"
-                            data-collapse-toggle="{{ Str::slug($item['title']) }}">
+                        <button @click="open = !open"
+                            class="flex items-center p-2 pl-10 w-full text-base font-medium rounded-lg transition duration-150 group hover:bg-gray-100 hover:text-success-950 {{ $isActive2 }}">
                             <span class="flex-1 text-left whitespace-nowrap">{{ $item['title'] }}</span>
-                            <i class="fa-solid fa-chevron-down ml-2 group-hover:rotate-180 transition-transform"></i>
+                            <i :class="open ? 'fa-chevron-up' : 'fa-chevron-down'"
+                                class="fa-solid ml-2 transition-transform"></i>
                         </button>
-                        <ul id="{{ Str::slug($item['title']) }}" class="py-2 space-y-2 {{ $isOpen2 }}">
+
+                        <ul x-show="open" x-transition class="py-2 space-y-2">
                             @foreach ($item['child'] as $subItem)
                                 @php
-                                    $isActive3 = isset($subItem['href']) && request()->is(trim($subItem['href'], '/')) ? 'bg-gray-100 text-success-950' : 'text-white';
+                                    $subPath = trim(parse_url($subItem['href'], PHP_URL_PATH), '/');
+                                    $isActive3 =
+                                        $currentPath === $subPath ? 'bg-gray-100 text-success-950' : 'text-white';
                                 @endphp
                                 <li>
                                     <a href="{{ $subItem['href'] }}"

@@ -18,6 +18,7 @@ class StatusAbsenSeeder extends Seeder
             ['nama' => 'Keterlambatan', 'keterangan' => 'Masuk lebih dari waktu toleransi'],
             ['nama' => 'Pulang Awal', 'keterangan' => 'Pulang sebelum jam yang ditentukan'],
             ['nama' => 'Tidak Absen', 'keterangan' => 'Tidak melakukan absensi sama sekali'],
+            ['nama' => 'Libur', 'keterangan' => 'Libur atau Day Off'],
         ];
 
         foreach ($status_absen as $status) {

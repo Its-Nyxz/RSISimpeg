@@ -19,8 +19,8 @@ return new class extends Migration
             $table->integer('present')->nullable();
             $table->integer('absent')->nullable();
             $table->integer('late')->nullable();
-            $table->timestamp('time_in')->nullable();
-            $table->timestamp('time_out')->nullable();
+            $table->string('time_in')->nullable();
+            $table->string('time_out')->nullable();
             $table->text('keterangan')->nullable();
             $table->text('deskripsi_in')->nullable();
             $table->text('deskripsi_out')->nullable();

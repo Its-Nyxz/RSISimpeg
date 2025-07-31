@@ -1,19 +1,36 @@
 <x-body>
-    {{-- @if ($jadwal_id) --}}
-    {{-- Jika jadwal tersedia, tampilkan komponen timer --}}
-    <livewire:timer :jadwal_id="$jadwal_id" />
-    {{-- @else --}}
-    {{-- Jika tidak ada jadwal, tampilkan pesan dengan Flowbite --}}
-    {{-- <div class="flex items-center p-4 mb-4 text-yellow-800 border border-yellow-300 rounded-lg bg-yellow-50"
-            role="alert">
-            <svg class="flex-shrink-0 w-6 h-6 text-yellow-800" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M13 16h-1v-4h-1m1-4h.01M12 20h.01M20.2 7c.7 1.6 1.8 2.4 1.8 4.5 0 3-1 4.5-3 5-1.5.4-2.5.5-4 1.5m-4 0c-1.5-1-2.5-1.1-4-1.5-2-.5-3-2-3-5 0-2.1 1.1-2.9 1.8-4.5" />
-            </svg>
-            <div class="ml-3 text-sm font-medium">
-                Tidak ada jadwal yang tersedia untuk hari ini. Silakan hubungi atasan atau admin jika ada kesalahan.
-            </div>
+    @if ($jadwals->count() > 1)
+        <div class="mb-4">
+            <label for="jadwalSelect" class="block text-sm font-medium text-gray-700 mb-1">
+                Pilih Jadwal:
+            </label>
+            <select id="jadwalSelect" onchange="window.location = '?jadwal_id=' + this.value"
+                class="block w-full max-w-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
+                @foreach ($jadwals as $jadwal)
+                    <option value="{{ $jadwal->id }}" {{ $jadwal->id == $jadwal_id ? 'selected' : '' }}>
+                        {{ $jadwal->shift->nama_shift ?? 'Tanpa Shift' }} -
+                        {{ \Carbon\Carbon::parse($jadwal->shift?->jam_masuk)->format('H:i') }}
+                        s/d
+                        {{ \Carbon\Carbon::parse($jadwal->shift?->jam_keluar)->format('H:i') }}
+                    </option>
+                @endforeach
+            </select>
         </div>
-    @endif --}}
+    @elseif ($jadwals->count() === 1)
+        <div class="mb-4 text-sm text-gray-700">
+            <p><strong>Shift:</strong>
+                {{ $jadwals[0]->shift->nama_shift ?? 'Tanpa Shift' }} -
+                {{ \Carbon\Carbon::parse($jadwals[0]->shift?->jam_masuk)->format('H:i') }}
+                s/d
+                {{ \Carbon\Carbon::parse($jadwals[0]->shift?->jam_keluar)->format('H:i') }}
+            </p>
+        </div>
+    @endif
+
+    @if ($jadwal_id)
+        {{-- Timer hanya untuk jadwal terpilih --}}
+        <livewire:timer :jadwal_id="$jadwal_id" />
+    @else
+        <p class="text-gray-500">Tidak ada jadwal ditemukan.</p>
+    @endif
 </x-body>

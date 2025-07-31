@@ -1,21 +1,21 @@
 <div>
     <div class="flex justify-between items-center mb-5">
-        <h1 class="text-2xl font-bold text-green-900">Edit Jadwal Absensi</h1>
-        <a href="{{ url()->previous() }}"
-            class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
+        <h1 class="text-2xl font-bold text-success-900">Edit Jadwal Absensi</h1>
+        <a href="{{ route('jadwalAbsensi.index') }}"
+            class="flex items-center bg-success-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-success-800 focus:ring-4 focus:outline-none focus:ring-success-300">
             <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
         </a>
     </div>
     <form wire:submit.prevent="updateJadwal">
         <!-- Form Edit Jadwal -->
-        <div class="grid grid-cols-1 gap-4 bg-green-100 border border-green-200 rounded-lg shadow-lg p-6">
+        <div class="grid grid-cols-1 gap-4 bg-success-100 border border-success-200 rounded-lg shadow-lg p-6">
             <!-- Nama (User) -->
             <div class="col-span-2">
-                <label for="nama" class="block text-sm font-medium text-green-900">Nama</label>
+                <label for="nama" class="block text-sm font-medium text-success-900">Nama</label>
                 <div class="relative">
                     <input type="text" id="nama" wire:model.lazy="user_nama" placeholder="Cari nama..."
                         autocomplete="off"
-                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
+                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5"
                         oninput="filterDropdown('nama')" onclick="toggleDropdown('nama')" />
                     <ul id="namaDropdown" class="dropdown hidden">
                         @foreach ($users as $user)
@@ -33,11 +33,11 @@
 
             <!-- Shift -->
             <div class="col-span-2">
-                <label for="shift" class="block text-sm font-medium text-green-900">Shift</label>
+                <label for="shift" class="block text-sm font-medium text-success-900">Shift</label>
                 <div class="relative">
                     <input type="text" id="shift" wire:model.lazy="shift_nama" placeholder="Cari shift..."
                         autocomplete="off"
-                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
+                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5"
                         oninput="filterDropdown('shift')" onclick="toggleDropdown('shift')" />
                     <ul id="shiftDropdown" class="dropdown hidden">
                         @foreach ($shifts as $shift)
@@ -55,11 +55,11 @@
 
             <!-- Opsi Absensi -->
             <div class="col-span-2">
-                <label for="opsi" class="block text-sm font-medium text-green-900">Opsi Absensi</label>
+                <label for="opsi" class="block text-sm font-medium text-success-900">Opsi Absensi</label>
                 <div class="relative">
                     <input type="text" id="opsi" wire:model.lazy="opsi_nama" placeholder="Cari opsi absensi..."
                         autocomplete="off"
-                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
+                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5"
                         oninput="filterDropdown('opsi')" onclick="toggleDropdown('opsi')" />
                     <ul id="opsiDropdown" class="dropdown hidden">
                         @foreach ($opsis as $opsi)
@@ -77,9 +77,9 @@
 
             <!-- Tanggal Jadwal -->
             <div class="col-span-2">
-                <label for="tanggal" class="block text-sm font-medium text-green-900">Tanggal Jadwal</label>
+                <label for="tanggal" class="block text-sm font-medium text-success-900">Tanggal Jadwal</label>
                 <input type="date" id="tanggal" wire:model.lazy="tanggal_jadwal"
-                    class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" />
+                    class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5" />
                 @error('tanggal')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
@@ -87,9 +87,9 @@
 
             <!-- Keterangan Absensi -->
             <div class="col-span-2">
-                <label for="keterangan" class="block text-sm font-medium text-green-900">Keterangan Absensi</label>
+                <label for="keterangan" class="block text-sm font-medium text-success-900">Keterangan Absensi</label>
                 <select id="keterangan" wire:model.lazy="keterangan_absen"
-                    class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
+                    class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5">
                     <option value="">Pilih Keterangan Absensi</option>
                     <option value="Cuti">Cuti</option>
                     <option value="Libur">Libur</option>
@@ -107,7 +107,7 @@
         <!-- Tombol Submit -->
         <div class="flex justify-end mt-4">
             <button type="submit"
-                class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
+                class="flex items-center bg-success-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-success-800 focus:ring-4 focus:outline-none focus:ring-success-300">
                 <i class="fa-solid fa-paper-plane mr-2"></i> Save
             </button>
         </div>
@@ -115,7 +115,7 @@
 
     <!-- Notifikasi -->
     @if (session()->has('success'))
-        <div class="alert alert-success mt-3 p-4 bg-green-200 text-green-800 rounded-lg">
+        <div class="alert alert-success mt-3 p-4 bg-success-200 text-success-800 rounded-lg">
             {{ session('success') }}
         </div>
     @endif

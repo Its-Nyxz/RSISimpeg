@@ -15,7 +15,7 @@ class MasterPendidikan extends Model
      */
     public function users()
     {
-        return $this->hasMany(User::class, foreignKey: 'pend_awal');
+        return $this->hasMany(User::class, foreignKey: 'kategori_pendidikan');
     }
     // Relasi ke tabel golongan untuk kolom minim_gol
     public function minimGolongan()

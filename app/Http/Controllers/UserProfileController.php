@@ -16,6 +16,11 @@ class UserProfileController extends Controller
         return view('userprofile.index');
     }
 
+    public function editUsername()
+    {
+        return view('userprofile.editusername');
+    }
+
     public function editNomor()
     {
         return view('userprofile.editnomor');
@@ -121,5 +126,10 @@ class UserProfileController extends Controller
         $user->save();
 
         return redirect()->back()->with('success', 'Profil berhasil diperbarui!');
+    }
+
+    public function upload()
+    {
+        return view('userprofile.upload');
     }
 }

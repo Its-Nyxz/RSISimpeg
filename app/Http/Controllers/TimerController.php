@@ -3,22 +3,27 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+
 
 class TimerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $user = auth()->user(); // Ambil user yang sedang login
+        $user = auth()->user();
 
-        // Ambil jadwal milik user berdasarkan tanggal hari ini
-        $jadwal = $user->jadwalabsensi()
-            ->whereDate('tanggal_jadwal', now()->toDateString()) // Cari berdasarkan tanggal hari ini
-            ->first();
+        $jadwals = $user->jadwalabsensi()
+            ->whereDate('tanggal_jadwal', now()->toDateString())
+            ->with('shift')
+            ->get();
 
-        // Jika tidak ada jadwal, jadwal_id akan bernilai null
-        $jadwal_id = $jadwal ? $jadwal->id : null;
+        $selectedJadwal = $request->get('jadwal_id')
+            ? $jadwals->firstWhere('id', $request->get('jadwal_id'))
+            : $jadwals->first();
+
+        $jadwal_id = $selectedJadwal?->id;
         // dd($jadwal_id);
 
-        return view('timer.index', compact('jadwal_id'));
+        return view('timer.index', compact('jadwals', 'jadwal_id'));
     }
 }

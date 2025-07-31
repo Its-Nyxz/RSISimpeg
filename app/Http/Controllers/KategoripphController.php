@@ -13,15 +13,15 @@ class KategoripphController extends Controller
      */
     public function index()
     {
-        //
+        return view('pph.index');
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create($tipe, $pph = 0)
     {
-        //
+        return view('pph.create', compact('tipe', 'pph'));
     }
 
     /**
@@ -35,9 +35,9 @@ class KategoripphController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Kategoripph $kategoripph)
+    public function show($id)
     {
-        //
+        return view('pph.show', compact('id'));
     }
 
     /**

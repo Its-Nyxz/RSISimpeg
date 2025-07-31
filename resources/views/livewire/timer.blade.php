@@ -1,8 +1,7 @@
 <div>
-
     <div class="p-4 text-left">
         {{-- Tanggal --}}
-        <p class="text-gray-500">{{ now()->format('l, d F Y') }}</p>
+        <p class="text-gray-500">{{ now()->locale('id')->translatedFormat('l, d F Y') }}</p>
 
         <div id="mainTimerContainer" style="display: {{ $isLemburRunning ? 'none' : 'block' }};">
             {{-- Timer Utama --}}
@@ -29,43 +28,45 @@
             </h1>
         </div>
 
-        <div class="p-10 text-center">
-            {{-- Tombol Mulai --}}
-            <button id="startButton" wire:click="$set('showStartModal', true)"
-                class="px-6 py-2 font-bold rounded 
-                {{ $timeOut ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 text-white' }}"
-                style="display: {{ $isRunning ? 'none' : 'inline-block' }}" {{ $timeOut ? 'disabled' : '' }}>
-                Mulai
-            </button>
+        <div class="px-4 py-6 text-center">
+            <div class="flex flex-col items-center space-y-2">
+                {{-- Tombol Mulai --}}
+                <button id="startButton" wire:click="$set('showStartModal', true)"
+                    class="px-6 py-2 font-bold rounded 
+                {{ $timeOut ? 'bg-gray-400 cursor-not-allowed' : 'bg-success-600 hover:bg-success-700 text-white' }}"
+                    style="display: {{ $isRunning ? 'none' : 'inline-block' }}" {{ $timeOut ? 'disabled' : '' }}>
+                    Mulai
+                </button>
 
-            {{-- Tombol Selesai --}}
-            <button id="stopButton" wire:click="$set('showStopModal', true)"
-                class="px-6 py-2 font-bold rounded 
+                {{-- Tombol Selesai --}}
+                <button id="stopButton" wire:click="$set('showStopModal', true)"
+                    class="px-6 py-2 font-bold rounded 
                 {{ !$isRunning || $timeOut ? 'bg-gray-600 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700 text-white' }}"
-                style="display: {{ $isRunning ? 'inline-block' : 'none' }}"
-                {{ !$isRunning || $timeOut ? 'disabled' : '' }}>
-                Selesai
-            </button>
+                    style="display: {{ $isRunning ? 'inline-block' : 'none' }}"
+                    {{ !$isRunning || $timeOut ? 'disabled' : '' }}>
+                    Selesai
+                </button>
 
-            {{-- Tombol Dinas Keluar --}}
-            <button id="dinasKeluarButton" wire:click="$set('showDinasModal', true)"
-                class="px-6 py-2 font-bold rounded 
-                bg-blue-600 hover:bg-blue-700 text-white">
-                Dinas Luar
-            </button>
-            {{-- Tombol Mulai Lembur --}}
-            <button wire:click="openLemburModal"
-                class="px-6 py-2 font-bold rounded bg-yellow-500 hover:bg-yellow-700 text-white"
-                style="display: {{ !$isLemburRunning && $timeOut ? 'inline-block' : 'none' }}">
-                Mulai Lembur
-            </button>
+                {{-- Tombol Dinas Luar --}}
+                <button id="dinasKeluarButton" wire:click="$set('showDinasModal', true)"
+                    class="px-6 py-2 font-bold rounded bg-blue-600 hover:bg-blue-700 text-white">
+                    Dinas Luar
+                </button>
 
-            {{-- Tombol Selesai Lembur --}}
-            <button wire:click="stopLemburMandiri"
-                class="px-6 py-2 font-bold rounded bg-red-500 hover:bg-red-700 text-white"
-                style="display: {{ $isLemburRunning ? 'inline-block' : 'none' }}">
-                Selesai Lembur
-            </button>
+                {{-- Tombol Mulai Lembur --}}
+                <button wire:click="openLemburModal"
+                    class="px-6 py-2 font-bold rounded bg-yellow-500 hover:bg-yellow-700 text-white"
+                    style="display: {{ !$isLemburRunning && $timeOut ? 'inline-block' : 'none' }}">
+                    Mulai Lembur
+                </button>
+
+                {{-- Tombol Selesai Lembur --}}
+                <button wire:click="stopLemburMandiri"
+                    class="px-6 py-2 font-bold rounded bg-red-500 hover:bg-red-700 text-white"
+                    style="display: {{ $isLemburRunning ? 'inline-block' : 'none' }}">
+                    Selesai Lembur
+                </button>
+            </div>
         </div>
 
         {{-- Modal untuk Mulai Timer --}}
@@ -78,8 +79,12 @@
                     <div class="mt-4 flex justify-end gap-2">
                         <button wire:click="$set('showStartModal', false)"
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
-                        <button wire:click="startTimer"
-                            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">Mulai</button>
+                        {{-- <button wire:click="startTimer"
+                            class="px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700">Mulai</button> --}}
+                        <button onclick="kirimLokasiKeLivewire('start')"
+                            class="px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700">
+                            Mulai
+                        </button>
                     </div>
                 </div>
             </div>
@@ -95,8 +100,12 @@
                     <div class="mt-4 flex justify-end gap-2">
                         <button wire:click="$set('showStopModal', false)"
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
-                        <button wire:click="openWorkReportModal"
-                            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Selesai</button>
+                        {{-- <button wire:click="openWorkReportModal"
+                            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Selesai</button> --}}
+                        <button onclick="kirimLokasiKeLivewire('stop')"
+                            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                            Selesai
+                        </button>
                     </div>
                 </div>
             </div>
@@ -109,6 +118,14 @@
                     <h2 class="text-xl font-bold mb-4">Dinas Keluar</h2>
                     <textarea wire:model="deskripsi_dinas" class="w-full p-2 border rounded-md"
                         placeholder="Masukkan keterangan dinas keluar..."></textarea>
+
+                    <div class="mt-4">
+                        <label class="flex items-center gap-2">
+                            <input type="checkbox" wire:model.live="akanKembali" class="form-checkbox text-blue-600">
+                            <span class="text-sm text-gray-700">Saya akan kembali bekerja setelah dinas</span>
+                        </label>
+                    </div>
+
                     <div class="mt-4 flex justify-end gap-2">
                         <button wire:click="$set('showDinasModal', false)"
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
@@ -323,7 +340,15 @@
 
             // Tangkap event dari Livewire untuk memulai timer
             window.addEventListener('timer-started', (event) => {
-                startTimer(event.detail);
+                const startTimestamp = event.detail;
+
+                if (!isRunning) {
+                    timeElapsed = Math.floor(Date.now() / 1000) - startTimestamp;
+                    timer = setInterval(() => {
+                        timeElapsed++;
+                        updateTimerDisplay();
+                    }, 1000);
+                }
             });
 
             // Event untuk memulai timer lembur dari Livewire
@@ -358,19 +383,647 @@
         <p class="font-semibold text-gray-600">{{ $this->absensiTanpaLembur->first()->deskripsi_out ?? '-' }}</p>
     @endif
 
-    {{-- <div>
-        <!-- Menampilkan deskripsi_in dan deskripsi_out jika is_lembur = false -->
-        @if ($this->absensiTanpaLembur->isNotEmpty())
-            <ul>
-                @foreach ($this->absensiTanpaLembur as $item)
-                    <li>
-                        <strong>Deskripsi In:</strong> {{ $item->deskripsi_in }} <br>
-                        <strong>Deskripsi Out:</strong> {{ $item->deskripsi_out }}
-                    </li>
-                @endforeach
-            </ul>
-        @else
-            <p>Tidak ada absensi yang tidak lembur.</p>
-        @endif
-    </div> --}}
+    @push('scripts')
+        <script>
+            // const lokasiKantor = {
+            //     lat: -7.402330130327286,
+            //     lng: 109.615622721266,
+            //     radiusMeter: 100
+            // };
+
+            const areaPolygons = {
+                "RSI": [{
+                        lat: -7.401462324660784,
+                        lng: 109.61574443318705
+                    },
+                    {
+                        lat: -7.40146214270284,
+                        lng: 109.6157440761346
+                    },
+                    {
+                        lat: -7.4017712054383935,
+                        lng: 109.61499327224521
+                    },
+                    {
+                        lat: -7.403230824029308,
+                        lng: 109.61515910978147
+                    },
+                    {
+                        lat: -7.403165037042953,
+                        lng: 109.61580592184652
+                    },
+                    {
+                        lat: -7.402782968146411,
+                        lng: 109.6164214758092
+                    },
+                    {
+                        lat: -7.401966177920016,
+                        lng: 109.61618451323585
+                    },
+                    {
+                        lat: -7.40206468637885,
+                        lng: 109.61591235565817
+                    },
+                    {
+                        lat: -7.401462324660784,
+                        lng: 109.61574443318705
+                    }
+                ],
+                "Akunbiz": [{
+                        lat: -7.548413507144458,
+                        lng: 110.81252863588689
+                    },
+                    {
+                        lat: -7.548802885218547,
+                        lng: 110.81283553967711
+                    },
+                    {
+                        lat: -7.548381621290859,
+                        lng: 110.8132859282019
+                    },
+                    {
+                        lat: -7.548040287781695,
+                        lng: 110.8129615051734
+                    },
+                    {
+                        lat: -7.548413507144458,
+                        lng: 110.81252863588689
+                    }
+                ],
+                // "Rumah": [{
+                //         lat: -7.603560911411364,
+                //         lng: 110.78382576729706
+                //     },
+                //     {
+                //         lat: -7.603661241186458,
+                //         lng: 110.78382576729706
+                //     },
+                //     {
+                //         lat: -7.603661241186458,
+                //         lng: 110.78398304726369
+                //     },
+                //     {
+                //         lat: -7.603560911411364,
+                //         lng: 110.78398304726369
+                //     },
+                //     {
+                //         lat: -7.603560911411364,
+                //         lng: 110.78382576729706
+                //     }
+                // ],
+                "Poliklinik": [{
+                        lat: -7.401821225185401,
+                        lng: 109.61501131827964
+                    },
+                    {
+                        lat: -7.402030471704805,
+                        lng: 109.61503914309628
+                    },
+                    {
+                        lat: -7.401977585231165,
+                        lng: 109.61537304089137
+                    },
+                    {
+                        lat: -7.401747643968704,
+                        lng: 109.61530347885127
+                    },
+                    {
+                        lat: -7.401821225185401,
+                        lng: 109.61501131827964
+                    }
+                ],
+                "Al Zaitun": [{
+                        lat: -7.402653611845423,
+                        lng: 109.615097111463
+                    },
+                    {
+                        lat: -7.4028467621173775,
+                        lng: 109.61511334260632
+                    },
+                    {
+                        lat: -7.4028145704119765,
+                        lng: 109.61525246668793
+                    },
+                    {
+                        lat: -7.402623719534873,
+                        lng: 109.61521304819797
+                    },
+                    {
+                        lat: -7.402653611845423,
+                        lng: 109.615097111463
+                    }
+                ],
+                "Assalam": [{
+                        lat: -7.402324796309088,
+                        lng: 109.61547042774959
+                    },
+                    {
+                        lat: -7.402485754994245,
+                        lng: 109.61550289003463
+                    },
+                    {
+                        lat: -7.402446665033025,
+                        lng: 109.61564433285128
+                    },
+                    {
+                        lat: -7.402306401026351,
+                        lng: 109.61560723309623
+                    },
+                    {
+                        lat: -7.402324796309088,
+                        lng: 109.61547042774959
+                    }
+                ],
+                "Al Amin": [{
+                        lat: -7.402980127731013,
+                        lng: 109.6153057975863
+                    },
+                    {
+                        lat: -7.403101996273804,
+                        lng: 109.61532898493294
+                    },
+                    {
+                        lat: -7.403028415270782,
+                        lng: 109.61549129636131
+                    },
+                    {
+                        lat: -7.402936439000513,
+                        lng: 109.61543564672803
+                    },
+                    {
+                        lat: -7.402980127731013,
+                        lng: 109.6153057975863
+                    }
+                ],
+                "As Syfa, Azizah, Linen": [{
+                        lat: -7.402885852043113,
+                        lng: 109.61561187056475
+                    },
+                    {
+                        lat: -7.403049109930095,
+                        lng: 109.61560259562634
+                    },
+                    {
+                        lat: -7.403039912303285,
+                        lng: 109.61578577566792
+                    },
+                    {
+                        lat: -7.402883552635544,
+                        lng: 109.61576258831974
+                    },
+                    {
+                        lat: -7.402885852043113,
+                        lng: 109.61561187056475
+                    }
+                ],
+                "IGD": [{
+                        lat: -7.401659183958827,
+                        lng: 109.61552313374159
+                    },
+                    {
+                        lat: -7.401886996374344,
+                        lng: 109.61559330748901
+                    },
+                    {
+                        lat: -7.40184011537265,
+                        lng: 109.6157580311268
+                    },
+                    {
+                        lat: -7.4016174305459685,
+                        lng: 109.61566421990761
+                    },
+                    {
+                        lat: -7.401659183958827,
+                        lng: 109.61552313374159
+                    }
+                ],
+                "PJBR,Al Munawarah": [{
+                        lat: -7.4020741205731895,
+                        lng: 109.61585653258936
+                    },
+                    {
+                        lat: -7.4022450055152405,
+                        lng: 109.61590157103598
+                    },
+                    {
+                        lat: -7.402153737430012,
+                        lng: 109.61623838028669
+                    },
+                    {
+                        lat: -7.401977026826486,
+                        lng: 109.61617963448765
+                    },
+                    {
+                        lat: -7.4020741205731895,
+                        lng: 109.61585653258936
+                    }
+                ],
+                "Sanitasi, Sarpras, Logistik": [{
+                        lat: -7.402476088495291,
+                        lng: 109.61588003072177
+                    },
+                    {
+                        lat: -7.4026314383043825,
+                        lng: 109.61579582840909
+                    },
+                    {
+                        lat: -7.402878056011886,
+                        lng: 109.61591136181488
+                    },
+                    {
+                        lat: -7.402722706290845,
+                        lng: 109.61639503556557
+                    },
+                    {
+                        lat: -7.402396471697884,
+                        lng: 109.61628929312644
+                    },
+                    {
+                        lat: -7.402476088495291,
+                        lng: 109.61588003072177
+                    }
+                ],
+                "Firdaus": [{
+                        lat: -7.402982917042792,
+                        lng: 109.61513004268068
+                    },
+                    {
+                        lat: -7.4031868134210015,
+                        lng: 109.61514962461365
+                    },
+                    {
+                        lat: -7.403188755291026,
+                        lng: 109.61525340885936
+                    },
+                    {
+                        lat: -7.403122731712273,
+                        lng: 109.61533956936557
+                    },
+                    {
+                        lat: -7.402942137756085,
+                        lng: 109.61527103260005
+                    },
+                    {
+                        lat: -7.402982917042792,
+                        lng: 109.61513004268068
+                    }
+                ]
+            };
+
+
+            let lokasiTerakhir = null;
+            let sudahPeringatkan = {
+                gerak: false,
+                emulator: false,
+                devtools: false
+            };
+
+            function hitungJarakMeter(lat1, lon1, lat2, lon2) {
+                const R = 6371000;
+                const dLat = (lat2 - lat1) * Math.PI / 180;
+                const dLon = (lon2 - lon1) * Math.PI / 180;
+                const a = Math.sin(dLat / 2) ** 2 +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLon / 2) ** 2;
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                return R * c;
+            }
+
+            function isInsidePolygon(point, polygon) {
+                let x = point.lat,
+                    y = point.lng;
+                let inside = false;
+
+                for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+                    let xi = polygon[i].lat,
+                        yi = polygon[i].lng;
+                    let xj = polygon[j].lat,
+                        yj = polygon[j].lng;
+
+                    let intersect = ((yi > y) !== (yj > y)) &&
+                        (x < (xj - xi) * (y - yi) / (yj - yi + 1e-10) + xi);
+                    if (intersect) inside = !inside;
+                }
+
+                return inside;
+            }
+
+            function simpanLokasi(lat, lng) {
+                const prev = JSON.parse(localStorage.getItem('lokasi_sebelumnya'));
+                const now = {
+                    lat,
+                    lng,
+                    waktu: Date.now()
+                };
+
+                if (prev) {
+                    const jarak = hitungJarakMeter(lat, lng, prev.lat, prev.lng);
+                    const waktu = (now.waktu - prev.waktu) / 1000;
+
+                    if (jarak > 1000 && waktu < 30 && !sudahPeringatkan.gerak) {
+                        sudahPeringatkan.gerak = true;
+                        Swal.fire({
+                            icon: 'warning',
+                            title: '🚨 Gerakan Mencurigakan',
+                            text: `Berpindah ${Math.round(jarak)} meter dalam ${waktu} detik.`
+                        });
+                    }
+                }
+
+                localStorage.setItem('lokasi_sebelumnya', JSON.stringify(now));
+            }
+
+            function deteksiEmulator() {
+                const agents = ['Genymotion', 'Emulator', 'SDK', 'Android SDK built', 'X86'];
+                if (!sudahPeringatkan.emulator && agents.some(agent => navigator.userAgent.includes(agent))) {
+                    sudahPeringatkan.emulator = true;
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '⚠️ Emulator Terdeteksi',
+                        text: 'Anda tampaknya menggunakan emulator.'
+                    });
+                }
+            }
+
+            function deteksiDevTools() {
+                const element = new Image();
+                Object.defineProperty(element, 'id', {
+                    get: function() {
+                        if (!sudahPeringatkan.devtools) {
+                            sudahPeringatkan.devtools = true;
+                            Swal.fire({
+                                icon: 'warning',
+                                title: '⚠️ DevTools Aktif',
+                                text: 'Developer Tools terdeteksi. Data mungkin tidak valid.'
+                            });
+                        }
+                    }
+                });
+                // console.log(element);
+            }
+
+            function ambilLokasiTerbaru() {
+                if (!navigator.geolocation) {
+                    Swal.fire('Error', 'Browser tidak mendukung Geolocation.', 'error');
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    function(pos) {
+                        const {
+                            latitude,
+                            longitude,
+                            accuracy
+                        } = pos.coords;
+                        lokasiTerakhir = {
+                            lat: latitude,
+                            lng: longitude,
+                            accuracy
+                        };
+
+                        simpanLokasi(latitude, longitude);
+                        deteksiEmulator();
+                        deteksiDevTools();
+                        console.log("Latitude:", latitude);
+                        console.log("Longitude:", longitude);
+                    },
+                    function() {
+                        Swal.fire('Gagal', 'Izin lokasi dibutuhkan.', 'error');
+                    }, {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 30000
+                    }
+                );
+            }
+
+            // function validasiJarak(lat, lng) {
+            //     const jarak = hitungJarakMeter(lat, lng, lokasiKantor.lat, lokasiKantor.lng);
+            //     return {
+            //         jarak,
+            //         valid: jarak <= lokasiKantor.radiusMeter
+            //     };
+            // }
+
+            function jarakKeSegment(p, a, b) {
+                const R = 6371000; // Earth radius in meters
+                const toRad = deg => deg * Math.PI / 180;
+
+                // Convert points to 2D space
+                const lat1 = toRad(a.lat),
+                    lon1 = toRad(a.lng);
+                const lat2 = toRad(b.lat),
+                    lon2 = toRad(b.lng);
+                const lat3 = toRad(p.lat),
+                    lon3 = toRad(p.lng);
+
+                const A = {
+                    x: R * lon1 * Math.cos(lat1),
+                    y: R * lat1
+                };
+                const B = {
+                    x: R * lon2 * Math.cos(lat2),
+                    y: R * lat2
+                };
+                const P = {
+                    x: R * lon3 * Math.cos(lat3),
+                    y: R * lat3
+                };
+
+                // Proyeksi titik ke garis AB
+                const ABx = B.x - A.x;
+                const ABy = B.y - A.y;
+                const t = ((P.x - A.x) * ABx + (P.y - A.y) * ABy) / (ABx ** 2 + ABy ** 2);
+
+                const tClamped = Math.max(0, Math.min(1, t));
+                const closest = {
+                    x: A.x + tClamped * ABx,
+                    y: A.y + tClamped * ABy
+                };
+
+                const dx = P.x - closest.x;
+                const dy = P.y - closest.y;
+                return Math.sqrt(dx * dx + dy * dy);
+            }
+
+            function validasiLokasiPolygon(lat, lng, toleransi = 20) {
+                const point = {
+                    lat,
+                    lng
+                };
+
+                for (const [namaArea, polygon] of Object.entries(areaPolygons)) {
+                    if (isInsidePolygon(point, polygon)) {
+                        return {
+                            valid: true,
+                            lokasi: namaArea
+                        };
+                    }
+
+                    // Tambahan toleransi: cek jarak ke sisi polygon
+                    for (let i = 0; i < polygon.length - 1; i++) {
+                        const dist = jarakKeSegment(point, polygon[i], polygon[i + 1]);
+                        if (dist <= toleransi) {
+                            return {
+                                valid: true,
+                                lokasi: `${namaArea} (toleransi)`
+                            };
+                        }
+                    }
+                }
+
+                return {
+                    valid: false,
+                    lokasi: 'Luar Area'
+                };
+            }
+
+
+            window.kirimLokasiKeLivewire = function(aksi = 'start') {
+                if (!lokasiTerakhir) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Menunggu Lokasi',
+                        text: 'Sistem sedang mencoba mendeteksi lokasi Anda. Mohon tunggu beberapa saat.',
+                    });
+                    return;
+                }
+
+                // const hasilValidasi = validasiJarak(lokasiTerakhir.lat, lokasiTerakhir.lng);
+
+                // const hasilValidasi = validasiLokasiPolygon(lokasiTerakhir.lat, lokasiTerakhir.lng);
+
+                // const hasilValidasi = validasiLokasiPolygon(lokasiTerakhir.lat, lokasiTerakhir.lng, 20);
+                // if (!hasilValidasi.valid) {
+                //     // hanya tampilkan alert, tidak memblokir
+                //     Swal.fire({
+                //         title: 'Peringatan',
+                //         text: 'Lokasi Anda mungkin di luar area absensi. Mohon pastikan sudah berada di area yang benar.',
+                //         icon: 'warning',
+                //     });
+                // }
+                // console.log("📍 Lokasi valid di area:", hasilValidasi.lokasi);
+
+                // Jika jarak tidak valid DAN lokasi terakhir belum diperbarui dalam 5 detik
+                // const lastUpdate = JSON.parse(localStorage.getItem('lokasi_sebelumnya'));
+                // const now = Date.now();
+                // const ageInSeconds = lastUpdate ? (now - lastUpdate.waktu) / 1000 : null;
+                // console.log("Usia lokasi terakhir:", ageInSeconds, "detik");
+
+                // if (!hasilValidasi.valid) {
+                //     if (ageInSeconds !== null && ageInSeconds < 5) {
+                //         Swal.fire({
+                //             icon: 'info',
+                //             title: 'Menunggu Lokasi Akurat',
+                //             text: 'Lokasi belum terdeteksi dengan akurat. Silakan tunggu beberapa saat dan coba kembali.',
+                //             timer: 3000,
+                //             showConfirmButton: false
+                //         });
+                //     } else {
+                //         Swal.fire({
+                //             icon: 'warning',
+                //             title: 'Di Luar Area RSI Banjarnegara',
+                //             text: `Jarak Anda terlalu jauh dari area kantor.`,
+                //             timer: 3000,
+                //             showConfirmButton: false
+                //         });
+                //     }
+                //     return;
+                // }
+
+
+                @this.set('latitude', lokasiTerakhir.lat);
+                @this.set('longitude', lokasiTerakhir.lng);
+
+                if (aksi === 'start') {
+                    @this.call('startTimer');
+                } else if (aksi === 'stop') {
+                    @this.call('openWorkReportModal');
+                }
+            };
+
+            document.addEventListener('DOMContentLoaded', () => {
+                // Ambil lokasi pertama kali
+                ambilLokasiTerbaru();
+
+                // Pastikan `lokasiTerakhir` tersedia sebelum memungkinkan aksi absensi
+                let cekInterval = setInterval(() => {
+                    if (lokasiTerakhir) {
+                        clearInterval(cekInterval);
+                        console.log('✅ Lokasi awal berhasil didapat.');
+                    } else {
+                        console.log('⏳ Menunggu lokasi awal...');
+                    }
+                }, 2000); // cek setiap 2 detik
+
+                // Refresh lokasi setiap 60 detik
+                setInterval(ambilLokasiTerbaru, 30000);
+            });
+        </script>
+    @endpush
+
+    {{-- @push('scripts')
+        <script>
+            let lokasiTerakhir = null;
+
+            function ambilLokasiTerbaru() {
+                if (!navigator.geolocation) {
+                    Swal.fire('Error', 'Browser tidak mendukung Geolocation.', 'error');
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    function(pos) {
+                        const {
+                            latitude,
+                            longitude
+                        } = pos.coords;
+                        lokasiTerakhir = {
+                            lat: latitude,
+                            lng: longitude
+                        };
+
+                        console.log("📍 Lokasi didapat:", latitude, longitude);
+                    },
+                    function() {
+                        Swal.fire('Gagal', 'Izin lokasi dibutuhkan.', 'error');
+                    }, {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 30000
+                    }
+                );
+            }
+
+            // Fungsi kirim ke Livewire
+            window.kirimLokasiKeLivewire = function(aksi = 'start') {
+                if (!lokasiTerakhir) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Menunggu Lokasi',
+                        text: 'Sistem sedang mencoba mendeteksi lokasi Anda. Mohon tunggu beberapa saat.',
+                    });
+                    return;
+                }
+
+                // Kirim lokasi ke Livewire (biar backend yang validasi polygon)
+                @this.set('latitude', lokasiTerakhir.lat);
+                @this.set('longitude', lokasiTerakhir.lng);
+
+                if (aksi === 'start') {
+                    @this.call('startTimer');
+                } else if (aksi === 'stop') {
+                    @this.call('openWorkReportModal');
+                }
+            };
+
+            document.addEventListener('DOMContentLoaded', () => {
+                ambilLokasiTerbaru();
+
+                // Ambil lokasi ulang setiap 30 detik
+                setInterval(ambilLokasiTerbaru, 30000);
+            });
+        </script>
+    @endpush --}}
+
 </div>

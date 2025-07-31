@@ -20,7 +20,7 @@ class UserNotification extends Notification
     public function __construct($message, $url) // ✅ Terima parameter di constructor
     {
         $this->message = $message;
-        $this->url = $url;
+        $this->url = $url ?? '';
     }
 
     /**

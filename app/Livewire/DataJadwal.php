@@ -2,13 +2,19 @@
 
 namespace App\Livewire;
 
+use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Shift;
 use Livewire\Component;
+use App\Models\Holidays;
 use App\Models\UnitKerja;
 use App\Imports\JadwalImport;
 use App\Models\JadwalAbsensi;
 use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
+use App\Notifications\UserNotification;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Request;
 
 class DataJadwal extends Component
@@ -25,6 +31,17 @@ class DataJadwal extends Component
     public $routeIsDashboard;
     public $selectedUnit = null;
     public $selectedUser = null;
+    public $showModalShift = false;
+    public $dataShifts = [];
+
+    public $showModalDetailShift = false;
+    public $shiftNama;
+    public $shiftJamMasuk;
+    public $shiftJamKeluar;
+    public $shiftKeterangan;
+    public $selectedShiftId;
+    public $currentUserId;
+    public $currentShiftDate;
 
     public function mount()
     {
@@ -91,7 +108,7 @@ class DataJadwal extends Component
 
         $unitId = $this->selectedUnit ?? auth()->user()->unit_id;
 
-        $jadwalData = JadwalAbsensi::with(['user', 'shift'])
+        $jadwalData = JadwalAbsensi::with(['user.jenis', 'shift'])
             ->whereYear('tanggal_jadwal', $this->tahun)
             ->whereMonth('tanggal_jadwal', $this->bulan)
             ->when($unitId, function ($query) use ($unitId) {
@@ -108,21 +125,111 @@ class DataJadwal extends Component
 
         $this->filteredShifts = [];
         foreach ($jadwalData as $jadwal) {
-            $this->filteredShifts[$jadwal->user_id][$jadwal->tanggal_jadwal] = optional($jadwal->shift)->nama_shift ?? '-';
+            $userId = $jadwal->user_id;
+            $tanggal = $jadwal->tanggal_jadwal;
+
+            $shift = $jadwal->shift;
+
+            $shiftData = [
+                'nama_shift' => $shift->nama_shift ?? '-',
+                'jam_masuk' => $shift->jam_masuk ?? '-',
+                'jam_keluar' => $shift->jam_keluar ?? '-',
+                'keterangan' => $shift->keterangan ?? '-',
+            ];
+
+            // Simpan dalam array
+            $this->filteredShifts[$userId][$tanggal][] = $shiftData;
         }
+        foreach ($this->filteredShifts as $userId => $tanggalShifts) {
+            foreach ($tanggalShifts as $tanggal => $shifts) {
+                $this->filteredShifts[$userId][$tanggal] = collect($shifts)
+                    ->sortBy('jam_masuk')
+                    ->values()
+                    ->toArray();
+            }
+        }
+        // dd($this->filteredShifts);
     }
+
+    // Fungsi untuk menandai tanggal merah (libur nasional atau Minggu)
+    public function isHoliday($date)
+    {
+        $carbonDate = Carbon::parse($date);
+
+        // Tandai merah jika hari Minggu
+        if ($carbonDate->isSunday()) {
+            return true;
+        }
+
+        // Cek di database jika tanggal termasuk libur nasional
+        $holiday = Holidays::where('date', $carbonDate->format('Y-m-d'))->exists();
+
+        if ($holiday) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function openShiftModal()
+    {
+        $unitId = auth()->user()->unit_id;
+
+        $this->dataShifts = Shift::with('unitKerja')
+            ->where('unit_id', $unitId)
+            ->get();
+
+        $this->showModalShift = true;
+    }
+
+    public function closeShiftModal()
+    {
+        $this->showModalShift = false;
+    }
+
 
     public function import()
     {
         $this->validate([
-            'file' => 'required|mimes:xlsx,csv|max:2048', // Validasi file
+            'file' => 'required|mimes:xlsx,csv,xls|max:2048',
         ]);
 
-        Excel::import(new JadwalImport, $this->file);
+        // Set bahasa Indonesia
+        Carbon::setLocale('id'); // Tambahkan ini
 
-        session()->flash('success', 'Jadwal berhasil diimport!');
-        $this->loadData(); // Refresh data setelah import
+        $uploadedFileName = $this->file->getClientOriginalName();
+        $monthName = Carbon::createFromDate($this->tahun, $this->bulan, 1)->translatedFormat('F');
+
+        // Dapatkan nama unit berdasarkan role
+        $canSelectUnit = auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->nama === 'KEPEGAWAIAN';
+
+        $unitNama = $canSelectUnit
+            ? UnitKerja::find($this->selectedUnit)?->nama
+            : auth()->user()->unitKerja->nama;
+
+        if (!$unitNama) {
+            return redirect()->route('jadwal.index')->with('error', 'Unit tidak ditemukan.');
+        }
+
+        $expectedFileName = 'jadwal_template_' . $unitNama . '_' . $monthName . '_' . $this->tahun . '.xlsx';
+        // Validasi nama file
+        if ($uploadedFileName !== $expectedFileName) {
+            return redirect()->route('jadwal.index')->with('error', "Nama file tidak sesuai. Harus: {$expectedFileName}");
+        }
+
+        try {
+            // Jalankan proses import
+            Excel::import(new JadwalImport($this->bulan, $this->tahun), $this->file->getRealPath());
+
+            $this->reset('file');
+
+            return redirect()->route('jadwal.index')->with('success', 'Data Jadwal Berhasil Diinput');
+        } catch (\Throwable $e) {
+            Log::error('Import Gagal: ' . $e->getMessage());
+            return redirect()->route('jadwal.index')->with('error', 'Terjadi kesalahan saat mengimpor file.');
+        }
     }
+
 
     public function updated($propertyName)
     {
@@ -130,6 +237,125 @@ class DataJadwal extends Component
             $this->loadData();
         }
     }
+
+    public function showShiftDetail($nama_shift, $jam_masuk, $jam_keluar, $keterangan, $userId = null, $tanggal = null)
+    {
+        $this->shiftNama = $nama_shift;
+        $this->shiftJamMasuk = $jam_masuk;
+        $this->shiftJamKeluar = $jam_keluar;
+        $this->shiftKeterangan = $keterangan;
+        $this->currentUserId = $userId;
+        $this->currentShiftDate = $tanggal;
+
+        // Siapkan daftar shift
+        $unitId = auth()->user()->unit_id;
+        $this->dataShifts = Shift::where('unit_id', $unitId)->get();
+
+        $this->showModalDetailShift = true;
+    }
+
+    public function updateShift()
+    {
+        $allowedRoles = [
+            'Super Admin',
+            'Kepala Seksi Kepegawaian',
+            'Kepala Seksi Keuangan',
+            'Kepala Unit',
+            'Kepala Sub Unit',
+            'Kepala Instalasi',
+            'Kepala Ruang',
+            'Kepala Seksi',
+        ];
+
+        if (!auth()->user()->hasAnyRole($allowedRoles)) {
+            abort(403, 'Tidak memiliki akses untuk mengubah shift.');
+        }
+
+        $this->validate([
+            'selectedShiftId' => 'required|exists:shifts,id',
+        ]);
+
+        if (!$this->currentUserId || !$this->currentShiftDate) {
+            return redirect()->route('jadwal.index')->with('error', 'Data Tidak Lengkap.');
+        }
+
+        $jadwal = JadwalAbsensi::where('user_id', $this->currentUserId)
+            ->where('tanggal_jadwal', $this->currentShiftDate)
+            ->first();
+
+        if ($jadwal) {
+            $jadwal->update(['shift_id' => $this->selectedShiftId]);
+
+            // Ambil user dan shift baru
+            $user = auth()->user();
+            $targetUser = User::find($this->currentUserId);
+            $shiftBaru = Shift::find($this->selectedShiftId);
+
+            if ($targetUser && $shiftBaru) {
+                $jamMasuk = $shiftBaru->jam_masuk ?? '-';
+                $jamKeluar = $shiftBaru->jam_keluar ?? '-';
+
+                $message = 'Shift Anda pada tanggal <span class="font-bold">' . $this->currentShiftDate . '</span> telah diubah oleh <strong>' . $user->name . '</strong> menjadi <strong>' . $shiftBaru->nama_shift . '</strong> (' . $jamMasuk . ' - ' . $jamKeluar . ').';
+                $url = "/jadwal";
+
+                Notification::send($targetUser, new UserNotification($message, $url));
+            }
+            return redirect()->route('jadwal.index')->with('success', 'Shift Berhasil diubah.');
+        } else {
+            return redirect()->route('jadwal.index')->with('error', 'Jadwal Tidak ditemukan.');
+        }
+    }
+
+    public function deleteShiftFromModal()
+    {
+        $this->authorizeEditShift(); // pastikan user berhak
+
+        if (!$this->currentUserId || !$this->currentShiftDate || !$this->shiftNama) {
+            session()->flash('error', 'Data tidak lengkap.');
+            return;
+        }
+
+        $jadwal = JadwalAbsensi::where('user_id', $this->currentUserId)
+            ->whereDate('tanggal_jadwal', $this->currentShiftDate)
+            ->get();
+
+        // Hanya boleh hapus jika lebih dari 1 shift di hari itu
+        if ($jadwal->count() <= 1) {
+            session()->flash('error', 'Tidak dapat menghapus shift terakhir.');
+            return;
+        }
+
+        $jadwalTarget = $jadwal->firstWhere('shift.nama_shift', $this->shiftNama);
+
+        if ($jadwalTarget) {
+            $jadwalTarget->delete();
+            $this->loadData();
+            $this->showModalDetailShift = false;
+            return redirect()->route('jadwal.index')->with('success', 'Jadwal Shift Berhasil dihapus.');
+        } else {
+            return redirect()->route('jadwal.index')->with('error', 'Jadwal Shift Tidak ditemukan.');
+        }
+    }
+
+    protected function authorizeEditShift()
+    {
+        $allowedRoles = [
+            'Super Admin',
+            'Kepala Seksi Kepegawaian',
+            'Kepala Seksi Keuangan',
+            'Kepala Unit',
+            'Kepala Sub Unit',
+            'Kepala Instalasi',
+            'Kepala Ruang',
+            'Kepala Seksi',
+        ];
+
+        if (!auth()->user()->hasAnyRole($allowedRoles)) {
+            abort(403, 'Anda tidak memiliki izin untuk mengubah atau menghapus shift.');
+        }
+    }
+
+
 
     public function render()
     {

@@ -9,12 +9,33 @@ use Carbon\Carbon;
 class EditAktivitasAbsensi extends Component
 {
     public $user_id, $user_name, $absen_id, $time_in, $time_out, $deskripsi_in, $deskripsi_out, $keterangan, $tanggal, $feedback;
+    public $is_lembur, $keterangan_lembur, $deksripsi_lembur;
 
     public function mount($id)
     {
-        // Ambil data absen sekaligus relasi user
-        $absen = Absen::with('user', 'jadwalAbsen')->findOrFail($id);
-        
+        // Ambil data absen dengan relasi user dan jadwalAbsen
+        $absen = Absen::with('user', 'jadwalAbsen')
+            ->where('id', $id)
+            ->first();
+        // Cek jika ada lebih dari satu absen di tanggal yang sama untuk user yang sama
+        $absenList = Absen::where('user_id', $absen->user_id)
+            ->whereDate('created_at', $absen->created_at->format('Y-m-d'))
+            ->orderByDesc('created_at') // Ambil data terbaru
+            ->get();
+
+        $lemburList = $absenList->where('is_lembur', true);
+
+        if ($lemburList->count() > 0) {
+            // Gabungkan data lembur dalam bentuk array atau string
+            $this->deksripsi_lembur = $lemburList->pluck('deskripsi_lembur')->implode(', ');
+            $this->keterangan_lembur = $lemburList->pluck('keterangan')->implode(', ');
+            $this->is_lembur = true;
+        } else {
+            $this->deksripsi_lembur = '-';
+            $this->keterangan_lembur = '-';
+            $this->is_lembur = false;
+        }
+
         // Set nilai ke properti komponen
         $this->absen_id = $absen->id;
         $this->user_id = $absen->user_id;
@@ -28,7 +49,9 @@ class EditAktivitasAbsensi extends Component
         $this->deskripsi_in = $absen->deskripsi_in ?? '-';
         $this->deskripsi_out = $absen->deskripsi_out ?? '-';
         $this->keterangan = $absen->keterangan ?? '-';
-        $this->tanggal = Carbon::parse($absen->jadwalAbsen->tanggal_jadwal)->format('Y-m-d');
+        $this->tanggal = $absen->jadwalAbsen
+            ? Carbon::parse($absen->jadwalAbsen->tanggal_jadwal)->format('Y-m-d')
+            : '-';
         $this->feedback = $absen->feedback ?? '';
     }
 
@@ -59,7 +82,7 @@ class EditAktivitasAbsensi extends Component
     public function setApproval($status)
     {
         Absen::where('id', $this->absen_id)->update([
-            'is_lembur' => $status,
+            'approved_lembur' => $status,
         ]);
 
         session()->flash('approval_message', $status ? 'Lembur disetujui!' : 'Lembur tidak disetujui.');

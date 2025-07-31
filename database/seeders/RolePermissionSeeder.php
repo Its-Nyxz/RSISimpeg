@@ -52,20 +52,28 @@ class RolePermissionSeeder extends Seeder
             'potongan',
             'tunjangan-kinerja',
             'kategori-jabatan',
+            'kategori-pph',
             'create-data-karyawan',
             'detail-data-karyawan',
             'edit-data-karyawan',
             'tambah-history',
+            'tambah-sp',
             'view-kenaikan',
-            'notification-cuti',
+            'approval-cuti',
+            'approval-izin',
+            'approval-tukar-jadwal',
             'view-import-gaji',
             'view-poin-peran',
             'view-poin-penilaian',
             'view-keuangan',
             'view-kepegawaian',
             'hak-akses',
-            'resign-kerja'
-
+            'resign-kerja',
+            'jatah-cuti',
+            'override-lokasi',
+            'penyesuaian',
+            'approve-izin',
+            'approve-cuti'
         ];
 
         // Tambahkan permission ke database
@@ -90,6 +98,12 @@ class RolePermissionSeeder extends Seeder
                 'import-jadwal',
                 'tambah-jadwal',
                 'edit-jadwal',
+                'approval-cuti',
+                'approval-tukar-jadwal',
+                'view-import-gaji',
+                'view-poin-peran',
+                'view-poin-penilaian',
+                'approve-izin'
             ])->get(),
             'Kepala Seksi Keuangan' => Permission::whereNotIn('name', [
                 'view-kenaikan',
@@ -97,6 +111,8 @@ class RolePermissionSeeder extends Seeder
                 'notification-cuti',
                 'create-data-karyawan',
                 'tambah-history',
+                'tambah-sp',
+                'override-lokasi',
                 'view-poin-peran',
                 'view-poin-penilaian',
             ])->get(),
@@ -111,8 +127,13 @@ class RolePermissionSeeder extends Seeder
                 'template-jadwal',
                 'import-jadwal',
                 'tambah-jadwal',
+                'tambah-history',
+                'tambah-sp',
+                'override-lokasi',
                 'edit-jadwal',
-                'resign-kerja'
+                'resign-kerja',
+                'jatah-cuti',
+                'penyesuaian'
             ])->get(),
             'Staf' => Permission::whereIn('name', ['timer', 'list-history'])->get(),
             'Kepala Instalasi' => Permission::whereNotIn('name', ['view-keuangan', 'hak-akses', 'master-data', 'create-data-karyawan', 'resign-kerja'])->get(),
