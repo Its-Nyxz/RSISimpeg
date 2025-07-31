@@ -41,7 +41,7 @@ class DataShift extends Component
         if (!$shift) {
             session()->flash('error', 'Shift tidak ditemukan.');
             return;
-        }
+        }   
 
         try {
             $shift->delete();
