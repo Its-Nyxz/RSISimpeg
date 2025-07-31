@@ -8,66 +8,28 @@ use Livewire\Component;
 
 class DataShift extends Component
 {
-    public $search = '';
+    public $search = ''; // Properti untuk menyimpan nilai input pencarian
     public $shifts = [];
-    public $units;
-    public $selectedUnit = null;
-
-    public $perPage = 10;
-    public $currentPage = 1;
-    public $totalShifts = 0;
 
     public function mount()
     {
-        $this->units = UnitKerja::orderBy('nama', 'asc')->get();
         $this->loadData();
     }
-
-    public function updateSearch($value)
-    {
-        $this->search = $value;
-        $this->currentPage = 1;
-        $this->loadData();
-    }
-
-    public function updatedSearch()
-    {
-        $this->currentPage = 1;
-        $this->loadData();
-    }
-    public function nextPage()
-    {
-        $this->currentPage++;
-        $this->loadData();
-    }
-
-    public function prevPage()
-    {
-        if ($this->currentPage > 1) {
-            $this->currentPage--;
-            $this->loadData();
-        }
-    }
-
     public function loadData()
     {
-        $userUnitId = auth()->user()->unit_id;
-        $unitIdToFilter = $userUnitId ?? $this->selectedUnit;
+        $userUnitId = auth()->user()->unit_id; // Ambil unit_id dari user yang login
 
-        $query = Shift::with('unitKerja')
-            ->when($unitIdToFilter, fn($q) => $q->where('unit_id', $unitIdToFilter))
-            ->when($this->search, function ($q) {
-                $q->where('nama_shift', 'like', '%' . $this->search . '%')
+        $this->shifts = Shift::with('unitKerja')
+            ->when($userUnitId, function ($query) use ($userUnitId) {
+                // Filter berdasarkan unit kerja dari user yang login
+                $query->where('unit_id', $userUnitId);
+            })
+            ->when($this->search, function ($query) {
+                $query->where('nama_shift', 'like', '%' . $this->search . '%')
                     ->orWhere('jam_masuk', 'like', '%' . $this->search . '%')
                     ->orWhere('jam_keluar', 'like', '%' . $this->search . '%')
                     ->orWhere('keterangan', 'like', '%' . $this->search . '%');
-            });
-
-        $this->totalShifts = $query->count();
-
-        $this->shifts = $query->orderBy('created_at')
-            ->skip(($this->currentPage - 1) * $this->perPage)
-            ->take($this->perPage)
+            })
             ->get()
             ->toArray();
     }
@@ -76,15 +38,28 @@ class DataShift extends Component
     {
         $shift = Shift::find($id);
 
-        if ($shift) {
-            $shift->delete();
-            $this->loadData();
-            session()->flash('success', 'Shift berhasil dihapus.');
-        } else {
+        if (!$shift) {
             session()->flash('error', 'Shift tidak ditemukan.');
+            return;
+        }   
+
+        try {
+            $shift->delete();
+
+            // Refresh data setelah penghapusan
+            $this->loadData();
+
+            return redirect()->route('shift.index')->with('success', 'Shift berhasil Dihapus');
+        } catch (\Exception $e) {
+            return redirect()->route('shift.index')->with('error', 'Terjadi kesalahan saat Shift dihapus');
         }
     }
 
+    public function updateSearch($value)
+    {
+        $this->search = $value;
+        $this->loadData();
+    }
     public function render()
     {
         return view('livewire.data-shift');

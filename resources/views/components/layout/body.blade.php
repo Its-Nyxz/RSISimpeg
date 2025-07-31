@@ -3,8 +3,7 @@
 <x-head />
 
 
-<body class="min-h-screen bg-no-repeat bg-center bg-cover"
-    style="background-image: url('{{ asset('img/bg-login.png') }}');">
+<body>
     {{-- <x-navbar />
     <x-sidebar /> --}}
     <livewire:navbar />

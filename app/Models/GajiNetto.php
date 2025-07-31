@@ -13,9 +13,8 @@ class GajiNetto extends Model
     /**
      * Relasi ke Potongan.
      */
-
-    public function bruto()
+    public function potongan()
     {
-        return $this->belongsTo(GajiBruto::class, 'bruto_id');
+        return $this->belongsTo(Potongan::class, 't_pot_id');
     }
 }

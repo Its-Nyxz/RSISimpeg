@@ -13,9 +13,9 @@ class CutiKaryawan extends Model
     protected $table = "cuti_karyawans";
     protected $guarded = ['id'];
 
-    public function user()
+    public function users()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 
     public function jenisCuti()
@@ -27,7 +27,4 @@ class CutiKaryawan extends Model
     {
         return $this->belongsTo(StatusCuti::class);
     }
-    
-    
 }
-

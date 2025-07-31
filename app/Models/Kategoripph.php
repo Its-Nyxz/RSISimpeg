@@ -27,9 +27,4 @@ class Kategoripph extends Model
     {
         return $this->hasMany(users::class, 'kategori_id');
     }
-
-    public function taxBrackets()
-    {
-        return $this->hasMany(TaxBracket::class);
-    }
 }

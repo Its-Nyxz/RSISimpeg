@@ -66,7 +66,6 @@
                 <th>Laporan Kerja</th>
                 <th>Jam Lembur</th>
                 <th>Deskripsi Lembur</th>
-                <th>Real-Time</th>
                 <th>Feedback</th>
             </tr>
         </thead>
@@ -85,12 +84,6 @@
                     </td>
                     <td>{{ $item['jam_lembur'] }}</td>
                     <td>{{ $item['laporan_lembur'] ?? '-' }}</td>
-                    <td>
-                        <div class="small-text">
-                            <strong>Masuk:</strong> {{ $item['real_masuk'] ?? '-' }}
-                            <strong>Selesai:</strong> {{ $item['real_selesai'] ?? '-' }}
-                        </div>
-                    </td>
                     <td>{{ $item['feedback'] }}</td>
                 </tr>
             @endforeach

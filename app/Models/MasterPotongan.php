@@ -13,13 +13,8 @@ class MasterPotongan extends Model
     /**pmas
      * Relasi ke MasterFungsi.
      */
-    public function master()
+    public function kategorijabatan()
     {
-        return $this->belongsTo(MasterPotongan::class, 'master_potongan_id');
-    }
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(KategoriJabatan::class, 'katjab_id');
     }
 }

@@ -28,10 +28,6 @@ class Gapok extends Model
     {
         return $this->belongsTo(MasterGolongan::class, 'gol_id');
     }
-    public function golonganBaru()
-    {
-        return $this->belongsTo(MasterGolongan::class, 'gol_id_baru');
-    }
 
     /**
      * Relasi ke MasterGapok.

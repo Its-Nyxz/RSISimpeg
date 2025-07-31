@@ -6,8 +6,6 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Shift;
 use App\Models\OpsiAbsen;
-use App\Models\UnitKerja;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\JadwalAbsensi;
 use Maatwebsite\Excel\Facades\Excel;
@@ -103,25 +101,24 @@ class JadwalAbsensiController extends Controller
 
     public function export(Request $request)
     {
+        // Gunakan bulan dan tahun saat ini jika tidak ada request
         $month = $request->month ?? now()->month;
         $year = $request->year ?? now()->year;
-        $unitId = $request->get('unit_id');
 
-        // Validasi Unit
-        $unit = UnitKerja::find($unitId);
-        if (!$unit) {
-            return back()->with('error', 'Unit tidak ditemukan.');
-        }
+        // Ambil data shift berdasarkan unit kerja user
+        $shifts = Shift::where('unit_id', auth()->user()->unit_id)->get();
 
-        // Validasi shift harus ada
-        $shifts = Shift::where('unit_id', $unit->id)->get();
+        // Jika shift kosong, tampilkan alert dan hentikan proses export
         if ($shifts->isEmpty()) {
-            return back()->with('error', 'Data shift kosong. Silakan tambahkan shift terlebih dahulu.');
+            return redirect()->back()->with('error', 'Data shift kosong. Silakan tambahkan data shift terlebih dahulu.');
         }
 
-        $monthName = Carbon::createFromDate($year, $month, 1)->translatedFormat('F');
-        $fileName = 'jadwal_template_' . $unit->nama . '_' . $monthName . '_' . $year . '.xlsx';
+        // Format bulan ke dalam nama (contoh: Maret)
+        $monthName = Carbon::createFromDate($year, $month, 1)->format('F');
 
-        return Excel::download(new JadwalTemplateExport($month, $year, $unit->id), $fileName);
+        // Format nama file
+        $fileName = 'jadwal_template_' . auth()->user()->unitKerja->nama . '_' . $monthName . '_' . $year . '.xlsx';
+
+        return Excel::download(new JadwalTemplateExport($month, $year), $fileName);
     }
 }

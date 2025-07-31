@@ -30,7 +30,7 @@ class EditFungsi extends Component
 
     public function updateFungsi(){
         $this->validate([
-            'katjab_id' => 'required|exists:kategori_jabatans,id',
+            'katjab_id' => 'required|exists:kategori_jabatan,id',
             'nominal' => 'required|numeric|min:0',
             'deskripsi' => 'required|string|max:255',
         ]);

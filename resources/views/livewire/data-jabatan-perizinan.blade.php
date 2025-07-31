@@ -27,9 +27,8 @@
 
                             <i class="fa-solid fa-pen"></i>
                         </button>
-                        <a href="{{ route('detail.show', ['detail' => $item['id']]) }}"
-                            class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300">
-                            <i class="fa-solid fa-eye"></i>
+                        <a href="{{ route('detail.show', ['detail' => $item['id']]) }}" class="btn btn-outline-success">
+                            <i class="fa-solid fa-eye" style="color: #000000;"></i>
                         </a>
 
                     </div>

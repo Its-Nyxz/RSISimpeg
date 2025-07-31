@@ -13,7 +13,7 @@ class StatusCutiSeeder extends Seeder
      */
     public function run(): void
     {
-        $status = ['Disetujui', 'Ditolak', 'Menunggu', 'Menunggu Kepegawaian'];
+        $status = ['Disetujui', 'Ditolak', 'Menunggu'];
 
         foreach ($status as $item) {
             StatusCuti::create(['nama_status' => $item]);

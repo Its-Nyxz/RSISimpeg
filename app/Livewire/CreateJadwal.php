@@ -55,15 +55,7 @@ class CreateJadwal extends Component
                 )
                 ->get();
         } elseif ($field === 'shift') {
-            $this->shifts = Shift::where('nama_shift', 'like', "%$query%")
-                ->when(
-                    !$userLogin->hasRole('Super Admin'),
-                    function ($query) use ($userLogin) {
-                        $query->whereHas('unitKerja', function ($q) use ($userLogin) {
-                            $q->where('id', $userLogin->unitKerja->id);
-                        });
-                    }
-                )->get();
+            $this->shifts = Shift::where('nama_shift', 'like', "%$query%")->get();
         }
         // elseif ($field === 'opsi') {
 
@@ -76,8 +68,8 @@ class CreateJadwal extends Component
 
     public function mount($id = null, $tipe = null)
     {
-        if ($tipe) {
-            $jadwal = JadwalAbsensi::find($tipe);
+        if ($id) {
+            $jadwal = JadwalAbsensi::find($id);
 
             if ($jadwal) {
                 $this->user_id = $jadwal->user_id;
@@ -102,56 +94,21 @@ class CreateJadwal extends Component
     {
         $this->validate();
 
-        // JadwalAbsensi::updateOrCreate(
-        //     [
-        //         'user_id' => $this->user_id,
-        //         'tanggal_jadwal' => $this->tanggal,
-        //     ],
-        //     [
-        //         'shift_id' => $this->shift_id,
-        //     ]
-        // );
-
-        // Jika mode edit (id != null dan bukan 'edit'), maka update berdasarkan $id
-        if ($this->tipe && $this->id !== 'edit') {
-            $jadwal = JadwalAbsensi::find($this->id);
-            if ($jadwal) {
-                $jadwal->update([
-                    'user_id' => $this->user_id,
-                    'shift_id' => $this->shift_id,
-                    'tanggal_jadwal' => $this->tanggal,
-                ]);
-            }
-        } else {
-            // Tambah baru (create)
-            JadwalAbsensi::create([
+        JadwalAbsensi::updateOrCreate(
+            [
                 'user_id' => $this->user_id,
-                'shift_id' => $this->shift_id,
                 'tanggal_jadwal' => $this->tanggal,
-            ]);
-
-            $targetUser = User::find($this->user_id);
-            $shiftBaru = Shift::find($this->shift_id);
-            $penginput = auth()->user();
-
-            if ($targetUser && $shiftBaru) {
-                $jamMasuk = $shiftBaru->jam_masuk ?? '-';
-                $jamKeluar = $shiftBaru->jam_keluar ?? '-';
-
-                $message = 'Anda mendapatkan jadwal baru pada tanggal <span class="font-bold">' . $this->tanggal .
-                    '</span> dengan shift <strong>' . $shiftBaru->nama_shift . '</strong> (' . $jamMasuk . ' - ' . $jamKeluar .
-                    '), ditambahkan oleh <strong>' . $penginput->name . '</strong>.';
-                $url = '/jadwal';
-
-                Notification::send($targetUser, new UserNotification($message, $url));
-            }
-        }
+            ],
+            [
+                'shift_id' => $this->shift_id,
+            ]
+        );
 
         if ($this->isPergantianJadwal) {
 
             // Update status is_approved pada tabel TukarJadwal
             TukarJadwal::where('user_id', $this->user_id)
-                ->where('tanggal', $this->tanggal)
+                ->where('tanggal_jadwal', $this->tanggal)
                 ->update(['is_approved' => 1]);
 
             $user = auth()->user();
@@ -188,15 +145,11 @@ class CreateJadwal extends Component
     }
 
     // Method untuk memilih shift
-    public function selectShift($id, $nama)
+    public function selectShift($id, $nama_shift)
     {
-        $shift = Shift::find($id);
-
-        if ($shift) {
-            $this->shift_id = $shift->id;
-            $this->shift_nama = $shift->nama_shift . ' (' . $shift->jam_masuk . ' - ' . $shift->jam_keluar . ')';
-            $this->shifts = []; // kosongkan dropdown setelah dipilih
-        }
+        $this->shift_id = $id;
+        $this->shift_nama = $nama_shift;
+        $this->shifts = [];
     }
 
     // Method untuk memilih opsi absensi

@@ -71,24 +71,29 @@ class User extends Authenticatable
         });
     }
 
-    public function getNamaBersihAttribute()
+    // Mengurangi sisa cuti
+    public function kurangiCutiTahunan($jumlah)
     {
-        $name = $this->name;
+        if ($this->sisa_cuti_tahunan >= $jumlah) {
+            $this->sisa_cuti_tahunan -= $jumlah;
+            $this->save();
+            return true;
+        }
 
-        // Hapus awalan gelar
-        $name = preg_replace('/^(drg\.?|dr\.?|drs\.?|drh\.?)\s+/i', '', $name);
+        return false;
+    }
 
-        // Hapus gelar belakang berbasis spasi atau singkatan tanpa koma
-        $name = preg_replace('/\s+(Sp\.\w+|M\.\w+|S\.\w+|MKes|M\.Kes|SKp)$/i', '', $name);
+    // Cek apakah sisa cuti tahunan masih mencukupi
+    public function cekSisaCutiTahunan($jumlah)
+    {
+        return $this->sisa_cuti_tahunan >= $jumlah;
+    }
 
-        // Hapus gelar dengan koma di akhir, fleksibel terhadap titik dan spasi
-        $name = preg_replace(
-            '/,\s*(A(\.?)(Md)?\.?\s*Kep\.?|Amd\.?Kep\.?|SE|S\.Sos|Sp\.An|Sp\.Rad|Sp\s*U|Sp\s*PK|S\.KM|S\.Farm\s*Apt)\.?/i',
-            '',
-            $name
-        );
-
-        return trim($name);
+    // Reset cuti tahunan setiap tahun
+    public function resetCutiTahunan()
+    {
+        $this->sisa_cuti_tahunan = $this->jatah_cuti_tahunan;
+        $this->save();
     }
 
     /**
@@ -114,14 +119,6 @@ class User extends Authenticatable
     {
         return $this->belongsTo(KategoriJabatan::class, 'jabatan_id');
     }
-    public function kategorifungsional()
-    {
-        return $this->belongsTo(KategoriJabatan::class, 'fungsi_id');
-    }
-    public function kategoriumum()
-    {
-        return $this->belongsTo(KategoriJabatan::class, 'umum_id');
-    }
     public function trans()
     {
         return $this->belongsTo(MasterTrans::class, 'trans_id');
@@ -130,7 +127,10 @@ class User extends Authenticatable
     {
         return $this->belongsTo(MasterKhusus::class, 'khusus_id');
     }
-
+    public function pendAwal()
+    {
+        return $this->belongsTo(MasterPendidikan::class, 'pend_awal');
+    }
     public function pendidikanUser()
     {
         return $this->belongsTo(MasterPendidikan::class, 'kategori_pendidikan');
@@ -153,11 +153,7 @@ class User extends Authenticatable
 
     public function kategoriPPH()
     {
-        return $this->belongsTo(Kategoripph::class, 'kategori_id');
-    }
-    public function kategoriPphInduk()
-    {
-        return $this->kategoriPPH?->parent ?? $this->kategoriPPH;
+        return $this->belongsTo(Kategoripph::class, 'user_id');
     }
 
     public function historyPendidikan()
@@ -165,17 +161,9 @@ class User extends Authenticatable
         return $this->hasMany(HistoryPendidikan::class, 'user_id');
     }
 
-    public function historyGapok()
+    public function gapok()
     {
         return $this->hasMany(Gapok::class, 'user_id');
-    }
-
-    public function pendingGolonganGapok()
-    {
-        return $this->hasOne(Gapok::class)
-            ->where('jenis_kenaikan', 'golongan')
-            ->where('status', false)
-            ->latestOfMany();
     }
 
     public function jadwalabsensi()
@@ -189,35 +177,5 @@ class User extends Authenticatable
     public function absen()
     {
         return $this->hasMany(Absen::class, 'user_id');
-    }
-
-    public function izinKaryawan()
-    {
-        return $this->hasMany(IzinKaryawan::class, 'user_id');
-    }
-
-    public function cutiKaryawan()
-    {
-        return $this->hasMany(CutiKaryawan::class, 'user_id');
-    }
-
-    public function sisaCutiTahunan()
-    {
-        return $this->hasOne(SisaCutiTahunan::class);
-    }
-
-    public function potonganBulanan()
-    {
-        return $this->hasMany(Potongan::class);
-    }
-
-    public function riwayatJabatan()
-    {
-        return $this->hasMany(RiwayatJabatan::class, 'user_id');
-    }
-
-    public function sourceFiles()
-    {
-        return $this->hasMany(SourceFile::class);
     }
 }
