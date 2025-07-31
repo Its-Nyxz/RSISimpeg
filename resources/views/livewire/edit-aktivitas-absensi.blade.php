@@ -20,6 +20,7 @@
                     class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 p-2.5" />
             </div>
 
+
             <div class="form-group col-span-1">
                 <label class="block text-sm font-medium text-success-900">Jam Masuk</label>
                 <input type="text" wire:model="time_in" disabled
@@ -30,6 +31,7 @@
                 <label class="block text-sm font-medium text-success-900">Jam Keluar</label>
                 <input type="text" wire:model="time_out" disabled
                     class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 p-2.5" />
+
             </div>
 
             <div class="form-group col-span-2">

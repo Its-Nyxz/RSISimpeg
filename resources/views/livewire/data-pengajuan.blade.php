@@ -1,10 +1,13 @@
+
 <div>
     <h2 class="text-2xl font-bold mb-4">{{ $judul }}</h2>
+
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table class="w-full text-sm text-center text-gray-700">
             <thead class="text-sm uppercase bg-success-400 text-success-900">
                 <tr>
+
                     @if ($tipe != 'tukar_jadwal')
                         <th class="border border-gray-300 p-2">
                             Jenis {{ $tipe == 'cuti' ? ' Cuti' : ($tipe == 'ijin' ? 'Izin' : 'Tukar Jadwal') }}
@@ -25,10 +28,12 @@
                     @endif
                     <th scope="col" class="px-6 py-3">Status</th>
                     <th class="border border-gray-300 p-2">Aksi</th>
+
                 </tr>
             </thead>
             <tbody>
                 @forelse ($dataPengajuan as $pengajuan)
+
                     <tr class="hover:bg-success-300">
                         @if ($tipe != 'tukar_jadwal')
                             <td class=" border border-gray-300 p-2">
@@ -102,11 +107,14 @@
                                     </div>
                                 </button>
                             @endif
+
                         </td>
                     </tr>
                 @empty
                     <tr>
+
                         <td colspan="{{ $tipe === 'tukar_jadwal' ? 8 : 7 }}" class="text-center py-4">
+
                             Tidak ada pengajuan {{ $tipe }} ditemukan.
                         </td>
                     </tr>
@@ -114,6 +122,7 @@
             </tbody>
         </table>
     </div>
+
 
     <!-- Navigasi Pagination -->
     <div class="mt-4 flex gap-2 justify-center items-center">
@@ -169,3 +178,4 @@
         @endif
     </div>
 </div>
+

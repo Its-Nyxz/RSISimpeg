@@ -23,4 +23,9 @@ class TukarJadwal extends Model
     {
         return $this->belongsTo(Shift::class);
     }
+
+    public function statusCuti()
+    {
+        return $this->belongsTo(StatusCuti::class);
+    }
 }

@@ -59,15 +59,25 @@ class EditAktivitasAbsensi extends Component
     {
         $this->validate([
             'feedback' => 'nullable|string|max:255',
+            'time_in' => 'nullable|date_format:H:i',
+            'time_out' => 'nullable|date_format:H:i',
         ]);
-
+    
+        // Konversi waktu ke format H:i:s sebelum menyimpan
+        $timeIn = $this->time_in ? Carbon::createFromFormat('H:i', $this->time_in, 'Asia/Jakarta')->format('H:i:s') : null;
+        $timeOut = $this->time_out ? Carbon::createFromFormat('H:i', $this->time_out, 'Asia/Jakarta')->format('H:i:s') : null;
+    
         Absen::where('id', $this->absen_id)->update([
             'feedback' => $this->feedback,
+            'time_in' => $timeIn,
+            'time_out' => $timeOut,
         ]);
-
-        session()->flash('success', 'Feedback berhasil ditambahkan!');
+    
+        session()->flash('success', 'Data absensi berhasil diperbarui!');
         return redirect()->route('aktivitasabsensi.index');
     }
+    
+    
 
     public function setApproval($status)
     {
