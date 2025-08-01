@@ -1,96 +1,97 @@
 <div>
     <div class="flex justify-between items-center mb-5">
-        <h1 class="text-2xl font-bold text-green-900">Edit Data Pendidikan</h1>
-        <a href="{{ url()->previous() }}" class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
+        <h1 class="text-2xl font-bold text-success-900">Edit Data Pendidikan</h1>
+        <a href="{{ route('pendidikan.index') }}"
+            class="flex items-center bg-success-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-success-800 focus:ring-4 focus:outline-none focus:ring-success-300">
             <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
         </a>
     </div>
 
-        <form wire:submit.prevent="updatePendidikan">
-            <div class="bg-green-100 border border-green-200 rounded-lg shadow-lg p-6">
-                <div class="form-group mb-4">
-                    <label for="nama" class="block text-sm font-medium text-green-900">Nama Pendidikan</label>
-                    <input type="text" id="nama" wire:model="nama"
-                        class="form-control @error('nama') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
-                        required>
-                    @error('nama')
+    <form wire:submit.prevent="updatePendidikan">
+        <div class="bg-success-100 border border-success-200 rounded-lg shadow-lg p-6">
+            <div class="form-group mb-4">
+                <label for="nama" class="block text-sm font-medium text-success-900">Nama Pendidikan</label>
+                <input type="text" id="nama" wire:model="nama"
+                    class="form-control @error('nama') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5"
+                    required>
+                @error('nama')
                     <span class="text-danger text-sm">{{ $message }}</span>
-                    @enderror
-                </div>
+                @enderror
+            </div>
 
-                <!-- Deskripsi Pendidikan -->
-                <div class="form-group mb-4">
-                    <label for="deskripsi" class="block text-sm font-medium text-green-900">Deskripsi Pendidikan</label>
-                    <textarea id="deskripsi" wire:model="deskripsi"
-                        class="form-control @error('deskripsi') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"></textarea>
-                    @error('deskripsi')
+            <!-- Deskripsi Pendidikan -->
+            <div class="form-group mb-4">
+                <label for="deskripsi" class="block text-sm font-medium text-success-900">Deskripsi Pendidikan</label>
+                <textarea id="deskripsi" wire:model="deskripsi"
+                    class="form-control @error('deskripsi') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5"></textarea>
+                @error('deskripsi')
                     <span class="text-danger text-sm">{{ $message }}</span>
-                    @enderror
-                </div>
+                @enderror
+            </div>
 
-                <!-- Golongan Minimal -->
-                <div class="form-group mb-4">
-                    <label for="minim_gol" class="block text-sm font-medium text-green-900">Golongan Minimal</label>
-                    <div class="relative">
-                        <input type="text" id="minim_gol" wire:model="minim_gol_nama"
-                            placeholder="Cari Golongan Minimal..." autocomplete="off"
-                            class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
-                            oninput="filterDropdown('minim_gol')" onclick="toggleDropdown('minim_gol')" />
+            <!-- Golongan Minimal -->
+            <div class="form-group mb-4">
+                <label for="minim_gol" class="block text-sm font-medium text-success-900">Golongan Minimal</label>
+                <div class="relative">
+                    <input type="text" id="minim_gol" wire:model="minim_gol_nama"
+                        placeholder="Cari Golongan Minimal..." autocomplete="off"
+                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5"
+                        oninput="filterDropdown('minim_gol')" onclick="toggleDropdown('minim_gol')" />
 
-                        <ul id="minim_golDropdown" class="dropdown hidden">
-                            @foreach($golongans as $golongan)
+                    <ul id="minim_golDropdown" class="dropdown hidden">
+                        @foreach ($golongans as $golongan)
                             <li class="dropdown-item"
                                 onclick="selectItem('minim_gol', '{{ $golongan->nama }}', '{{ $golongan->id }}')">
                                 {{ $golongan->nama }}
                             </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    @error('minim_gol')
-                    <span class="text-danger text-sm">{{ $message }}</span>
-                    @enderror
+                        @endforeach
+                    </ul>
                 </div>
+                @error('minim_gol')
+                    <span class="text-danger text-sm">{{ $message }}</span>
+                @enderror
+            </div>
 
-                <!-- Golongan Maksimal -->
-                <div class="form-group mb-4">
-                    <label for="maxim_gol" class="block text-sm font-medium text-green-900">Golongan Maksimal</label>
-                    <div class="relative">
-                        <input type="text" id="maxim_gol" wire:model="maxim_gol_nama"
-                            placeholder="Cari Golongan Maksimal..." autocomplete="off"
-                            class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
-                            oninput="filterDropdown('maxim_gol')" onclick="toggleDropdown('maxim_gol')" />
+            <!-- Golongan Maksimal -->
+            <div class="form-group mb-4">
+                <label for="maxim_gol" class="block text-sm font-medium text-success-900">Golongan Maksimal</label>
+                <div class="relative">
+                    <input type="text" id="maxim_gol" wire:model="maxim_gol_nama"
+                        placeholder="Cari Golongan Maksimal..." autocomplete="off"
+                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5"
+                        oninput="filterDropdown('maxim_gol')" onclick="toggleDropdown('maxim_gol')" />
 
-                        <ul id="maxim_golDropdown" class="dropdown hidden">
-                            @foreach($golongans as $golongan)
+                    <ul id="maxim_golDropdown" class="dropdown hidden">
+                        @foreach ($golongans as $golongan)
                             <li class="dropdown-item"
                                 onclick="selectItem('maxim_gol', '{{ $golongan->nama }}', '{{ $golongan->id }}')">
                                 {{ $golongan->nama }}
                             </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    @error('maxim_gol')
+                        @endforeach
+                    </ul>
+                </div>
+                @error('maxim_gol')
                     <span class="text-danger text-sm">{{ $message }}</span>
-                    @enderror
-                </div>
-
-                <!-- Tombol Aksi -->
-                <div class="form-group flex justify-end space-x-2">
-                    <button type="submit"
-                        class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
-                        <i class="fa-solid fa-paper-plane mr-2"></i> Simpan Pendidikan
-                    </button>
-                </div>
+                @enderror
             </div>
-        </form>
 
-        <!-- Notifikasi -->
-        @if (session()->has('success'))
+            <!-- Tombol Aksi -->
+            <div class="form-group flex justify-end space-x-2">
+                <button type="submit"
+                    class="flex items-center bg-success-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-success-800 focus:ring-4 focus:outline-none focus:ring-success-300">
+                    <i class="fa-solid fa-paper-plane mr-2"></i> Simpan Pendidikan
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Notifikasi -->
+    @if (session()->has('success'))
         <div class="alert alert-success mt-3">
             {{ session('success') }}
         </div>
-        @endif
-  
+    @endif
+
 
     <script>
         function toggleDropdown(id) {
@@ -121,7 +122,6 @@
 
             document.getElementById(field + 'Dropdown').classList.add('hidden');
         }
-
     </script>
 
     <style>
@@ -154,6 +154,5 @@
             background-color: #a3d9a5;
             border-radius: 4px;
         }
-
     </style>
 </div>

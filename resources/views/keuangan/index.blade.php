@@ -1,3 +1,3 @@
 <x-body>
-    <livewire:data-keuangan/>
+    <livewire:data-keuangan />
 </x-body>

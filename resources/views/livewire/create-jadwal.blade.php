@@ -1,20 +1,20 @@
 <div>
     <form wire:submit.prevent="store">
-        <div class="grid grid-cols-2 gap-4 bg-green-100 border border-green-200 rounded-lg shadow-lg p-6">
+        <div class="grid grid-cols-2 gap-4 bg-success-100 border border-success-200 rounded-lg shadow-lg p-6">
 
             <!-- Nama (User) -->
             <div class="form-group col-span-2 relative">
-                <label for="nama" class="block text-sm font-medium text-green-900">Nama</label>
+                <label for="nama" class="block text-sm font-medium text-success-900">Nama</label>
                 <input type="text" id="nama" wire:model.lazy="nama"
                     wire:focus="fetchSuggestions('user', $event.target.value)"
                     wire:input="fetchSuggestions('user', $event.target.value)" placeholder="Cari Nama..."
-                    class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-green-500 p-2.5"
+                    class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-success-500 p-2.5"
                     autocomplete="off" />
 
                 <ul id="namaDropdown" class="dropdown absolute w-full bg-white rounded-lg shadow-lg mt-1 z-10"
                     wire:loading.remove>
                     @foreach ($users as $suggestion)
-                        <li class="dropdown-item p-2 hover:bg-green-200 cursor-pointer"
+                        <li class="dropdown-item p-2 hover:bg-success-200 cursor-pointer"
                             wire:click="selectUser('{{ $suggestion['id'] }}', '{{ $suggestion['name'] }}')">
                             {{ $suggestion['name'] }}
                         </li>
@@ -28,19 +28,20 @@
 
             <!-- Shift -->
             <div class="form-group col-span-2 relative">
-                <label for="shift_id" class="block text-sm font-medium text-green-900">Shift</label>
+                <label for="shift_id" class="block text-sm font-medium text-success-900">Shift</label>
                 <input type="text" id="shift_nama" wire:model.lazy="shift_nama"
                     wire:focus="fetchSuggestions('shift', $event.target.value)"
                     wire:input="fetchSuggestions('shift', $event.target.value)" placeholder="Cari Shift..."
-                    class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-green-500 p-2.5"
+                    class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-success-500 p-2.5"
                     autocomplete="off" />
 
                 <ul id="shiftDropdown" class="dropdown absolute w-full bg-white rounded-lg shadow-lg mt-1 z-10"
                     wire:loading.remove>
                     @foreach ($shifts as $suggestion)
-                        <li class="dropdown-item p-2 hover:bg-green-200 cursor-pointer"
+                        <li class="dropdown-item p-2 hover:bg-success-200 cursor-pointer"
                             wire:click="selectShift('{{ $suggestion['id'] }}', '{{ $suggestion['nama_shift'] }}')">
-                            {{ $suggestion['nama_shift'] }}
+                            {{ $suggestion['nama_shift'] }} ({{ $suggestion['jam_masuk'] ?? '-' }} -
+                            {{ $suggestion['jam_keluar'] ?? '-' }})
                         </li>
                     @endforeach
                 </ul>
@@ -52,17 +53,17 @@
 
             <!-- Opsi Absensi -->
             {{-- <div class="form-group col-span-2 relative">
-                <label for="opsi_id" class="block text-sm font-medium text-green-900">Opsi Absensi</label>
+                <label for="opsi_id" class="block text-sm font-medium text-success-900">Opsi Absensi</label>
                 <input type="text" id="opsi_nama" wire:model.lazy="opsi_nama"
                     wire:focus="fetchSuggestions('opsi', $event.target.value)"
                     wire:input="fetchSuggestions('opsi', $event.target.value)" placeholder="Cari opsi absensi..."
-                    class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-green-500 p-2.5"
+                    class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-success-500 p-2.5"
                     autocomplete="off" />
 
                 <ul id="opsiDropdown" class="dropdown absolute w-full bg-white rounded-lg shadow-lg mt-1 z-10"
                     wire:loading.remove>
                     @foreach ($opsis as $suggestion)
-                        <li class="dropdown-item p-2 hover:bg-green-200 cursor-pointer"
+                        <li class="dropdown-item p-2 hover:bg-success-200 cursor-pointer"
                             wire:click="selectOpsi('{{ $suggestion['id'] }}', '{{ $suggestion['name'] }}')">
                             {{ $suggestion['name'] }}
                         </li>
@@ -76,9 +77,9 @@
 
             <!-- Tanggal Jadwal -->
             <div class="form-group col-span-2">
-                <label for="tanggal" class="block text-sm font-medium text-green-900">Tanggal Jadwal</label>
+                <label for="tanggal" class="block text-sm font-medium text-success-900">Tanggal Jadwal</label>
                 <input type="date" id="tanggal" wire:model="tanggal"
-                    class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-green-500 p-2.5" />
+                    class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-success-500 p-2.5" />
                 @error('tanggal')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
@@ -86,9 +87,9 @@
 
             <!-- Keterangan Absensi -->
             {{-- <div class="form-group col-span-2">
-                <label for="keterangan" class="block text-sm font-medium text-green-900">Keterangan Absensi</label>
+                <label for="keterangan" class="block text-sm font-medium text-success-900">Keterangan Absensi</label>
                 <select id="keterangan" wire:model="keterangan"
-                     class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-green-500 p-2.5">
+                     class="form-control mt-1 block w-full rounded-lg bg-white focus:ring-success-500 p-2.5">
                     <option value="">Pilih Keterangan Absensi</option>
                     <option value="Cuti">Cuti</option>
                     <option value="Libur">Libur</option>
@@ -103,9 +104,9 @@
 
             @if ($id === 'edit')
                 <div class="col-span-2">
-                    <label for="pergantian" class="block text-sm font-medium text-green-900">Pergantian Jadwal</label>
+                    <label for="pergantian" class="block text-sm font-medium text-success-900">Pergantian Jadwal</label>
                     <select id="pergantian" wire:model="isPergantianJadwal"
-                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5">
+                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5">
                         <option value="">Pilih Opsi</option>
                         <option value="0">Bukan Pergantian Jadwal</option>
                         <option value="1">Pergantian Jadwal</option>
@@ -117,7 +118,7 @@
         <!-- Tombol Submit -->
         <div class="flex justify-end mt-4">
             <button type="submit"
-                class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
+                class="flex items-center bg-success-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-success-800 focus:ring-4 focus:outline-none focus:ring-success-300">
                 <i class="fa-solid fa-paper-plane mr-2"></i> Save
             </button>
         </div>

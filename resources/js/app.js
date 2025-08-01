@@ -27,6 +27,44 @@ window.confirmAlert = function (message, confirmButtonText, callback) {
         }
     });
 };
+window.confirmRemove = function (message, callback) {
+    Swal.fire({
+        title: "Apakah Anda yakin?",
+        text: message || "Data akan dihapus secara permanen!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Ya",
+        cancelButtonText: "Tidak",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Callback function to execute after confirmation
+            if (typeof callback === "function") {
+                callback();
+            }
+        }
+    });
+};
+window.confirmGenerate = function (message, callback) {
+    Swal.fire({
+        title: "Apakah Anda yakin?",
+        text: message || "Data akan digenerate untuk dikirim ke Pegawai!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Ya",
+        cancelButtonText: "Tidak",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Callback function to execute after confirmation
+            if (typeof callback === "function") {
+                callback();
+            }
+        }
+    });
+};
 window.feedback = function (title, message, icon) {
     let timerInterval;
     Swal.fire({
@@ -58,4 +96,34 @@ window.rupiah = function (angka) {
         rupiah += separator + ribuan.join(".");
     }
     return "Rp " + rupiah + ",00";
+};
+
+window.confirmRejectWithReason = function (
+    message,
+    confirmButtonText,
+    callback
+) {
+    Swal.fire({
+        title: "Apakah Anda yakin ingin menolak?",
+        text: message || "Masukkan alasan penolakan:",
+        input: "textarea", // ✅ Inputan alasan
+        inputPlaceholder: "Tulis alasan penolakan di sini...",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: confirmButtonText || "Tolak",
+        cancelButtonText: "Batal",
+        inputValidator: (value) => {
+            if (!value) {
+                return "Alasan wajib diisi!";
+            }
+        },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Callback function after input
+            if (typeof callback === "function") {
+                callback(result.value); // Pass alasan ke callback
+            }
+        }
+    });
 };

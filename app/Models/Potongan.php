@@ -26,4 +26,9 @@ class Potongan extends Model
     {
         return $this->belongsTo(GajiNetto::class, 't_pot_id');
     }
+
+    public function masterPotongan()
+    {
+        return $this->belongsTo(MasterPotongan::class, 'master_potongan_id');
+    }
 }

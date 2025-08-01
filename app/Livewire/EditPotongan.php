@@ -3,42 +3,40 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use App\Models\MasterPotongan;
+use Illuminate\Support\Str;
 use App\Models\MasterFungsi;
+use App\Models\MasterPotongan;
 
 class EditPotongan extends Component
 {
-    public $fungsi_id;
     public $potongan_id;
-    public $fungsis;
     public $nama;
-    public $nominal;
-    public $deskripsi;
+    public $is_wajib = false;
+    public $nominal = 0; // Tambahan properti
 
-    public function mount($potonganId){
+    public function mount($potonganId)
+    {
         $potongan = MasterPotongan::findOrFail($potonganId);
+
         $this->potongan_id = $potongan->id;
-        $this->fungsi_id = $potongan->fungsi_id;
         $this->nama = $potongan->nama;
-        $this->nominal = $potongan->nominal;
-        $this->deskripsi = $potongan->deskripsi;
-        $this->fungsis = MasterFungsi::all();
+        $this->is_wajib = $potongan->is_wajib;
+        $this->nominal = $potongan->nominal; // Ambil nilai nominal
     }
 
-    public function updatePotongan(){
+    public function updatePotongan()
+    {
         $this->validate([
-            'fungsi_id' => 'required|exists:master_fungsi,id',
-            'nama' => 'required',
-            'nominal' => 'required',
-            'deskripsi' => 'required',
+            'nama' => 'required|string|unique:master_potongan,nama,' . $this->potongan_id,
+            'is_wajib' => 'boolean',
+            'nominal' => 'required|integer|min:0',
         ]);
 
-        $potongan = MasterPotongan::findOrFail($this->potongan_id);
-        $potongan->update([
-            'fungsi_id' => $this->fungsi_id,
-            'nama' => $this->nama,
-            'nominal' => $this->nominal,
-            'deskripsi' => $this->deskripsi,
+        MasterPotongan::where('id', $this->potongan_id)->update([
+            'nama' => strtolower($this->nama),
+            'slug' => Str::slug($this->nama),
+            'nominal' => $this->nominal, // Update nilai nominal juga
+            'is_wajib' => $this->is_wajib,
         ]);
 
         session()->flash('success', 'Potongan berhasil diperbarui!');

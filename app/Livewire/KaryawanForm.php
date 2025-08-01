@@ -8,12 +8,16 @@ use Livewire\Component;
 use App\Models\UnitKerja;
 use App\Models\MasterUmum;
 use App\Models\Kategoripph;
+use Illuminate\Support\Str;
 use App\Models\MasterFungsi;
 use App\Models\MasterKhusus;
 use App\Models\JenisKaryawan;
 use App\Models\MasterJabatan;
 use App\Models\MasterGolongan;
+use App\Models\RiwayatJabatan;
 use App\Models\KategoriJabatan;
+use App\Models\MasterJatahCuti;
+use App\Models\SisaCutiTahunan;
 use App\Models\MasterPendidikan;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
@@ -35,6 +39,7 @@ class KaryawanForm extends Component
     public $email;
     public $units;
     public $jabatans;
+    public $fungsionals;
     public $fungsi;
     public $fungsis;
     public $umum;
@@ -44,6 +49,7 @@ class KaryawanForm extends Component
     public $khusus;
     public $katjab;
     public $jeniskaryawan;
+    public $jenisKaryawanNama;
     public $selectedJenisKaryawan; //untuk select jenis karyawan
     public $gol;
     public $golongans;
@@ -58,6 +64,7 @@ class KaryawanForm extends Component
     public $parentPphs;
     public $childPphs;
     public $tmt;
+    public $tmt_masuk;
     public $masakerja;
     public $roles;
     public $typeShift;
@@ -68,17 +75,22 @@ class KaryawanForm extends Component
     public $selectedGolongan; // ID golongan yang dipilih otomatis
     public string $selectedGolonganNama; // Nama golongan yang ditampilkan di input
     public $jabatan;
+    public $bpjsOrtu;
+    public $fungsional;
     public $jabatanAwal;
+    public $fungsionalAwal;
+    public $umumAwal;
     public $jabatanChanged = false;
+    public $fungsionalChanged = false;
+    public $umumChanged = false;
     public $unit; // Input untuk unit kerja
     public $suggestions = [
         'jabatan' => [],
+        'fungsional' => [],
+        'umum' => [],
         'unit' => [],
     ];
     protected $listeners = ['savekaryawan'];
-    public $khususList; //sementara
-
-
 
     public function fetchSuggestions($field, $value)
     {
@@ -87,8 +99,34 @@ class KaryawanForm extends Component
         // if ($value) {
         if ($field === 'jabatan') {
             $categories = KategoriJabatan::where('nama', 'like', "%$value%")
+                ->where('tunjangan', 'jabatan') // hanya ambil jabatan tunjangan kabatan & umum
                 ->get()
-                ->groupBy('tunjangan'); // Mengelompokkan berdasarkan tunjangan
+                ->groupBy('tunjangan');
+
+            foreach ($categories as $tunjangan => $katjabList) {
+                $this->suggestions[$field][$tunjangan] = $katjabList->pluck('nama')->toArray();
+            }
+        } elseif ($field === 'fungsional') {
+            $categories = KategoriJabatan::where('nama', 'like', "%$value%")
+                // ->whereIn('tunjangan', ['fungsi', 'umum']) // Filter hanya yang tunjangan = 'fungsi'
+                // ->get()
+                // ->groupBy('tunjangan');
+                ->where('tunjangan', 'fungsi') // hanya ambil jabatan tunjangan kabatan & umum
+                ->get()
+                ->groupBy('tunjangan');
+
+            foreach ($categories as $tunjangan => $katjabList) {
+                $this->suggestions[$field][$tunjangan] = $katjabList->pluck('nama')->toArray();
+            }
+        } elseif ($field === 'umum') {
+            $categories = KategoriJabatan::where('nama', 'like', "%$value%")
+                // ->whereIn('tunjangan', ['fungsi', 'umum']) // Filter hanya yang tunjangan = 'fungsi'
+                // ->get()
+                // ->groupBy('tunjangan');
+                ->where('tunjangan', 'umum') // hanya ambil jabatan tunjangan kabatan & umum
+                ->get()
+                ->groupBy('tunjangan');
+
 
             foreach ($categories as $tunjangan => $katjabList) {
                 $this->suggestions[$field][$tunjangan] = $katjabList->pluck('nama')->toArray();
@@ -105,6 +143,16 @@ class KaryawanForm extends Component
                 $this->dispatch('confirmJabatanChange');
             }
             $this->jabatan = $value;
+        } elseif ($field === 'fungsional') {
+            if ($this->fungsionalAwal !== $value) {
+                $this->dispatch('confirmFungsionalChange');
+            }
+            $this->fungsional = $value;
+        } elseif ($field === 'umum') {
+            if ($this->umumAwal !== $value) {
+                $this->dispatch('confirmUmumChange');
+            }
+            $this->umum = $value;
         } elseif ($field === 'unit') {
             $this->unit = $value;
         }
@@ -123,29 +171,30 @@ class KaryawanForm extends Component
         $pendidikan = MasterPendidikan::with(['minimGolongan', 'maximGolongan'])->find($pendidikanId);
 
         if ($pendidikan) {
-            // Ambil golongan dalam rentang minim_gol dan maxim_gol
             $this->filteredGolongans = MasterGolongan::where('id', '>=', $pendidikan->minim_gol)
                 ->where('id', '<=', $pendidikan->maxim_gol)
                 ->get();
 
-            // Hitung golongan berdasarkan masa kerja
             $baseGolonganId = $pendidikan->minim_gol;
             $maxGolonganId = $pendidikan->maxim_gol;
 
-            if ($this->masakerja !== null) {
-                // Hitung kenaikan golongan
-                $increment = min(floor($this->masakerja / 4), 4); // Maksimal kenaikan 4 golongan
+            $jenis = JenisKaryawan::find($this->selectedJenisKaryawan)?->nama;
+
+            // Golongan tetap dihitung pakai tahun walau kontrak
+            $masaKerjaDalamTahun = $this->masakerja;
+
+            if (strtolower($jenis) === 'kontrak') {
+                $masaKerjaDalamTahun = floor($this->masakerja / 12); // convert bulan → tahun
+            }
+
+            if ($masaKerjaDalamTahun !== null) {
+                $increment = min(floor($masaKerjaDalamTahun / 4), 4);
                 $calculatedGolonganId = $baseGolonganId + $increment;
-
-                // Pastikan golongan yang dihitung tidak melebihi batas maksimal golongan pendidikan
                 $this->selectedGolongan = $calculatedGolonganId <= $maxGolonganId ? $calculatedGolonganId : $maxGolonganId;
-
-                // Cari nama golongan
-                $golongan = MasterGolongan::find($this->selectedGolongan);
-                $this->selectedGolonganNama = $golongan ? $golongan->nama : '';
+                $this->selectedGolonganNama = MasterGolongan::find($this->selectedGolongan)?->nama ?? '';
             } else {
-                $this->selectedGolongan = $baseGolonganId; // Default ke minimal golongan jika masa kerja tidak tersedia
-                $this->selectedGolonganNama = MasterGolongan::find($baseGolonganId)->nama ?? '';
+                $this->selectedGolongan = $baseGolonganId;
+                $this->selectedGolonganNama = MasterGolongan::find($baseGolonganId)?->nama ?? '';
             }
         } else {
             $this->filteredGolongans = [];
@@ -236,8 +285,15 @@ class KaryawanForm extends Component
             $this->jabatan = $user->kategorijabatan->nama ?? null;
             $this->jabatanAwal = $this->jabatan; // Simpan nilai awal jabatan
             $this->jabatanChanged = false;
+            $this->fungsional = $user->kategorifungsional->nama ?? null;
+            $this->fungsionalAwal = $this->fungsional; // Simpan nilai awal jabatan
+            $this->fungsionalChanged = false;
+            $this->umum = $user->kategoriumum->nama ?? null;
+            $this->umumAwal = $this->umum; // Simpan nilai awal jabatan
+            $this->umumChanged = false;
             $this->selectedJenisKaryawan = $user->jenis_id;
             $this->tmt = $user->tmt;
+            $this->tmt_masuk = $user->tmt_masuk;
             $this->masakerja = $user->masa_kerja;
             $this->selectedGolonganNama = $user->golongan->nama ?? '';
             $this->gol = $user->gol_id;
@@ -245,7 +301,8 @@ class KaryawanForm extends Component
             $this->selectedPph = $user->kategori_id;
             $this->selectedRoles = $user->roles->pluck('id')->toArray();
             $this->typeShift = $user->type_shift;
-            $this->khususList = DB::table('master_khusus')->get(); //sementara
+            $this->bpjsOrtu = (bool) $user->bpjs_ortu;
+            $this->jenisKaryawanNama = JenisKaryawan::find($this->selectedJenisKaryawan)?->nama;
         }
 
         $this->units = UnitKerja::all();
@@ -257,6 +314,9 @@ class KaryawanForm extends Component
         $this->umums = MasterUmum::all();
         $this->katjab = KategoriJabatan::all();
         $this->filteredKhusus = MasterKhusus::all();
+        $this->selectedJenisKaryawan = $user->jenis_id ?? null;
+        $this->jenisKaryawanNama = JenisKaryawan::find($this->selectedJenisKaryawan)?->nama;
+
 
         // Pisahkan antara Parent dan Child PPH
         $this->parentPphs = Kategoripph::whereNull('parent_id')->get();
@@ -284,8 +344,10 @@ class KaryawanForm extends Component
             'tanggal_lahir' => 'nullable|date',
             'unit' => 'nullable',
             'jabatan' => 'nullable',
+            'fungsional' => 'nullable',
             'selectedJenisKaryawan' => 'nullable',
             'tmt' => 'nullable',
+            'tmt_masuk' => 'nullable',
             'masakerja' => 'nullable',
             'selectedGolonganNama' => 'nullable',
             'khusus' => 'nullable',
@@ -296,14 +358,32 @@ class KaryawanForm extends Component
 
         $unit = UnitKerja::where('nama', $this->unit)->first(); // Cari ID berdasarkan nama unit
         $kategoriJabatan = KategoriJabatan::where('nama', $this->jabatan)->first(); // Cari ID berdasarkan nama kategori jabatan
+        $kategoriFungsional = KategoriJabatan::where('nama', $this->fungsional)->first(); // Cari ID berdasarkan nama kategori jabatan
+        $kategoriUmum = KategoriJabatan::where('nama', $this->umum)->first();
         // if (!$unit) {
         //     return back()->with('error', 'Unit tidak ditemukan.');
         // } elseif (!$kategoriJabatan) {
         //     return back()->with('error', 'Kategori Jabatan tidak ditemukan.');
         // }
+        $jenis = JenisKaryawan::find($this->selectedJenisKaryawan)?->nama;
+
+        if ($this->tmt) {
+            $start = Carbon::parse($this->tmt);
+            $now = Carbon::now();
+
+            if (strtolower($jenis) === 'kontrak') {
+                // Hitung dalam bulan
+                $this->masakerja = floor($start->diffInMonths($now));
+            } else {
+                // Hitung dalam tahun (pembulatan bawah)
+                $this->masakerja = floor($start->floatDiffInYears($now));
+            }
+        }
+
 
         $user = User::create([
             'name' => $this->nama ?? null,
+            'slug' => Str::slug($this->nama) ?? null, // ← Tambahan
             'nip' => $this->nip ?? null,
             'email' => $this->email ?? null,
             'no_ktp' => $this->no_ktp ?? null,
@@ -318,30 +398,83 @@ class KaryawanForm extends Component
             'tanggal_lahir' => $this->tanggal_lahir ?? null,
             'unit_id' => $unit->id ?? null,
             'jabatan_id' => $kategoriJabatan->id ?? null,
+            'fungsi_id' => $kategoriFungsional->id ?? null,
+            'umum_id' => $kategoriUmum->id ?? null,
             'jenis_id' => $this->selectedJenisKaryawan ?? null,
             'tmt' => $this->tmt ?? null,
+            'tmt_masuk' => $this->tmt_masuk ?? null,
             'masa_kerja' => $this->masakerja ?? null,
             'gol_id' => $this->selectedGolongan ?? $this->gol ?? null,
-            'khusus_id' => $this->khusus ?? null,
+            'khusus_id' => $this->khusus !== '' ? $this->khusus : null,
             'kategori_id' => $this->selectedPph ?? null,
             'type_shift' => $this->typeShift ?? null,
+            'bpjs_ortu' =>  $this->bpjsOrtu ?? null,
             'password' => Hash::make('123'),
         ]);
-
 
         // Update roles jika user baru dibuat atau diperbarui
         if (!empty($this->selectedRoles)) {
             $roles = Role::whereIn('id', (array) $this->selectedRoles)->pluck('name')->toArray();
             $user->syncRoles($roles);
         }
+
+        if (strtolower($jenis) === 'tetap') {
+            $currentYear = Carbon::now('Asia/Jakarta')->year;
+
+            $sudahAda = SisaCutiTahunan::where('user_id', $user->id)
+                ->where('tahun', $currentYear)
+                ->exists();
+
+            if (!$sudahAda) {
+                $jatahCuti = MasterJatahCuti::where('tahun', $currentYear)
+                    ->value('jumlah_cuti') ?? 12;
+
+                SisaCutiTahunan::create([
+                    'user_id' => $user->id,
+                    'tahun' => $currentYear,
+                    'sisa_cuti' => $jatahCuti,
+                ]);
+            }
+        }
+
+        // Tambahkan riwayat jabatan jika ada
+        if ($kategoriJabatan) {
+            RiwayatJabatan::create([
+                'user_id' => $user->id,
+                'kategori_jabatan_id' => $kategoriJabatan->id,
+                'tunjangan' => $kategoriJabatan->tunjangan,
+                'tanggal_mulai' => now(),
+                'tanggal_selesai' => null,
+            ]);
+        }
+
+        // Tambahkan riwayat fungsional jika ada
+        if ($kategoriFungsional) {
+            RiwayatJabatan::create([
+                'user_id' => $user->id,
+                'kategori_jabatan_id' => $kategoriFungsional->id,
+                'tunjangan' => $kategoriFungsional->tunjangan,
+                'tanggal_mulai' => now(),
+                'tanggal_selesai' => null,
+            ]);
+        }
+
+        if ($kategoriUmum) {
+            RiwayatJabatan::create([
+                'user_id' => $user->id,
+                'kategori_jabatan_id' => $kategoriUmum->id,
+                'tunjangan' => $kategoriUmum->tunjangan,
+                'tanggal_mulai' => now(),
+                'tanggal_selesai' => null,
+            ]);
+        }
+
         return redirect()->route('datakaryawan.index')->with('success', 'Karyawan berhasil diTambah.');
     }
 
-
-
     public function updateKaryawan()
     {
-     
+
         $this->validate([
             'nama' => 'nullable|string|max:255',
             'nip' => 'nullable|max:50|unique:users,nip,' .  ($this->user_id ?? 'NULL'),
@@ -357,8 +490,10 @@ class KaryawanForm extends Component
             'tanggal_lahir' => 'nullable|date',
             'unit' => 'nullable',
             'jabatan' => 'nullable',
+            'fungsional' => 'nullable',
             'selectedJenisKaryawan' => 'nullable',
             'tmt' => 'nullable',
+            'tmt_masuk' => 'nullable',
             'masakerja' => 'nullable',
             'selectedGolonganNama' => 'nullable',
             'khusus' => 'nullable',
@@ -367,16 +502,62 @@ class KaryawanForm extends Component
             'typeShift' => 'nullable',
         ]);
         $unit = UnitKerja::where('nama', $this->unit)->first(); // Cari ID berdasarkan nama unit
-        $kategoriJabatan = KategoriJabatan::where('nama', $this->jabatan)->first(); // Cari ID berdasarkan nama kategori jabatan
+        $kategoriJabatan = KategoriJabatan::where('nama', $this->jabatan)->first();
+        $kategoriFungsional = KategoriJabatan::where('nama', $this->fungsional)->first(); // Cari ID berdasarkan nama kategori jabatan
+        $kategoriUmum = KategoriJabatan::where('nama', $this->umum)->first();
+        // Cari ID berdasarkan nama kategori jabatan
         // if (!$unit) {
         //     return back()->with('error', 'Unit tidak ditemukan.');
         // } elseif (!$kategoriJabatan) {
         //     return back()->with('error', 'Kategori Jabatan tidak ditemukan.');
         // }
 
+        if ($this->tmt) {
+            $start = Carbon::parse($this->tmt);
+            $now = Carbon::now();
+
+            $jenis = JenisKaryawan::find($this->selectedJenisKaryawan)?->nama;
+
+            if (strtolower($jenis) === 'kontrak') {
+                // Hitung dalam bulan
+                $this->masakerja = floor($start->diffInMonths($now));
+            } else {
+                // Hitung dalam tahun (pembulatan bawah)
+                $this->masakerja = floor($start->floatDiffInYears($now));
+            }
+        }
+
+        $user = User::findOrFail($this->user_id);
+
+        // Ambil ID kategori jabatan aktif terakhir (yang belum selesai)
+        $oldJabatanId = RiwayatJabatan::where('user_id', $user->id)
+            ->where('tunjangan', 'jabatan')
+            ->whereNull('tanggal_selesai')
+            ->latest('tanggal_mulai')
+            ->value('kategori_jabatan_id');
+
+        $oldFungsionalId = RiwayatJabatan::where('user_id', $user->id)
+            ->where('tunjangan', 'fungsi')
+            ->whereNull('tanggal_selesai')
+            ->latest('tanggal_mulai')
+            ->value('kategori_jabatan_id');
+
+        $oldUmumId = RiwayatJabatan::where('user_id', $user->id)
+            ->where('tunjangan', 'umum')
+            ->whereNull('tanggal_selesai')
+            ->latest('tanggal_mulai')
+            ->value('kategori_jabatan_id');
+
+        // Update riwayat jabatan
+        $this->updateRiwayatJabatan($user->id, $oldJabatanId, $kategoriJabatan, 'jabatan');
+        $this->updateRiwayatJabatan($user->id, $oldFungsionalId, $kategoriFungsional, 'fungsi');
+        $this->updateRiwayatJabatan($user->id, $oldUmumId, $kategoriUmum, 'umum');
+        // dd($oldJabatanId, $oldFungsionalId, $oldUmumId);
+
         $user = User::findOrFail($this->user_id);
         $user->update([
             'name' => $this->nama ?? null,
+            'slug' => Str::slug($this->nama) ?? null, // ← Tambahan
             'nip' => $this->nip ?? null,
             'email' => $this->email ?? null,
             'no_ktp' => $this->no_ktp ?? null,
@@ -391,14 +572,21 @@ class KaryawanForm extends Component
             'tanggal_lahir' => $this->tanggal_lahir ?? null,
             'unit_id' => $unit->id ?? null,
             'jabatan_id' => $kategoriJabatan->id ?? null,
+            'fungsi_id' => $kategoriFungsional->id ?? null,
+            'umum_id' => $kategoriUmum->id ?? null,
             'jenis_id' => $this->selectedJenisKaryawan ?? null,
             'tmt' => $this->tmt ?? null,
+            'tmt_masuk' => $this->tmt_masuk ?? null,
             'masa_kerja' => $this->masakerja ?? null,
             'gol_id' => $this->selectedGolongan ?? $this->gol ?? null,
-            'khusus_id' => $this->khusus ?? null,
+            'khusus_id' => $this->khusus !== '' ? $this->khusus : null,
             'kategori_id' => $this->selectedPph ?? null,
             'type_shift' => $this->typeShift ?? null,
+            'bpjs_ortu' =>  $this->bpjsOrtu ?? null,
         ]);
+
+
+
 
         if (!empty($this->selectedRoles)) {
             $roles = Role::whereIn('id', (array) $this->selectedRoles)->pluck('name')->toArray();
@@ -409,23 +597,107 @@ class KaryawanForm extends Component
             ->with('success', 'Karyawan berhasil diupdate.');
     }
 
+    private function updateRiwayatJabatan($userId, $oldId, $newKategori, $tunjangan)
+    {
+        $newId = $newKategori?->id;
+        $tunjanganKey = $tunjangan;
+
+        // Kalau sama-sama null, lanjut tetap tutup riwayat jika ada yang masih aktif
+        if ($oldId === $newId && !is_null($newId)) {
+            logger("Tidak ada perubahan nilai $tunjangan - user $userId - kategori_jabatan_id $newId");
+            return;
+        }
+
+        // Tutup riwayat aktif jika: diubah atau dikosongkan
+        $query = RiwayatJabatan::where('user_id', $userId)
+            ->where('tunjangan', $tunjanganKey)
+            ->whereNull('tanggal_selesai');
+
+        if (!is_null($oldId)) {
+            $query->where('kategori_jabatan_id', $oldId);
+        }
+
+        $updated = $query->update(['tanggal_selesai' => now('Asia/Jakarta')]);
+        logger("Update selesai: $updated untuk $tunjanganKey - user $userId - kategori_jabatan_id " . ($oldId ?? 'null'));
+
+        // Buat riwayat baru jika ada data baru yang berbeda
+        if (!is_null($newId) && $oldId !== $newId) {
+            RiwayatJabatan::create([
+                'user_id' => $userId,
+                'kategori_jabatan_id' => $newId,
+                'tunjangan' => $tunjanganKey,
+                'tanggal_mulai' => now('Asia/Jakarta'),
+                'tanggal_selesai' => null,
+            ]);
+            logger("Riwayat baru ditambahkan untuk $tunjanganKey - user $userId - kategori_jabatan_id $newId");
+        }
+    }
+
     public function savekaryawan()
     {
         if ($this->jabatan !== $this->jabatanAwal) {
             $this->dispatch('confirmJabatanChange'); // Panggil event ke browser
             return; // Hentikan eksekusi agar tidak langsung menyimpan sebelum konfirmasi
         }
+        if ($this->fungsional !== $this->fungsionalAwal) {
+            $this->dispatch('confirmFungsionalChange'); // Panggil event ke browser
+            return; // Hentikan eksekusi agar tidak langsung menyimpan sebelum konfirmasi
+        }
+        if ($this->umum !== $this->umumAwal) {
+            $this->dispatch('confirmUmumChange'); // Panggil event ke browser
+            return; // Hentikan eksekusi agar tidak langsung menyimpan sebelum konfirmasi
+        }
+
         $this->updateKaryawan();
     }
     public function updateKaryawanConfirmed()
     {
         $this->jabatanChanged = false; // Reset perubahan
         $this->jabatanAwal = $this->jabatan; // Update nilai awal agar tidak terdeteksi perubahan lagi
+        $this->fungsionalChanged = false; // Reset perubahan
+        $this->fungsionalAwal = $this->fungsional; // Update nilai awal agar tidak terdeteksi perubahan lagi
+        $this->umumChanged = false; // Reset perubahan
+        $this->umumAwal = $this->umum; // Update nilai awal agar tidak terdeteksi perubahan lagi
 
         // Lanjutkan proses update karyawan seperti di updateKaryawan()
         $this->updateKaryawan();
     }
 
+    public function updatedSelectedJenisKaryawan($id)
+    {
+        $this->jenisKaryawanNama = JenisKaryawan::find($id)?->nama;
+
+        // Rehitung masa kerja berdasarkan jenis karyawan saat ini
+        if ($this->tmt) {
+            $start = Carbon::parse($this->tmt);
+            $now = Carbon::now();
+
+            if (strtolower($this->jenisKaryawanNama) === 'kontrak') {
+                $this->masakerja = floor($start->diffInMonths($now)); // dalam bulan
+            } else {
+                $this->masakerja = floor($start->floatDiffInYears($now)); // dalam tahun
+            }
+        }
+    }
+
+    public function updatedTmt($value)
+    {
+        if (!$value) return;
+
+        $start = Carbon::parse($value);
+        $now = Carbon::now();
+
+        if (strtolower($this->jenisKaryawanNama) === 'kontrak') {
+            $this->masakerja = floor($start->diffInMonths($now));
+        } else {
+            $this->masakerja = floor($start->floatDiffInYears($now));
+        }
+
+        // Refresh golongan otomatis
+        if ($this->selectedPendidikan) {
+            $this->updatedSelectedPendidikan($this->selectedPendidikan);
+        }
+    }
     public function render()
     {
         return view('livewire.karyawan-form');

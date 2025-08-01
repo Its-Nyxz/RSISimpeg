@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Models\JadwalAbsensi;
 use DateTime;
 use Carbon\Carbon;
 use App\Models\User;
@@ -18,12 +19,14 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
     protected $month;
     protected $year;
 
-    public function __construct($month, $year)
+
+    public function __construct($month, $year, $unitId = null)
     {
-        $this->unitId = Auth::user()->unit_id;
+        $this->unitId = $unitId ?? Auth::user()->unit_id; // jika tidak dikirim, pakai unit login
         $this->month = $month;
         $this->year = $year;
     }
+
 
     // Data yang akan di-export
     public function array(): array
@@ -43,13 +46,21 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
                 $user->name ?? '-',
                 $user->pendidikan ?? '-',
                 $user->tmt ? (new DateTime($user->tmt))->format('d/m/Y') : '-',
-                $user->lama_kerja ?? 0,
+                $user->masa_kerja ?? 0,
             ];
 
             // Kosongkan kolom shift untuk setiap hari dalam satu bulan
             for ($day = 1; $day <= $daysInMonth; $day++) {
-                $row[] = null;
+                $tanggal = Carbon::create($this->year, $this->month, $day)->format('Y-m-d');
+
+                $jadwal = JadwalAbsensi::with('shift')
+                    ->where('user_id', $user->id)
+                    ->whereDate('tanggal_jadwal', $tanggal)
+                    ->first();
+
+                $row[] = $jadwal && $jadwal->shift ? $jadwal->shift->nama_shift : null;
             }
+
 
             $data[] = $row;
         }
@@ -70,13 +81,22 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
             ];
         }
 
-        // Tambahkan shift L (Libur) di bawah keterangan shift
-        $data[] = [
-            'Nama Shift'   => 'L',
-            'Jam Masuk'    => '-',
-            'Jam Keluar'   => '-',
-            'Keterangan'   => 'Libur',
-        ];
+        // Tambahkan shift "L" (Libur) jika belum ada di database
+        $existingL = Shift::where('unit_id', $this->unitId)
+            ->where('nama_shift', 'L')
+            ->whereNull('jam_masuk')
+            ->whereNull('jam_keluar')
+            ->first();
+
+        if (!$existingL) {
+            Shift::create([
+                'unit_id' => $this->unitId,
+                'nama_shift' => 'L',
+                'jam_masuk' => null,
+                'jam_keluar' => null,
+                'keterangan' => 'Libur',
+            ]);
+        }
 
         return $data;
     }
@@ -99,11 +119,32 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                // ======= Tambahkan Data Shift di Sheet Terpisah =======
-                $shifts = Shift::where('unit_id', $this->unitId)->pluck('nama_shift')->toArray();
+                // ======= Pastikan shift 'L' ada di database =======
+                Shift::firstOrCreate([
+                    'unit_id' => $this->unitId,
+                    'nama_shift' => 'L',
+                    'jam_masuk' => null,
+                    'jam_keluar' => null
+                ], [
+                    'keterangan' => 'Libur'
+                ]);
 
-                // Tambahkan opsi "L" (Libur) ke dalam daftar shift
-                array_push($shifts, 'L', ''); // Tambahkan L dan kosong untuk opsi libur
+                // ======= Ambil semua shift dan format untuk dropdown =======
+                $shifts = Shift::where('unit_id', $this->unitId)->get()->map(function ($shift) {
+                    $nama = $shift->nama_shift;
+                    $masuk = $shift->jam_masuk ?? '-';
+                    $keluar = $shift->jam_keluar ?? '-';
+
+                    // Khusus shift L
+                    if ($nama === 'L' && is_null($shift->jam_masuk) && is_null($shift->jam_keluar)) {
+                        return 'L (-)';
+                    }
+
+                    return "{$nama} ({$masuk}-{$keluar})";
+                })->unique()->values();
+
+                // Tambahkan satu opsi kosong di dropdown (opsional)
+                $shifts->push('');
 
                 if (count($shifts) > 0) {
                     // Buat sheet baru untuk daftar shift (JANGAN DISEMBUNYIKAN)
@@ -130,6 +171,8 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
                                 ->setShowDropDown(true)
                                 // === Gunakan referensi langsung ke sheet hidden ===
                                 ->setFormula1('\'Shifts\'!$A$1:$A$' . count($shifts));
+                            // Atur lebar kolom agar dropdown tidak terpotong
+                            $sheet->getColumnDimensionByColumn($col)->setWidth(15);
                         }
                     }
                 }

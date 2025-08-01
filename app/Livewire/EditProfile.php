@@ -4,10 +4,9 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 use App\Models\KategoriJabatan;
 use App\Models\MasterPendidikan;
+use Illuminate\Support\Facades\Auth;
 
 class EditProfile extends Component
 {
@@ -29,11 +28,12 @@ class EditProfile extends Component
         $this->kategori_pendidikan = $user->kategori_pendidikan;
         $this->pendidikan = $user->pendidikan;
         $this->institusi = $user->institusi;
-        $this->jk = $user->jk;
+        $this->jenisKelamin = $user->jk;
         $this->alamat = $user->alamat;
-        $this->tempat = $user->tempat;
+        $this->tempat_lahir = $user->tempat;
         $this->tanggal_lahir = $user->tanggal_lahir;
         $this->currentPhoto = $user->photo;
+
 
         $this->jabatans = KategoriJabatan::all();
         $this->pendidikans = MasterPendidikan::all();
@@ -49,9 +49,9 @@ class EditProfile extends Component
             'no_rek' => 'nullable',
             'kategori_pendidikan' => 'nullable|exists:master_pendidikan,id',
             'institusi' => 'nullable|string|max:255',
-            'jk' => 'nullable',
+            'jenisKelamin' => 'nullable',
             'alamat' => 'nullable|string|max:255',
-            'tempat' => 'nullable|string|max:255',
+            'tempat_lahir' => 'nullable|string|max:255',
             'tanggal_lahir' => 'nullable|date',
             'photo' => 'nullable|image|max:2048',
         ]);

@@ -17,21 +17,22 @@
                 <li class="me-2">
                     <button @click="activeTab = 'masakerja'; $wire.updateSearch()"
                         class="inline-block p-4 transition duration-200 focus:outline-none"
-                        :class="activeTab === 'masakerja' ? 'bg-green-500 text-white' : 'hover:text-white hover:bg-success-300'">
+                        :class="activeTab === 'masakerja' ? 'bg-success-500 text-white' : 'hover:text-white hover:bg-success-300'">
                         Masa Kerja
                     </button>
                 </li>
                 <li class="me-2">
                     <button @click="activeTab = 'levelunit'; $wire.updateSearch()"
                         class="inline-block p-4 transition duration-200 focus:outline-none"
-                        :class="activeTab === 'levelunit' ? 'bg-green-500 text-white' : 'hover:text-white hover:bg-success-300'">
+                        :class="activeTab === 'levelunit' ? 'bg-success-500 text-white' :
+                            'hover:text-white hover:bg-success-300'">
                         Level Unit
                     </button>
                 </li>
                 <li class="me-2">
                     <button @click="activeTab = 'proposionalitas'; $wire.updateSearch()"
                         class="inline-block p-4 transition duration-200 focus:outline-none"
-                        :class="activeTab === 'proposionalitas' ? 'bg-green-500 text-white' :
+                        :class="activeTab === 'proposionalitas' ? 'bg-success-500 text-white' :
                             'hover:text-white hover:bg-success-300'">
                         Proposionalitas
                     </button>
@@ -39,14 +40,15 @@
                 <li class="me-2">
                     <button @click="activeTab = 'pointperan'; $wire.updateSearch()"
                         class="inline-block p-4 transition duration-200 focus:outline-none"
-                        :class="activeTab === 'pointperan' ? 'bg-green-500 text-white' : 'hover:text-white hover:bg-success-300'">
+                        :class="activeTab === 'pointperan' ? 'bg-success-500 text-white' :
+                            'hover:text-white hover:bg-success-300'">
                         Point Peran Fungsionalitas
                     </button>
                 </li>
                 <li class="me-2">
                     <button @click="activeTab = 'tukinjabatan'; $wire.updateSearch()"
                         class="inline-block p-4 transition duration-200 focus:outline-none"
-                        :class="activeTab === 'tukinjabatan' ? 'bg-green-500 text-white' :
+                        :class="activeTab === 'tukinjabatan' ? 'bg-success-500 text-white' :
                             'hover:text-white hover:bg-success-300'">
                         Jabatan
                     </button>
@@ -75,10 +77,10 @@
                     <livewire:data-tunjangan-kinerja type="pointperan" />
                 </div>
                 <div x-show="activeTab === 'pointperan'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
-                    <livewire:data-tunjangan-kinerja type="pointperan"/>
+                    <livewire:data-tunjangan-kinerja type="pointperan" />
                 </div>
                 <div x-show="activeTab === 'tukinjabatan'" class="p-4 bg-white rounded-lg md:p-8" role="tabpanel">
-                    <livewire:data-tunjangan-kinerja type="tukinjabatan"/>
+                    <livewire:data-tunjangan-kinerja type="tukinjabatan" />
 
                 </div>
             </div>

@@ -12,15 +12,16 @@ class MasterPenyesuaianController extends Controller
      */
     public function index()
     {
-        //
+        return view('penyesuaian.index');
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+
+    public function create($tipe, $penyesuaian = 0)
     {
-        //
+        return view('penyesuaian.create', compact('tipe', 'penyesuaian'));
     }
 
     /**

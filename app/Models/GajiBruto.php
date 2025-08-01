@@ -24,6 +24,11 @@ class GajiBruto extends Model
      */
     public function potongan()
     {
-        return $this->hasOne(Potongan::class, 'bruto_id');
+        return $this->hasMany(Potongan::class, 'bruto_id');
+    }
+
+    public function netto()
+    {
+        return $this->hasOne(GajiNetto::class, 'bruto_id');
     }
 }

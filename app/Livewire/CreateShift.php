@@ -17,10 +17,6 @@ class CreateShift extends Component
     public $keterangan;
     public $unitKerjaOptions = [];
 
-    protected $rules = [
-        'unit_id' => 'required|exists:unit_kerjas,id',
-    ];
-
     public function mount()
     {
         // Ambil unit_id dari user yang login
@@ -48,19 +44,22 @@ class CreateShift extends Component
     // Method to store the shift
     public function store()
     {
-        // $this->validate([
-        //     'nama_shift' => 'required|string|max:255',
-        //     'unit_id' => 'required|exists:unit_kerjas,id'
-        //     'jam_masuk' => 'required|date_format:H:i',
-        //     'jam_keluar' => 'required|date_format:H:i',
-        //     'keterangan' => 'nullable|string',
-        // ]);
-
-        $this->validate();
+        $this->validate([
+            'nama_shift' => 'required|string|max:255',
+            'unit_id' => 'required|exists:unit_kerjas,id',
+            'jam_masuk' => 'nullable|date_format:H:i',
+            'jam_keluar' => 'nullable|date_format:H:i',
+            'keterangan' => 'nullable|string',
+        ]);
 
         // Konversi waktu ke timezone Asia/Jakarta
-        $jamMasuk = Carbon::createFromFormat('H:i', $this->jam_masuk, 'Asia/Jakarta')->format('H:i:s');
-        $jamKeluar = Carbon::createFromFormat('H:i', $this->jam_keluar, 'Asia/Jakarta')->format('H:i:s');
+        $jamMasuk = $this->jam_masuk
+            ? Carbon::createFromFormat('H:i', $this->jam_masuk, 'Asia/Jakarta')->format('H:i')
+            : null;
+
+        $jamKeluar = $this->jam_keluar
+            ? Carbon::createFromFormat('H:i', $this->jam_keluar, 'Asia/Jakarta')->format('H:i')
+            : null;
 
         Shift::create([
             'nama_shift' => $this->nama_shift,

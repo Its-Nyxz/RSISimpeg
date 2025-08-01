@@ -89,7 +89,7 @@ return [
             'handler_with' => [
                 'host' => env('PAPERTRAIL_URL'),
                 'port' => env('PAPERTRAIL_PORT'),
-                'connectionString' => 'tls://'.env('PAPERTRAIL_URL').':'.env('PAPERTRAIL_PORT'),
+                'connectionString' => 'tls://' . env('PAPERTRAIL_URL') . ':' . env('PAPERTRAIL_PORT'),
             ],
             'processors' => [PsrLogMessageProcessor::class],
         ],
@@ -127,6 +127,29 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        'masa_kerja' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/masa-kerja.log'),
+            'level' => 'info',
+        ],
+
+        'kenaikan_berkala' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/kenaikan-berkala.log'),
+            'level' => 'info',
+        ],
+
+        'kenaikan_golongan' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/kenaikan-golongan.log'),
+            'level' => 'info',
+        ],
+
+        'kenaikan_kontrak' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/kenaikan_kontrak.log'),
+            'level' => 'info',
+        ],
     ],
 
 ];

@@ -1,13 +1,14 @@
 <div>
     <form wire:submit.prevent="updateFungsi">
         <!-- Form Input -->
-        <div class="grid grid-cols-2 gap-4 bg-green-100 border border-green-200 rounded-lg shadow-lg p-6">
+        <div class="grid grid-cols-2 gap-4 bg-success-100 border border-success-200 rounded-lg shadow-lg p-6">
             <div class="form-group col-span-2">
-                <label for="katjab_id" class="block text-sm font-medium text-green-900">Nama Jabatan</label>
+                <label for="katjab_id" class="block text-sm font-medium text-success-900">Nama Jabatan</label>
                 <div class="relative">
-                    <input type="text" id="katjab_id" wire:model="katjab_id_nama" placeholder="Cari Jabatan..." autocomplete="off"
-                    class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5"
-                    oninput="filterKatjabDropdown()" onclick="toggleKatjabDropdown()" />
+                    <input type="text" id="katjab_id" wire:model="katjab_id_nama" placeholder="Cari Jabatan..."
+                        autocomplete="off"
+                        class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5"
+                        oninput="filterKatjabDropdown()" onclick="toggleKatjabDropdown()" />
 
                     <ul id="katjabDropdown" class="dropdown hidden">
                         @foreach ($katjabs as $katjab)
@@ -24,18 +25,18 @@
             </div>
 
             <div class="form-group col-span-2">
-                <label for="nominal" class="block text-sm font-medium text-green-900">Nominal</label>
+                <label for="nominal" class="block text-sm font-medium text-success-900">Nominal</label>
                 <input type="text" id="nominal" wire:model="nominal"
-                    class="form-control @error('nominal') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" />
+                    class="form-control @error('nominal') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5" />
                 @error('nominal')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>
 
             <div class="form-group col-span-2">
-                <label for="deskripsi" class="block text-sm font-medium text-green-900">Deskripsi</label>
+                <label for="deskripsi" class="block text-sm font-medium text-success-900">Deskripsi</label>
                 <input type="text" id="deskripsi" wire:model="deskripsi"
-                    class="form-control @error('deskripsi') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-green-500 focus:border-green-500 p-2.5" />
+                    class="form-control @error('deskripsi') is-invalid @enderror mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5" />
                 @error('deskripsi')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
@@ -45,7 +46,7 @@
         <!-- Tombol Submit -->
         <div class="form-group col-span-2 flex justify-end mt-4">
             <button type="submit"
-                class="flex items-center bg-green-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300">
+                class="flex items-center bg-success-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-success-800 focus:ring-4 focus:outline-none focus:ring-success-300">
                 <i class="fa-solid fa-paper-plane mr-2"></i> Save
             </button>
         </div>
@@ -53,7 +54,7 @@
 
     <!-- Notifikasi -->
     @if (session()->has('success'))
-        <div class="alert alert-success mt-3 p-4 bg-green-200 text-green-800 rounded-lg">
+        <div class="alert alert-success mt-3 p-4 bg-success-200 text-success-800 rounded-lg">
             {{ session('success') }}
         </div>
     @endif

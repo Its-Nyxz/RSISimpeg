@@ -13,7 +13,7 @@ class TukarJadwalController extends Controller
      */
     public function index()
     {
-        //
+        return view('tukarjadwal.index');
     }
 
     /**
