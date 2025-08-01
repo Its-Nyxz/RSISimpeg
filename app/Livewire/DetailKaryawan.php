@@ -2,6 +2,8 @@
 
 namespace App\Livewire;
 
+
+
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Gapok;
@@ -36,6 +38,7 @@ class DetailKaryawan extends Component
     public $pend_awal_id;
     public $roles;
     public $viewPendAwal;
+
     public $listCuti;
     public $listIzin;
     public $listPenyesuaian;
@@ -45,6 +48,7 @@ class DetailKaryawan extends Component
     public $gapokSebelumnya;
     public $gapokPenyesuaian;
     public $phkDari;
+
 
     public function mount($user)
     {
@@ -99,6 +103,7 @@ class DetailKaryawan extends Component
                 ->orderByDesc('masa_kerja')
                 ->first();
         }
+
     }
 
     public function resignKerja()
@@ -381,5 +386,6 @@ class DetailKaryawan extends Component
     {
         // $users = $this->mont();
         return view('livewire.detail-karyawan');
+
     }
 }
