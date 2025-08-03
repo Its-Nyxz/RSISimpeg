@@ -788,19 +788,20 @@ class Timer extends Component
 
         // Tentukan area mana yang boleh digunakan user
         // 2. Tentukan area mana yang boleh digunakan user
-        if ($isDokterSpesialisParttime) {
-            $allowedAreas = array_filter(array_keys($polygons), fn($area) => $area !== 'RSI');
-        } elseif (
-            isset($user->unitKerja->nama)
-            && isset($unitToAreaMap[$user->unitKerja->nama])
-            && isset($polygons[$unitToAreaMap[$user->unitKerja->nama]])
-        ) {
-            $allowedAreas = [$unitToAreaMap[$user->unitKerja->nama]];
-        } else {
-            // fallback agar tetap bisa validasi minimal area RSI
-            $allowedAreas = ['RSI'];
-        }
-
+        // if ($isDokterSpesialisParttime) {
+        //     $allowedAreas = array_filter(array_keys($polygons), fn($area) => $area !== 'RSI');
+        // } elseif (
+        //     isset($user->unitKerja->nama)
+        //     && isset($unitToAreaMap[$user->unitKerja->nama])
+        //     && isset($polygons[$unitToAreaMap[$user->unitKerja->nama]])
+        // ) {
+        //     $allowedAreas = [$unitToAreaMap[$user->unitKerja->nama]];
+        // } else {
+        //     // fallback agar tetap bisa validasi minimal area RSI
+        //     $allowedAreas = ['RSI'];
+        // }
+        $allowedAreas = ['RSI'];
+        
         // Cek apakah user berada dalam area yang diizinkan
         foreach ($allowedAreas as $areaName) {
             $result = $this->isPointInPolygon($this->latitude, $this->longitude, $polygons[$areaName]);
