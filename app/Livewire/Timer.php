@@ -164,11 +164,12 @@ class Timer extends Component
 
     public function startTimer()
     {
-        if (!$this->validasiLokasiAtauIp()) return;
+        // if (!$this->validasiLokasiAtauIp()) return;
 
         if (!$this->isRunning) {
             $this->isRunning = true;
-            $this->timeIn = now()->timestamp;
+            $currentTime = now()->setTimezone('Asia/Jakarta');
+            $this->timeIn = $currentTime->timestamp;
             // dd($this->jadwal_id);
             $jadwal = JadwalAbsensi::find($this->jadwal_id);
             if (!$jadwal) {
@@ -182,10 +183,12 @@ class Timer extends Component
                 return;
             }
 
-            $startShift = Carbon::parse($shift->jam_masuk);
-            $currentTime = Carbon::createFromTimestamp($this->timeIn);
+            $startShift = Carbon::parse($shift->jam_masuk, 'Asia/Jakarta');
 
-            $canStart = $currentTime->greaterThanOrEqualTo($startShift->subMinutes(15));
+            // ✅ Perbaikan: Gunakan copy() agar objek $startShift tidak berubah
+            $startToleransi = $startShift->copy()->subMinutes(15);
+
+            $canStart = $currentTime->greaterThanOrEqualTo($startToleransi);
 
             if (!$canStart) {
                 $this->dispatch('alert-error', message: 'Anda hanya bisa memulai timer 15 menit sebelum waktu shift dimulai.');
@@ -193,12 +196,20 @@ class Timer extends Component
                 return;
             }
 
-            $selisih = $startShift->diffInSeconds($currentTime, false);
-            $this->late = $selisih > 0;
-            $this->keterangan = $this->late
-                ? "Terlambat " . gmdate('H:i:s', abs($selisih))
-                : "Masuk tepat waktu";
+            $toleransi = 15;
+            $batasTerlambat = $startShift->copy()->addMinutes($toleransi);
 
+            // Perbaikan logika di sini
+            $this->late = $currentTime->greaterThan($batasTerlambat);
+
+            if ($this->late) {
+                $selisih = $currentTime->diffInSeconds($batasTerlambat);
+                $this->keterangan = "Terlambat " . gmdate('H:i:s', $selisih);
+            } else {
+                $this->keterangan = "Masuk tepat waktu";
+            }
+            
+            
             Absen::updateOrCreate(
                 [
                     'jadwal_id' => $this->jadwal_id,
@@ -224,7 +235,7 @@ class Timer extends Component
 
     public function openWorkReportModal()
     {
-        if (!$this->validasiLokasiAtauIp()) return;
+        // if (!$this->validasiLokasiAtauIp()) return;
 
         if ($this->isRunning) {
             $this->timeOut = now()->timestamp;
@@ -277,7 +288,7 @@ class Timer extends Component
 
     public function completeWorkReport()
     {
-        if (!$this->validasiLokasiAtauIp()) return;
+        // if (!$this->validasiLokasiAtauIp()) return;
 
         if (!$this->timeOut) return;
 
@@ -801,7 +812,7 @@ class Timer extends Component
         //     $allowedAreas = ['RSI'];
         // }
         $allowedAreas = ['RSI'];
-        
+
         // Cek apakah user berada dalam area yang diizinkan
         foreach ($allowedAreas as $areaName) {
             $result = $this->isPointInPolygon($this->latitude, $this->longitude, $polygons[$areaName]);
