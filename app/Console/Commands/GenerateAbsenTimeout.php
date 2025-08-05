@@ -23,7 +23,7 @@ class GenerateAbsenTimeout extends Command
             ->whereNull('absent')
             ->with(['jadwalAbsen.shift'])
             ->get();
-
+ 
         $updated = 0;
 
         foreach ($absens as $absen) {

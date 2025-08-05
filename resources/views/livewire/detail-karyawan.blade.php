@@ -419,6 +419,7 @@
                 <h1 class="text-2xl font-bold text-success-900">History</h1>
             </div>
 
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {{-- Kolom 1: Riwayat Cuti --}}
                 <div class="w-full">
