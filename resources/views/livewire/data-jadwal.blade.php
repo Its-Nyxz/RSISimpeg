@@ -192,6 +192,9 @@
 
                         @foreach ($tanggalJadwal as $tanggal)
                             @php
+                                $carbonDate = \Carbon\Carbon::parse($tanggal);
+                                $hari = $carbonDate->format('l');
+                                $isHoliday = $this->isHoliday($tanggal); 
                                 $shifts = $filteredShifts[$user_id][$tanggal] ?? [];
                                 $isSpecialShift = collect($shifts)
                                     ->pluck('nama_shift')

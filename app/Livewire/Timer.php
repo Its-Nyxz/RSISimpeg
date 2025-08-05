@@ -164,7 +164,9 @@ class Timer extends Component
 
     public function startTimer()
     {
+
         if (!$this->validasiLokasiAtauIp()) return;
+
 
         if (!$this->isRunning) {
             $this->isRunning = true;

@@ -150,6 +150,12 @@ return [
             'path' => storage_path('logs/kenaikan_kontrak.log'),
             'level' => 'info',
         ],
+
+        'absen_timeout' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/absen_timeout.log'),
+            'level' => 'debug',
+        ],
     ],
 
 ];
