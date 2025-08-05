@@ -164,7 +164,7 @@ class Timer extends Component
 
     public function startTimer()
     {
-        // if (!$this->validasiLokasiAtauIp()) return;
+        if (!$this->validasiLokasiAtauIp()) return;
 
         if (!$this->isRunning) {
             $this->isRunning = true;
@@ -208,8 +208,8 @@ class Timer extends Component
             } else {
                 $this->keterangan = "Masuk tepat waktu";
             }
-            
-            
+
+
             Absen::updateOrCreate(
                 [
                     'jadwal_id' => $this->jadwal_id,
@@ -235,7 +235,7 @@ class Timer extends Component
 
     public function openWorkReportModal()
     {
-        // if (!$this->validasiLokasiAtauIp()) return;
+        if (!$this->validasiLokasiAtauIp()) return;
 
         if ($this->isRunning) {
             $this->timeOut = now()->timestamp;
@@ -288,7 +288,7 @@ class Timer extends Component
 
     public function completeWorkReport()
     {
-        // if (!$this->validasiLokasiAtauIp()) return;
+        if (!$this->validasiLokasiAtauIp()) return;
 
         if (!$this->timeOut) return;
 
@@ -695,15 +695,21 @@ class Timer extends Component
                 [-7.5480292246177925, 110.81254935825416]
             ],
             'RSI' => [
-                [-7.401462324660784, 109.61574443318705],
-                [-7.40206468637885, 109.61591235565817],
-                [-7.401966177920016, 109.61618451323585],
-                [-7.402782968146411, 109.6164214758092],
-                [-7.403165037042953, 109.61580592184652],
-                [-7.403230824029308, 109.61515910978147],
-                [-7.4017712054383935, 109.61499327224521],
-                [-7.40146214270284, 109.6157440761346],
-                [-7.401462324660784, 109.61574443318705] // titik penutup
+                [-7.401467885558787, 109.61575191001776],
+                [-7.401412744399067, 109.61572843545179],
+                [-7.401718948302204, 109.61492809262575],
+                [-7.401718347467462, 109.61492821941269],
+                [-7.402099780228717, 109.61499404546868],
+                [-7.402483360720808, 109.61504700935535],
+                [-7.402893966998597, 109.61509615303333],
+                [-7.403288553472635, 109.61513370718365],
+                [-7.4031705979409566, 109.61581339867723],
+                [-7.402930655450227, 109.61656793197517],
+                [-7.402778747431299, 109.61654322281117],
+                [-7.402334019690457, 109.61641138370916],
+                [-7.401904169650535, 109.61623365763768],
+                [-7.402007706806685, 109.61593896291794],
+                [-7.401467885558787, 109.61575191001776]
             ],
             'Poliklinik' => [
                 [-7.401821225185401, 109.61501131827964],
