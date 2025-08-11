@@ -41,7 +41,7 @@ class Kernel extends ConsoleKernel
             ->dailyAt('00:30')
             ->timezone('Asia/Jakarta');
 
-        $schedule->command('generate:absen-timeout')->everyTenMinutes()->timezone('Asia/Jakarta');
+        $schedule->command('generate:absen-timeout')->hourly()->timezone('Asia/Jakarta');
     }
 
     /**
