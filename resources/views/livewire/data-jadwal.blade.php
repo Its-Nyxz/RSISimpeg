@@ -194,7 +194,7 @@
                             @php
                                 $carbonDate = \Carbon\Carbon::parse($tanggal);
                                 $hari = $carbonDate->format('l');
-                                $isHoliday = $this->isHoliday($tanggal); 
+                                $isHoliday = $this->isHoliday($tanggal); // Hitung ulang di sini
                                 $shifts = $filteredShifts[$user_id][$tanggal] ?? [];
                                 $isSpecialShift = collect($shifts)
                                     ->pluck('nama_shift')

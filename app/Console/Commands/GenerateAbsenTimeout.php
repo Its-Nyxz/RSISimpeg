@@ -58,16 +58,16 @@ class GenerateAbsenTimeout extends Command
 
             $toleransi = $shiftSelesai->copy()->addHour();
 
-            dd([
-                'absen_id' => $absen->id,
-                'tanggal_jadwal' => $jadwal->tanggal_jadwal,
-                'jam_masuk' => $shift->jam_masuk,
-                'jam_keluar' => $shift->jam_keluar,
-                'is_shift_malam' => $isShiftMalam,
-                'shift_selesai' => $shiftSelesai->toDateTimeString(),
-                'now' => $now->toDateTimeString(),
-                'toleransi' => $toleransi->toDateTimeString(),
-            ]);
+            // dd([
+            //     'absen_id' => $absen->id,
+            //     'tanggal_jadwal' => $jadwal->tanggal_jadwal,
+            //     'jam_masuk' => $shift->jam_masuk,
+            //     'jam_keluar' => $shift->jam_keluar,
+            //     'is_shift_malam' => $isShiftMalam,
+            //     'shift_selesai' => $shiftSelesai->toDateTimeString(),
+            //     'now' => $now->toDateTimeString(),
+            //     'toleransi' => $toleransi->toDateTimeString(),
+            // ]);
 
             if ($now->lessThanOrEqualTo($toleransi) && !$this->option('force')) {
                 $this->line("⏸️  Absen ID {$absen->id} masih dalam toleransi (<=1 jam setelah shift).");
@@ -99,16 +99,16 @@ class GenerateAbsenTimeout extends Command
             $this->info("✅ Timer absen ID {$absen->id} ditutup otomatis.");
             Log::channel('absen_timeout')->info("✅ Timer absen ID {$absen->id} ditutup otomatis.");
 
-            dd([
-                'absen_id' => $absen->id,
-                'tanggal_jadwal' => $jadwal->tanggal_jadwal,
-                'jam_masuk' => $shift->jam_masuk,
-                'jam_keluar' => $shift->jam_keluar,
-                'is_shift_malam' => $isShiftMalam,
-                'shift_selesai' => $shiftSelesai->toDateTimeString(),
-                'now' => $now->toDateTimeString(),
-                'toleransi' => $toleransi->toDateTimeString(),
-            ]);
+            // dd([
+                // 'absen_id' => $absen->id,
+                // 'tanggal_jadwal' => $jadwal->tanggal_jadwal,
+                // 'jam_masuk' => $shift->jam_masuk,
+                // 'jam_keluar' => $shift->jam_keluar,
+                // 'is_shift_malam' => $isShiftMalam,
+                // 'shift_selesai' => $shiftSelesai->toDateTimeString(),
+                // 'now' => $now->toDateTimeString(),
+                // 'toleransi' => $toleransi->toDateTimeString(),
+            // ]);
 
             $updated++;
         }
