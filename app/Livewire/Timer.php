@@ -164,76 +164,87 @@ class Timer extends Component
 
     public function startTimer()
     {
-
+        // Validasi lokasi/IP
         if (!$this->validasiLokasiAtauIp()) return;
 
+        // Cegah double start
+        if ($this->isRunning) return;
 
-        if (!$this->isRunning) {
-            $this->isRunning = true;
-            $currentTime = now()->setTimezone('Asia/Jakarta');
-            $this->timeIn = $currentTime->timestamp;
-            // dd($this->jadwal_id);
-            $jadwal = JadwalAbsensi::find($this->jadwal_id);
-            if (!$jadwal) {
-                $this->dispatch('alert-error', message: 'Jadwal tidak ditemukan.');
-                return;
-            }
+        $this->isRunning = true;
+        $currentTime = now()->setTimezone('Asia/Jakarta');
+        $this->timeIn = $currentTime->timestamp;
 
-            $shift = Shift::find($jadwal->shift_id);
-            if (!$shift) {
-                $this->dispatch('alert-error', message: 'Shift tidak ditemukan.');
-                return;
-            }
-
-            $startShift = Carbon::parse($shift->jam_masuk, 'Asia/Jakarta');
-
-            // ✅ Perbaikan: Gunakan copy() agar objek $startShift tidak berubah
-            $startToleransi = $startShift->copy()->subMinutes(15);
-
-            $canStart = $currentTime->greaterThanOrEqualTo($startToleransi);
-
-            if (!$canStart) {
-                $this->dispatch('alert-error', message: 'Anda hanya bisa memulai timer 15 menit sebelum waktu shift dimulai.');
-                $this->isRunning = false;
-                return;
-            }
-
-            $toleransi = 15;
-            $batasTerlambat = $startShift->copy()->addMinutes($toleransi);
-
-            // Perbaikan logika di sini
-            $this->late = $currentTime->greaterThan($batasTerlambat);
-
-            if ($this->late) {
-                $selisih = $currentTime->diffInSeconds($batasTerlambat);
-                $this->keterangan = "Terlambat " . gmdate('H:i:s', $selisih);
-            } else {
-                $this->keterangan = "Masuk tepat waktu";
-            }
-
-
-            Absen::updateOrCreate(
-                [
-                    'jadwal_id' => $this->jadwal_id,
-                    'user_id' => Auth::id(),
-                ],
-                [
-                    'time_in' => $this->timeIn,
-                    'deskripsi_in' => $this->deskripsi_in,
-                    'late' => $this->late,
-                    'keterangan' => $this->keterangan,
-                    'present' => 1,
-                    'status_absen_id' => $this->late ? 2 : 1
-                ]
-            );
-
-            $this->dispatch('timer-started', now()->timestamp);
-            $this->showStartModal = false;
-            return $this->routeIsDashboard
-                ? redirect()->route('dashboard') // Jika diakses dari dashboard
-                : redirect()->to('/timer'); // Jika diakses dari route lain
+        // Ambil data jadwal
+        $jadwal = JadwalAbsensi::find($this->jadwal_id);
+        if (!$jadwal) {
+            return $this->sendError('Jadwal tidak ditemukan.');
         }
+
+        // Ambil data shift
+        $shift = Shift::find($jadwal->shift_id);
+        if (!$shift) {
+            return $this->sendError('Shift tidak ditemukan.');
+        }
+
+        // Hitung jam mulai dan jam selesai shift
+        $startShift = Carbon::parse($shift->jam_masuk, 'Asia/Jakarta');
+        $endShift   = Carbon::parse($shift->jam_keluar, 'Asia/Jakarta');
+
+        // FIX BUG SHIFT MALAM: Jika jam keluar lebih kecil dari jam masuk, berarti shift melewati tengah malam
+        if ($endShift->lessThan($startShift)) {
+            $endShift->addDay();
+        }
+
+        // Hitung batas mulai & toleransi
+        $startToleransi = $startShift->copy()->subMinutes(15);
+        $batasTerlambat = $startShift->copy()->addMinutes(15);
+
+        // Cek apakah sudah boleh mulai
+        if ($currentTime->lt($startToleransi)) {
+            return $this->sendError('Anda hanya bisa memulai timer 15 menit sebelum waktu shift dimulai.');
+        }
+
+        // Cek keterlambatan
+        $this->late = $currentTime->gt($batasTerlambat);
+        $this->keterangan = $this->late
+            ? "Terlambat " . gmdate('H:i:s', $currentTime->diffInSeconds($batasTerlambat))
+            : "Masuk tepat waktu";
+
+        // Simpan atau update absen
+        Absen::updateOrCreate(
+            [
+                'jadwal_id' => $this->jadwal_id,
+                'user_id'   => Auth::id(),
+            ],
+            [
+                'time_in'         => $this->timeIn,
+                'deskripsi_in'    => $this->deskripsi_in,
+                'late'            => $this->late,
+                'keterangan'      => $this->keterangan,
+                'present'         => 1,
+                'status_absen_id' => $this->late ? 2 : 1
+            ]
+        );
+
+        // Dispatch event & redirect
+        $this->dispatch('timer-started', now()->timestamp);
+        $this->showStartModal = false;
+
+        return $this->routeIsDashboard
+            ? redirect()->route('dashboard')
+            : redirect()->to('/timer');
     }
+
+    /**
+     * Helper untuk kirim error & reset status
+     */
+    private function sendError(string $message)
+    {
+        $this->dispatch('alert-error', message: $message);
+        $this->isRunning = false;
+        return null;
+    }
+
 
     public function openWorkReportModal()
     {

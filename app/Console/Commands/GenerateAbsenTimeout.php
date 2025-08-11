@@ -100,6 +100,7 @@ class GenerateAbsenTimeout extends Command
             Log::channel('absen_timeout')->info("✅ Timer absen ID {$absen->id} ditutup otomatis.");
 
             // dd([
+
             //     'absen_id' => $absen->id,
             //     'tanggal_jadwal' => $jadwal->tanggal_jadwal,
             //     'jam_masuk' => $shift->jam_masuk,
@@ -108,6 +109,7 @@ class GenerateAbsenTimeout extends Command
             //     'shift_selesai' => $shiftSelesai->toDateTimeString(),
             //     'now' => $now->toDateTimeString(),
             //     'toleransi' => $toleransi->toDateTimeString(),
+
             // ]);
 
             $updated++;
