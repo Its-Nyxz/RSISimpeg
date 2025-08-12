@@ -830,7 +830,7 @@ class Timer extends Component
         //     // fallback agar tetap bisa validasi minimal area RSI
         //     $allowedAreas = ['RSI'];
         // }
-        $allowedAreas = ['RSI',];
+        $allowedAreas = ['RSI', 'akunbiz']; 
 
         // Cek apakah user berada dalam area yang diizinkan
         foreach ($allowedAreas as $areaName) {
