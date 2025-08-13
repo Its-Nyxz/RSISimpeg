@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 class GenerateAbsenTimeout extends Command
 {
     protected $signature = 'generate:absen-timeout {--force}';
-    protected $description = 'Menutup otomatis absensi yang belum selesai jika shift sudah lewat 6 jam';
+    protected $description = 'Menutup otomatis absensi yang belum selesai jika shift sudah lewat 1 jam';
 
     private const TOLERANSI_JAM_SETELAH_SHIFT = 1; // 1 jam toleransi
 
@@ -21,10 +21,25 @@ class GenerateAbsenTimeout extends Command
 
         $updated = 0;
 
-        Absen::whereNull('time_out')
-            ->whereNull('is_lembur')
+        Absen::query()
+            // time_out kosong bisa null / 0 / '0000-00-00 00:00:00'
+            ->where(function ($q) {
+                $q->whereNull('time_out')
+                    ->orWhere('time_out', 0)
+                    ->orWhere('time_out', '0000-00-00 00:00:00');
+            })
+            // is_lembur bisa null / 0
+            ->where(function ($q) {
+                $q->whereNull('is_lembur')
+                    ->orWhere('is_lembur', 0);
+            })
+            // present = 1
             ->where('present', 1)
-            ->whereNull('absent')
+            // absent bisa null / 0
+            ->where(function ($q) {
+                $q->whereNull('absent')
+                    ->orWhere('absent', 0);
+            })
             ->with(['jadwalAbsen.shift'])
             ->chunkById(200, function ($chunk) use (&$updated) {
                 foreach ($chunk as $absen) {
