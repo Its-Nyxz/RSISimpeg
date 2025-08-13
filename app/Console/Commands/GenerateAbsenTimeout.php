@@ -20,88 +20,73 @@ class GenerateAbsenTimeout extends Command
         Log::info("⏳ Mengecek absensi tanpa time_out...");
 
         $updated = 0;
+        $zone = 'Asia/Jakarta';
 
         Absen::query()
-            // time_out kosong bisa null / 0 / '0000-00-00 00:00:00'
             ->where(function ($q) {
                 $q->whereNull('time_out')
                     ->orWhere('time_out', 0)
-                    ->orWhere('time_out', '0000-00-00 00:00:00');
+                    ->orWhere('time_out', '0000-00-00 00:00:00'); // kalau kolom integer, baris ini tidak akan match — tidak masalah
             })
-            // is_lembur bisa null / 0
             ->where(function ($q) {
-                $q->whereNull('is_lembur')
-                    ->orWhere('is_lembur', 0);
+                $q->whereNull('is_lembur')->orWhere('is_lembur', 0);
             })
-            // present = 1
             ->where('present', 1)
-            // absent bisa null / 0
             ->where(function ($q) {
-                $q->whereNull('absent')
-                    ->orWhere('absent', 0);
+                $q->whereNull('absent')->orWhere('absent', 0);
             })
             ->with(['jadwalAbsen.shift'])
-            ->chunkById(200, function ($chunk) use (&$updated) {
+            // kalau PK bukan 'id' atau bukan auto increment, ganti ke ->chunk(200)
+            ->chunkById(200, function ($chunk) use (&$updated, $zone) {
                 foreach ($chunk as $absen) {
                     $jadwal = $absen->jadwalAbsen;
                     $shift  = $jadwal?->shift;
 
                     if (!$jadwal || !$shift) {
                         $msg = "❌ Absen ID {$absen->id} tidak memiliki jadwal atau shift.";
-                        $this->warn($msg);
                         Log::warning($msg);
                         continue;
                     }
 
-                    // Gabungkan tanggal_jadwal dengan jam shift
-                    $tanggal    = Carbon::parse($jadwal->tanggal_jadwal)->startOfDay();
-                    $jamMasuk   = Carbon::parse($tanggal->toDateString() . ' ' . $shift->jam_masuk);
-                    $jamKeluar  = Carbon::parse($tanggal->toDateString() . ' ' . $shift->jam_keluar);
+                    // Bangun datetime dengan zona WIB agar konsisten
+                    $tanggal   = Carbon::parse($jadwal->tanggal_jadwal, $zone)->startOfDay();
+                    $jamMasuk  = Carbon::parse($tanggal->toDateString() . ' ' . $shift->jam_masuk, $zone);
+                    $jamKeluar = Carbon::parse($tanggal->toDateString() . ' ' . $shift->jam_keluar, $zone);
 
-                    // Handle shift malam (jam keluar < jam masuk)
+                    // Shift malam
                     $isShiftMalam = $jamKeluar->lt($jamMasuk);
                     if ($isShiftMalam) {
                         $jamKeluar->addDay();
                     }
 
-                    $shiftSelesai = $jamKeluar;
-                    $toleransi    = $shiftSelesai->copy()->addHour();
-                    $now          = now();
+                    $shiftSelesai = $jamKeluar->copy();
+                    $toleransi    = $shiftSelesai->copy()->addHours(self::TOLERANSI_JAM_SETELAH_SHIFT);
+                    $now          = now($zone);
 
-                    // Skip jika masih dalam toleransi dan bukan --force
+                    // Masih dalam toleransi? skip (kecuali --force)
                     if ($now->lte($toleransi) && !$this->option('force')) {
-                        $msg = "⏸️  Absen ID {$absen->id} masih dalam toleransi (<= 1 jam setelah shift).";
-                        $this->line($msg);
-                        Log::info($msg);
+                        Log::info("⏸️ Absen {$absen->id} masih toleransi s/d {$toleransi->toDateTimeString()} WIB");
                         continue;
                     }
 
-                    // Keterangan baru
-                    $keteranganLama = $absen->keterangan;
-                    $keteranganBaru = 'Timer otomatis ditutup oleh sistem (shift melebihi 1 jam)';
-
-                    // Update data absen
-                    $absen->time_out      = $shiftSelesai->timestamp; // Simpan epoch
-                    $absen->keterangan    = $keteranganLama
-                        ? $keteranganLama . ' , ' . $keteranganBaru
-                        : $keteranganBaru;
+                    // SIMPAN EPOCH (integer)
+                    $absen->time_out      = $shiftSelesai->timestamp; // <— epoch
+                    $absen->keterangan    = $absen->keterangan
+                        ? $absen->keterangan . ' , Timer otomatis ditutup oleh sistem (shift melebihi 1 jam)'
+                        : 'Timer otomatis ditutup oleh sistem (shift melebihi 1 jam)';
                     $absen->deskripsi_out = 'Timer otomatis ditutup oleh sistem';
                     $absen->save();
 
-                    // Logging detail
-                    Log::debug("▶️ DEBUG Absen ID {$absen->id}", [
+                    Log::debug("▶️ DEBUG Absen {$absen->id}", [
                         'tanggal_jadwal' => $jadwal->tanggal_jadwal,
                         'jam_masuk'      => $shift->jam_masuk,
                         'jam_keluar'     => $shift->jam_keluar,
-                        'is_shift_malam' => $isShiftMalam ? 'Ya' : 'Tidak',
-                        'shift_selesai'  => $shiftSelesai->toDateTimeString(),
-                        'now'            => $now->toDateTimeString(),
-                        'toleransi'      => $toleransi->toDateTimeString(),
+                        'is_shift_malam' => $isShiftMalam,
+                        'shift_selesai'  => $shiftSelesai->toDateTimeString() . ' WIB',
+                        'toleransi'      => $toleransi->toDateTimeString() . ' WIB',
+                        'now'            => $now->toDateTimeString() . ' WIB',
                         'time_out_epoch' => $absen->time_out,
                     ]);
-
-                    $this->info("✅ Timer absen ID {$absen->id} ditutup otomatis.");
-                    Log::info("✅ Timer absen ID {$absen->id} ditutup otomatis.");
 
                     $updated++;
                 }
