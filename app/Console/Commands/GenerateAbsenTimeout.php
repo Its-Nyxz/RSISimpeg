@@ -47,7 +47,7 @@ class GenerateAbsenTimeout extends Command
                 'is_lembur',
                 'present',
                 'absent',
-                'jadwal_absen_id'
+                'jadwal_id'
             ])
             ->whereNull('time_out')                         // belum checkout
             ->where(function ($q) {                         // sudah checkin (support int/datetime/string)
