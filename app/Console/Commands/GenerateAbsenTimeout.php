@@ -9,36 +9,54 @@ use Illuminate\Support\Facades\Log;
 
 class GenerateAbsenTimeout extends Command
 {
-    protected $signature = 'generate:absen-timeout {--force}';
-    protected $description = 'Menutup otomatis absensi yang belum selesai jika shift sudah lewat 1 jam';
-
-    private const TOLERANSI_JAM_SETELAH_SHIFT = 1; // 1 jam toleransi
+    protected $signature = 'generate:absen-timeout 
+                            {--force : Paksa tutup tanpa menunggu toleransi}
+                            {--tolerance=1 : Toleransi jam setelah jam keluar}';
+    protected $description = 'Menutup otomatis absensi yang belum selesai jika shift sudah lewat toleransi jam setelah jam keluar';
 
     public function handle()
     {
-        $this->info("⏳ Mengecek absensi tanpa time_out...");
-        Log::info("⏳ Mengecek absensi tanpa time_out...");
+        $zone         = 'Asia/Jakarta';
+        $toleranceHrs = (int) $this->option('tolerance') ?: 1;
+
+        $this->info("⏳ Mengecek absensi tanpa time_out (toleransi: {$toleranceHrs} jam)...");
+        Log::info("⏳ Mengecek absensi tanpa time_out...", ['tolerance_hours' => $toleranceHrs]);
 
         $updated = 0;
-        $zone    = 'Asia/Jakarta';
 
-        // wadah kegagalan: alasan => list detail
+        // metrik & kegagalan
+        $skippedToleransi = 0;
         $fails = [
             'missing_jadwal' => [],
             'missing_shift'  => [],
+            'empty_time'     => [], // jam masuk/keluar kosong
             'parse_error'    => [],
-            'invalid_data'   => [], // mis. jam kosong / null / format aneh
+            'save_error'     => [],
         ];
 
-        // helper utk mencatat gagal
+        // helper fail recorder
         $fail = function (string $reason, Absen $absen, array $extra = []) use (&$fails) {
-            $fails[$reason][] = array_merge([
-                'id' => $absen->id,
-            ], $extra);
+            $fails[$reason][] = array_merge(['id' => $absen->id], $extra);
         };
 
         Absen::query()
-            ->whereNull('time_out')
+            ->select([
+                'id',
+                'time_in',
+                'time_out',
+                'is_lembur',
+                'present',
+                'absent',
+                'jadwal_absen_id'
+            ])
+            ->whereNull('time_out')                         // belum checkout
+            ->where(function ($q) {                         // sudah checkin (support int/datetime/string)
+                $q->whereNotNull('time_in')
+                    ->where(function ($qq) {
+                        $qq->where('time_in', '!=', 0)
+                            ->orWhereRaw("CAST(time_in AS CHAR) <> ''");
+                    });
+            })
             ->where(function ($q) {
                 $q->whereNull('is_lembur')->orWhere('is_lembur', 0);
             })
@@ -46,10 +64,10 @@ class GenerateAbsenTimeout extends Command
             ->where(function ($q) {
                 $q->whereNull('absent')->orWhere('absent', 0);
             })
-            ->with(['jadwalAbsen.shift'])
-            ->chunkById(200, function ($chunk) use (&$updated, $zone, &$fails, $fail) {
-                foreach ($chunk as $absen) {
+            ->with(['jadwalAbsen:id,tanggal_jadwal,shift_id', 'jadwalAbsen.shift:id,jam_masuk,jam_keluar'])
+            ->chunkById(200, function ($chunk) use (&$updated, $zone, $toleranceHrs, $fail, &$fails, &$skippedToleransi) {
 
+                foreach ($chunk as $absen) {
                     $jadwal = $absen->jadwalAbsen;
                     if (!$jadwal) {
                         Log::warning("❌ Absen {$absen->id} tidak memiliki jadwal.");
@@ -60,25 +78,21 @@ class GenerateAbsenTimeout extends Command
                     $shift = $jadwal->shift;
                     if (!$shift) {
                         Log::warning("❌ Absen {$absen->id} tidak memiliki shift.");
-                        $fail('missing_shift', $absen, [
-                            'tanggal_jadwal' => $jadwal->tanggal_jadwal,
-                        ]);
+                        $fail('missing_shift', $absen, ['tanggal_jadwal' => $jadwal->tanggal_jadwal]);
                         continue;
                     }
 
+                    // --- parse jam masuk/keluar ---
                     $tanggal = Carbon::parse($jadwal->tanggal_jadwal, $zone)->startOfDay();
-
-                    // raw string untuk logging
-                    $jmRaw = trim((string) $shift->jam_masuk);
-                    $jkRaw = trim((string) $shift->jam_keluar);
+                    $jmRaw   = trim((string) $shift->jam_masuk);
+                    $jkRaw   = trim((string) $shift->jam_keluar);
 
                     if ($jmRaw === '' || $jkRaw === '') {
                         Log::warning("⛔ Jam masuk/keluar kosong untuk absen {$absen->id}");
-                        $fail('invalid_data', $absen, [
+                        $fail('empty_time', $absen, [
                             'tanggal_jadwal' => $jadwal->tanggal_jadwal,
                             'jam_masuk'      => $jmRaw,
                             'jam_keluar'     => $jkRaw,
-                            'alasan'         => 'empty_time',
                         ]);
                         continue;
                     }
@@ -87,18 +101,9 @@ class GenerateAbsenTimeout extends Command
                     $jkStr = $tanggal->toDateString() . ' ' . $jkRaw;
 
                     try {
-                        $jm = Carbon::hasFormat($jmStr, 'Y-m-d H:i:s')
-                            ? Carbon::createFromFormat('Y-m-d H:i:s', $jmStr, $zone)
-                            : Carbon::createFromFormat('Y-m-d H:i',    $jmStr, $zone);
-
-                        $jk = Carbon::hasFormat($jkStr, 'Y-m-d H:i:s')
-                            ? Carbon::createFromFormat('Y-m-d H:i:s', $jkStr, $zone)
-                            : Carbon::createFromFormat('Y-m-d H:i',    $jkStr, $zone);
+                        [$jm, $jk, $isShiftMalam] = $this->parseShiftTimes($jmStr, $jkStr, $zone);
                     } catch (\Throwable $e) {
-                        Log::warning("⛔ Gagal parse jam absen {$absen->id}: {$e->getMessage()}", [
-                            'jm_str' => $jmStr,
-                            'jk_str' => $jkStr,
-                        ]);
+                        Log::warning("⛔ Gagal parse jam absen {$absen->id}: {$e->getMessage()}", ['jm_str' => $jmStr, 'jk_str' => $jkStr]);
                         $fail('parse_error', $absen, [
                             'tanggal_jadwal' => $jadwal->tanggal_jadwal,
                             'jam_masuk_raw'  => $jmStr,
@@ -108,70 +113,88 @@ class GenerateAbsenTimeout extends Command
                         continue;
                     }
 
-                    // Deteksi shift malam (keluar < masuk)
-                    $isShiftMalam = $jk->lt($jm);
-                    if ($isShiftMalam) {
-                        $jk->addDay();
-                    }
-                    Log::debug("Shift malam? " . ($isShiftMalam ? 'YA' : 'TIDAK'), [
-                        'jm' => $jm->toDateTimeString() . ' WIB',
-                        'jk' => $jk->toDateTimeString() . ' WIB',
-                    ]);
-
+                    // hitung selesai & toleransi
                     $shiftSelesai = $jk->copy();
-                    $toleransi    = $shiftSelesai->copy()->addHours(self::TOLERANSI_JAM_SETELAH_SHIFT);
+                    $toleransi    = $shiftSelesai->copy()->addHours($toleranceHrs);
                     $now          = now($zone);
 
-                    // Toleransi: malam & siang
-                    if ($isShiftMalam) {
-                        if ($now->lt($toleransi) && !request()->boolean('force', false) && !$this->option('force')) {
-                            Log::info("⏸️ Shift malam Absen {$absen->id} masih toleransi s/d {$toleransi->toDateTimeString()} WIB");
-                            continue;
-                        }
-                    } else {
-                        if ($now->lte($toleransi) && !$this->option('force')) {
-                            Log::info("⏸️ Absen {$absen->id} masih toleransi s/d {$toleransi->toDateTimeString()} WIB");
-                            continue;
-                        }
+                    // hormati toleransi (shift malam & siang)
+                    $shouldSkip =
+                        $isShiftMalam ? $now->lt($toleransi) : $now->lte($toleransi);
+
+                    if ($shouldSkip && !$this->option('force')) {
+                        $skippedToleransi++;
+                        Log::info(($isShiftMalam ? "⏸️ Shift malam" : "⏸️")
+                            . " Absen {$absen->id} masih toleransi s/d {$toleransi->toDateTimeString()} WIB");
+                        continue;
                     }
 
-                    Log::info("Check Absen {$absen->id}: selesai={$shiftSelesai->toDateTimeString()} toleransi={$toleransi->toDateTimeString()} now={$now->toDateTimeString()}");
+                    Log::info("✔️ Close Absen {$absen->id}", [
+                        'shift_selesai' => $shiftSelesai->toDateTimeString() . ' WIB',
+                        'toleransi'     => $toleransi->toDateTimeString() . ' WIB',
+                        'now'           => $now->toDateTimeString() . ' WIB',
+                        'malam'         => $isShiftMalam,
+                    ]);
 
-                    // Simpan epoch
-                    $absen->time_out      = $shiftSelesai->timestamp;
-                    $absen->keterangan    = $absen->keterangan
-                        ? $absen->keterangan . ' , Timer otomatis ditutup oleh sistem (shift melebihi 1 jam)'
-                        : 'Timer otomatis ditutup oleh sistem (shift melebihi 1 jam)';
-                    $absen->deskripsi_out = 'Timer otomatis ditutup oleh sistem';
-                    $absen->save();
-
-                    $updated++;
+                    // simpan epoch
+                    try {
+                        $absen->time_out      = $shiftSelesai->timestamp;
+                        $absen->keterangan    = $absen->keterangan
+                            ? $absen->keterangan . ' , Timer otomatis ditutup oleh sistem (shift melebihi ' . $toleranceHrs . ' jam)'
+                            : 'Timer otomatis ditutup oleh sistem (shift melebihi ' . $toleranceHrs . ' jam)';
+                        $absen->deskripsi_out = 'Timer otomatis ditutup oleh sistem';
+                        $absen->save();
+                        $updated++;
+                    } catch (\Throwable $e) {
+                        Log::error("💥 Gagal menyimpan Absen {$absen->id}: {$e->getMessage()}");
+                        $fail('save_error', $absen, ['error' => $e->getMessage()]);
+                        continue;
+                    }
                 }
             });
 
-        // Ringkasan
+        // --- ringkasan ---
         $this->info("🏁 Selesai. Total diperbarui: {$updated}");
-        Log::info("🏁 Selesai. Total diperbarui: {$updated}");
-
-        // Rekap gagal per alasan
         $counts = array_map(fn($arr) => count($arr), $fails);
         $totalGagal = array_sum($counts);
+
+        $this->line("ℹ️  Di-skip karena toleransi: {$skippedToleransi}");
+        Log::info("ℹ️ Skip toleransi", ['count' => $skippedToleransi]);
 
         if ($totalGagal > 0) {
             $this->warn("⚠️ Gagal diproses total: {$totalGagal}  " .
                 "(missing_jadwal: {$counts['missing_jadwal']}, " .
                 "missing_shift: {$counts['missing_shift']}, " .
+                "empty_time: {$counts['empty_time']}, " .
                 "parse_error: {$counts['parse_error']}, " .
-                "invalid_data: {$counts['invalid_data']})");
+                "save_error: {$counts['save_error']})");
 
-            // Log ringkas (IDs) per alasan
             foreach ($fails as $reason => $items) {
                 $ids = array_column($items, 'id');
                 Log::warning("⚠️ Gagal ({$reason}) count=" . count($items), ['ids' => $ids]);
             }
-
-            // Log detail lengkap (payload besar sekali saja)
             Log::warning("⚠️ Detail gagal proses absen", ['fails' => $fails]);
         }
+    }
+
+    /**
+     * Parse jam masuk/keluar menjadi Carbon dengan zona waktu konsisten.
+     * Mengembalikan [Carbon $jm, Carbon $jk, bool $isShiftMalam] (jk ditambah 1 hari jika malam).
+     */
+    private function parseShiftTimes(string $jmStr, string $jkStr, string $zone): array
+    {
+        $jm = Carbon::hasFormat($jmStr, 'Y-m-d H:i:s')
+            ? Carbon::createFromFormat('Y-m-d H:i:s', $jmStr, $zone)
+            : Carbon::createFromFormat('Y-m-d H:i',    $jmStr, $zone);
+
+        $jk = Carbon::hasFormat($jkStr, 'Y-m-d H:i:s')
+            ? Carbon::createFromFormat('Y-m-d H:i:s', $jkStr, $zone)
+            : Carbon::createFromFormat('Y-m-d H:i',    $jkStr, $zone);
+
+        $isShiftMalam = $jk->lt($jm);
+        if ($isShiftMalam) {
+            $jk->addDay();
+        }
+        return [$jm, $jk, $isShiftMalam];
     }
 }
