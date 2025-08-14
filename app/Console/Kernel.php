@@ -41,11 +41,11 @@ class Kernel extends ConsoleKernel
             ->dailyAt('00:30')
             ->timezone('Asia/Jakarta');
 
-        $schedule->command('generate:absen-timeout')
-            ->everyFiveMinutes()
-            ->withoutOverlapping(10) // biar lock auto-lepas
-            ->timezone('Asia/Jakarta')
-            ->appendOutputTo(storage_path('logs/absen-timeout.log'));
+        // $schedule->command('generate:absen-timeout')
+        //     ->everyFiveMinutes()
+        //     ->withoutOverlapping(10) // biar lock auto-lepas
+        //     ->timezone('Asia/Jakarta')
+        //     ->appendOutputTo(storage_path('logs/absen-timeout.log'));
     }
 
     /**
