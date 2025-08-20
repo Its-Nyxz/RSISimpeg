@@ -75,7 +75,10 @@
                 <div class="bg-white p-6 rounded-md w-96">
                     <h2 class="text-xl font-bold mb-4">Mulai Timer</h2>
                     <textarea wire:model.defer="deskripsi_in" class="w-full p-2 border rounded-md"
-                        placeholder="Masukkan deskripsi pekerjaan..."></textarea>
+                        placeholder="Masukkan deskripsi pekerjaan..." required></textarea>
+                    @error('deskripsi_in')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                     <div class="mt-4 flex justify-end gap-2">
                         <button wire:click="$set('showStartModal', false)"
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
@@ -96,7 +99,10 @@
                 <div class="bg-white p-6 rounded-md w-96">
                     <h2 class="text-xl font-bold mb-4">Selesai Timer</h2>
                     <textarea wire:model.defer="deskripsi_out" class="w-full p-2 border rounded-md"
-                        placeholder="Masukkan hasil pekerjaan..."></textarea>
+                        placeholder="Masukkan hasil pekerjaan..." required></textarea>
+                    @error('deskripsi_out')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                     <div class="mt-4 flex justify-end gap-2">
                         <button wire:click="$set('showStopModal', false)"
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>

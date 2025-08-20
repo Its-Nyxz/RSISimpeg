@@ -57,6 +57,17 @@ class PengajuanForm extends Component
         }
     }
 
+    private function cekMasaKerjaBolehCuti($user)
+    {
+        // Kalau data masa_kerja kosong/null, default dianggap belum boleh cuti
+        if (!$user->masa_kerja) {
+            return false;
+        }
+
+        // Langsung cek nilainya
+        return $user->masa_kerja >= 12;
+    }
+
     // ✅ Jika jenis cuti dipilih, ambil durasi default dan hitung tanggal selesai
     public function updatedJenisCutiId()
     {
@@ -113,9 +124,26 @@ class PengajuanForm extends Component
 
     public function save()
     {
+        $user = auth()->user();
         $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
         $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)->get();
         if ($this->tipe === 'cuti') {
+
+            // Logika validasi untuk cuti
+            $cekCutiSama = CutiKaryawan::where('user_id', auth()->id())
+                ->where('tanggal_mulai', $this->tanggal_mulai)
+                ->exists();
+
+            if ($user->jenis_id === 3 && !$this->cekMasaKerjaBolehCuti($user)) {
+                $this->dispatch('swal:modal', icon: 'error', title: 'Pengajuan Ditolak', text: 'Karyawan kontrak dengan masa kerja kurang dari 12 bulan belum berhak mengajukan cuti.');
+                return;
+            }
+
+            if ($cekCutiSama) {
+                // ✅ Kirim event SweetAlert dengan data yang terstruktur
+                $this->dispatch('swal:modal', icon: 'error', title: 'Pengajuan Gagal', text: 'Anda sudah mengajukan cuti dengan tanggal mulai yang sama.');
+                return;
+            }
             // ✅ Validasi untuk cuti
             $this->validate([
                 'jenis_cuti_id' => 'required|exists:jenis_cutis,id',
@@ -195,7 +223,7 @@ class PengajuanForm extends Component
                 '</span> ' .
                 ($jenis_izin ? $jenis_izin->nama_izin : 'Tidak Diketahui') .
                 ' dengan keterangan ' . $this->keterangan . ' membutuhkan persetujuan Anda.';
-            
+
 
             $url = "/approvalizin";
             if ($nextUser) {

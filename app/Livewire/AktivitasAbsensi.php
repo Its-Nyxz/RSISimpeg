@@ -11,7 +11,9 @@ use App\Models\Holidays;
 use Illuminate\Support\Str;
 use App\Models\JadwalAbsensi;
 use App\Exports\AbsensiExport;
+use App\Models\UnitKerja;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Unit;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -25,8 +27,25 @@ class AktivitasAbsensi extends Component
     public $selectedUserId;
     public $subordinates;
 
+    public $selectedUnitId;
+
+    public $units = [];
+
+    public $canAccessAllUnits = false;
+
     public function mount()
     {
+        // Cek apakah user bisa akses semua unit
+        $this->checkAccessAllUnits();
+
+        // Load units berdasarkan akses
+        $this->loadUnits();
+
+        // Set default unit
+        $this->selectedUnitId = auth()->user()->unit_id;
+
+        $this->loadSubordinates();
+
         // Default ke bulan dan tahun saat ini
         $this->month = now()->month;
         $this->year = now()->year;
@@ -34,21 +53,19 @@ class AktivitasAbsensi extends Component
         $this->isParent = User::where('unit_id', auth()->user()->unit_id)
             ->where('id', '!=', auth()->id())
             ->exists();
+
         $isKepala = collect(Auth::user()->roles()->pluck('name'))->filter(function ($name) {
             return str_starts_with($name, 'Kepala') ||
                 str_starts_with($name, 'Super') ||
                 str_starts_with($name, 'Administrator');
         })->count();
-        // dd($isKepala);
 
         if ($isKepala) {
-            // Jika user adalah parent, ambil daftar user bawahannya berdasarkan unit_id
-            $this->subordinates = User::where('unit_id', auth()->user()->unit_id)
-                ->pluck('name', 'id');
-            // Default pilih user pertama jika ada
-            $this->selectedUserId = $this->subordinates->keys()->first();
+            $this->subordinates = User::where('unit_id', $this->selectedUnitId)
+                ->pluck('name', 'id')
+                ->toArray();
+            $this->selectedUserId = !empty($this->subordinates) ? array_key_first($this->subordinates) : auth()->id();
         } else {
-            // Jika bukan parent, gunakan ID user yang login
             $this->selectedUserId = auth()->id();
         }
         $this->loadData();
@@ -352,5 +369,71 @@ class AktivitasAbsensi extends Component
             'bulanOptions' => range(1, 12),
             'tahunOptions' => range(now()->year - 5, now()->year)
         ]);
+    }
+
+    private function checkAccessAllUnits()
+    {
+        $userRoles = collect(Auth::user()->roles()->pluck('name'));
+
+        // Cek apakah user adalah SuperAdmin atau dari Unit Kepegawaian
+        $isSuperAdmin = $userRoles->contains(function ($name) {
+            return str_contains($name, 'Super') || str_contains($name, 'Administrator');
+        });
+
+        // Cek apakah user dari unit kepegawaian (sesuaikan dengan nama unit di database Anda)
+        $isHRUnit = auth()->user()->unitKerja &&
+            (str_contains(strtolower(auth()->user()->unitKerja->nama), 'kepegawaian') ||
+                str_contains(strtolower(auth()->user()->unitKerja->nama), 'hrd') ||
+                str_contains(strtolower(auth()->user()->unitKerja->nama), 'hr'));
+
+        $this->canAccessAllUnits = $isSuperAdmin || $isHRUnit;
+    }
+
+    private function loadUnits()
+    {
+        if ($this->canAccessAllUnits) {
+            // Jika bisa akses semua unit, load semua
+            $this->units = UnitKerja::pluck('nama', 'id')->toArray();
+        } else {
+            // Jika tidak, hanya unit sendiri
+            $this->units = UnitKerja::where('id', auth()->user()->unit_id)
+                ->pluck('nama', 'id')
+                ->toArray();
+        }
+    }
+
+    public function updatedSelectedUnitId($unitId)
+    {
+        // Validasi akses unit
+        if (!$this->canAccessAllUnits && $unitId != auth()->user()->unit_id) {
+            // Jika user tidak punya akses dan mencoba akses unit lain, kembalikan ke unit sendiri
+            $this->selectedUnitId = auth()->user()->unit_id;
+            return;
+        }
+
+        $this->loadSubordinates();
+        $this->selectedUserId = !empty($this->subordinates) ? array_key_first($this->subordinates) : auth()->id();
+        $this->loadData();
+    }
+
+    public function updatedSelectedUserId($userId)
+    {
+        $this->loadData(); // refresh tabel saat pegawai berubah
+    }
+
+
+    public function loadSubordinates()
+    {
+        if ($this->canAccessAllUnits) {
+            // Jika bisa akses semua unit, ambil user dari unit yang dipilih
+            $this->subordinates = User::where('unit_id', $this->selectedUnitId)
+                ->pluck('name', 'id')
+                ->toArray();
+        } else {
+            // Jika tidak, hanya dari unit sendiri
+            $this->subordinates = User::where('unit_id', auth()->user()->unit_id)
+                ->pluck('name', 'id')
+                ->toArray();
+        }
     }
 }

@@ -191,6 +191,7 @@ class GenerateAbsenTimeout extends Command
             ? Carbon::createFromFormat('Y-m-d H:i:s', $jkStr, $zone)
             : Carbon::createFromFormat('Y-m-d H:i',    $jkStr, $zone);
 
+
         $isShiftMalam = $jk->lt($jm);
         if ($isShiftMalam) {
             $jk->addDay();

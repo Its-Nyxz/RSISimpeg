@@ -137,4 +137,25 @@
             </button>
         </div>
     </x-card>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.addEventListener('livewire:initialized', () => {
+            // ✅ Ubah cara event diterima
+            Livewire.on('swal:modal', (data) => {
+                Swal.fire({
+                    icon: data.icon,
+                    title: data.title,
+                    text: data.text,
+                    showConfirmButton: data.icon === 'success' ? false : true,
+                    timer: data.icon === 'success' ? 1500 : null,
+                }).then(() => {
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    }
+                });
+            });
+        });
+    </script>
 </div>

@@ -12,6 +12,9 @@ class DataJabatanPerizinan extends Component
     public $jabatanNama;
     public $jabatanperizinan;
     public $search = '';
+    public $newJabatanNama;
+
+    public $swalData = null;
 
     public function mount()
     {
@@ -31,6 +34,46 @@ class DataJabatanPerizinan extends Component
     {
         $this->search = $value;
         $this->loadData();
+    }
+
+    public function openCreateModal()
+    {
+        $this->dispatch('open-modal', 'create-modal');
+    }
+
+    public function storeJabatan()
+    {
+        if (!$this->newJabatanNama) {
+            $this->swalData = [
+                'icon' => 'error',
+                'title' => 'Gagal!',
+                'text' => 'Nama Hak Akses tidak boleh kosong.',
+                'timer' => 2000
+            ];
+            return;
+        }
+
+        if (Role::where('name', $this->newJabatanNama)->exists()) {
+            $this->swalData = [
+                'icon' => 'error',
+                'title' => 'Gagal!',
+                'text' => 'Hak Akses dengan nama ini sudah ada.',
+                'timer' => 2000
+            ];
+            return;
+        }
+
+        Role::create(['name' => $this->newJabatanNama]);
+        $this->newJabatanNama = '';
+        $this->loadData();
+        $this->dispatch('close-modal', 'create-modal');
+
+        $this->swalData = [
+            'icon' => 'success',
+            'title' => 'Berhasil!',
+            'text' => 'Hak Akses berhasil dibuat.',
+            'timer' => 2000
+        ];
     }
 
     public function editJabatan($id)
