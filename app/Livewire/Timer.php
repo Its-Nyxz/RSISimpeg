@@ -45,6 +45,18 @@ class Timer extends Component
 
     public $akanKembali = false;
 
+    protected $rules = [
+        'deskripsi_in' => 'required|min:5',
+        'deskripsi_out' => 'required|min:5',
+    ];
+
+    protected $messages = [
+        'deskripsi_in.required' => 'Deskripsi pekerjaan harus diisi!',
+        'deskripsi_in.min' => 'Deskripsi pekerjaan minimal harus :min karakter.',
+        'deskripsi_out.required' => 'Hasil pekerjaan harus diisi!',
+        'deskripsi_out.min' => 'Hasil pekerjaan minimal harus :min karakter.',
+    ];
+
     public function mount($jadwal_id)
     {
         $this->jadwal_id = $jadwal_id;
@@ -165,10 +177,12 @@ class Timer extends Component
     public function startTimer()
     {
         // Validasi lokasi/IP
-        if (!$this->validasiLokasiAtauIp()) return;
+        // if (!$this->validasiLokasiAtauIp()) return;
 
         // Cegah double start
         if ($this->isRunning) return;
+
+        $this->validateOnly('deskripsi_in');
 
         $this->isRunning = true;
         $currentTime = now()->setTimezone('Asia/Jakarta');
@@ -248,7 +262,9 @@ class Timer extends Component
 
     public function openWorkReportModal()
     {
-        if (!$this->validasiLokasiAtauIp()) return;
+        // if (!$this->validasiLokasiAtauIp()) return;
+
+        $this->validateOnly('deskripsi_out');
 
         if ($this->isRunning) {
             $this->timeOut = now()->timestamp;
@@ -278,7 +294,7 @@ class Timer extends Component
             if (!$shift) return;
 
             // ✅ Hitung durasi shift dalam jam
-            $shiftDuration = Carbon::parse($shift->jam_masuk)->diffInSeconds(Carbon::parse($shift->jam_keluar));
+            $shiftDuration = Carbon::parse($shift->jam_masuk, 'Asia/Jakarta')->diffInSeconds(Carbon::parse($shift->jam_keluar, 'Asia/Jakarta'));
             $shiftHours = $shiftDuration / 3600;
             // $shiftHours = 5 / 3600;
 
@@ -301,7 +317,7 @@ class Timer extends Component
 
     public function completeWorkReport()
     {
-        if (!$this->validasiLokasiAtauIp()) return;
+        // if (!$this->validasiLokasiAtauIp()) return;
 
         if (!$this->timeOut) return;
 
@@ -354,7 +370,7 @@ class Timer extends Component
 
         // ✅ Simpan data ke database
         $absensi->update([
-            'time_out' => $this->timeOut,
+            'time_out' => $timeOut->setTimezone('Asia/Jakarta')->toDateTimeString(),
             'deskripsi_out' => $this->deskripsi_out,
             'keterangan' => "Total waktu bekerja: " . gmdate('H:i:s', $selisih),
             // 'deskripsi_lembur' => $isOvertime ? $this->deskripsi_lembur : null,
@@ -830,7 +846,7 @@ class Timer extends Component
         //     // fallback agar tetap bisa validasi minimal area RSI
         //     $allowedAreas = ['RSI'];
         // }
-        $allowedAreas = ['RSI', 'akunbiz']; 
+        $allowedAreas = ['RSI', 'akunbiz'];
 
         // Cek apakah user berada dalam area yang diizinkan
         foreach ($allowedAreas as $areaName) {

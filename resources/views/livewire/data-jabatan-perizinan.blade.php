@@ -3,7 +3,7 @@
         <div class="flex justify-between items-center gap-4 mb-3">
             <p>Pengaturan untuk Hak Akses dan Perizinan yang dapat diakses.</p>
 
-            <a href="#"
+            <a href="#" wire:click="openCreateModal"
                 class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                 + Buat Hak Akses
             </a>
@@ -77,6 +77,45 @@
         </form>
 
     </x-modal>
+
+    <x-modal name="create-modal" maxWidth="lg" :show="false">
+        <form class="mx-5 py-5" wire:submit.prevent="storeJabatan">
+
+            <h2 class="text-lg font-semibold mb-4">Tambah Hak Akses</h2>
+
+            <div class="mb-4">
+                <label for="nama_jabatan" class="block text-sm font-medium text-gray-700">Nama Hak Akses</label>
+                <input type="text" id="nama_jabatan" wire:model="newJabatanNama"
+                    class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600"
+                    placeholder="Nama Hak Akses">
+            </div>
+
+            <div class="flex justify-end space-x-4">
+                <button type="button" x-on:click="$dispatch('close-modal', 'create-modal')"
+                    class="px-4 py-2 bg-gray-200 rounded-lg">Batal</button>
+
+                <button type="submit" class="px-4 py-2 bg-success-600 text-white rounded-lg">Simpan</button>
+            </div>
+
+        </form>
+    </x-modal>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <div x-data="{ swalData: @entangle('swalData') }" x-init="$watch('swalData', value => {
+        if (value) {
+            Swal.fire({
+                icon: value.icon,
+                title: value.title,
+                text: value.text,
+                timer: value.timer || 2000,
+                showConfirmButton: false,
+                timerProgressBar: true
+            });
+            swalData = null; 
+        }
+    })">
+    </div>
 
 
 </div>

@@ -10,11 +10,29 @@
             <!-- Filter Dropdown -->
             <div class="flex flex-wrap gap-3">
                 @can('list-history-user')
+                    <!-- Filter Unit - Hanya tampil jika bisa akses semua unit -->
+                    @if ($canAccessAllUnits)
+                        <select wire:model.live="selectedUnitId"
+                            class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-success-500">
+                            @foreach ($units as $id => $name)
+                                <option value="{{ $id }}">{{ $name }}</option>
+                            @endforeach
+                        </select>
+                    @else
+                        <!-- Jika tidak bisa akses semua unit, tampilkan unit sendiri saja (readonly) -->
+                        <div class="border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100">
+                            {{ auth()->user()->unitKerja->nama ?? 'Unit Tidak Diketahui' }}
+                        </div>
+                    @endif
+
+                    <!-- Filter Pegawai -->
                     <select wire:model.live="selectedUserId"
                         class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-success-500">
-                        @foreach ($subordinates as $id => $name)
+                        @forelse ($subordinates as $id => $name)
                             <option value="{{ $id }}">{{ $name }}</option>
-                        @endforeach
+                        @empty
+                            <option value="{{ auth()->id() }}">{{ auth()->user()->name }}</option>
+                        @endforelse
                     </select>
                 @endcan
 

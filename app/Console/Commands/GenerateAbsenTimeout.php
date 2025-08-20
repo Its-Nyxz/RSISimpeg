@@ -81,7 +81,7 @@ class GenerateAbsenTimeout extends Command
 
             // Update data absen
             $absen->update([
-                'time_out' => $shiftSelesai->timestamp,
+                'time_out' => $shiftSelesai->toDateTimeString(),
                 'keterangan' => $keteranganLama
                     ? $keteranganLama . ' , ' . $keteranganBaru
                     : $keteranganBaru,
