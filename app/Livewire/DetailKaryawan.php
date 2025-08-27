@@ -146,8 +146,9 @@ class DetailKaryawan extends Component
                 ->with('error', 'Penyesuaian Pendidikan dan Pendidikan Awal tidak boleh sama.');
         }
 
-        // Cek apakah user sudah pernah melakukan penyesuaian ke pendidikan yang sama
+        // Cek apakah user sudah pernah melakukan penyesuaian ke pendidikan yang sama (hanya yang aktif/belum dibatalkan)
         $sudahAda = Penyesuaian::where('user_id', $this->user_id)
+            ->where('status_penyesuaian', '<', 2) // hanya yang aktif/belum dibatalkan
             ->whereHas('penyesuaian', function ($query) {
                 $query->where('pendidikan_awal', $this->pend_awal_id)
                     ->where('pendidikan_penyesuaian', $this->pend_penyesuaian);

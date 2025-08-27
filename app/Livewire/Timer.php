@@ -695,14 +695,23 @@ class Timer extends Component
             return false;
         }
 
-        $lokasiValid = $this->isPointInPolygon($this->latitude, $this->longitude, $polygon);
+        $polygons = [
+            'RSI'     => $polygon,
+            'Akunbiz' => $polygonAkunbiz,
+        ];
 
-        // if (!$lokasiValid && !in_array($ipPrefix, $ipPrefixWhitelist)) {
-        if (!$lokasiValid) {
+        $valid = false;
+        foreach ($polygons as $nama => $poly) {
+            if ($this->isPointInPolygon($this->latitude, $this->longitude, $poly)) {
+                $valid = true;
+                break;
+            }
+        }
+
+        if (!$valid) {
             $this->dispatch('alert-error', message: 'Anda tidak berada di area RSI Banjarnegara.');
             return false;
         }
-
 
         $user = auth()->user()->load(['kategorijabatan', 'kategorifungsional', 'unitKerja']);
 
