@@ -38,7 +38,7 @@
                                     <input type="checkbox" id="{{ is_array($value) ? $key : $value }}"
                                         wire:model.live="selectedPermissions"
                                         value="{{ is_array($value) ? $key : $value }}"
-                                        class="w-4 h-4 text-success-600 border-gray-300 rounded focus:ring-success-500">
+                                        class="w-4 h-4 text-success-600 border-gray-300 rounded focus:ring-success-500 accent-green-700">
                                     <label for="{{ is_array($value) ? $key : $value }}" class="text-sm text-gray-600">
                                         {{ is_array($value) ? $value : Str::title(str_replace('-', ' ', $value)) }}
                                     </label>
