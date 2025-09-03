@@ -113,7 +113,7 @@ class DetailKaryawan extends Component
 
             $this->listRiwayatApproval = RiwayatApproval::with(['cuti.user', 'approver'])
                 ->where('approver_id', auth()->id())
-                ->orderBy('approved_at', 'desc')
+                ->orderBy('approve_at', 'desc')
                 ->get();
         }
     }
