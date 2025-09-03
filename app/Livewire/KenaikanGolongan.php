@@ -120,7 +120,7 @@ class KenaikanGolongan extends Component
 
                 // Gaji sekarang
                 $gapok = MasterGapok::where('gol_id', $user->gol_id)
-                    ->where('masa_kerja', '<=', $masaKerjaTotal)
+                    ->where('masa_kerja', '<=', $user->masa_kerja) // gunakan masa kerja terbaru
                     ->orderByDesc('masa_kerja')
                     ->first();
                 $user->gaji_sekarang = $gapok?->nominal_gapok;
@@ -169,9 +169,13 @@ class KenaikanGolongan extends Component
                             ->orderByDesc('masa_kerja')
                             ->first();
                         $user->kenaikan_golongan_gaji = $kenaikanGapok?->nominal_gapok;
+
+                        // Tambahkan baris berikut:
+                        $user->golonganBaruNama = $golonganBerikutnya->nama ?? '-';
                     } else {
                         $user->kenaikan_golongan_waktu = $baseTmt->copy()->addYears(16)->format('Y-m-d');
                         $user->kenaikan_golongan_gaji = $gapok?->nominal_gapok;
+                        $user->golonganBaruNama = $user->golongan->nama ?? '-';
                     }
 
                     $user->golongan_tertinggi = (

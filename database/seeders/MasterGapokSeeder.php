@@ -428,7 +428,7 @@ class MasterGapokSeeder extends Seeder
             ['gol_id' => 13, 'masa_kerja' => 14, 'nominal_gapok' => 2836800],
             ['gol_id' => 13, 'masa_kerja' => 15, 'nominal_gapok' => 2836800],
             ['gol_id' => 13, 'masa_kerja' => 16, 'nominal_gapok' => 2926125],
-            ['gol_id' => 13, 'masa_kerja' => 17, 'nominal_gapok' => 2926125],
+            ['gol_id' => 13, 'masa_kerja' => 17, 'nominal_gapok ' => 2926125],
             ['gol_id' => 13, 'masa_kerja' => 18, 'nominal_gapok' => 3018300],
             ['gol_id' => 13, 'masa_kerja' => 19, 'nominal_gapok' => 3018300],
             ['gol_id' => 13, 'masa_kerja' => 20, 'nominal_gapok' => 3113325],

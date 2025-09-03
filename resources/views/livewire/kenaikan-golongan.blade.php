@@ -58,11 +58,12 @@
                     <th scope="col" class="px-6 py-3" rowspan="2">Nama</th>
                     <th scope="col" class="px-6 py-3" rowspan="2">Pendidikan</th>
                     <th scope="col" class="px-6 py-3" rowspan="2">TMT</th>
+                    <th scope="col" class="px-6 py-3" rowspan="2">Gol Awal</th>
                     <th scope="col" class="px-6 py-3" colspan="2">Masa Kerja</th>
                     <th scope="col" class="px-6 py-3" rowspan="2">Penyesuaian</th>
                     <th scope="col" class="px-6 py-3" rowspan="2">Gaji Sekarang</th>
                     <th scope="col" class="px-6 py-3" colspan="2">Kenaikan Gaji Berkala</th>
-                    <th scope="col" class="px-6 py-3" colspan="2">Kenaikan Golongan</th>
+                    <th scope="col" class="px-6 py-3" colspan="3">Kenaikan Golongan</th>
                     <th scope="col" class="px-6 py-3" rowspan="2">Action</th>
                 </tr>
                 <tr>
@@ -71,6 +72,7 @@
                     <th scope="col" class="px-6 py-3">Waktu</th>
                     <th scope="col" class="px-6 py-3">Gaji</th>
                     <th scope="col" class="px-6 py-3">Waktu</th>
+                    <th scope="col" class="px-6 py-3">Gol Baru</th>
                     <th scope="col" class="px-6 py-3">Gaji</th>
                 </tr>
 
@@ -83,6 +85,7 @@
                         </td>
                         <td class="px-6 py-4">{{ $user->pendidikanUser->nama ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $user->tmt ? formatDate($user->tmt) : '-' }}</td>
+                        <td class="px-6 py-4">{{ $user->golongan->nama ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $user->masa_kerja_tahun ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $user->masa_kerja_bulan ?? '-' }}</td>
                         <td class="px-6 py-4">{{ $user->masa_kerja_golongan ?? '-' }}</td>
@@ -102,6 +105,7 @@
                                 -
                             @endif
                         </td>
+                        <td class="px-6 py-4">{{ $user->golonganBaruNama }}</td>
                         <td class="px-6 py-4">
                             @if ($user->kenaikan_golongan_gaji)
                                 <span class="{{ $user->golongan_tertinggi ? 'text-red-600 font-semibold' : '' }}">
