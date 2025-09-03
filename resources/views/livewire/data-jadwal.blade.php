@@ -148,6 +148,7 @@
                 <tr>
                     <th class="px-4 py-3">Nama</th>
                     <th class="px-4 py-3">Pendidikan</th>
+                    <th class="px-4 py-3">PJ</th> <!-- Pindahkan ke sini -->
                     <th class="px-4 py-3">Tanggal Masuk</th>
                     <th class="px-4 py-3">Lama Kerja</th>
                     @foreach ($tanggalJadwal as $tanggal)
@@ -176,6 +177,18 @@
                         </td>
                         <td class="px-4 py-3">
                             {{ optional(optional($jadwalUser)->first())->user->pendidikanUser->nama ?? '-' }}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            @php
+                                // Cek PJ untuk bulan berjalan (bisa disesuaikan jika ingin per tanggal)
+                                $user = optional(optional($jadwalUser)->first())->user;
+                                $isPJ = \App\Models\PJ::where('user_id', $user_id)
+                                    ->whereMonth('assigned_at', $bulan)
+                                    ->whereYear('assigned_at', $tahun)
+                                    ->where('is_pj', true)
+                                    ->exists();
+                            @endphp
+                            {{ $isPJ ? 'Iya' : '-' }}
                         </td>
                         <td class="px-4 py-3">
                             {{ optional(optional($jadwalUser)->first())->user->tmt ? \Carbon\Carbon::parse(optional(optional($jadwalUser)->first())->user->tmt)->format('d M Y') : '-' }}
@@ -348,3 +361,4 @@
             </div>
         </div>
     @endif
+</div>

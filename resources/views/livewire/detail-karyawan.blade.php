@@ -684,6 +684,61 @@
                     </div>
                 </div>
 
+                {{-- Dalam detail-karyawan.blade.php --}}
+                @if (auth()->user()->hasRole(['Super Admin', 'Kepala Unit', 'Kepegawaian']) || auth()->user()->unitKerja->nama == 'KEPEGAWAIAN')
+                    <div class="w-full">
+                        <div class="text-lg font-semibold mb-2">Riwayat Approval</div>
+                        <div class="relative overflow-x-auto max-w-full shadow-md sm:rounded-lg">
+                            <div class="max-h-96 overflow-y-auto">
+                                <table class="w-full text-xs sm:text-sm text-center text-gray-700">
+                                    <thead class="uppercase bg-success-400 text-success-900 sticky top-0 z-10">
+                                        <tr>
+                                            <th class="px-2 py-2 sm:px-4">Nama Karyawan</th>
+                                            <th class="px-2 py-2 sm:px-4">Jenis Cuti</th>
+                                            <th class="px-2 py-2 sm:px-4">Tanggal Cuti</th>
+                                            <th class="px-2 py-2 sm:px-4">Status</th>
+                                            <th class="px-2 py-2 sm:px-4">Tanggal Approval</th>
+                                            <th class="px-2 py-2 sm:px-4">Catatan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($listRiwayatApproval as $riwayat)
+                                            <tr
+                                                class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
+                                                <td class="px-2 py-2 sm:px-4">{{ $riwayat->cuti->user->name }}</td>
+                                                <td class="px-2 py-2 sm:px-4">
+                                                    {{ $riwayat->cuti->jeniscuti->nama_cuti }}</td>
+                                                <td class="px-2 py-2 sm:px-4">
+                                                    {{ formatDate($riwayat->cuti->tanggal_mulai) }} -
+                                                    {{ formatDate($riwayat->cuti->tanggal_selesai) }}
+                                                </td>
+                                                <td class="px-2 py-2 sm:px-4">
+                                                    @if ($riwayat->status_approval == 'disetujui_final')
+                                                        <span class="text-success-600 font-bold">Disetujui Final</span>
+                                                    @elseif($riwayat->status_approval == 'disetujui_kepala_unit')
+                                                        <span class="text-blue-600 font-bold">Disetujui Kepala
+                                                            Unit</span>
+                                                    @else
+                                                        <span class="text-red-600 font-bold">Ditolak</span>
+                                                    @endif
+                                                </td>
+                                                <td class="px-2 py-2 sm:px-4">{{ formatDate($riwayat->approved_at) }}
+                                                </td>
+                                                <td class="px-2 py-2 sm:px-4">{{ $riwayat->catatan ?? '-' }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="6" class="text-center py-2">Belum ada riwayat
+                                                    approval.</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
             </div>
         </x-card-tanpa-title>
     </div>

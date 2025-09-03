@@ -14,6 +14,7 @@ use App\Models\CutiKaryawan;
 use Livewire\WithPagination;
 use App\Models\JadwalAbsensi;
 use App\Models\SisaCutiTahunan;
+use App\Models\RiwayatApproval;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
 
@@ -65,6 +66,7 @@ class DataCuti extends Component
     public function approveCuti($cutiId, $userId)
     {
         $cuti = CutiKaryawan::find($cutiId);
+        $user = auth()->user();
 
         if ($cuti) {
             $user = auth()->user();
@@ -73,6 +75,9 @@ class DataCuti extends Component
                 ->permission('approve-cuti') // ✅ Spatie helper method
                 ->get();
             $targetUser = User::findOrFail($userId);
+
+
+
             if ($user->unit_id == $unitKepegawaianId) {
                 // Jika user dari unit kepegawaian, setujui final
                 if ($cuti->jenisCuti && strtolower($cuti->jenisCuti->nama_cuti) == 'cuti tahunan') {
@@ -103,7 +108,6 @@ class DataCuti extends Component
                 } else {
                     $cuti->update(['status_cuti_id' => 1]);
                 }
-
 
                 $shift = Shift::firstOrCreate(
                     ['nama_shift' => 'C'],
@@ -177,6 +181,14 @@ class DataCuti extends Component
                     Notification::send($nextUser, new UserNotification($message, $url));
                 }
 
+                RiwayatApproval::create([
+                    'cuti_id' => $cutiId,
+                    'approver_id' => $user->id,
+                    'status_approval' => $user->unit_id == $unitKepegawaianId ? 'disetujui_final' : 'disetujui_kepala_unit',
+                    'approve_at' => now(), // Changed from approved_at to approve_at
+                    'catatan' => null
+                ]);
+
                 return redirect()->route('approvalcuti.index')->with('success', 'Pengajuan Cuti Disetujui Final!');
                 $this->resetPage();
             } else {
@@ -195,6 +207,14 @@ class DataCuti extends Component
                     Notification::send($nextUser, new UserNotification($message, $url));
                     Notification::send($kepegawaianUsers, new UserNotification($messagekepegawaian, $urlkepegawaian));
                 }
+
+                RiwayatApproval::create([
+                    'cuti_id' => $cutiId,
+                    'approver_id' => $user->id,
+                    'status_approval' => $user->unit_id == $unitKepegawaianId ? 'disetujui_final' : 'disetujui_kepala_unit',
+                    'approve_at' => now(), // Changed from approved_at to approve_at
+                    'catatan' => null
+                ]);
 
                 return redirect()->route('approvalcuti.index')->with('success', 'Cuti disetujui Kepala Unit!');
                 $this->resetPage();
@@ -222,6 +242,14 @@ class DataCuti extends Component
             if ($nextUser) {
                 Notification::send($nextUser, new UserNotification($message, $url));
             }
+
+            RiwayatApproval::create([
+                'cuti_id' => $cutiId,
+                'approver_id' => auth()->id(),
+                'status_approval' => 'ditolak',
+                'catatan' => $reason,
+                'approve_at' => now(), // Changed from approved_at to approve_at
+            ]);
 
             return redirect()->route('approvalcuti.index')->with('success', 'Pengajuan cuti ditolak!');
             $this->resetPage();

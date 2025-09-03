@@ -12,6 +12,7 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
 
 class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
 {
@@ -32,39 +33,38 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
     public function array(): array
     {
         $data = [];
-
-        // Ambil semua user berdasarkan unit_id
         $users = User::where('unit_id', $this->unitId)
-            ->orderBy('name', 'asc') // Mengurutkan berdasarkan nama (ascending)
+            ->orderBy('name', 'asc')
             ->get();
-
         $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
 
         foreach ($users as $index => $user) {
+            // Cek apakah user ini PJ pada bulan & tahun ini
+            $isPJ = \App\Models\PJ::where('user_id', $user->id)
+                ->whereMonth('assigned_at', $this->month)
+                ->whereYear('assigned_at', $this->year)
+                ->where('is_pj', true)
+                ->exists();
+
             $row = [
                 $index + 1,
                 $user->name ?? '-',
                 $user->pendidikan ?? '-',
+                $isPJ ? 'Iya' : 'Tidak', // Kolom PJ otomatis terisi
                 $user->tmt ? (new DateTime($user->tmt))->format('d/m/Y') : '-',
                 $user->masa_kerja ?? 0,
             ];
 
-            // Kosongkan kolom shift untuk setiap hari dalam satu bulan
             for ($day = 1; $day <= $daysInMonth; $day++) {
                 $tanggal = Carbon::create($this->year, $this->month, $day)->format('Y-m-d');
-
                 $jadwal = JadwalAbsensi::with('shift')
                     ->where('user_id', $user->id)
                     ->whereDate('tanggal_jadwal', $tanggal)
                     ->first();
-
                 $row[] = $jadwal && $jadwal->shift ? $jadwal->shift->nama_shift : null;
             }
-
-
             $data[] = $row;
         }
-
         // Tambahkan pemisah sebelum daftar shift
         $data[] = [''];
         $data[] = ['KETERANGAN SHIFT:'];
@@ -105,9 +105,8 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
     public function headings(): array
     {
         $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
-
         return array_merge(
-            ['NO', 'NAMA', 'PENDIDIKAN', 'TGL MASUK', 'LAMA KERJA'],
+            ['NO', 'NAMA', 'PENDIDIKAN', 'PJ', 'TGL MASUK', 'LAMA KERJA'],
             range(1, $daysInMonth)
         );
     }
@@ -116,7 +115,7 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function (AfterSheet $event) {
+            \Maatwebsite\Excel\Events\AfterSheet::class => function (\Maatwebsite\Excel\Events\AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
                 // ======= Pastikan shift 'L' ada di database =======
@@ -201,6 +200,29 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
                         $cell->getStyle()->getFill()->getStartColor()->setARGB('FFFF0000'); // Warna merah
                         $cell->getStyle()->getFont()->getColor()->setARGB('FFFFFFFF'); // Warna font putih
                     }
+                }
+
+                // Kolom PJ ada di kolom D (ke-4), sesuaikan jika urutan berubah
+                $users = User::where('unit_id', $this->unitId)
+                    ->orderBy('name', 'asc')
+                    ->get();
+                $rowCount = count($users);
+
+                // Baris mulai dari 2 (setelah header)
+                for ($row = 2; $row <= $rowCount + 1; $row++) {
+                    $cell = 'D' . $row; // Kolom D = PJ
+                    $validation = $event->sheet->getDelegate()->getCell($cell)->getDataValidation();
+                    $validation->setType(DataValidation::TYPE_LIST);
+                    $validation->setErrorStyle(DataValidation::STYLE_STOP);
+                    $validation->setAllowBlank(true);
+                    $validation->setShowInputMessage(true);
+                    $validation->setShowErrorMessage(true);
+                    $validation->setShowDropDown(true);
+                    $validation->setFormula1('"Iya,Tidak"');
+                    $validation->setErrorTitle('Input salah');
+                    $validation->setError('Pilih antara Iya atau Tidak');
+                    $validation->setPromptTitle('Pilih PJ');
+                    $validation->setPrompt('Silakan pilih Iya atau Tidak');
                 }
             },
         ];

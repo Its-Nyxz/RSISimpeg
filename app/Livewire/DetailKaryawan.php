@@ -19,6 +19,7 @@ use App\Models\RiwayatJabatan;
 use App\Models\MasterPendidikan;
 use App\Models\MasterPenyesuaian;
 use App\Models\PeringatanKaryawan;
+use App\Models\RiwayatApproval;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
 
@@ -45,6 +46,7 @@ class DetailKaryawan extends Component
     public $listGapok;
     public $listSP;
     public $listRiwayat;
+    public $listRiwayatApproval;
     public $gapokSebelumnya;
     public $gapokPenyesuaian;
     public $phkDari;
@@ -104,6 +106,16 @@ class DetailKaryawan extends Component
                 ->first();
         }
 
+        if (
+            auth()->user()->hasRole(['Super Admin', 'Kepala Unit', 'Kepegawaian']) ||
+            auth()->user()->unitKerja->nama == 'KEPEGAWAIAN'
+        ) {
+
+            $this->listRiwayatApproval = RiwayatApproval::with(['cuti.user', 'approver'])
+                ->where('approver_id', auth()->id())
+                ->orderBy('approved_at', 'desc')
+                ->get();
+        }
     }
 
     public function resignKerja()
@@ -146,8 +158,9 @@ class DetailKaryawan extends Component
                 ->with('error', 'Penyesuaian Pendidikan dan Pendidikan Awal tidak boleh sama.');
         }
 
-        // Cek apakah user sudah pernah melakukan penyesuaian ke pendidikan yang sama
+        // Cek apakah user sudah pernah melakukan penyesuaian ke pendidikan yang sama (hanya yang aktif/belum dibatalkan)
         $sudahAda = Penyesuaian::where('user_id', $this->user_id)
+            ->where('status_penyesuaian', '<', 2) // hanya yang aktif/belum dibatalkan
             ->whereHas('penyesuaian', function ($query) {
                 $query->where('pendidikan_awal', $this->pend_awal_id)
                     ->where('pendidikan_penyesuaian', $this->pend_penyesuaian);
@@ -386,6 +399,5 @@ class DetailKaryawan extends Component
     {
         // $users = $this->mont();
         return view('livewire.detail-karyawan');
-
     }
 }
