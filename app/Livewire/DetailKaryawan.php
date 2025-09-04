@@ -39,6 +39,7 @@ class DetailKaryawan extends Component
     public $pend_awal_id;
     public $roles;
     public $viewPendAwal;
+    public $canSeeRiwayat;
 
     public $listCuti;
     public $listIzin;
@@ -86,6 +87,20 @@ class DetailKaryawan extends Component
             ->whereNotNull('tanggal_selesai') // hanya yang sudah selesai
             ->orderBy('tanggal_mulai', 'desc')
             ->get();
+
+        // Cek Role untuk melihat Riwayat Jabatan
+        $this->canSeeRiwayat = auth()->user()->hasRole('Super Admin')
+            || auth()->user()->roles()->where('name', 'LIKE', '%Kepala%')->exists()
+            || auth()->user()->unitKerja->nama === 'KEPEGAWAIAN';
+
+        // Query riwayat approval hanya jika user memiliki akses dan hanya untuk user yang sedang dilihat
+        if ($this->canSeeRiwayat) {
+            $this->listRiwayatApproval = RiwayatApproval::with(['cuti.user', 'cuti.jeniscuti'])
+                ->where('approver_id', $this->user_id) // Filter by current user being viewed
+                ->orderBy('approved_at', 'desc')
+                ->get();
+        }
+
         // dd($this->listRiwayat);
 
         if ($this->viewPendAwal) {
