@@ -168,7 +168,7 @@ class KategoriJabatanSeeder extends Seeder
             ['nama' => 'Staf Keperawatan', 'tunjangan' => 'umum'],
             ['nama' => 'Staf Penunjang', 'tunjangan' => 'umum'],
             ['nama' => 'Staf Unit Pemasaran', 'tunjangan' => 'umum'],
-            ['nama' => 'Staf Anggota SPI', 'tunjangan' => 'umum'],
+             ['nama' => 'Staf Anggota SPI', 'tunjangan' => 'umum'],
 
             // Instalasi Lainnya
             ['nama' => 'Komite Full Time', 'tunjangan' => 'umum'],
