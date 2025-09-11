@@ -33,165 +33,12 @@ class DataCuti extends Component
         $this->isKepegawaian = $user->unit_id == $unitKepegawaianId;
     }
 
-    private function getNextApprover($currentJabatan)
-    {
-        // Mapping specific staff positions to their respective heads
-        $staffToHead = [
-            // Staf to Ka. Unit mapping
-            'Staf Humas dan Program RS' => 'Ka. Unit Pemasaran',
-            'Staf SDM' => 'Ka. Seksi',
-            'Staf Akuntansi' => 'Ka. Seksi',
-            'Staf Keuangan' => 'Ka. Seksi',
-            'Staf Asuransi' => 'Ka. Seksi',
-            'Staf Aset dan Logistik' => 'Ka. Seksi',
-            'Staf Pelayanan Medik' => 'Ka. Seksi',
-            'Staf Keperawatan' => 'Ka. Seksi',
-            'Staf Penunjang' => 'Ka. Seksi',
-            'Staf Unit Pemasaran' => 'Ka. Unit Pemasaran',
-            'Staf Anggota SPI' => 'Ketua SPI',
-            
-            // Installation staff to Installation Head mapping
-            'Staf Instalasi Teknologi Informasi' => 'Ka. Instalasi Teknologi Informasi',
-            'Staf Administrasi Inst Laboratorium' => 'Ka. Instalasi CSSD',
-            'Staf Administrasi IBS' => 'Ka. Instalasi CSSD',
-            'Staf Administrasi IRJ' => 'Ka. Instalasi CSSD',
-            'Staf Instalasi Rekam Medik' => 'Ka. Instalasi CSSD',
-            'Staf Instalasi Gas Medik' => 'Ka. Instalasi Pemeliharaan Sarpras',
-            'Staf Unit Ambulance' => 'Ka. Unit Ambulance',
-            'Staf Instalasi Gizi' => 'Ka. Instalasi CSSD',
-            'Staf Unit Pengamanan' => 'Ka. Unit Pengamanan',
-            'Staf Unit Transportasi' => 'Ka. Unit Transportasi',
-            'Staf Unit Gudang' => 'Ka. Unit Gudang',
-            'Staf Unit Pengelolaan Linen' => 'Ka. Unit Pengelolaan Linen',
-            'Staf Instalasi Peml. Sarpras' => 'Ka. Instalasi Pemeliharaan Sarpras',
-            'Staf Unit MCU dan Poskes' => 'Ka. Unit PJBR',
-            'Staf Instalasi CSSD' => 'Ka. Instalasi CSSD',
-            'Staf Unit PJBR' => 'Ka. Unit PJBR',
-        ];
-
-        // Main approval hierarchy
-        $mainHierarchy = [
-            'Ka. Unit' => 'Ka. Seksi',
-            'Ka. Instalasi' => 'Ka. Seksi',
-            'Ka. Seksi' => 'Manajer',
-            'Manajer' => 'Wadir',
-            'Wadir' => 'Direktur',
-            'Direktur' => 'KEPEGAWAIAN',
-            
-            // Unit heads
-            'Ka. Unit Ambulance' => 'Ka. Seksi',
-            'Ka. Unit PJBR' => 'Ka. Seksi',
-            'Ka. Unit Transportasi' => 'Ka. Seksi',
-            'Ka. Unit Pengelolaan Linen' => 'Ka. Seksi',
-            'Ka. Unit Gudang' => 'Ka. Seksi',
-            'Ka. Unit Pengamanan' => 'Ka. Seksi',
-            'Ka. Unit Pemasaran' => 'Ka. Seksi',
-            
-            // Installation heads
-            'Ka. Instalasi CSSD' => 'Ka. Seksi',
-            'Ka. Instalasi Pemeliharaan Sarpras' => 'Ka. Seksi',
-            'Ka. Instalasi Teknologi Informasi' => 'Ka. Seksi',
-            
-            // Special positions
-            'Supervisor' => 'Ka. Seksi',
-            'Ketua SPI' => 'Direktur',
-        ];
-
-        // First check if it's a staff position
-        if (isset($staffToHead[$currentJabatan])) {
-            return $staffToHead[$currentJabatan];
-        }
-
-        // Then check main hierarchy
-        return $mainHierarchy[$currentJabatan] ?? 'KEPEGAWAIAN';
-    }
-
     public function loadData()
     {
         $user = auth()->user();
         $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
-        $userJabatan = $user->kategorijabatan->nama ?? '';
 
         if ($user->unit_id == $unitKepegawaianId) {
-            // Kepegawaian sees all pending approvals
-            return CutiKaryawan::with(['user', 'user.kategorijabatan'])
-                ->where('status_cuti_id', 4)
-                ->orderByDesc('id')
-                ->paginate(10);
-        } else {
-            // Others only see what they can approve based on hierarchy
-            return CutiKaryawan::with(['user', 'user.kategorijabatan'])
-                ->where('status_cuti_id', 3)
-                ->whereHas('user', function($query) use ($userJabatan) {
-                    $query->whereHas('kategorijabatan', function($q) use ($userJabatan) {
-                        // Get all positions that report to current user's position
-                        $subordinatePositions = collect(array_filter(array_keys($this->getStaffToHeadMapping()), function($position) use ($userJabatan) {
-                            return $this->getNextApprover($position) === $userJabatan;
-                        }));
-                        
-                        $q->whereIn('nama', $subordinatePositions);
-                    });
-                })
-                ->orderByDesc('id')
-                ->paginate(10);
-        }
-    }
-
-    private function getStaffToHeadMapping()
-    {
-        // Return the same mapping used in getNextApprover
-        return [
-            'Staf Humas dan Program RS' => 'Ka. Unit Pemasaran',
-            'Staf SDM' => 'Ka. Seksi',
-            'Staf Akuntansi' => 'Ka. Seksi',
-            'Staf Keuangan' => 'Ka. Seksi',
-            'Staf Asuransi' => 'Ka. Seksi',
-            'Staf Aset dan Logistik' => 'Ka. Seksi',
-            'Staf Pelayanan Medik' => 'Ka. Seksi',
-            'Staf Keperawatan' => 'Ka. Seksi',
-            'Staf Penunjang' => 'Ka. Seksi',
-            'Staf Unit Pemasaran' => 'Ka. Unit Pemasaran',
-            'Staf Anggota SPI' => 'Ketua SPI',
-            
-            // Installation staff to Installation Head mapping
-            'Staf Instalasi Teknologi Informasi' => 'Ka. Instalasi Teknologi Informasi',
-            'Staf Administrasi Inst Laboratorium' => 'Ka. Instalasi CSSD',
-            'Staf Administrasi IBS' => 'Ka. Instalasi CSSD',
-            'Staf Administrasi IRJ' => 'Ka. Instalasi CSSD',
-            'Staf Instalasi Rekam Medik' => 'Ka. Instalasi CSSD',
-            'Staf Instalasi Gas Medik' => 'Ka. Instalasi Pemeliharaan Sarpras',
-            'Staf Unit Ambulance' => 'Ka. Unit Ambulance',
-            'Staf Instalasi Gizi' => 'Ka. Instalasi CSSD',
-            'Staf Unit Pengamanan' => 'Ka. Unit Pengamanan',
-            'Staf Unit Transportasi' => 'Ka. Unit Transportasi',
-            'Staf Unit Gudang' => 'Ka. Unit Gudang',
-            'Staf Unit Pengelolaan Linen' => 'Ka. Unit Pengelolaan Linen',
-            'Staf Instalasi Peml. Sarpras' => 'Ka. Instalasi Pemeliharaan Sarpras',
-            'Staf Unit MCU dan Poskes' => 'Ka. Unit PJBR',
-            'Staf Instalasi CSSD' => 'Ka. Instalasi CSSD',
-            'Staf Unit PJBR' => 'Ka. Unit PJBR',
-        ];
-    }
-
-    public function approveCuti($cutiId, $userId)
-    {
-        $cuti = CutiKaryawan::find($cutiId);
-        $currentUser = auth()->user();
-        $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
-
-        if (!$cuti) return;
-
-        // Prevent self-approval except for Kepegawaian
-        if ($userId == $currentUser->id && $currentUser->unit_id != $unitKepegawaianId) {
-            return redirect()->route('approvalcuti.index')
-                ->with('error', 'Anda tidak dapat menyetujui cuti Anda sendiri!');
-        }
-
-        $requestingUser = User::find($userId);
-        $currentJabatan = $requestingUser->kategorijabatan->nama ?? '';
-
-        // If current user is from Kepegawaian
-        if ($currentUser->unit_id == $unitKepegawaianId) {
             // Kalau dari unit KEPEGAWAIAN:
             return CutiKaryawan::with('user')
                 ->where(function ($query) use ($unitKepegawaianId) {
@@ -214,48 +61,165 @@ class DataCuti extends Component
                 ->orderByDesc('id')
                 ->paginate(10);
         }
+    }
 
-        // Get next approver based on hierarchy
-        $nextLevel = $this->getNextApprover($currentJabatan);
-        
-        // Update cuti status
-        $cuti->update(['status_cuti_id' => 4]);
+    public function approveCuti($cutiId, $userId)
+    {
+        $cuti = CutiKaryawan::find($cutiId);
+        $user = auth()->user();
 
-        // Find next approvers
-        if ($nextLevel === 'KEPEGAWAIAN') {
-            $nextApprovers = User::where('unit_id', $unitKepegawaianId)
-                ->permission('approve-cuti')
+        if ($cuti) {
+            $user = auth()->user();
+            $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
+            $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)
+                ->permission('approve-cuti') // ✅ Spatie helper method
                 ->get();
-        } else {
-            $nextApprovers = User::whereHas('kategorijabatan', function($q) use ($nextLevel) {
-                $q->where('nama', $nextLevel);
-            })->get();
+            $targetUser = User::findOrFail($userId);
+
+
+
+            if ($user->unit_id == $unitKepegawaianId) {
+                // Jika user dari unit kepegawaian, setujui final
+                if ($cuti->jenisCuti && strtolower($cuti->jenisCuti->nama_cuti) == 'cuti tahunan') {
+                    $userCuti = SisaCutiTahunan::where('user_id', $userId)
+                        ->where('tahun', now('Asia/Jakarta')->year)
+                        ->first();
+
+                    if ($userCuti) {
+                        if ($userCuti->sisa_cuti >= $cuti->jumlah_hari) {
+                            $cuti->update(['status_cuti_id' => 1]);
+                            $userCuti->decrement('sisa_cuti', $cuti->jumlah_hari);
+                        } else {
+                            $cuti->update(['status_cuti_id' => 2]);
+
+                            $nextUser = User::find($userId);
+                            $message = 'Pengajuan Cuti anda (' . $nextUser->name . ') dari tanggal <span class="font-bold">' . $cuti->tanggal_mulai . ' sampai ' . $cuti->tanggal_selesai . '</span> <span class="text-red-600 font-bold">Ditolak</span> karena sisa cuti tahunan tidak cukup.';
+
+                            $url = "/pengajuan/cuti";
+                            if ($nextUser) {
+                                Notification::send($nextUser, new UserNotification($message, $url));
+                            }
+
+                            return redirect()->route('approvalcuti.index')->with('error', 'Sisa cuti tahunan tidak cukup, pengajuan otomatis ditolak.');
+                        }
+                    } else {
+                        return redirect()->route('approvalcuti.index')->with('error', 'Data sisa cuti tidak ditemukan.');
+                    }
+                } else {
+                    $cuti->update(['status_cuti_id' => 1]);
+                }
+
+                $shift = Shift::firstOrCreate(
+                    ['nama_shift' => 'C'],
+                    [
+                        'unit_id' => $targetUser->unit_id,
+                        'jam_masuk' => null,
+                        'jam_keluar' => null,
+                        'keterangan' => 'Cuti'
+                    ]
+                );
+
+                $start = Carbon::parse($cuti->tanggal_mulai);
+                $end = Carbon::parse($cuti->tanggal_selesai);
+
+                for ($date = $start; $date->lte($end); $date->addDay()) {
+                    JadwalAbsensi::updateOrCreate(
+                        [
+                            'user_id' => $userId,
+                            'tanggal_jadwal' => $date->toDateString()
+                        ],
+                        [
+                            'shift_id' => $shift->id,
+                        ]
+                    );
+                }
+
+                foreach (Carbon::parse($cuti->tanggal_mulai)->toPeriod(Carbon::parse($cuti->tanggal_selesai)) as $date) {
+                    $jadwal = JadwalAbsensi::with('shift')->where('user_id', $userId)
+                        ->whereDate('tanggal_jadwal', $date->toDateString())
+                        ->first();
+
+                    if ($jadwal && $jadwal->shift) {
+                        $shift = $jadwal->shift;
+
+                        $cutiStatusId = StatusAbsen::where('nama', 'Tepat Waktu')->value('id');
+                        $jenisCuti = $cuti->jenisCuti->nama_cuti ?? 'Cuti';
+
+                        Absen::updateOrCreate(
+                            [
+                                'user_id' => $userId,
+                                'jadwal_id' => $jadwal->id,
+                            ],
+                            [
+                                'status_absen_id' => $cutiStatusId,
+                                'present' => 1,
+                                'absent' => 0,
+                                'late' => 0,
+                                'time_in' => null,
+                                'time_out' => null,
+                                'keterangan' => 'Cuti disetujui',
+                                'deskripsi_in' => $jenisCuti,
+                                'deskripsi_out' => $jenisCuti,
+                                'is_dinas' => false,
+                                'is_lembur' => false,
+                                'approved_lembur' => false,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]
+                        );
+                    }
+                }
+
+
+                $nextUser = User::find($userId);
+                $message = 'Pengajuan Cuti anda (' . $nextUser->name .
+                    ') mulai <span class="font-bold">' . $cuti->tanggal_mulai . ' sampai ' . $cuti->tanggal_selesai .
+                    '</span> telah <span class="text-success-600 font-bold">Disetujui Final</span> oleh ' . $user->name;
+
+                $url = "/pengajuan/cuti";
+                if ($nextUser) {
+                    Notification::send($nextUser, new UserNotification($message, $url));
+                }
+
+                RiwayatApproval::create([
+                    'cuti_id' => $cutiId,
+                    'approver_id' => $user->id,
+                    'status_approval' => $user->unit_id == $unitKepegawaianId ? 'disetujui_final' : 'disetujui_kepala_unit',
+                    'approve_at' => now(), // Changed from approved_at to approve_at
+                    'catatan' => null
+                ]);
+
+                return redirect()->route('approvalcuti.index')->with('success', 'Pengajuan Cuti Disetujui Final!');
+                $this->resetPage();
+            } else {
+                // Kalau unit selain kepegawaian, hanya setujui kepala unit
+                $cuti->update(['status_cuti_id' => 4]);
+
+                $nextUser = User::find($userId);
+                $message = 'Pengajuan Cuti anda (' . $nextUser->name .
+                    ') telah <span class="text-success-600 font-bold">Disetujui Kepala Unit</span> oleh ' . $user->name;
+                $messagekepegawaian = 'Pengajuan Cuti atas nama (' . $nextUser->name .
+                    ') telah <span class="text-success-600 font-bold">Disetujui Kepala Unit</span> oleh ' . $user->name . ', silahkan melanjutkan persetujuan ';
+
+                $url = "/pengajuan/cuti";
+                $urlkepegawaian = "/approvalcuti";
+                if ($nextUser) {
+                    Notification::send($nextUser, new UserNotification($message, $url));
+                    Notification::send($kepegawaianUsers, new UserNotification($messagekepegawaian, $urlkepegawaian));
+                }
+
+                RiwayatApproval::create([
+                    'cuti_id' => $cutiId,
+                    'approver_id' => $user->id,
+                    'status_approval' => $user->unit_id == $unitKepegawaianId ? 'disetujui_final' : 'disetujui_kepala_unit',
+                    'approve_at' => now(), // Changed from approved_at to approve_at
+                    'catatan' => null
+                ]);
+
+                return redirect()->route('approvalcuti.index')->with('success', 'Cuti disetujui Kepala Unit!');
+                $this->resetPage();
+            }
         }
-
-        // Notify requesting user
-        $message = 'Pengajuan Cuti anda (' . $requestingUser->name .
-            ') telah <span class="text-success-600 font-bold">Disetujui oleh ' . 
-            $currentUser->name . ' (' . $currentUser->kategorijabatan->nama . ')</span>';
-
-        // Notify next approver
-        $messageNext = 'Pengajuan Cuti dari ' . $requestingUser->name .
-            ' memerlukan persetujuan Anda sebagai ' . $nextLevel;
-
-        // Send notifications
-        Notification::send($requestingUser, new UserNotification($message, '/pengajuan/cuti'));
-        Notification::send($nextApprovers, new UserNotification($messageNext, '/approvalcuti'));
-
-        // Record approval history
-        RiwayatApproval::create([
-            'cuti_id' => $cutiId,
-            'approver_id' => $currentUser->id,
-            'status_approval' => 'disetujui_' . Str::slug($currentUser->kategorijabatan->nama),
-            'approve_at' => now(),
-            'catatan' => null
-        ]);
-
-        return redirect()->route('approvalcuti.index')
-            ->with('success', "Cuti disetujui dan diteruskan ke $nextLevel!");
     }
 
     public function rejectCuti($cutiId, $userId, $reason = null)
