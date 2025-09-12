@@ -57,6 +57,24 @@ class PengajuanForm extends Component
         }
     }
 
+    private function getNextApprovers($roleName)
+    {
+        $approvalFlow = [
+            'Staf' => 'Kepala Ruang',
+            'Kepala Ruang' => 'Kepala Instalasi',
+            'Kepala Instalasi' => 'Kepala Seksi',
+            'Kepala Unit' => 'Kepala Seksi',
+            'Kepala Seksi' => 'Manager',
+            'Manager' => 'Wadir',
+            'Wadir' => 'Direktur',
+            'Direktur' => 'Kepala Seksi Kepegawaian',
+        ];
+        if (isset($approvalFlow[$roleName])) {
+            return $approvalFlow[$roleName];
+        }
+        return 'Kepala Seksi Kepegawaian';
+    }
+
     private function cekMasaKerjaBolehCuti($user)
     {
         // Kalau data masa_kerja kosong/null, default dianggap belum boleh cuti
@@ -127,8 +145,8 @@ class PengajuanForm extends Component
         $user = auth()->user();
         $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
         $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)->get();
+        
         if ($this->tipe === 'cuti') {
-
             // Logika validasi untuk cuti
             $cekCutiSama = CutiKaryawan::where('user_id', auth()->id())
                 ->where('tanggal_mulai', $this->tanggal_mulai)
@@ -166,13 +184,42 @@ class PengajuanForm extends Component
             ]);
 
             $user = auth()->user();
-            // Ambil nama shift berdasarkan shift_id
-            $jenis_cuti = JenisCuti::find($this->jenis_cuti_id)->first();
+            $jenis_cuti = JenisCuti::find($this->jenis_cuti_id);
 
-            // Cari kepala unit berdasarkan unit_id
-            $nextUser = User::where('unit_id', $user->unit_id)
-                ->whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Kepala%'))
-                ->first();
+            // PERBAIKAN: Perbaiki logika pencarian approver berdasarkan hierarki yang benar
+            $userRole = $user->roles->first()->name ?? 'Staf';
+            $firstApproverRole = $this->getNextApprovers($userRole);
+
+            // ✅ PERBAIKAN UTAMA: Pencarian approver berdasarkan hierarki yang benar
+            $nextApprovers = collect();
+            
+            if ($firstApproverRole === 'Kepala Ruang') {
+                // Untuk Staf -> Kepala Ruang (hanya di unit yang sama)
+                $nextApprovers = User::where('unit_id', $user->unit_id)
+                                     ->whereHas('roles', function ($query) {
+                                         $query->where('name', 'Kepala Ruang');
+                                     })
+                                     ->get();
+            } elseif ($firstApproverRole === 'Kepala Instalasi') {
+                // Untuk Kepala Ruang -> Kepala Instalasi (hanya di unit yang sama)
+                $nextApprovers = User::where('unit_id', $user->unit_id)
+                                     ->whereHas('roles', function ($query) {
+                                         $query->where('name', 'Kepala Instalasi');
+                                     })
+                                     ->get();
+            } elseif ($firstApproverRole === 'Kepala Seksi') {
+                // Untuk Kepala Instalasi/Kepala Unit -> Kepala Seksi (hanya di unit yang sama)
+                $nextApprovers = User::where('unit_id', $user->unit_id)
+                                     ->whereHas('roles', function ($query) {
+                                         $query->where('name', 'Kepala Seksi');
+                                     })
+                                     ->get();
+            } elseif (in_array($firstApproverRole, ['Manager', 'Wadir', 'Direktur', 'Kepala Seksi Kepegawaian'])) {
+                // Untuk level Manager ke atas (boleh lintas unit)
+                $nextApprovers = User::whereHas('roles', function ($query) use ($firstApproverRole) {
+                    $query->where('name', $firstApproverRole);
+                })->get();
+            }
 
             $message = 'Pengajuan Cuti ' . auth()->user()->name .
                 ' mulai <span class="font-bold">' . $this->tanggal_mulai . ' sampai ' .  $this->tanggal_selesai .
@@ -180,9 +227,9 @@ class PengajuanForm extends Component
                 ($jenis_cuti ? $jenis_cuti->nama_cuti : 'Tidak Diketahui') .
                 ' dengan keterangan ' . $this->keterangan . ' membutuhkan persetujuan Anda.';
 
-            $url = "/approvalcuti"; //ganti approvel
-            if ($nextUser) {
-                Notification::send($nextUser, new UserNotification($message, $url));
+            $url = "/approvalcuti";
+            if ($nextApprovers->count() > 0) {
+                Notification::send($nextApprovers, new UserNotification($message, $url));
             }
 
             session()->flash('message', 'Pengajuan cuti berhasil diajukan.');
