@@ -21,7 +21,12 @@
         <ul class="font-normal text-sm text-gray-700 capitalize max-h-60 w-full overflow-y-auto"
             aria-labelledby="dropdownNotificationButton">
 
-            @forelse (auth()->user()->notifications as $notification)
+            @php
+                // Ambil hanya 3 notifikasi terbaru
+                $notifications = auth()->user()->notifications->take(3);
+            @endphp
+
+            @forelse ($notifications as $notification)
                 <li class="appearance-none list-none"> <!-- ✅ Tambahkan list-none di sini -->
                     <div wire:click="markAsRead('{{ $notification->id }}','{{ $notification->data['url'] }}')"
                         class="flex cursor-pointer group justify-between px-4 py-3 hover:bg-success-950 transition duration-200 hover:text-white ">
@@ -44,6 +49,15 @@
                     Tidak ada notifikasi
                 </li>
             @endforelse
+
+            <!-- Tombol Lihat Semua Notifikasi -->
+            @if (auth()->user()->notifications->count() > 3)
+                <li class="appearance-none list-none border-t border-gray-100">
+                    <a href="{{ route('notification.index') }}" class="block text-center px-4 py-3 text-success-500 hover:bg-success-50 transition duration-200 font-semibold">
+                        Lihat Semua Notifikasi
+                    </a>
+                </li>
+            @endif
         </ul>
     </div>
 </div>

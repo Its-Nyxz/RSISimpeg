@@ -1,5 +1,6 @@
 <?php
 
+
 use App\Models\Kategoripph;
 use App\Models\MasterFungsi;
 use App\Livewire\UserProfile;
@@ -59,6 +60,7 @@ use App\Http\Controllers\MasterJatahCutiController;
 use App\Http\Controllers\MasterTunjanganController;
 use App\Http\Controllers\PeranFungsionalController;
 use App\Http\Controllers\AktivitasAbsensiController;
+use App\Http\Controllers\DataNotifikasiController;
 use App\Http\Controllers\MasterPendidikanController;
 use App\Http\Controllers\PenilaianPekerjaController;
 use App\Http\Controllers\PerizinanJabatanController;
@@ -112,6 +114,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('potongan', MasterPotonganController::class);
     Route::resource('peranfungsional', PeranFungsionalController::class);
     Route::resource('jabatanperizinan', PerizinanJabatanController::class);
+    Route::resource('notification', DataNotifikasiController::class);
 
     Route::resource('absensi', MasterAbsensiController::class);
     Route::get('/jadwal/template', [JadwalAbsensiController::class, 'export'])->name('jadwal.template');

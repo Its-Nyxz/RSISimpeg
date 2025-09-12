@@ -480,7 +480,7 @@
                                     @forelse ($listIzin as $izin)
                                         <tr
                                             class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
-                                            <td class="px-2 py-2 sm:px-4">{{ $izin->jenisizin->nama_izin ?? '-' }}
+                                      ., kll;      <td class="px-2 py-2 sm:px-4">{{ $izin->jenisizin->nama_izin ?? '-' }}
                                             </td>
                                             <td class="px-2 py-2 sm:px-4">
                                                 {{ formatDate($izin->tanggal_mulai) ?? '-' }}</td>
@@ -685,8 +685,8 @@
                 </div>
 
                 {{-- Dalam detail-karyawan.blade.php --}}
-                @if (auth()->user()->hasRole(['Super Admin', 'Kepala Unit', 'Kepegawaian']) || auth()->user()->unitKerja->nama == 'KEPEGAWAIAN')
-                    <div class="w-full">
+                @if ($canSeeRiwayat)
+                    <div class="w-full">    
                         <div class="text-lg font-semibold mb-2">Riwayat Approval</div>
                         <div class="relative overflow-x-auto max-w-full shadow-md sm:rounded-lg">
                             <div class="max-h-96 overflow-y-auto">

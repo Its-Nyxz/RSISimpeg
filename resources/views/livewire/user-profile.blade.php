@@ -22,11 +22,11 @@
                         ? '<img src="' .
                             asset('storage/photos/' . $userprofile->photo) .
                             '" 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             alt="User Profile" 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             class="w-full h-full object-cover">'
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     alt="User Profile" 
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     class="w-full h-full object-cover">'
                         : '<div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <i class="fa-solid fa-user text-5xl"></i>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       </div>' !!}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <i class="fa-solid fa-user text-5xl"></i>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               </div>' !!}
                 </div>
 
                 <!-- Data Profile -->
@@ -135,13 +135,15 @@
                     </a>
                 </div>
 
-                <div class="flex items-center justify-between">
-                    <p><strong>Password :</strong> ************</p>
-                    <a href="{{ route('userprofile.editpassword') }}"
-                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                        <i class="fa-solid fa-pen"></i>
-                    </a>
-                </div>
+                @if (!$userprofile->hasRole('Super Admin'))
+                    <div class="flex items-center justify-between">
+                        <p><strong>Password :</strong> ************</p>
+                        <a href="{{ route('userprofile.editpassword') }}"
+                            class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
+                    </div>
+                @endif
 
                 <div class="flex items-center justify-between">
                     <p><strong>Hak Akses :</strong> {{ Auth::user()->roles->first()->name ?? '-' }}</p>
