@@ -2,12 +2,13 @@
 
 namespace App\Exports;
 
-use App\Models\Holidays;
-use App\Models\JadwalAbsensi;
 use DateTime;
+use App\Models\PJ;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Shift;
+use App\Models\Holidays;
+use App\Models\JadwalAbsensi;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\FromArray;
@@ -46,7 +47,7 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
         };
         foreach ($users as $index => $user) {
             // Cek apakah user ini PJ pada bulan & tahun ini
-            $isPJ = \App\Models\PJ::where('user_id', $user->id)
+            $isPJ = PJ::where('user_id', $user->id)
                 ->whereMonth('assigned_at', $this->month)
                 ->whereYear('assigned_at', $this->year)
                 ->where('is_pj', true)

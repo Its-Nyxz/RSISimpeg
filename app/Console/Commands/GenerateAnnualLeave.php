@@ -38,7 +38,7 @@ class GenerateAnnualLeave extends Command
 
             if (!$alreadyGenerated) {
                 // Ambil hanya user dengan jenis karyawan 'Tetap'
-                $users = User::whereHas('jenisKaryawan', function ($query) {
+                $users = User::whereHas('jenis', function ($query) {
                     $query->where('nama', 'Tetap');
                 })->get();
 
