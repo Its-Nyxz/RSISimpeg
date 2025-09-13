@@ -53,7 +53,9 @@ class JadwalSheetImport implements ToCollection
                 if ($user) {
                     for ($day = 1; $day <= $daysInMonth; $day++) {
                         $tanggal_jadwal = sprintf('%04d-%02d-%02d', $this->tahun, $this->bulan, $day);
-                        $cellValue = isset($row[4 + $day]) ? trim((string)$row[4 + $day]) : '';
+                        // 6 kolom tetap: 0..5 → hari ke-1 ada di index 6
+                        $cellIndex = 5 + $day;
+                        $cellValue = isset($row[$cellIndex]) ? trim((string)$row[$cellIndex]) : '';
                         $shiftCell = preg_replace('/\s*\(-\)/', '', $cellValue);
 
                         $shift = null;
@@ -95,28 +97,17 @@ class JadwalSheetImport implements ToCollection
                                 ->where('tanggal_jadwal', $tanggal_jadwal)
                                 ->first();
 
-                            $isShiftL = strtoupper($shift->nama_shift) === 'L';
-
                             if (!$existing) {
-                                // Belum ada jadwal, buat baru
                                 JadwalAbsensi::create([
-                                    'user_id' => $user->id,
+                                    'user_id'        => $user->id,
                                     'tanggal_jadwal' => $tanggal_jadwal,
-                                    'shift_id' => $shift->id,
+                                    'shift_id'       => $shift->id,
                                 ]);
                             } else {
-                                $existingShift = $existing->shift;
-                                $existingIsL = strtoupper(optional($existingShift)->nama_shift) === 'L';
-
-                                // Update hanya jika:
-                                // 1. Shift sebelumnya L dan yang baru bukan L
-                                // 2. Shift sebelumnya bukan L dan yang baru bukan L
-                                if (($existingIsL && !$isShiftL) || (!$existingIsL && !$isShiftL)) {
-                                    $existing->update([
-                                        'shift_id' => $shift->id,
-                                    ]);
+                                // Update kalau berbeda (termasuk ke/dari L)
+                                if ($existing->shift_id !== $shift->id) {
+                                    $existing->update(['shift_id' => $shift->id]);
                                 }
-                                // selain itu: skip update
                             }
                         }
 
