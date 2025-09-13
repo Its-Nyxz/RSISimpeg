@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Models\Holidays;
 use App\Models\JadwalAbsensi;
 use DateTime;
 use Carbon\Carbon;
@@ -134,113 +135,140 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
     public function registerEvents(): array
     {
         return [
-            \Maatwebsite\Excel\Events\AfterSheet::class => function (\Maatwebsite\Excel\Events\AfterSheet $event) {
+            AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
+                $wb    = $sheet->getParent();
 
-                // ======= Pastikan shift 'L' ada di database =======
-                Shift::firstOrCreate([
-                    'unit_id' => $this->unitId,
-                    'nama_shift' => 'L',
-                    'jam_masuk' => null,
-                    'jam_keluar' => null
-                ], [
-                    'keterangan' => 'Libur'
-                ]);
+                // Konstanta lokal
+                $FIXED_COLS   = 6;                          // A..F (NO..LAMA KERJA)
+                $FIRST_DAYCOL = $FIXED_COLS + 1;            // = 7 (G)
+                $daysInMonth  = Carbon::create($this->year, $this->month)->daysInMonth;
 
-                // ======= Ambil semua shift dan format untuk dropdown =======
-                $shifts = Shift::where('unit_id', $this->unitId)->get()->map(function ($shift) {
-                    $nama = $shift->nama_shift;
-                    $masuk = $shift->jam_masuk ?? '-';
-                    $keluar = $shift->jam_keluar ?? '-';
+                // 1) Pastikan shift L ada
+                Shift::firstOrCreate(
+                    ['unit_id' => $this->unitId, 'nama_shift' => 'L', 'jam_masuk' => null, 'jam_keluar' => null],
+                    ['keterangan' => 'Libur']
+                );
 
-                    // Khusus shift L
-                    if ($nama === 'L' && is_null($shift->jam_masuk) && is_null($shift->jam_keluar)) {
-                        return 'L (-)';
+                // 2) Siapkan list dropdown shift (Nama (in-out)) + "L (-)"
+                $shiftValues = Shift::where('unit_id', $this->unitId)
+                    ->get()
+                    ->map(function ($s) {
+                        $nama   = $s->nama_shift;
+                        $masuk  = $s->jam_masuk ?? '-';
+                        $keluar = $s->jam_keluar ?? '-';
+                        if ($nama === 'L' && is_null($s->jam_masuk) && is_null($s->jam_keluar)) {
+                            return 'L (-)';
+                        }
+                        return "{$nama} ({$masuk}-{$keluar})";
+                    })
+                    ->unique()
+                    ->values();
+
+                // Tambah opsi kosong (opsional)
+                $shiftValues->push('');
+
+                // 3) Sediakan sheet "Shifts" untuk sumber dropdown (idempotent)
+                if ($shiftValues->count() > 0) {
+                    $hidden = $wb->getSheetByName('Shifts');
+                    if (!$hidden) {
+                        $hidden = $wb->createSheet();
+                        $hidden->setTitle('Shifts');
+                    } else {
+                        // bersihkan kolom A jika sheet sudah ada
+                        $hidden->removeColumn('A', 1);
+                        $hidden->insertNewColumnBefore('A', 1);
+                    }
+                    foreach ($shiftValues as $i => $val) {
+                        $hidden->setCellValue('A' . ($i + 1), $val);
                     }
 
-                    return "{$nama} ({$masuk}-{$keluar})";
-                })->unique()->values();
-
-                // Tambahkan satu opsi kosong di dropdown (opsional)
-                $shifts->push('');
-
-                if (count($shifts) > 0) {
-                    // Buat sheet baru untuk daftar shift (JANGAN DISEMBUNYIKAN)
-                    $hiddenSheet = $sheet->getParent()->createSheet();
-                    $hiddenSheet->setTitle('Shifts'); // Buat tab baru dengan judul "Shifts"
-
-                    foreach ($shifts as $index => $shift) {
-                        $hiddenSheet->setCellValue('A' . ($index + 1), $shift);
-                    }
-
-                    // === Terapkan dropdown langsung ke sheet ===
-                    $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
+                    // 4) Terapkan dropdown ke semua sel hari (baris data)
                     $startRow = 2;
-                    $endRow = $sheet->getHighestRow();
-
+                    $endRow   = max($sheet->getHighestRow(), $startRow); // guard
                     for ($row = $startRow; $row <= $endRow; $row++) {
-                        // ⬇️ hari mulai di kolom ke-7 (G), bukan 6 (F)
-                        for ($col = 7; $col <= (6 + $daysInMonth); $col++) {
+                        for ($col = $FIRST_DAYCOL; $col <= ($FIXED_COLS + $daysInMonth); $col++) {
                             $cell = $sheet->getCellByColumnAndRow($col, $row);
-
-                            $validation = $cell->getDataValidation();
-                            $validation->setType(DataValidation::TYPE_LIST)
+                            $dv   = $cell->getDataValidation();
+                            $dv->setType(DataValidation::TYPE_LIST)
                                 ->setErrorStyle(DataValidation::STYLE_STOP)
                                 ->setAllowBlank(true)
                                 ->setShowDropDown(true)
-                                ->setFormula1('\'Shifts\'!$A$1:$A$' . count($shifts));
+                                ->setFormula1('\'Shifts\'!$A$1:$A$' . $shiftValues->count());
                             $sheet->getColumnDimensionByColumn($col)->setWidth(15);
                         }
                     }
                 }
 
-                // ======= Style Header Utama =======
-                // ⬇️ ada 6 kolom tetap (A s/d F)
+                // 5) Gaya header kolom tetap A..F
                 $sheet->getStyle('A1:F1')->applyFromArray([
-                    'font' => ['bold' => true],
+                    'font'      => ['bold' => true],
                     'alignment' => ['horizontal' => 'center'],
-                    'fill' => [
-                        'fillType' => 'solid',
-                        'startColor' => ['rgb' => 'FFA07A']
-                    ]
+                    'fill'      => ['fillType' => 'solid', 'startColor' => ['rgb' => 'FFA07A']],
                 ]);
 
-                // ======= Tandai Hari Minggu dengan Warna Merah =======
-                $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
+                // Helper: set fill merah + font putih
+                $paintRedHeader = function (int $col) use ($sheet) {
+                    $st = $sheet->getStyleByColumnAndRow($col, 1);
+                    $st->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
+                    $st->getFill()->getStartColor()->setARGB('FFFF0000');
+                    $st->getFont()->getColor()->setARGB('FFFFFFFF');
+                };
 
-                for ($day = 1; $day <= $daysInMonth; $day++) {
-                    $date = Carbon::create($this->year, $this->month, $day);
+                // Helper: cek apakah sudah punya fill custom (bukan default)
+                $hasCustomFill = function (int $col) use ($sheet): bool {
+                    $st   = $sheet->getStyleByColumnAndRow($col, 1);
+                    $argb = strtoupper($st->getFill()->getStartColor()->getARGB());
+                    return $argb !== '00000000' && $argb !== 'FFFFFFFF' && $argb !== '';
+                };
 
-                    if ($date->format('l') === 'Sunday') {
-                        $cell = $sheet->getCellByColumnAndRow($day + 6, 1);
+                // 6) Tandai libur nasional dari tabel holidays (jika ada)
+                //    Asumsi kolom date bernama 'date'. Ganti jika beda.
+                $holidayDays = Holidays::query()
+                    ->whereMonth('date', $this->month)
+                    ->whereYear('date', $this->year)
+                    ->pluck('date')
+                    ->map(fn($d) => Carbon::parse($d)->day)
+                    ->unique()
+                    ->values();
 
-                        $cell->getStyle()->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
-                        $cell->getStyle()->getFill()->getStartColor()->setARGB('FFFF0000');
-                        $cell->getStyle()->getFont()->getColor()->setARGB('FFFFFFFF');
+                foreach ($holidayDays as $hDay) {
+                    $col = $FIXED_COLS + $hDay; // day 1 => col 7 (G)
+                    if ($col >= $FIRST_DAYCOL && $col <= ($FIXED_COLS + $daysInMonth)) {
+                        $paintRedHeader($col); // libur nasional = prioritas, boleh override
                     }
                 }
 
-                // Kolom PJ ada di kolom D (ke-4), sesuaikan jika urutan berubah
-                $users = User::where('unit_id', $this->unitId)
-                    ->orderBy('name', 'asc')
-                    ->get();
-                $rowCount = count($users);
+                // 7) Tandai hari Minggu sesuai kalender, JANGAN timpa libur nasional
+                for ($day = 1; $day <= $daysInMonth; $day++) {
+                    $date = Carbon::create($this->year, $this->month, $day);
+                    if ($date->dayOfWeek === Carbon::SUNDAY) {
+                        $col = $FIXED_COLS + $day;
+                        if ($col >= $FIRST_DAYCOL && $col <= ($FIXED_COLS + $daysInMonth)) {
+                            if (!$hasCustomFill($col)) {
+                                $paintRedHeader($col);
+                            }
+                        }
+                    }
+                }
 
-                // Baris mulai dari 2 (setelah header)
+                // 8) Validasi dropdown untuk kolom PJ (D) pada baris data
+                $users    = User::where('unit_id', $this->unitId)->orderBy('name', 'asc')->get();
+                $rowCount = $users->count();
                 for ($row = 2; $row <= $rowCount + 1; $row++) {
-                    $cell = 'D' . $row; // Kolom D = PJ
-                    $validation = $event->sheet->getDelegate()->getCell($cell)->getDataValidation();
-                    $validation->setType(DataValidation::TYPE_LIST);
-                    $validation->setErrorStyle(DataValidation::STYLE_STOP);
-                    $validation->setAllowBlank(true);
-                    $validation->setShowInputMessage(true);
-                    $validation->setShowErrorMessage(true);
-                    $validation->setShowDropDown(true);
-                    $validation->setFormula1('"Iya,Tidak"');
-                    $validation->setErrorTitle('Input salah');
-                    $validation->setError('Pilih antara Iya atau Tidak');
-                    $validation->setPromptTitle('Pilih PJ');
-                    $validation->setPrompt('Silakan pilih Iya atau Tidak');
+                    $cell = 'D' . $row;
+                    $dv   = $event->sheet->getDelegate()->getCell($cell)->getDataValidation();
+                    $dv->setType(DataValidation::TYPE_LIST)
+                        ->setErrorStyle(DataValidation::STYLE_STOP)
+                        ->setAllowBlank(true)
+                        ->setShowInputMessage(true)
+                        ->setShowErrorMessage(true)
+                        ->setShowDropDown(true)
+                        ->setFormula1('"Iya,Tidak"')
+                        ->setErrorTitle('Input salah')
+                        ->setError('Pilih antara Iya atau Tidak')
+                        ->setPromptTitle('Pilih PJ')
+                        ->setPrompt('Silakan pilih Iya atau Tidak');
                 }
             },
         ];
