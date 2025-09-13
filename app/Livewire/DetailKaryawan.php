@@ -97,7 +97,7 @@ class DetailKaryawan extends Component
         if ($this->canSeeRiwayat) {
             $this->listRiwayatApproval = RiwayatApproval::with(['cuti.user', 'cuti.jeniscuti'])
                 ->where('approver_id', $this->user_id) // Filter by current user being viewed
-                ->orderBy('approved_at', 'desc')
+                ->orderBy('approve_at', 'desc')
                 ->get();
         }
 
@@ -128,7 +128,7 @@ class DetailKaryawan extends Component
 
             $this->listRiwayatApproval = RiwayatApproval::with(['cuti.user', 'approver'])
                 ->where('approver_id', auth()->id())
-                ->orderBy('approved_at', 'desc')
+                ->orderBy('approve_at', 'desc')
                 ->get();
         }
     }

@@ -722,7 +722,7 @@
                                                         <span class="text-red-600 font-bold">Ditolak</span>
                                                     @endif
                                                 </td>
-                                                <td class="px-2 py-2 sm:px-4">{{ formatDate($riwayat->approved_at) }}
+                                                <td class="px-2 py-2 sm:px-4">{{ formatDate($riwayat->approve_at) }}
                                                 </td>
                                                 <td class="px-2 py-2 sm:px-4">{{ $riwayat->catatan ?? '-' }}</td>
                                             </tr>
