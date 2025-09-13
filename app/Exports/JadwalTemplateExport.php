@@ -211,14 +211,12 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
                 for ($day = 1; $day <= $daysInMonth; $day++) {
                     $date = Carbon::create($this->year, $this->month, $day);
 
-                    // Jika hari Minggu
                     if ($date->format('l') === 'Sunday') {
-                        $cell = $sheet->getCellByColumnAndRow($day + 6, 1); // Kolom untuk tanggal di header
+                        $cell = $sheet->getCellByColumnAndRow($day + 6, 1);
 
-                        // Warna merah untuk header Minggu
                         $cell->getStyle()->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
-                        $cell->getStyle()->getFill()->getStartColor()->setARGB('FFFF0000'); // Warna merah
-                        $cell->getStyle()->getFont()->getColor()->setARGB('FFFFFFFF'); // Warna font putih
+                        $cell->getStyle()->getFill()->getStartColor()->setARGB('FFFF0000');
+                        $cell->getStyle()->getFont()->getColor()->setARGB('FFFFFFFF');
                     }
                 }
 
