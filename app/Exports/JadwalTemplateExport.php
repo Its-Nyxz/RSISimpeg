@@ -37,7 +37,12 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
             ->orderBy('name', 'asc')
             ->get();
         $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
-
+        // di atas loop users (opsional, helper kecil)
+        $fmtTime = function ($t) {
+            if (empty($t)) return '-';
+            // ambil HH:MM saja
+            return substr($t, 0, 5);
+        };
         foreach ($users as $index => $user) {
             // Cek apakah user ini PJ pada bulan & tahun ini
             $isPJ = \App\Models\PJ::where('user_id', $user->id)
@@ -61,7 +66,21 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
                     ->where('user_id', $user->id)
                     ->whereDate('tanggal_jadwal', $tanggal)
                     ->first();
-                $row[] = $jadwal && $jadwal->shift ? $jadwal->shift->nama_shift : null;
+
+                if ($jadwal && $jadwal->shift) {
+                    $nama   = $jadwal->shift->nama_shift ?? '-';
+                    $masuk  = $fmtTime($jadwal->shift->jam_masuk ?? null);
+                    $keluar = $fmtTime($jadwal->shift->jam_keluar ?? null);
+
+                    // Khusus shift L tanpa jam -> tampilkan "L (-)"
+                    if ($nama === 'L' && (is_null($jadwal->shift->jam_masuk) && is_null($jadwal->shift->jam_keluar))) {
+                        $row[] = 'L (-)';
+                    } else {
+                        $row[] = "{$nama} ({$masuk}-{$keluar})";
+                    }
+                } else {
+                    $row[] = null; // atau '' jika mau dibiarkan kosong
+                }
             }
             $data[] = $row;
         }
@@ -160,24 +179,24 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
                     $endRow = $sheet->getHighestRow();
 
                     for ($row = $startRow; $row <= $endRow; $row++) {
-                        for ($col = 6; $col <= (5 + $daysInMonth); $col++) {
+                        // ⬇️ hari mulai di kolom ke-7 (G), bukan 6 (F)
+                        for ($col = 7; $col <= (6 + $daysInMonth); $col++) {
                             $cell = $sheet->getCellByColumnAndRow($col, $row);
 
                             $validation = $cell->getDataValidation();
-                            $validation->setType(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST)
-                                ->setErrorStyle(\PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_STOP)
+                            $validation->setType(DataValidation::TYPE_LIST)
+                                ->setErrorStyle(DataValidation::STYLE_STOP)
                                 ->setAllowBlank(true)
                                 ->setShowDropDown(true)
-                                // === Gunakan referensi langsung ke sheet hidden ===
                                 ->setFormula1('\'Shifts\'!$A$1:$A$' . count($shifts));
-                            // Atur lebar kolom agar dropdown tidak terpotong
                             $sheet->getColumnDimensionByColumn($col)->setWidth(15);
                         }
                     }
                 }
 
                 // ======= Style Header Utama =======
-                $sheet->getStyle('A1:E1')->applyFromArray([
+                // ⬇️ ada 6 kolom tetap (A s/d F)
+                $sheet->getStyle('A1:F1')->applyFromArray([
                     'font' => ['bold' => true],
                     'alignment' => ['horizontal' => 'center'],
                     'fill' => [
@@ -185,6 +204,7 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
                         'startColor' => ['rgb' => 'FFA07A']
                     ]
                 ]);
+
                 // ======= Tandai Hari Minggu dengan Warna Merah =======
                 $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
 
@@ -193,7 +213,7 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
 
                     // Jika hari Minggu
                     if ($date->format('l') === 'Sunday') {
-                        $cell = $sheet->getCellByColumnAndRow($day + 5, 1); // Kolom untuk tanggal di header
+                        $cell = $sheet->getCellByColumnAndRow($day + 6, 1); // Kolom untuk tanggal di header
 
                         // Warna merah untuk header Minggu
                         $cell->getStyle()->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID);
