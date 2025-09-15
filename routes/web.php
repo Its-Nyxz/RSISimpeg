@@ -101,7 +101,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('users/destroy/{id}', [UserProfile::class, 'destroy'])->name('users.destroy');
     Route::resource('absensi', AbsensiController::class);
     Route::resource('shift', ShiftController::class);
-    Route::resource('opsi', OpsiAbsenController::class);
+    // Route::resource('opsi', OpsiAbsenController::class);
     Route::resource('jabatan', MasterJabatanController::class);
     Route::resource('umum', MasterUmumController::class);
     Route::resource('trans', MasterTransController::class);
@@ -120,7 +120,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/jadwal/template', [JadwalAbsensiController::class, 'export'])->name('jadwal.template');
     Route::get('jadwal/{tipe}/{id}', [JadwalAbsensiController::class, 'create']);
     Route::resource('jadwal', JadwalAbsensiController::class);
-    Route::resource('status', StatusAbsenController::class);
+    // Route::resource('status', StatusAbsenController::class);
     Route::resource('kenaikan', KenaikanController::class);
     Route::resource('kenaikankontrak', KenaikanKontrakController::class);
     Route::resource('penilaian', PenilaianPekerjaController::class);
