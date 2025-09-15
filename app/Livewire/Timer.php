@@ -177,7 +177,7 @@ class Timer extends Component
     public function startTimer()
     {
         // Validasi lokasi/IP
-        // if (!$this->validasiLokasiAtauIp()) return;
+        if (!$this->validasiLokasiAtauIp()) return;
 
         // Cegah double start
         if ($this->isRunning) return;
@@ -262,7 +262,7 @@ class Timer extends Component
 
     public function openWorkReportModal()
     {
-        // if (!$this->validasiLokasiAtauIp()) return;
+        if (!$this->validasiLokasiAtauIp()) return;
 
         $this->validateOnly('deskripsi_out');
 
@@ -317,7 +317,7 @@ class Timer extends Component
 
     public function completeWorkReport()
     {
-        // if (!$this->validasiLokasiAtauIp()) return;
+        if (!$this->validasiLokasiAtauIp()) return;
 
         if (!$this->timeOut) return;
 
