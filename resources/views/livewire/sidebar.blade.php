@@ -59,8 +59,8 @@
                                     'child' => [
                                         ['title' => 'Jadwal Absensi', 'href' => '/jadwal'],
                                         ['title' => 'Shift', 'href' => '/shift'],
-                                        ['title' => 'Opsi', 'href' => '/opsi'],
-                                        ['title' => 'Status', 'href' => '/status'],
+                                        // ['title' => 'Opsi', 'href' => '/opsi'],
+                                        // ['title' => 'Status', 'href' => '/status'],
                                         ['title' => 'Hari Libur Nasional', 'href' => '/liburnasional'],
                                     ],
                                 ]
@@ -225,8 +225,8 @@
                             'child' => [
                                 ['title' => 'Jadwal Absensi', 'href' => '/jadwal'],
                                 ['title' => 'Shift', 'href' => '/shift'],
-                                ['title' => 'Opsi', 'href' => '/opsi'],
-                                ['title' => 'Status', 'href' => '/status'],
+                                // ['title' => 'Opsi', 'href' => '/opsi'],
+                                // ['title' => 'Status', 'href' => '/status'],
                                 ['title' => 'Hari Libur Nasional', 'href' => '/liburnasional'],
                             ],
                         ]

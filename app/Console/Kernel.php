@@ -48,6 +48,8 @@ class Kernel extends ConsoleKernel
         //     ->appendOutputTo(storage_path('logs/absen-timeout.log'));
     }
 
+    
+
     /**
      * Register the commands for the application.
      */
