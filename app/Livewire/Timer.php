@@ -176,7 +176,7 @@ class Timer extends Component
 
     public function startTimer()
     {
-        // Validasi lokasi/IP
+        // Validasi lokasi/IP cek
         if (!$this->validasiLokasiAtauIp()) return;
 
         // Cegah double start
