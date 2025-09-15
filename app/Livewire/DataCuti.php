@@ -43,13 +43,13 @@ class DataCuti extends Component
             $query->where(function ($q) {
                 // Tampilkan pengajuan yang telah disetujui atasan unit (status 4)
                 $q->where('status_cuti_id', 4)
-                  // ATAU tampilkan pengajuan dari peran tingkat tinggi yang alurnya langsung ke Kepegawaian (status 3)
-                  ->orWhere(function ($subQ) {
-                      $subQ->where('status_cuti_id', 3)
-                           ->whereHas('user.roles', function($r) {
-                               $r->whereIn('name', ['Direktur', 'Wadir', 'Manager', 'Kepala Seksi']);
-                           });
-                  });
+                    // ATAU tampilkan pengajuan dari peran tingkat tinggi yang alurnya langsung ke Kepegawaian (status 3)
+                    ->orWhere(function ($subQ) {
+                        $subQ->where('status_cuti_id', 3)
+                            ->whereHas('user.roles', function ($r) {
+                                $r->whereIn('name', ['Direktur', 'Wadir', 'Manager', 'Kepala Seksi']);
+                            });
+                    });
             });
         } else {
             // ✅ PERBAIKAN UTAMA: Logika filtering berdasarkan hierarki yang benar
@@ -61,9 +61,9 @@ class DataCuti extends Component
                     // Kepala Ruang hanya bisa melihat pengajuan dari Staf di unit yang sama
                     $query->whereHas('user', function ($q) use ($user) {
                         $q->where('unit_id', $user->unit_id)
-                          ->whereHas('roles', function($r) {
-                              $r->where('name', 'Staf');
-                          });
+                            ->whereHas('roles', function ($r) {
+                                $r->where('name', 'like', 'Staf%'); // tangkap Staf, Staf Keuangan, Staf Kepegawaian
+                            });
                     });
                     break;
 
@@ -71,9 +71,9 @@ class DataCuti extends Component
                     // Kepala Instalasi hanya bisa melihat pengajuan dari Kepala Ruang di unit yang sama
                     $query->whereHas('user', function ($q) use ($user) {
                         $q->where('unit_id', $user->unit_id)
-                          ->whereHas('roles', function($r) {
-                              $r->where('name', 'Kepala Ruang');
-                          });
+                            ->whereHas('roles', function ($r) {
+                                $r->where('name', 'Kepala Ruang');
+                            });
                     });
                     break;
 
@@ -83,19 +83,48 @@ class DataCuti extends Component
                     break;
 
                 case 'Kepala Seksi':
-                    // ✅ PERBAIKAN: Kepala Seksi bisa melihat pengajuan dari Kepala Instalasi dan Kepala Unit di unit yang sama
-                    $query->whereHas('user', function ($q) use ($user) {
-                        $q->where('unit_id', $user->unit_id)
-                          ->whereHas('roles', function($r) {
-                              $r->whereIn('name', ['Kepala Instalasi', 'Kepala Unit']);
-                          });
-                    });
+                    $query
+                        ->whereHas('user', function ($uq) use ($user) {
+                            $uq->where('unit_id', $user->unit_id);
+                        })
+                        ->whereHas('user.roles', function ($rq) {
+                            $rq->where(function ($w) {
+                                $w->where('name', 'like', 'Staf%') // semua varian Staf
+                                    ->orWhereIn('name', ['Kepala Ruang', 'Kepala Instalasi', 'Kepala Unit']);
+                            });
+                        });
+                    break;
+
+                case 'Kepala Seksi Keuangan':
+                    $query
+                        ->whereHas('user', function ($uq) use ($user) {
+                            $uq->where('unit_id', $user->unit_id);
+                        })
+                        ->whereHas('user.roles', function ($rq) {
+                            $rq->where(function ($w) {
+                                $w->where('name', 'like', 'Staf%') // semua varian Staf
+                                    ->orWhereIn('name', ['Kepala Ruang', 'Kepala Instalasi', 'Kepala Unit']);
+                            });
+                        });
+                    break;
+
+                case 'Kepala Seksi Kepegawaian ':
+                    $query
+                        ->whereHas('user', function ($uq) use ($user) {
+                            $uq->where('unit_id', $user->unit_id);
+                        })
+                        ->whereHas('user.roles', function ($rq) {
+                            $rq->where(function ($w) {
+                                $w->where('name', 'like', 'Staf%') // semua varian Staf
+                                    ->orWhereIn('name', ['Kepala Ruang', 'Kepala Instalasi', 'Kepala Unit']);
+                            });
+                        });
                     break;
 
                 case 'Manager':
                     // Manager hanya bisa melihat pengajuan dari Kepala Seksi lintas unit
                     $query->whereHas('user', function ($q) {
-                        $q->whereHas('roles', function($r) {
+                        $q->whereHas('roles', function ($r) {
                             $r->where('name', 'Kepala Seksi');
                         });
                     });
@@ -104,7 +133,7 @@ class DataCuti extends Component
                 case 'Wadir':
                     // Wadir hanya bisa melihat pengajuan dari Manager lintas unit
                     $query->whereHas('user', function ($q) {
-                        $q->whereHas('roles', function($r) {
+                        $q->whereHas('roles', function ($r) {
                             $r->where('name', 'Manager');
                         });
                     });
@@ -113,7 +142,7 @@ class DataCuti extends Component
                 case 'Direktur':
                     // Direktur hanya bisa melihat pengajuan dari Wadir lintas unit
                     $query->whereHas('user', function ($q) {
-                        $q->whereHas('roles', function($r) {
+                        $q->whereHas('roles', function ($r) {
                             $r->where('name', 'Wadir');
                         });
                     });
@@ -124,32 +153,30 @@ class DataCuti extends Component
                     $query->whereNull('id'); // Tidak akan menampilkan data apapun
                     break;
             }
-            
+
             // Pengecualian agar approver tidak melihat pengajuan cuti mereka sendiri
             $query->where('user_id', '!=', $user->id);
         }
-        
+
         return $query->orderByDesc('id')->paginate(10);
     }
 
     private function getNextApprovers($roleName)
     {
         $approvalFlow = [
-            'Staf' => ['Kepala Ruang', 'Kepala Seksi Kepegawaian'],
-            'Kepala Ruang' => ['Kepala Instalasi', 'Kepala Seksi Kepegawaian'],
+            // Staf ditangani KR atau KS di step-1 (di-loadData sudah dibuka untuk KS),
+            // next step final = Kepala Seksi Kepegawaian
+            'Staf'            => ['Kepala Ruang', 'Kepala Seksi'], // (siapa pun yang take action di step-1)
+            'Kepala Ruang'    => ['Kepala Seksi Kepegawaian'],     // langsung final
             'Kepala Instalasi' => ['Kepala Seksi', 'Kepala Seksi Kepegawaian'],
-            'Kepala Unit' => ['Kepala Seksi', 'Kepala Seksi Kepegawaian'],
-            'Kepala Seksi' => ['Manager', 'Kepala Seksi Kepegawaian'],
-            'Manager' => ['Wadir', 'Kepala Seksi Kepegawaian'],
-            'Wadir' => ['Direktur', 'Kepala Seksi Kepegawaian'],
-            'Direktur' => ['Kepala Seksi Kepegawaian'],
+            'Kepala Unit'     => ['Kepala Seksi', 'Kepala Seksi Kepegawaian'],
+            'Kepala Seksi'    => ['Kepala Seksi Kepegawaian'],     // untuk Staf langsung final
+            'Manager'         => ['Wadir', 'Kepala Seksi Kepegawaian'],
+            'Wadir'           => ['Direktur', 'Kepala Seksi Kepegawaian'],
+            'Direktur'        => ['Kepala Seksi Kepegawaian'],
         ];
 
-        if (isset($approvalFlow[$roleName])) {
-            return $approvalFlow[$roleName];
-        }
-
-        return ['Kepala Seksi Kepegawaian'];
+        return $approvalFlow[$roleName] ?? ['Kepala Seksi Kepegawaian'];
     }
 
     private function getUsersByRoles($roles)
@@ -270,78 +297,55 @@ class DataCuti extends Component
 
             return redirect()->route('approvalcuti.index')->with('success', 'Pengajuan Cuti Disetujui Final!');
         } else {
-            // ✅ PERBAIKAN UTAMA: Intermediate approval dengan logika hierarki yang benar
-            $cuti->update(['status_cuti_id' => 4]); // Status: Disetujui Kepala Unit (or intermediate approver)
+            // Intermediate approval
+            $cuti->update(['status_cuti_id' => 4]);
 
-            // ✅ Tentukan next approver berdasarkan hierarki yang benar
             $nextApprovers = collect();
             $targetUserRole = $targetUser->roles->first()->name ?? 'Staf';
-            
-            // Logika penentuan next approver berdasarkan role pemohon dan approver saat ini
-            if ($approverRole === 'Kepala Ruang' && $targetUserRole === 'Staf') {
-                // Setelah Kepala Ruang approve, lanjut ke Kepala Instalasi di unit yang sama
-                $nextApprovers = User::where('unit_id', $targetUser->unit_id)
-                                     ->whereHas('roles', function ($query) {
-                                         $query->where('name', 'Kepala Instalasi');
-                                     })
-                                     ->get();
-            } elseif ($approverRole === 'Kepala Instalasi' && $targetUserRole === 'Staf') {
-                // Setelah Kepala Instalasi approve, lanjut ke Kepala Seksi di unit yang sama
-                $nextApprovers = User::where('unit_id', $targetUser->unit_id)
-                                     ->whereHas('roles', function ($query) {
-                                         $query->where('name', 'Kepala Seksi');
-                                     })
-                                     ->get();
-            } elseif ($approverRole === 'Kepala Seksi') {
-                // ✅ PERBAIKAN: Setelah Kepala Seksi approve (baik dari Kepala Instalasi atau Kepala Unit), lanjut ke Kepegawaian
-                if (in_array($targetUserRole, ['Kepala Instalasi', 'Kepala Unit'])) {
-                    // Langsung ke Kepala Seksi Kepegawaian untuk Kepala Instalasi dan Kepala Unit
-                    $nextApprovers = User::whereHas('roles', function ($query) {
-                        $query->where('name', 'Kepala Seksi Kepegawaian');
-                    })->get();
-                } else {
-                    // Untuk role lain, lanjut ke Manager
-                    $nextApprovers = User::whereHas('roles', function ($query) {
-                        $query->where('name', 'Manager');
-                    })->get();
+
+            // --- ATURAN BARU: Maksimal 2 langkah untuk pemohon Staf ---
+            if ($targetUserRole === 'Staf' && in_array($approverRole, ['Kepala Ruang', 'Kepala Seksi'])) {
+                // Siapa pun yang approve duluan (KR/KS), langsung ke final: Kepala Seksi Kepegawaian
+                $nextApprovers = User::whereHas('roles', function ($q) {
+                    $q->where('name', 'Kepala Seksi Kepegawaian');
+                })->get();
+            } else {
+                // --- Aturan lama untuk non-Staf (tetap seperti sebelumnya) ---
+                if ($approverRole === 'Kepala Seksi' && in_array($targetUserRole, ['Kepala Instalasi', 'Kepala Unit'])) {
+                    $nextApprovers = User::whereHas('roles', fn($q) => $q->where('name', 'Kepala Seksi Kepegawaian'))->get();
+                } elseif ($approverRole === 'Kepala Seksi') {
+                    $nextApprovers = User::whereHas('roles', fn($q) => $q->where('name', 'Manager'))->get();
+                } elseif ($approverRole === 'Manager') {
+                    $nextApprovers = User::whereHas('roles', fn($q) => $q->where('name', 'Wadir'))->get();
+                } elseif ($approverRole === 'Wadir') {
+                    $nextApprovers = User::whereHas('roles', fn($q) => $q->where('name', 'Direktur'))->get();
+                } elseif ($approverRole === 'Direktur') {
+                    $nextApprovers = User::whereHas('roles', fn($q) => $q->where('name', 'Kepala Seksi Kepegawaian'))->get();
                 }
-            } elseif ($approverRole === 'Manager') {
-                // Setelah Manager approve, lanjut ke Wadir (lintas unit)
-                $nextApprovers = User::whereHas('roles', function ($query) {
-                    $query->where('name', 'Wadir');
-                })->get();
-            } elseif ($approverRole === 'Wadir') {
-                // Setelah Wadir approve, lanjut ke Direktur (lintas unit)
-                $nextApprovers = User::whereHas('roles', function ($query) {
-                    $query->where('name', 'Direktur');
-                })->get();
-            } elseif ($approverRole === 'Direktur') {
-                // Setelah Direktur approve, lanjut ke Kepala Seksi Kepegawaian
-                $nextApprovers = User::whereHas('roles', function ($query) {
-                    $query->where('name', 'Kepala Seksi Kepegawaian');
-                })->get();
             }
 
-            // Send notification to the original user
-            $messageToUser = 'Pengajuan Cuti anda (' . $targetUser->name . ') telah <span class="text-success-600 font-bold">Disetujui Kepala Unit</span> oleh ' . $user->name;
+            // --- Perbaiki label notifikasi agar dinamis (bukan "Kepala Unit") ---
+            $statusLabel = 'Disetujui ' . ($user->roles->first()->name ?? 'Approver');
+
+            $messageToUser = 'Pengajuan Cuti anda (' . $targetUser->name . ') telah <span class="text-success-600 font-bold">'
+                . $statusLabel . '</span> oleh ' . $user->name;
             Notification::send($targetUser, new UserNotification($messageToUser, "/pengajuan/cuti"));
 
-            // Send notification to the next approver(s)
             if ($nextApprovers->count() > 0) {
-                $messageToApprover = 'Pengajuan Cuti atas nama (' . $targetUser->name . ') telah <span class="text-success-600 font-bold">Disetujui Kepala Unit</span> oleh ' . $user->name . ', silahkan melanjutkan persetujuan.';
+                $messageToApprover = 'Pengajuan Cuti atas nama (' . $targetUser->name . ') telah <span class="text-success-600 font-bold">'
+                    . $statusLabel . '</span> oleh ' . $user->name . ', silahkan melanjutkan persetujuan.';
                 Notification::send($nextApprovers, new UserNotification($messageToApprover, "/approvalcuti"));
             }
 
-            // Record the intermediate approval history
             RiwayatApproval::create([
                 'cuti_id' => $cutiId,
                 'approver_id' => $user->id,
-                'status_approval' => 'disetujui_kepala_unit',
+                'status_approval' => 'disetujui_intermediate',
                 'approve_at' => now(),
                 'catatan' => null
             ]);
 
-            return redirect()->route('approvalcuti.index')->with('success', 'Cuti disetujui Kepala Unit!');
+            return redirect()->route('approvalcuti.index')->with('success', 'Cuti disetujui (menunggu final)!');
         }
     }
 
