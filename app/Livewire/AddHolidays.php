@@ -16,6 +16,8 @@ class AddHolidays extends Component
     public $description;
     public $date;
 
+    public $errorMessage = '';
+
     public function mount()
     {
         $this->holidays = Holidays::all();
@@ -34,6 +36,28 @@ class AddHolidays extends Component
     }
     public function saveHoliday()
     {
+        
+        $this->validate([
+            'date' => 'required|date',
+            'description' => 'required|string|max:255',
+        ]);
+
+        // Cek apakah tanggal sudah ada (kecuali untuk edit data yang sama)
+        $existingHoliday = Holidays::where('date', $this->date)
+            ->when($this->tipe, function ($query) {
+                return $query->where('id', '!=', $this->tipe);
+            })
+            ->first();
+
+        if ($existingHoliday) {
+            // Set error message untuk ditampilkan di SweetAlert
+            $this->errorMessage = 'Tanggal ' . Carbon::parse($this->date)->format('d F Y') . ' sudah ada hari libur: ' . $existingHoliday->description;
+            
+            // Dispatch event untuk menampilkan SweetAlert
+            $this->dispatch('show-error-alert', message: $this->errorMessage);
+            return;
+        }
+        
         $holiday = Holidays::updateOrCreate(
             ['id' => $this->tipe ?? 0], // Unique field to check for existing record
             [

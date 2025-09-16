@@ -39,4 +39,23 @@
             class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white  font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200">Simpan</button>
 
     </div>
+
+    @push('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            document.addEventListener('livewire:initialized', () => {
+                // Listen untuk event show-error-alert
+                Livewire.on('show-error-alert', (event) => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Menyimpan',
+                        text: event.message,
+                        showConfirmButton: false,
+                        timerProgressBar: true,
+                        timer: 3000,
+                    });
+                });
+            });
+        </script>
+    @endpush
 </div>
