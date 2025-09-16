@@ -50,12 +50,15 @@ class GenerateAbsenTimeout extends Command
                 'jadwal_id'
             ])
             ->whereNull('time_out')                         // belum checkout
-            ->where(function ($q) {                         // sudah checkin (support int/datetime/string)
+            ->where(function ($q) { // sudah checkin
                 $q->whereNotNull('time_in')
-                    ->where(function ($qq) {
-                        $qq->where('time_in', '!=', 0)
-                            ->orWhereRaw("CAST(time_in AS CHAR) <> ''");
-                    });
+                    // kalau kolom time_in kamu epoch (INT):
+                    ->where('time_in', '>', 0);
+                // jika campuran (epoch atau datetime string), gunakan ini:
+                // ->where(function ($qq) {
+                //     $qq->where('time_in', '>', 0)
+                //        ->orWhereRaw("time_in REGEXP '^[0-9]{4}-[0-9]{2}-[0-9]{2} '");
+                // });
             })
             ->where(function ($q) {
                 $q->whereNull('is_lembur')->orWhere('is_lembur', 0);
@@ -64,7 +67,14 @@ class GenerateAbsenTimeout extends Command
             ->where(function ($q) {
                 $q->whereNull('absent')->orWhere('absent', 0);
             })
-            ->with(['jadwalAbsen:id,tanggal_jadwal,shift_id', 'jadwalAbsen.shift:id,jam_masuk,jam_keluar'])
+            ->whereHas('jadwalAbsen.shift', function ($q) {
+                $q->whereNotNull('jam_masuk')->whereRaw("TRIM(jam_masuk) <> ''")
+                    ->whereNotNull('jam_keluar')->whereRaw("TRIM(jam_keluar) <> ''");
+            })
+            ->with([
+                'jadwalAbsen:id,tanggal_jadwal,shift_id',
+                'jadwalAbsen.shift:id,jam_masuk,jam_keluar'
+            ])
             ->chunkById(200, function ($chunk) use (&$updated, $zone, $toleranceHrs, $fail, &$fails, &$skippedToleransi) {
 
                 foreach ($chunk as $absen) {
@@ -88,6 +98,16 @@ class GenerateAbsenTimeout extends Command
                     $jkRaw   = trim((string) $shift->jam_keluar);
 
                     if ($jmRaw === '' || $jkRaw === '') {
+                        // 🔎 Tambahkan log detail di sini
+                        Log::warning("⛔ Jam shift kosong", [
+                            'absen_id'        => $absen->id,
+                            'jadwal_tanggal'  => $jadwal->tanggal_jadwal,
+                            'shift_id'        => $shift->id ?? null,
+                            'jam_masuk_raw'   => $jmRaw,
+                            'jam_keluar_raw'  => $jkRaw,
+                        ]);
+
+                        // existing logic kamu
                         Log::warning("⛔ Jam masuk/keluar kosong untuk absen {$absen->id}");
                         $fail('empty_time', $absen, [
                             'tanggal_jadwal' => $jadwal->tanggal_jadwal,
@@ -97,8 +117,13 @@ class GenerateAbsenTimeout extends Command
                         continue;
                     }
 
-                    $jmStr = $tanggal->toDateString() . ' ' . $jmRaw;
-                    $jkStr = $tanggal->toDateString() . ' ' . $jkRaw;
+                    // TENTUKAN TANGGAL START (ANCHOR)
+                    $baseDate = !empty($absen->time_in) && (int)$absen->time_in > 0
+                        ? Carbon::createFromTimestamp((int)$absen->time_in, $zone)->toDateString()
+                        : Carbon::parse($jadwal->tanggal_jadwal, $zone)->toDateString();
+
+                    $jmStr = $baseDate . ' ' . $jmRaw;
+                    $jkStr = $baseDate . ' ' . $jkRaw;
 
                     try {
                         [$jm, $jk, $isShiftMalam] = $this->parseShiftTimes($jmStr, $jkStr, $zone);
@@ -183,19 +208,48 @@ class GenerateAbsenTimeout extends Command
      */
     private function parseShiftTimes(string $jmStr, string $jkStr, string $zone): array
     {
-        $jm = Carbon::hasFormat($jmStr, 'Y-m-d H:i:s')
-            ? Carbon::createFromFormat('Y-m-d H:i:s', $jmStr, $zone)
-            : Carbon::createFromFormat('Y-m-d H:i',    $jmStr, $zone);
+        [$dJm, $tJm] = explode(' ', $jmStr, 2);
+        [$dJk, $tJk] = explode(' ', $jkStr, 2);
 
-        $jk = Carbon::hasFormat($jkStr, 'Y-m-d H:i:s')
-            ? Carbon::createFromFormat('Y-m-d H:i:s', $jkStr, $zone)
-            : Carbon::createFromFormat('Y-m-d H:i',    $jkStr, $zone);
+        $normalize = function (string $t): string {
+            $t = trim(str_replace('.', ':', $t));
+            if (preg_match('/^24:00(:00)?$/', $t)) return '24:00'; // flag khusus
+            if (preg_match('/^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/', $t, $m)) {
+                $H = str_pad($m[1], 2, '0', STR_PAD_LEFT);
+                $i = str_pad($m[2], 2, '0', STR_PAD_LEFT);
+                $s = isset($m[3]) ? str_pad($m[3], 2, '0', STR_PAD_LEFT) : null;
+                return $s ? "$H:$i:$s" : "$H:$i";
+            }
+            return $t;
+        };
 
+        $tJmN = $normalize($tJm);
+        $tJkN = $normalize($tJk);
 
-        $isShiftMalam = $jk->lt($jm);
-        if ($isShiftMalam) {
-            $jk->addDay();
+        $addDayOut = false;
+        if ($tJkN === '24:00') {
+            $tJkN = '00:00:00';
+            $addDayOut = true;
         }
+
+        $loose = function (string $date, string $time) use ($zone) {
+            foreach (['Y-m-d H:i:s', 'Y-m-d H:i'] as $fmt) {
+                try {
+                    if (Carbon::hasFormat("$date $time", $fmt)) {
+                        return Carbon::createFromFormat($fmt, "$date $time", $zone);
+                    }
+                } catch (\Throwable $e) {
+                }
+            }
+            return Carbon::parse("$date $time", $zone); // fallback
+        };
+
+        $jm = $loose($dJm, $tJmN);
+        $jk = $loose($dJk, $tJkN);
+
+        $isShiftMalam = $jk->lt($jm) || $addDayOut;
+        if ($isShiftMalam) $jk->addDay();
+
         return [$jm, $jk, $isShiftMalam];
     }
 }
