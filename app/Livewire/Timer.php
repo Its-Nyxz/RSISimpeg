@@ -875,24 +875,25 @@ class Timer extends Component
     {
         // 0) Bypass untuk testing/dev
         if (app()->environment(['local', 'testing'])) {
+            logger('Bypass lokasi (env dev/testing).');
             return true;
         }
 
-        // 1) Pastikan koordinat ada & float
-        $lat = floatval($this->latitude);
-        $lng = floatval($this->longitude);
-        if (!$lat || !$lng) {
+        // 1) Koordinat wajib ada
+        $lat = isset($this->latitude) ? floatval($this->latitude) : null;
+        $lng = isset($this->longitude) ? floatval($this->longitude) : null;
+        if ($lat === null || $lng === null) {
             $this->dispatch('alert-error', message: 'Lokasi belum tersedia. Aktifkan GPS.');
             return false;
         }
 
-        // 2) Optional: batasi hanya mobile untuk produksi
+        // 2) Hanya mobile (opsional, bisa dibuat role-based)
         if (!$this->isMobileDevice()) {
             $this->dispatch('alert-error', message: 'Absensi hanya dari perangkat mobile.');
             return false;
         }
 
-        // 3) SATU set polygon saja (pilih versi yang paling akurat)
+        // 3) Satu set polygon saja
         $polygons = [
             'RSI' => [
                 [-7.40147446398133, 109.61572941909724],
@@ -925,32 +926,38 @@ class Timer extends Component
             ],
         ];
 
-        // 4) Allowed areas (sesuaikan dengan role/unit jika perlu)
+        // 4) Tentukan area yang diizinkan untuk user (bisa dibuat dinamis per role/unit)
         $allowedAreas = ['RSI', 'akunbiz'];
 
-        // 5) Coba point-in-polygon
+        // 5) Coba point-in-polygon (boundary-inclusive)
         foreach ($allowedAreas as $area) {
-            if ($this->isPointInPolygon($lat, $lng, $polygons[$area])) {
+            if ($this->isPointInPolygonInclusive($lat, $lng, $polygons[$area])) {
+                logger('Lokasi valid via polygon', ['area' => $area, 'lat' => $lat, 'lng' => $lng]);
                 return true;
             }
         }
 
-        // 6) Fallback toleransi radius (buffer) untuk mengatasi GPS error
+        // 6) Fallback radius buffer
         $centers = [
             'RSI' => [-7.40233, 109.61562],
             'akunbiz' => [-7.548218, 110.812613],
         ];
-        $bufferMeters = 150; // toleransi 150 m
+        $bufferMeters = 180; // bisa dinaikkan 150 -> 180/200 sesuai kebutuhan
+
         foreach ($allowedAreas as $area) {
             [$clat, $clng] = $centers[$area];
-            if ($this->hitungJarakMeter($lat, $lng, $clat, $clng) <= $bufferMeters) {
+            $jarak = $this->hitungJarakMeter($lat, $lng, $clat, $clng);
+            if ($jarak <= $bufferMeters) {
+                logger('Lokasi valid via buffer', ['area' => $area, 'jarak_m' => $jarak]);
                 return true;
             }
         }
 
+        logger('Lokasi ditolak', ['lat' => $lat, 'lng' => $lng]);
         $this->dispatch('alert-error', message: 'Anda di luar area absensi yang diizinkan.');
         return false;
     }
+
 
 
     private function hitungJarakMeter($lat1, $lon1, $lat2, $lon2)
@@ -963,19 +970,30 @@ class Timer extends Component
         return $earthRadius * $c;
     }
 
-    private function isPointInPolygon($lat, $lng, array $polygon): bool
+    private function isPointInPolygonInclusive(float $lat, float $lng, array $polygon): bool
     {
         $inside = false;
-        $j = count($polygon) - 1;
+        $n = count($polygon);
+        if ($n < 3) return false;
 
-        for ($i = 0; $i < count($polygon); $i++) {
+        // toleransi ~ 1e-8 derajat ≈ 0.011 meter di lintang ekuator
+        $eps = 1e-8;
+        $j = $n - 1;
+
+        for ($i = 0; $i < $n; $i++) {
             $lat_i = $polygon[$i][0];
             $lng_i = $polygon[$i][1];
             $lat_j = $polygon[$j][0];
             $lng_j = $polygon[$j][1];
 
+            // 1) cek apakah titik berada tepat di segmen tepi (boundary)
+            if ($this->pointOnSegment($lat, $lng, $lat_i, $lng_i, $lat_j, $lng_j, $eps)) {
+                return true;
+            }
+
+            // 2) ray casting
             $intersect = (($lng_i > $lng) != ($lng_j > $lng)) &&
-                ($lat < ($lat_j - $lat_i) * ($lng - $lng_i) / ($lng_j - $lng_i + 1e-10) + $lat_i);
+                ($lat < ($lat_j - $lat_i) * ($lng - $lng_i) / (($lng_j - $lng_i) ?: 1e-12) + $lat_i);
 
             if ($intersect) {
                 $inside = !$inside;
@@ -986,6 +1004,25 @@ class Timer extends Component
 
         return $inside;
     }
+
+    private function pointOnSegment(
+        float $px,
+        float $py,
+        float $ax,
+        float $ay,
+        float $bx,
+        float $by,
+        float $eps
+    ): bool {
+        // cek kolinearitas (jarak ke garis sangat kecil)
+        $cross = ($py - $ay) * ($bx - $ax) - ($px - $ax) * ($by - $ay);
+        if (abs($cross) > $eps) return false;
+
+        // cek proyeksi berada antara A dan B (dengan toleransi)
+        $dot = ($px - $ax) * ($px - $bx) + ($py - $ay) * ($py - $by);
+        return $dot <= $eps;
+    }
+
 
 
     public function render()
