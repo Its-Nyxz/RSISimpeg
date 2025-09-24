@@ -1,4 +1,4 @@
-<x-body>
+    <x-body>
     <div class="flex items-start justify-between mb-6">
         <div class="w-2/3">
             <h1 class="text-2xl font-bold text-success-900 mb-4">

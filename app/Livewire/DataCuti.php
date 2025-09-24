@@ -16,6 +16,7 @@ use App\Models\SisaCutiTahunan;
 use App\Models\RiwayatApproval;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\DB;
 
 class DataCuti extends Component
 {
@@ -52,105 +53,169 @@ class DataCuti extends Component
                     });
             });
         } else {
-            // ✅ PERBAIKAN UTAMA: Logika filtering berdasarkan hierarki yang benar
+            // ✅ PERBAIKAN UTAMA: Logika filtering berdasarkan hierarki yang benar dengan auto-skip
             $query->where('status_cuti_id', 3);
 
-            // Filter berdasarkan role dan hierarki yang benar
+            // Filter berdasarkan role dan hierarki yang benar dengan logic skip
             switch ($userRole) {
                 case 'Kepala Ruang':
-                    // Kepala Ruang hanya bisa melihat pengajuan dari Staf di unit yang sama
+                    // Kepala Ruang bisa melihat pengajuan dari Staf di unit yang sama
                     $query->whereHas('user', function ($q) use ($user) {
                         $q->where('unit_id', $user->unit_id)
                             ->whereHas('roles', function ($r) {
-                                $r->where('name', 'like', 'Staf%'); // tangkap Staf, Staf Keuangan, Staf Kepegawaian
+                                $r->where('name', 'like', 'Staf%');
                             });
                     });
                     break;
 
                 case 'Kepala Instalasi':
-                    // Kepala Instalasi hanya bisa melihat pengajuan dari Kepala Ruang di unit yang sama
+                    // Kepala Instalasi bisa melihat dari Kepala Ruang atau skip langsung dari Staf jika KR tidak ada
                     $query->whereHas('user', function ($q) use ($user) {
                         $q->where('unit_id', $user->unit_id)
                             ->whereHas('roles', function ($r) {
+                                // Bisa dari Kepala Ruang atau langsung dari Staf (jika KR tidak ada di unit)
+                                $r->where('name', 'Kepala Ruang')
+                                    ->orWhere('name', 'like', 'Staf%');
+                            });
+                    })->where(function ($subQuery) use ($user) {
+                        // Jika ada Kepala Ruang di unit, hanya terima dari KR
+                        // Jika tidak ada KR, terima langsung dari Staf
+                        $hasKepalaRuang = $this->roleExistsInUnit('Kepala Ruang', $user->unit_id);
+                        if ($hasKepalaRuang) {
+                            $subQuery->whereHas('user.roles', function ($r) {
                                 $r->where('name', 'Kepala Ruang');
                             });
+                        } else {
+                            $subQuery->whereHas('user.roles', function ($r) {
+                                $r->where('name', 'like', 'Staf%');
+                            });
+                        }
                     });
                     break;
 
                 case 'Kepala Unit':
-                    // Kepala Unit tidak ada dalam alur approval cuti, jadi tidak bisa melihat apapun
-                    $query->whereNull('id'); // Tidak akan menampilkan data apapun
+                    // Kepala Unit bisa melihat dari KI/KR atau skip langsung dari level bawah jika tidak ada
+                    $query->whereHas('user', function ($q) use ($user) {
+                        $q->where('unit_id', $user->unit_id)
+                            ->whereHas('roles', function ($r) {
+                                $r->whereIn('name', ['Kepala Instalasi', 'Kepala Ruang'])
+                                    ->orWhere('name', 'like', 'Staf%');
+                            });
+                    })->where(function ($subQuery) use ($user) {
+                        $hasKI = $this->roleExistsInUnit('Kepala Instalasi', $user->unit_id);
+                        $hasKR = $this->roleExistsInUnit('Kepala Ruang', $user->unit_id);
+                        
+                        if ($hasKI) {
+                            $subQuery->whereHas('user.roles', function ($r) {
+                                $r->where('name', 'Kepala Instalasi');
+                            });
+                        } elseif ($hasKR) {
+                            $subQuery->whereHas('user.roles', function ($r) {
+                                $r->where('name', 'Kepala Ruang');
+                            });
+                        } else {
+                            $subQuery->whereHas('user.roles', function ($r) {
+                                $r->where('name', 'like', 'Staf%');
+                            });
+                        }
+                    });
                     break;
 
                 case 'Kepala Seksi':
-                    $query
-                        ->whereHas('user', function ($uq) use ($user) {
-                            $uq->where('unit_id', $user->unit_id);
-                        })
-                        ->whereHas('user.roles', function ($rq) {
-                            $rq->where(function ($w) {
-                                $w->where('name', 'like', 'Staf%') // semua varian Staf
-                                    ->orWhereIn('name', ['Kepala Ruang', 'Kepala Instalasi', 'Kepala Unit']);
-                            });
-                        });
-                    break;
-
                 case 'Kepala Seksi Keuangan':
-                    $query
-                        ->whereHas('user', function ($uq) use ($user) {
-                            $uq->where('unit_id', $user->unit_id);
-                        })
-                        ->whereHas('user.roles', function ($rq) {
-                            $rq->where(function ($w) {
-                                $w->where('name', 'like', 'Staf%') // semua varian Staf
+                case 'Kepala Seksi Kepegawaian':
+                    // Kepala Seksi bisa melihat dari semua level bawah di unit atau skip sesuai ketersediaan
+                    $query->whereHas('user', function ($uq) use ($user) {
+                        $uq->where('unit_id', $user->unit_id)
+                            ->whereHas('roles', function ($rq) {
+                                $rq->where('name', 'like', 'Staf%')
                                     ->orWhereIn('name', ['Kepala Ruang', 'Kepala Instalasi', 'Kepala Unit']);
                             });
-                        });
-                    break;
-
-                case 'Kepala Seksi Kepegawaian ':
-                    $query
-                        ->whereHas('user', function ($uq) use ($user) {
-                            $uq->where('unit_id', $user->unit_id);
-                        })
-                        ->whereHas('user.roles', function ($rq) {
-                            $rq->where(function ($w) {
-                                $w->where('name', 'like', 'Staf%') // semua varian Staf
-                                    ->orWhereIn('name', ['Kepala Ruang', 'Kepala Instalasi', 'Kepala Unit']);
-                            });
-                        });
+                    });
                     break;
 
                 case 'Manager':
-                    // Manager hanya bisa melihat pengajuan dari Kepala Seksi lintas unit
-                    $query->whereHas('user', function ($q) {
-                        $q->whereHas('roles', function ($r) {
+                    // Manager bisa melihat dari Kepala Seksi atau skip dari level bawah jika KS tidak ada
+                    $query->where(function ($subQuery) {
+                        // Cek apakah ada pengajuan yang seharusnya dari KS tapi di-skip karena KS tidak ada
+                        $subQuery->whereHas('user.roles', function ($r) {
                             $r->where('name', 'Kepala Seksi');
+                        })
+                        // ATAU pengajuan yang di-skip dari unit yang tidak punya KS
+                        ->orWhere(function ($skipQuery) {
+                            $skipQuery->whereHas('user', function ($uq) {
+                                // Cari pengajuan dari unit yang tidak punya Kepala Seksi
+                                $uq->whereHas('roles', function ($rq) {
+                                    $rq->where('name', 'like', 'Staf%')
+                                        ->orWhereIn('name', ['Kepala Ruang', 'Kepala Instalasi', 'Kepala Unit']);
+                                });
+                            })
+                            ->whereDoesntHave('user', function ($noKsQuery) {
+                                // Pastikan unit tersebut tidak punya Kepala Seksi
+                                $noKsQuery->whereExists(function ($existsQuery) {
+                                    $existsQuery->select(\DB::raw(1))
+                                        ->from('users as u2')
+                                        ->join('model_has_roles as mhr2', 'u2.id', '=', 'mhr2.model_id')
+                                        ->join('roles as r2', 'mhr2.role_id', '=', 'r2.id')
+                                        ->whereRaw('u2.unit_id = users.unit_id')
+                                        ->where('r2.name', 'Kepala Seksi');
+                                });
+                            });
                         });
                     });
                     break;
 
                 case 'Wadir':
-                    // Wadir hanya bisa melihat pengajuan dari Manager lintas unit
-                    $query->whereHas('user', function ($q) {
-                        $q->whereHas('roles', function ($r) {
+                    // Wadir bisa melihat dari Manager atau skip jika Manager tidak ada
+                    $query->where(function ($subQuery) {
+                        $subQuery->whereHas('user.roles', function ($r) {
                             $r->where('name', 'Manager');
+                        })
+                        ->orWhere(function ($skipQuery) {
+                            // Skip jika tidak ada Manager - terima dari Kepala Seksi
+                            $skipQuery->whereHas('user.roles', function ($r) {
+                                $r->where('name', 'Kepala Seksi');
+                            })
+                            ->whereDoesntHave('user', function ($noManagerQuery) {
+                                $noManagerQuery->whereExists(function ($existsQuery) {
+                                    $existsQuery->select(\DB::raw(1))
+                                        ->from('users as u3')
+                                        ->join('model_has_roles as mhr3', 'u3.id', '=', 'mhr3.model_id')
+                                        ->join('roles as r3', 'mhr3.role_id', '=', 'r3.id')
+                                        ->where('r3.name', 'Manager');
+                                });
+                            });
                         });
                     });
                     break;
 
                 case 'Direktur':
-                    // Direktur hanya bisa melihat pengajuan dari Wadir lintas unit
-                    $query->whereHas('user', function ($q) {
-                        $q->whereHas('roles', function ($r) {
+                    // Direktur bisa melihat dari Wadir atau skip jika Wadir tidak ada
+                    $query->where(function ($subQuery) {
+                        $subQuery->whereHas('user.roles', function ($r) {
                             $r->where('name', 'Wadir');
+                        })
+                        ->orWhere(function ($skipQuery) {
+                            // Skip jika tidak ada Wadir - terima dari Manager atau level bawah
+                            $skipQuery->whereHas('user.roles', function ($r) {
+                                $r->whereIn('name', ['Manager', 'Kepala Seksi']);
+                            })
+                            ->whereDoesntHave('user', function ($noWadirQuery) {
+                                $noWadirQuery->whereExists(function ($existsQuery) {
+                                    $existsQuery->select(\DB::raw(1))
+                                        ->from('users as u4')
+                                        ->join('model_has_roles as mhr4', 'u4.id', '=', 'mhr4.model_id')
+                                        ->join('roles as r4', 'mhr4.role_id', '=', 'r4.id')
+                                        ->where('r4.name', 'Wadir');
+                                });
+                            });
                         });
                     });
                     break;
 
                 default:
                     // Role lain tidak bisa melihat approval apapun
-                    $query->whereNull('id'); // Tidak akan menampilkan data apapun
+                    $query->whereNull('id');
                     break;
             }
 
@@ -159,6 +224,134 @@ class DataCuti extends Component
         }
 
         return $query->orderByDesc('id')->paginate(10);
+    }
+
+    /**
+     * 🔥 FUNGSI BARU: Cek apakah role tertentu ada di unit kerja
+     */
+    private function roleExistsInUnit($roleName, $unitId)
+    {
+        return User::where('unit_id', $unitId)
+            ->whereHas('roles', function ($query) use ($roleName) {
+                $query->where('name', $roleName);
+            })
+            ->exists();
+    }
+
+    /**
+     * 🔥 FUNGSI BARU: Mencari next approver dengan auto-skip logic
+     */
+    private function findNextApproversWithSkip($targetUser, $currentApproverRole)
+    {
+        $targetUserRole = $targetUser->roles->first()->name ?? 'Staf';
+        $unitId = $targetUser->unit_id;
+        
+        // Definisi hierarki approval berdasarkan role pemohon
+        $approvalHierarchy = [
+            'Staf' => [
+                'unit_based' => ['Kepala Ruang', 'Kepala Instalasi', 'Kepala Unit', 'Kepala Seksi'],
+                'cross_unit' => ['Manager', 'Wadir', 'Direktur'],
+                'final' => 'Kepala Seksi Kepegawaian'
+            ],
+            'Kepala Ruang' => [
+                'unit_based' => ['Kepala Instalasi', 'Kepala Unit', 'Kepala Seksi'],
+                'cross_unit' => ['Manager', 'Wadir', 'Direktur'],
+                'final' => 'Kepala Seksi Kepegawaian'
+            ],
+            'Kepala Instalasi' => [
+                'unit_based' => ['Kepala Unit', 'Kepala Seksi'],
+                'cross_unit' => ['Manager', 'Wadir', 'Direktur'],
+                'final' => 'Kepala Seksi Kepegawaian'
+            ],
+            'Kepala Unit' => [
+                'unit_based' => ['Kepala Seksi'],
+                'cross_unit' => ['Manager', 'Wadir', 'Direktur'],
+                'final' => 'Kepala Seksi Kepegawaian'
+            ],
+            'Kepala Seksi' => [
+                'unit_based' => [],
+                'cross_unit' => ['Manager', 'Wadir', 'Direktur'],
+                'final' => 'Kepala Seksi Kepegawaian'
+            ],
+            'Manager' => [
+                'unit_based' => [],
+                'cross_unit' => ['Wadir', 'Direktur'],
+                'final' => 'Kepala Seksi Kepegawaian'
+            ],
+            'Wadir' => [
+                'unit_based' => [],
+                'cross_unit' => ['Direktur'],
+                'final' => 'Kepala Seksi Kepegawaian'
+            ],
+            'Direktur' => [
+                'unit_based' => [],
+                'cross_unit' => [],
+                'final' => 'Kepala Seksi Kepegawaian'
+            ],
+        ];
+
+        $hierarchy = $approvalHierarchy[$targetUserRole] ?? $approvalHierarchy['Staf'];
+        $allRoles = array_merge($hierarchy['unit_based'], $hierarchy['cross_unit'], [$hierarchy['final']]);
+        
+        // Cari posisi current approver dalam hierarki
+        $currentIndex = array_search($currentApproverRole, $allRoles);
+        
+        if ($currentIndex === false) {
+            // Jika current role tidak ditemukan, kembalikan ke final approver
+            return User::whereHas('roles', function ($q) use ($hierarchy) {
+                $q->where('name', $hierarchy['final']);
+            })->get();
+        }
+
+        // Cari next approver dengan skip logic
+        for ($i = $currentIndex + 1; $i < count($allRoles); $i++) {
+            $nextRole = $allRoles[$i];
+            
+            // Jika final approver, langsung return
+            if ($nextRole === $hierarchy['final']) {
+                return User::whereHas('roles', function ($q) use ($nextRole) {
+                    $q->where('name', $nextRole);
+                })->get();
+            }
+            
+            // Cek apakah role ada di unit (untuk unit-based roles)
+            if (in_array($nextRole, $hierarchy['unit_based'])) {
+                if ($this->roleExistsInUnit($nextRole, $unitId)) {
+                    return User::where('unit_id', $unitId)
+                        ->whereHas('roles', function ($q) use ($nextRole) {
+                            $q->where('name', $nextRole);
+                        })->get();
+                }
+                // Jika tidak ada, lanjut ke iterasi berikutnya (auto-skip)
+            } else {
+                // Untuk cross-unit roles, langsung cari tanpa filter unit
+                $users = User::whereHas('roles', function ($q) use ($nextRole) {
+                    $q->where('name', $nextRole);
+                })->get();
+                
+                if ($users->count() > 0) {
+                    return $users;
+                }
+                // Jika tidak ada, lanjut ke iterasi berikutnya (auto-skip)
+            }
+        }
+
+        // Jika semua di-skip, kembalikan final approver
+        return User::whereHas('roles', function ($q) use ($hierarchy) {
+            $q->where('name', $hierarchy['final']);
+        })->get();
+    }
+
+    /**
+     * 🔥 FUNGSI BARU: Cek apakah sudah final approval
+     */
+    private function isFinalApproval($currentApproverRole, $nextApprovers)
+    {
+        return $currentApproverRole === 'Kepala Seksi Kepegawaian' || 
+               $nextApprovers->isEmpty() ||
+               $nextApprovers->every(function ($approver) {
+                   return $approver->roles->first()->name === 'Kepala Seksi Kepegawaian';
+               });
     }
 
     private function getNextApprovers($roleName)
@@ -202,9 +395,12 @@ class DataCuti extends Component
         }
 
         $approverRole = $user->roles->first()->name ?? 'default';
-        $nextApproverRoles = $this->getNextApprovers($approverRole);
-
-        if (in_array('Kepala Seksi Kepegawaian', $nextApproverRoles) && $approverRole == 'Kepala Seksi Kepegawaian') {
+        
+        // 🔥 GUNAKAN FUNGSI BARU untuk mencari next approver dengan auto-skip
+        $nextApprovers = $this->findNextApproversWithSkip($targetUser, $approverRole);
+        
+        // 🔥 CEK APAKAH INI FINAL APPROVAL
+        if ($this->isFinalApproval($approverRole, $nextApprovers)) {
             // Final approval
             if ($cuti->jenisCuti && strtolower($cuti->jenisCuti->nama_cuti) == 'cuti tahunan') {
                 $userCuti = SisaCutiTahunan::where('user_id', $userId)
@@ -299,30 +495,6 @@ class DataCuti extends Component
         } else {
             // Intermediate approval
             $cuti->update(['status_cuti_id' => 4]);
-
-            $nextApprovers = collect();
-            $targetUserRole = $targetUser->roles->first()->name ?? 'Staf';
-
-            // --- ATURAN BARU: Maksimal 2 langkah untuk pemohon Staf ---
-            if ($targetUserRole === 'Staf' && in_array($approverRole, ['Kepala Ruang', 'Kepala Seksi'])) {
-                // Siapa pun yang approve duluan (KR/KS), langsung ke final: Kepala Seksi Kepegawaian
-                $nextApprovers = User::whereHas('roles', function ($q) {
-                    $q->where('name', 'Kepala Seksi Kepegawaian');
-                })->get();
-            } else {
-                // --- Aturan lama untuk non-Staf (tetap seperti sebelumnya) ---
-                if ($approverRole === 'Kepala Seksi' && in_array($targetUserRole, ['Kepala Instalasi', 'Kepala Unit'])) {
-                    $nextApprovers = User::whereHas('roles', fn($q) => $q->where('name', 'Kepala Seksi Kepegawaian'))->get();
-                } elseif ($approverRole === 'Kepala Seksi') {
-                    $nextApprovers = User::whereHas('roles', fn($q) => $q->where('name', 'Manager'))->get();
-                } elseif ($approverRole === 'Manager') {
-                    $nextApprovers = User::whereHas('roles', fn($q) => $q->where('name', 'Wadir'))->get();
-                } elseif ($approverRole === 'Wadir') {
-                    $nextApprovers = User::whereHas('roles', fn($q) => $q->where('name', 'Direktur'))->get();
-                } elseif ($approverRole === 'Direktur') {
-                    $nextApprovers = User::whereHas('roles', fn($q) => $q->where('name', 'Kepala Seksi Kepegawaian'))->get();
-                }
-            }
 
             // --- Perbaiki label notifikasi agar dinamis (bukan "Kepala Unit") ---
             $statusLabel = 'Disetujui ' . ($user->roles->first()->name ?? 'Approver');
