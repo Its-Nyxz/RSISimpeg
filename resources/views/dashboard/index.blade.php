@@ -1,4 +1,4 @@
-    <x-body>
+<x-body>
     <div class="flex items-start justify-between mb-6">
         <div class="w-2/3">
             <h1 class="text-2xl font-bold text-success-900 mb-4">
@@ -199,10 +199,13 @@
                 @elseif ($jadwals->count() === 1)
                     <div class="mb-4 text-sm text-gray-700">
                         <strong>Shift:</strong>
-                        {{ $jadwals[0]->shift->nama_shift ?? 'Tanpa Shift' }} -
-                        {{ \Carbon\Carbon::parse($jadwals[0]->shift?->jam_masuk)->format('H:i') }}
-                        s/d
-                        {{ \Carbon\Carbon::parse($jadwals[0]->shift?->jam_keluar)->format('H:i') }}
+                        {{ $jadwals[0]->shift->nama_shift ?? 'Tanpa Shift' }}
+                        @if($jadwals[0]->shift && $jadwals[0]->shift->nama_shift !== 'L')
+                            -
+                            {{ \Carbon\Carbon::parse($jadwals[0]->shift?->jam_masuk)->format('H:i') }}
+                            s/d
+                            {{ \Carbon\Carbon::parse($jadwals[0]->shift?->jam_keluar)->format('H:i') }}
+                        @endif
                     </div>
                 @endif
 
