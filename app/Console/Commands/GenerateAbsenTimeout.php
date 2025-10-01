@@ -136,10 +136,13 @@ class GenerateAbsenTimeout extends Command
                         'final_saved' => Carbon::createFromTimestamp($shiftSelesai->timestamp, $zone)->toDateTimeString(),
                     ]);
 
+                    // pakai finalTime hasil kalkulasi, bukan absen->time_out (masih null)
+                    $finalTime = $shiftSelesai->copy()->setTimezone($zone);
+
                     Log::info("FINAL SAVE", [
                         'absen_id' => $absen->id,
-                        'unix'     => $absen->time_out,
-                        'datetime' => Carbon::createFromTimestamp($absen->time_out, $zone)->toDateTimeString(),
+                        'unix'     => $finalTime->timestamp,
+                        'datetime' => $finalTime->toDateTimeString(),
                     ]);
 
                     Log::info("✔️ Close Absen {$absen->id}", [
@@ -151,9 +154,6 @@ class GenerateAbsenTimeout extends Command
 
                     // simpan epoch
                     try {
-                        // pakai clone biar gak merusak object asli
-                        $finalTime = $shiftSelesai->copy()->setTimezone($zone);
-
                         $absen->time_out      = $finalTime->timestamp;
                         $absen->keterangan    = trim(($absen->keterangan ? $absen->keterangan . ', ' : '')
                             . "Timer otomatis ditutup oleh sistem (shift melebihi {$toleranceHrs} jam)");
