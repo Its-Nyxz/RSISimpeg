@@ -129,6 +129,19 @@ class GenerateAbsenTimeout extends Command
                         continue;
                     }
 
+                    Log::info("DEBUG TIME", [
+                        'absen_id'    => $absen->id,
+                        'shift_in'    => $jm->toDateTimeString(),
+                        'shift_out'   => $jk->toDateTimeString(),
+                        'final_saved' => Carbon::createFromTimestamp($shiftSelesai->timestamp, $zone)->toDateTimeString(),
+                    ]);
+
+                    Log::info("FINAL SAVE", [
+                        'absen_id' => $absen->id,
+                        'unix'     => $absen->time_out,
+                        'datetime' => Carbon::createFromTimestamp($absen->time_out, $zone)->toDateTimeString(),
+                    ]);
+
                     Log::info("✔️ Close Absen {$absen->id}", [
                         'shift_selesai' => $shiftSelesai->toDateTimeString() . ' WIB',
                         'toleransi'     => $toleransi->toDateTimeString() . ' WIB',
@@ -138,10 +151,12 @@ class GenerateAbsenTimeout extends Command
 
                     // simpan epoch
                     try {
-                        $absen->time_out      = $shiftSelesai->timestamp;
-                        $absen->keterangan    = $absen->keterangan
-                            ? $absen->keterangan . ' , Timer otomatis ditutup oleh sistem (shift melebihi ' . $toleranceHrs . ' jam)'
-                            : 'Timer otomatis ditutup oleh sistem (shift melebihi ' . $toleranceHrs . ' jam)';
+                        // pakai clone biar gak merusak object asli
+                        $finalTime = $shiftSelesai->copy()->setTimezone($zone);
+
+                        $absen->time_out      = $finalTime->timestamp;
+                        $absen->keterangan    = trim(($absen->keterangan ? $absen->keterangan . ', ' : '')
+                            . "Timer otomatis ditutup oleh sistem (shift melebihi {$toleranceHrs} jam)");
                         $absen->deskripsi_out = 'Timer otomatis ditutup oleh sistem';
                         $absen->save();
                         $updated++;
