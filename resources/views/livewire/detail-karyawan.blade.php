@@ -480,7 +480,8 @@
                                     @forelse ($listIzin as $izin)
                                         <tr
                                             class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
-                                      ., kll;      <td class="px-2 py-2 sm:px-4">{{ $izin->jenisizin->nama_izin ?? '-' }}
+                                            ., kll; <td class="px-2 py-2 sm:px-4">
+                                                {{ $izin->jenisizin->nama_izin ?? '-' }}
                                             </td>
                                             <td class="px-2 py-2 sm:px-4">
                                                 {{ formatDate($izin->tanggal_mulai) ?? '-' }}</td>
@@ -686,7 +687,7 @@
 
                 {{-- Dalam detail-karyawan.blade.php --}}
                 @if ($canSeeRiwayat)
-                    <div class="w-full">    
+                    <div class="w-full">
                         <div class="text-lg font-semibold mb-2">Riwayat Approval</div>
                         <div class="relative overflow-x-auto max-w-full shadow-md sm:rounded-lg">
                             <div class="max-h-96 overflow-y-auto">
@@ -715,11 +716,13 @@
                                                 <td class="px-2 py-2 sm:px-4">
                                                     @if ($riwayat->status_approval == 'disetujui_final')
                                                         <span class="text-success-600 font-bold">Disetujui Final</span>
-                                                    @elseif($riwayat->status_approval == 'disetujui_kepala_unit')
+                                                    @elseif($riwayat->status_approval == 'disetujui_intermediate')
                                                         <span class="text-blue-600 font-bold">Disetujui Kepala
                                                             Unit</span>
-                                                    @else
+                                                    @elseif($riwayat->status_approval == 'ditolak')
                                                         <span class="text-red-600 font-bold">Ditolak</span>
+                                                    @else
+                                                        <span class="text-gray-600 font-bold">Menunggu</span>
                                                     @endif
                                                 </td>
                                                 <td class="px-2 py-2 sm:px-4">{{ formatDate($riwayat->approve_at) }}

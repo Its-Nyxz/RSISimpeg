@@ -104,7 +104,7 @@ class DataCuti extends Component
                     })->where(function ($subQuery) use ($user) {
                         $hasKI = $this->roleExistsInUnit('Kepala Instalasi', $user->unit_id);
                         $hasKR = $this->roleExistsInUnit('Kepala Ruang', $user->unit_id);
-                        
+
                         if ($hasKI) {
                             $subQuery->whereHas('user.roles', function ($r) {
                                 $r->where('name', 'Kepala Instalasi');
@@ -141,27 +141,27 @@ class DataCuti extends Component
                         $subQuery->whereHas('user.roles', function ($r) {
                             $r->where('name', 'Kepala Seksi');
                         })
-                        // ATAU pengajuan yang di-skip dari unit yang tidak punya KS
-                        ->orWhere(function ($skipQuery) {
-                            $skipQuery->whereHas('user', function ($uq) {
-                                // Cari pengajuan dari unit yang tidak punya Kepala Seksi
-                                $uq->whereHas('roles', function ($rq) {
-                                    $rq->where('name', 'like', 'Staf%')
-                                        ->orWhereIn('name', ['Kepala Ruang', 'Kepala Instalasi', 'Kepala Unit']);
-                                });
-                            })
-                            ->whereDoesntHave('user', function ($noKsQuery) {
-                                // Pastikan unit tersebut tidak punya Kepala Seksi
-                                $noKsQuery->whereExists(function ($existsQuery) {
-                                    $existsQuery->select(\DB::raw(1))
-                                        ->from('users as u2')
-                                        ->join('model_has_roles as mhr2', 'u2.id', '=', 'mhr2.model_id')
-                                        ->join('roles as r2', 'mhr2.role_id', '=', 'r2.id')
-                                        ->whereRaw('u2.unit_id = users.unit_id')
-                                        ->where('r2.name', 'Kepala Seksi');
-                                });
+                            // ATAU pengajuan yang di-skip dari unit yang tidak punya KS
+                            ->orWhere(function ($skipQuery) {
+                                $skipQuery->whereHas('user', function ($uq) {
+                                    // Cari pengajuan dari unit yang tidak punya Kepala Seksi
+                                    $uq->whereHas('roles', function ($rq) {
+                                        $rq->where('name', 'like', 'Staf%')
+                                            ->orWhereIn('name', ['Kepala Ruang', 'Kepala Instalasi', 'Kepala Unit']);
+                                    });
+                                })
+                                    ->whereDoesntHave('user', function ($noKsQuery) {
+                                        // Pastikan unit tersebut tidak punya Kepala Seksi
+                                        $noKsQuery->whereExists(function ($existsQuery) {
+                                            $existsQuery->select(\DB::raw(1))
+                                                ->from('users as u2')
+                                                ->join('model_has_roles as mhr2', 'u2.id', '=', 'mhr2.model_id')
+                                                ->join('roles as r2', 'mhr2.role_id', '=', 'r2.id')
+                                                ->whereRaw('u2.unit_id = users.unit_id')
+                                                ->where('r2.name', 'Kepala Seksi');
+                                        });
+                                    });
                             });
-                        });
                     });
                     break;
 
@@ -171,21 +171,21 @@ class DataCuti extends Component
                         $subQuery->whereHas('user.roles', function ($r) {
                             $r->where('name', 'Manager');
                         })
-                        ->orWhere(function ($skipQuery) {
-                            // Skip jika tidak ada Manager - terima dari Kepala Seksi
-                            $skipQuery->whereHas('user.roles', function ($r) {
-                                $r->where('name', 'Kepala Seksi');
-                            })
-                            ->whereDoesntHave('user', function ($noManagerQuery) {
-                                $noManagerQuery->whereExists(function ($existsQuery) {
-                                    $existsQuery->select(\DB::raw(1))
-                                        ->from('users as u3')
-                                        ->join('model_has_roles as mhr3', 'u3.id', '=', 'mhr3.model_id')
-                                        ->join('roles as r3', 'mhr3.role_id', '=', 'r3.id')
-                                        ->where('r3.name', 'Manager');
-                                });
+                            ->orWhere(function ($skipQuery) {
+                                // Skip jika tidak ada Manager - terima dari Kepala Seksi
+                                $skipQuery->whereHas('user.roles', function ($r) {
+                                    $r->where('name', 'Kepala Seksi');
+                                })
+                                    ->whereDoesntHave('user', function ($noManagerQuery) {
+                                        $noManagerQuery->whereExists(function ($existsQuery) {
+                                            $existsQuery->select(\DB::raw(1))
+                                                ->from('users as u3')
+                                                ->join('model_has_roles as mhr3', 'u3.id', '=', 'mhr3.model_id')
+                                                ->join('roles as r3', 'mhr3.role_id', '=', 'r3.id')
+                                                ->where('r3.name', 'Manager');
+                                        });
+                                    });
                             });
-                        });
                     });
                     break;
 
@@ -195,21 +195,21 @@ class DataCuti extends Component
                         $subQuery->whereHas('user.roles', function ($r) {
                             $r->where('name', 'Wadir');
                         })
-                        ->orWhere(function ($skipQuery) {
-                            // Skip jika tidak ada Wadir - terima dari Manager atau level bawah
-                            $skipQuery->whereHas('user.roles', function ($r) {
-                                $r->whereIn('name', ['Manager', 'Kepala Seksi']);
-                            })
-                            ->whereDoesntHave('user', function ($noWadirQuery) {
-                                $noWadirQuery->whereExists(function ($existsQuery) {
-                                    $existsQuery->select(\DB::raw(1))
-                                        ->from('users as u4')
-                                        ->join('model_has_roles as mhr4', 'u4.id', '=', 'mhr4.model_id')
-                                        ->join('roles as r4', 'mhr4.role_id', '=', 'r4.id')
-                                        ->where('r4.name', 'Wadir');
-                                });
+                            ->orWhere(function ($skipQuery) {
+                                // Skip jika tidak ada Wadir - terima dari Manager atau level bawah
+                                $skipQuery->whereHas('user.roles', function ($r) {
+                                    $r->whereIn('name', ['Manager', 'Kepala Seksi']);
+                                })
+                                    ->whereDoesntHave('user', function ($noWadirQuery) {
+                                        $noWadirQuery->whereExists(function ($existsQuery) {
+                                            $existsQuery->select(\DB::raw(1))
+                                                ->from('users as u4')
+                                                ->join('model_has_roles as mhr4', 'u4.id', '=', 'mhr4.model_id')
+                                                ->join('roles as r4', 'mhr4.role_id', '=', 'r4.id')
+                                                ->where('r4.name', 'Wadir');
+                                        });
+                                    });
                             });
-                        });
                     });
                     break;
 
@@ -245,7 +245,25 @@ class DataCuti extends Component
     {
         $targetUserRole = $targetUser->roles->first()->name ?? 'Staf';
         $unitId = $targetUser->unit_id;
-        
+
+        // 🔥 Tambahan untuk staf khusus
+        if (stripos($targetUserRole, 'Staf Kepegawaian') !== false) {
+            return User::whereHas('roles', function ($q) {
+                $q->where('name', 'like', '%Kepala Seksi Kepegawaian%');
+            })->get();
+        }
+
+        if (stripos($targetUserRole, 'Staf Keuangan') !== false) {
+            $ksKeu = User::where('unit_id', $unitId)
+                ->whereHas('roles', function ($q) {
+                    $q->where('name', 'like', '%Kepala Seksi Keuangan%');
+                })->get();
+
+            return $ksKeu->count() > 0 ? $ksKeu : User::whereHas('roles', function ($q) {
+                $q->where('name', 'like', '%Kepala Seksi Kepegawaian%');
+            })->get();
+        }
+
         // Definisi hierarki approval berdasarkan role pemohon
         $approvalHierarchy = [
             'Staf' => [
@@ -292,10 +310,10 @@ class DataCuti extends Component
 
         $hierarchy = $approvalHierarchy[$targetUserRole] ?? $approvalHierarchy['Staf'];
         $allRoles = array_merge($hierarchy['unit_based'], $hierarchy['cross_unit'], [$hierarchy['final']]);
-        
+
         // Cari posisi current approver dalam hierarki
         $currentIndex = array_search($currentApproverRole, $allRoles);
-        
+
         if ($currentIndex === false) {
             // Jika current role tidak ditemukan, kembalikan ke final approver
             return User::whereHas('roles', function ($q) use ($hierarchy) {
@@ -306,14 +324,14 @@ class DataCuti extends Component
         // Cari next approver dengan skip logic
         for ($i = $currentIndex + 1; $i < count($allRoles); $i++) {
             $nextRole = $allRoles[$i];
-            
+
             // Jika final approver, langsung return
             if ($nextRole === $hierarchy['final']) {
                 return User::whereHas('roles', function ($q) use ($nextRole) {
                     $q->where('name', $nextRole);
                 })->get();
             }
-            
+
             // Cek apakah role ada di unit (untuk unit-based roles)
             if (in_array($nextRole, $hierarchy['unit_based'])) {
                 if ($this->roleExistsInUnit($nextRole, $unitId)) {
@@ -328,7 +346,7 @@ class DataCuti extends Component
                 $users = User::whereHas('roles', function ($q) use ($nextRole) {
                     $q->where('name', $nextRole);
                 })->get();
-                
+
                 if ($users->count() > 0) {
                     return $users;
                 }
@@ -347,11 +365,11 @@ class DataCuti extends Component
      */
     private function isFinalApproval($currentApproverRole, $nextApprovers)
     {
-        return $currentApproverRole === 'Kepala Seksi Kepegawaian' || 
-               $nextApprovers->isEmpty() ||
-               $nextApprovers->every(function ($approver) {
-                   return $approver->roles->first()->name === 'Kepala Seksi Kepegawaian';
-               });
+        return $currentApproverRole === 'Kepala Seksi Kepegawaian' ||
+            $nextApprovers->isEmpty() ||
+            $nextApprovers->every(function ($approver) {
+                return $approver->roles->first()->name === 'Kepala Seksi Kepegawaian';
+            });
     }
 
     private function getNextApprovers($roleName)
@@ -395,10 +413,10 @@ class DataCuti extends Component
         }
 
         $approverRole = $user->roles->first()->name ?? 'default';
-        
+
         // 🔥 GUNAKAN FUNGSI BARU untuk mencari next approver dengan auto-skip
         $nextApprovers = $this->findNextApproversWithSkip($targetUser, $approverRole);
-        
+
         // 🔥 CEK APAKAH INI FINAL APPROVAL
         if ($this->isFinalApproval($approverRole, $nextApprovers)) {
             // Final approval

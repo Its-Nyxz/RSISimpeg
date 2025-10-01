@@ -145,7 +145,7 @@ class PengajuanForm extends Component
         $user = auth()->user();
         $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
         $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)->get();
-        
+
         if ($this->tipe === 'cuti') {
             // Logika validasi untuk cuti
             $cekCutiSama = CutiKaryawan::where('user_id', auth()->id())
@@ -192,28 +192,49 @@ class PengajuanForm extends Component
 
             // ✅ PERBAIKAN UTAMA: Pencarian approver berdasarkan hierarki yang benar
             $nextApprovers = collect();
-            
-            if ($firstApproverRole === 'Kepala Ruang') {
+
+            // --- Tambahan untuk Staf khusus ---
+            if (stripos($userRole, 'Staf Kepegawaian') !== false) {
+                // Langsung ke Kepala Seksi Kepegawaian
+                $nextApprovers = User::whereHas('roles', function ($q) {
+                    $q->where('name', 'like', '%Kepala Seksi Kepegawaian%');
+                })->get();
+            } elseif (stripos($userRole, 'Staf Keuangan') !== false) {
+                // Cek apakah ada Kepala Seksi Keuangan di unit yang sama
+                $ksKeu = User::where('unit_id', $user->unit_id)
+                    ->whereHas('roles', function ($q) {
+                        $q->where('name', 'like', '%Kepala Seksi Keuangan%');
+                    })->get();
+
+                if ($ksKeu->count() > 0) {
+                    $nextApprovers = $ksKeu;
+                } else {
+                    // fallback ke Kepala Seksi Kepegawaian
+                    $nextApprovers = User::whereHas('roles', function ($q) {
+                        $q->where('name', 'like', '%Kepala Seksi Kepegawaian%');
+                    })->get();
+                }
+            } elseif ($firstApproverRole === 'Kepala Ruang') {
                 // Untuk Staf -> Kepala Ruang (hanya di unit yang sama)
                 $nextApprovers = User::where('unit_id', $user->unit_id)
-                                     ->whereHas('roles', function ($query) {
-                                         $query->where('name', 'Kepala Ruang');
-                                     })
-                                     ->get();
+                    ->whereHas('roles', function ($query) {
+                        $query->where('name', 'Kepala Ruang');
+                    })
+                    ->get();
             } elseif ($firstApproverRole === 'Kepala Instalasi') {
                 // Untuk Kepala Ruang -> Kepala Instalasi (hanya di unit yang sama)
                 $nextApprovers = User::where('unit_id', $user->unit_id)
-                                     ->whereHas('roles', function ($query) {
-                                         $query->where('name', 'Kepala Instalasi');
-                                     })
-                                     ->get();
+                    ->whereHas('roles', function ($query) {
+                        $query->where('name', 'Kepala Instalasi');
+                    })
+                    ->get();
             } elseif ($firstApproverRole === 'Kepala Seksi') {
                 // Untuk Kepala Instalasi/Kepala Unit -> Kepala Seksi (hanya di unit yang sama)
                 $nextApprovers = User::where('unit_id', $user->unit_id)
-                                     ->whereHas('roles', function ($query) {
-                                         $query->where('name', 'Kepala Seksi');
-                                     })
-                                     ->get();
+                    ->whereHas('roles', function ($query) {
+                        $query->where('name', 'Kepala Seksi');
+                    })
+                    ->get();
             } elseif (in_array($firstApproverRole, ['Manager', 'Wadir', 'Direktur', 'Kepala Seksi Kepegawaian'])) {
                 // Untuk level Manager ke atas (boleh lintas unit)
                 $nextApprovers = User::whereHas('roles', function ($query) use ($firstApproverRole) {

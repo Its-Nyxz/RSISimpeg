@@ -323,7 +323,7 @@ class KaryawanForm extends Component
         $this->childPphs = Kategoripph::whereNotNull('parent_id')->get();
 
         // Default value untuk child PPH yang dipilih
-        $this->roles = Role::where('id', '>', '3')->get();
+        $this->roles = Role::where('id', '>', '1')->get();
     }
 
     public function save()

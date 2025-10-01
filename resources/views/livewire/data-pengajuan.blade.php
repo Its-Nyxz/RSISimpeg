@@ -2,7 +2,7 @@
     <h2 class="text-2xl font-bold mb-4">{{ $judul }}</h2>
 
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-        <table class="w-full text-sm text-center text-gray-700">
+        <table class="w-full text-sm text-center bg-white text-gray-700">
             <thead class="text-sm uppercase bg-success-400 text-success-900">
                 <tr>
                     @if ($tipe != 'tukar_jadwal')
