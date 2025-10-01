@@ -370,7 +370,7 @@ class Timer extends Component
 
         // ✅ Simpan data ke database
         $absensi->update([
-            'time_out' => $timeOut->setTimezone('Asia/Jakarta')->toDateTimeString(),
+            'time_out' => $timeOut->timestamp,
             'deskripsi_out' => $this->deskripsi_out,
             'keterangan' => "Total waktu bekerja: " . gmdate('H:i:s', $selisih),
             // 'deskripsi_lembur' => $isOvertime ? $this->deskripsi_lembur : null,
