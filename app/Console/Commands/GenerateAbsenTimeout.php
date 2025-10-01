@@ -29,6 +29,7 @@ class GenerateAbsenTimeout extends Command
         $fails = [
             'missing_jadwal' => [],
             'missing_shift'  => [],
+            'holiday'        => [],
             'empty_time'     => [], // jam masuk/keluar kosong
             'parse_error'    => [],
             'save_error'     => [],
@@ -88,11 +89,9 @@ class GenerateAbsenTimeout extends Command
                     $jkRaw   = trim((string) $shift->jam_keluar);
 
                     if ($jmRaw === '' || $jkRaw === '') {
-                        Log::warning("⛔ Jam masuk/keluar kosong untuk absen {$absen->id}");
-                        $fail('empty_time', $absen, [
+                        Log::info("📌 Absen {$absen->id} dilewati karena shift libur pada {$jadwal->tanggal_jadwal}");
+                        $fail('holiday', $absen, [
                             'tanggal_jadwal' => $jadwal->tanggal_jadwal,
-                            'jam_masuk'      => $jmRaw,
-                            'jam_keluar'     => $jkRaw,
                         ]);
                         continue;
                     }
@@ -169,11 +168,18 @@ class GenerateAbsenTimeout extends Command
             });
 
         // --- ringkasan ---
-        $this->info("🏁 Selesai. Total diperbarui: {$updated}");
         $counts = array_map(fn($arr) => count($arr), $fails);
-        $totalGagal = array_sum($counts);
 
+        $totalGagal = $counts['missing_jadwal']
+            + $counts['missing_shift']
+            + $counts['empty_time']
+            + $counts['parse_error']
+            + $counts['save_error'];
+
+        $this->info("🏁 Selesai. Total diperbarui: {$updated}");
         $this->line("ℹ️  Di-skip karena toleransi: {$skippedToleransi}");
+        $this->line("📌 Dilewati karena libur: {$counts['holiday']}");
+        Log::info("📌 Skip karena libur", ['count' => $counts['holiday']]);
         Log::info("ℹ️ Skip toleransi", ['count' => $skippedToleransi]);
 
         if ($totalGagal > 0) {
