@@ -162,8 +162,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('timer', TimerController::class)->middleware('permission:timer');
     // Route::resource('cuti', CutiController::class);
     Route::resource('importgaji', ImportGajiController::class)->middleware('permission:view-import-gaji');
-    Route::resource('approvalcuti', CutiController::class)->middleware('permission:approve-cuti');
-    Route::resource('approvalizin', IzinController::class)->middleware('permission:approve-izin');
+    Route::resource('approvalcuti', CutiController::class)->middleware('permission:approval-cuti');
+    Route::resource('approvalizin', IzinController::class)->middleware('permission:approval-izin');
     Route::resource('approvaltukar', TukarJadwalController::class)->middleware('permission:approval-tukar-jadwal');
     Route::resource('peringatan', PeringatanKaryawanController::class);
     Route::resource('slipgaji', GajiNettoController::class);
