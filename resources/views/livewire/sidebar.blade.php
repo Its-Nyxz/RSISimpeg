@@ -145,7 +145,7 @@
                                 auth()->user()->can('approval-cuti')
                                     ? ['title' => 'Approval Cuti', 'href' => '/approvalcuti']
                                     : null,
-                                auth()->user()->can('approval-cuti')
+                                auth()->user()->can('approval-izin')
                                     ? ['title' => 'Approval Izin', 'href' => '/approvalizin']
                                     : null,
                                 auth()->user()->can('approval-tukar-jadwal')

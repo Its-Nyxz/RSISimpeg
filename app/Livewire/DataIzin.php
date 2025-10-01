@@ -63,7 +63,7 @@ class DataIzin extends Component
     {
         $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
         $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)
-            ->permission('approve-izin') // ✅ Spatie helper method
+            ->permission('approval-izin') // ✅ Spatie helper method
             ->get();
         $izin = IzinKaryawan::find($izinId);
         $user = auth()->user();

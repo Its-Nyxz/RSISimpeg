@@ -42,8 +42,6 @@ class DetailJabatan extends Component
             'view-import-gaji',
             'view-poin-peran',
             'view-poin-penilaian',
-            'approve-izin',
-            'approve-cuti'
         ],
         'Keuangan' => ['view-keuangan'],
         'Pengaturan' => ['hak-akses'],
