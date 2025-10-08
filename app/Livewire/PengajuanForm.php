@@ -195,22 +195,6 @@ class PengajuanForm extends Component
         $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)->get();
 
         if ($this->tipe === 'cuti') {
-            // 🔹 Cek apakah ada cuti di tanggal yang sama
-            $cekCutiSama = CutiKaryawan::where('user_id', auth()->id())
-                ->where('tanggal_mulai', $this->tanggal_mulai)
-                ->exists();
-
-            if ($user->jenis_id === 3 && !$this->cekMasaKerjaBolehCuti($user)) {
-                $this->dispatch('swal:modal', icon: 'error', title: 'Pengajuan Ditolak', text: 'Karyawan kontrak dengan masa kerja kurang dari 12 bulan belum berhak mengajukan cuti.');
-                return;
-            }
-
-            if ($cekCutiSama) {
-                $this->dispatch('swal:modal', icon: 'error', title: 'Pengajuan Gagal', text: 'Anda sudah mengajukan cuti dengan tanggal mulai yang sama.');
-                return;
-            }
-
-            // 🔹 Validasi
             $this->validate([
                 'jenis_cuti_id' => 'required|exists:jenis_cutis,id',
                 'tanggal_mulai' => 'required|date|after_or_equal:today',
@@ -218,50 +202,67 @@ class PengajuanForm extends Component
                 'keterangan' => 'nullable|string|max:255',
             ]);
 
-            // 🔹 Hitung jumlah hari
+            $user = auth()->user();
+            $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
+
+            // 🔹 Validasi cuti ganda
+            $cekCutiSama = CutiKaryawan::where('user_id', $user->id)
+                ->where('tanggal_mulai', $this->tanggal_mulai)
+                ->exists();
+
+            if ($cekCutiSama) {
+                $this->dispatch('swal:modal', icon: 'error', title: 'Pengajuan Gagal', text: 'Anda sudah mengajukan cuti di tanggal tersebut.');
+                return;
+            }
+
+            // 🔹 Validasi masa kerja (untuk karyawan kontrak)
+            if ($user->jenis_id === 3 && !$this->cekMasaKerjaBolehCuti($user)) {
+                $this->dispatch('swal:modal', icon: 'error', title: 'Pengajuan Ditolak', text: 'Karyawan kontrak belum memenuhi masa kerja minimal 12 bulan.');
+                return;
+            }
+
+            // 🔹 Hitung jumlah hari cuti
             $jumlah_hari = (strtotime($this->tanggal_selesai) - strtotime($this->tanggal_mulai)) / 86400 + 1;
 
-            // 🔹 Simpan ke DB
-            $cutikaryawan = CutiKaryawan::create([
-                'user_id' => auth()->id(),
+            // 🔹 Simpan pengajuan cuti
+            $cuti = CutiKaryawan::create([
+                'user_id' => $user->id,
                 'jenis_cuti_id' => $this->jenis_cuti_id,
-                'status_cuti_id' => 3, // Status default: Menunggu
+                'status_cuti_id' => 3, // menunggu
                 'tanggal_mulai' => $this->tanggal_mulai,
                 'tanggal_selesai' => $this->tanggal_selesai,
                 'jumlah_hari' => $jumlah_hari,
                 'keterangan' => $this->keterangan,
             ]);
 
-            $userRole = $user->roles->first()->name ?? 'Staf';
+            // 🔹 Cari approver (punya permission approval-cuti di unit yang sama)
+            $approvers = User::permission('approval-cuti')
+                ->where('unit_id', $user->unit_id)
+                ->whereDoesntHave('roles', fn($q) => $q->where('name', 'Kepala Seksi Kepegawaian'))
+                ->where('unit_id', '!=', $unitKepegawaianId)
+                ->get();
 
-            // 🔹 Cari approver pertama dengan auto-skip
-            $nextApprovers = $this->findNextApproversWithSkip($user);
-
-            // Fallback: kalau kosong, langsung ke Kepala Seksi Kepegawaian
-            if ($nextApprovers->isEmpty()) {
-                $nextApprovers = User::whereHas('roles', function ($q) {
-                    $q->where('name', 'Kepala Seksi Kepegawaian');
-                })->get();
+            // 🔹 Kalau tidak ada, fallback ke Kepegawaian atau Kepala Seksi Kepegawaian
+            if ($approvers->isEmpty()) {
+                $approvers = User::where('unit_id', $unitKepegawaianId)
+                    ->orWhereHas('roles', fn($q) => $q->where('name', 'Kepala Seksi Kepegawaian'))
+                    ->get();
             }
-
-            $jenis_cuti = JenisCuti::find($this->jenis_cuti_id);
 
             // 🔹 Buat pesan notifikasi
-            $roleNames = $nextApprovers->pluck('roles.*.name')->flatten()->unique()->implode(', ');
+            $jenis_cuti = JenisCuti::find($this->jenis_cuti_id);
+            $message = 'Pengajuan Cuti <b>' . e($user->name) . '</b> ' .
+                'mulai <b>' . e($this->tanggal_mulai) . '</b> sampai <b>' . e($this->tanggal_selesai) . '</b> ' .
+                '(' . e(optional($jenis_cuti)->nama_cuti ?? '-') . ') ' .
+                'dengan keterangan: "' . e($this->keterangan) . '" membutuhkan persetujuan Anda.';
 
-            $message = 'Pengajuan Cuti ' . $user->name .
-                ' mulai <span class="font-bold">' . $this->tanggal_mulai . ' sampai ' .  $this->tanggal_selesai .
-                '</span> ' . ($jenis_cuti ? $jenis_cuti->nama_cuti : 'Tidak Diketahui') .
-                ' dengan keterangan "' . $this->keterangan .
-                '" membutuhkan persetujuan dari <span class="font-bold">' . $roleNames . '</span>.';
-
-            // 🔹 Kirim notifikasi
-            if ($nextApprovers->count() > 0) {
-                Notification::send($nextApprovers, new UserNotification($message, "/approvalcuti"));
+            // 🔔 Kirim notifikasi ke approver
+            if ($approvers->count() > 0) {
+                Notification::send($approvers, new UserNotification($message, "/approvalcuti"));
             }
 
-            session()->flash('message', 'Pengajuan cuti berhasil diajukan.');
-            return redirect()->route('pengajuan.index', 'cuti')->with('success', 'Pengajuan Cuti berhasil diajukan!');
+            session()->flash('success', 'Pengajuan cuti berhasil diajukan.');
+            return redirect()->route('pengajuan.index', 'cuti');
         } elseif ($this->tipe === 'ijin') {
             // ✅ Validasi untuk ijin
             $this->validate([
