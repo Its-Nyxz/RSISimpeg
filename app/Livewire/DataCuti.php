@@ -108,7 +108,7 @@ class DataCuti extends Component
                     'user',
                     fn($q) =>
                     $q->whereIn('unit_id', $unitIds)
-                        ->whereHas('roles', fn($r) => $r->whereIn('name', ['Staf','Staf Keuangan', 'Kepala Ruang', 'Kepala Instalasi', 'Kepala Unit']))
+                        ->whereHas('roles', fn($r) => $r->whereIn('name', ['Staf', 'Staf Keuangan', 'Kepala Ruang', 'Kepala Instalasi', 'Kepala Unit']))
                 );
                 break;
 
@@ -177,90 +177,64 @@ class DataCuti extends Component
     /**
      * 🔥 FUNGSI BARU: Mencari next approver dengan auto-skip logic
      */
-    private function findNextApproversWithSkip($targetUser)
+    private function findNextApproversWithSkip($targetUser, $currentApprover = null)
     {
         $targetUserRole = $targetUser->roles->first()->name ?? 'Staf';
         $unitId = $targetUser->unit_id;
 
-        // 🔹 Case khusus Staf Kepegawaian → langsung final
-        if (stripos($targetUserRole, 'Staf Kepegawaian') !== false) {
-            return User::whereHas('roles', function ($q) {
-                $q->where('name', 'Kepala Seksi Kepegawaian');
-            })->get();
+        // Jika saat ini approver-nya adalah Kasi Keuangan → lanjutkan ke Kasi Kepegawaian
+        if ($currentApprover && stripos($currentApprover->roles->first()->name, 'Kepala Seksi Keuangan') !== false) {
+            return User::whereHas('roles', fn($q) => $q->where('name', 'Kepala Seksi Kepegawaian'))->get();
         }
 
-        // 🔹 Case khusus Staf Keuangan → wajib lewat Ka Seksi Keuangan dulu, baru Ka Seksi Kepegawaian
+        // Staf Kepegawaian → final langsung
+        if (stripos($targetUserRole, 'Staf Kepegawaian') !== false) {
+            return User::whereHas('roles', fn($q) => $q->where('name', 'Kepala Seksi Kepegawaian'))->get();
+        }
+
+        // Staf Keuangan → wajib lewat Kasi Keuangan dulu, baru Kasi Pegawai
         if (stripos($targetUserRole, 'Staf Keuangan') !== false) {
             $ksKeu = User::where('unit_id', $unitId)
-                ->whereHas('roles', function ($q) {
-                    $q->where('name', 'Kepala Seksi Keuangan');
-                })->get();
+                ->whereHas('roles', fn($q) => $q->where('name', 'Kepala Seksi Keuangan'))
+                ->get();
 
-            // Jika ada KS Keuangan → kirim ke mereka dulu
-            if ($ksKeu->count() > 0) {
-                return $ksKeu;
-            }
-
-            // Jika tidak ada KS Keuangan → langsung ke KS Kepegawaian (final)
-            return User::whereHas('roles', function ($q) {
-                $q->where('name', 'Kepala Seksi Kepegawaian');
-            })->get();
+            return $ksKeu->count() > 0
+                ? $ksKeu
+                : User::whereHas('roles', fn($q) => $q->where('name', 'Kepala Seksi Kepegawaian'))->get();
         }
 
-
-        // 🔹 Hierarki untuk role biasa (hanya 1 level atasan lalu final)
+        // Default hierarki
         $approvalMap = [
-            'Staf'            => ['Kepala Ruang', 'Kepala Instalasi', 'Kepala Unit', 'Kepala Seksi', 'Manager', 'Wadir', 'Direktur'],
-            'Kepala Ruang'    => ['Kepala Instalasi', 'Kepala Unit', 'Kepala Seksi'],
+            'Staf' => ['Kepala Ruang', 'Kepala Instalasi', 'Kepala Unit', 'Kepala Seksi', 'Manager', 'Wadir', 'Direktur'],
+            'Kepala Ruang' => ['Kepala Instalasi', 'Kepala Unit', 'Kepala Seksi'],
             'Kepala Instalasi' => ['Kepala Seksi'],
-            'Kepala Unit'     => ['Kepala Seksi'],
-            'Kepala Seksi'    => ['Manager'],
-            'Manager'         => ['Wadir'],
-            'Wadir'           => ['Direktur'],
-            'Direktur'        => [], // langsung final
+            'Kepala Unit' => ['Kepala Seksi'],
+            'Kepala Seksi' => ['Manager'],
+            'Manager' => ['Wadir'],
+            'Wadir' => ['Direktur'],
+            'Direktur' => [],
         ];
 
-
-        $nextRoles = $approvalMap[$targetUserRole] ?? [];
         $nextApprovers = collect();
+        $nextRoles = $approvalMap[$targetUserRole] ?? [];
 
-        if ($targetUserRole === 'Kepala Ruang') {
-            $nextApprovers = $this->findParentUnitApprovers($unitId, 'Kepala Instalasi');
-            if ($nextApprovers->isEmpty()) {
-                $nextApprovers = $this->findParentUnitApprovers($unitId, 'Kepala Unit');
-            }
-            if ($nextApprovers->isEmpty()) {
-                $nextApprovers = $this->findParentUnitApprovers($unitId, 'Kepala Seksi');
-            }
-        }
-
-        // 🔹 Cari atasan langsung yang ada → kalau kosong, skip ke level di atasnya
         foreach ($nextRoles as $role) {
-            $query = User::query();
-
-            // Unit-based roles → cek di unit yang sama
-            $unitBased = ['Kepala Ruang', 'Kepala Instalasi', 'Kepala Unit', 'Kepala Seksi'];
-            if (in_array($role, $unitBased)) {
-                $query->where('unit_id', $unitId);
-            }
-
-            $users = $query->whereHas('roles', fn($q) => $q->where('name', $role))->get();
-
+            $users = User::where('unit_id', $unitId)
+                ->whereHas('roles', fn($q) => $q->where('name', $role))
+                ->get();
             if ($users->count() > 0) {
                 $nextApprovers = $users;
-                break; // stop di atasan terdekat
+                break;
             }
         }
 
-        // 🔹 Jika tidak ketemu → langsung final (Ka Seksi Kepegawaian)
         if ($nextApprovers->isEmpty()) {
-            $nextApprovers = User::whereHas('roles', function ($q) {
-                $q->where('name', 'Kepala Seksi Kepegawaian');
-            })->get();
+            $nextApprovers = User::whereHas('roles', fn($q) => $q->where('name', 'Kepala Seksi Kepegawaian'))->get();
         }
 
         return $nextApprovers;
     }
+
 
     private function findParentUnitApprovers($unitId, $roleName)
     {
@@ -268,7 +242,8 @@ class DataCuti extends Component
         $unit = UnitKerja::find($unitId);
 
         // Kalau tidak ada unit → langsung return kosong
-        if (!$unit) return collect();
+        if (!$unit)
+            return collect();
 
         // Cari atasan langsung (parent)
         $parentId = $unit->parent_id;
@@ -304,12 +279,10 @@ class DataCuti extends Component
      */
     private function isFinalApproval($currentApproverRole, $nextApprovers)
     {
-        return $currentApproverRole === 'Kepala Seksi Kepegawaian' ||
-            $nextApprovers->isEmpty() ||
-            $nextApprovers->every(function ($approver) {
-                return $approver->roles->first()->name === 'Kepala Seksi Kepegawaian';
-            });
+        // Final hanya jika role saat ini adalah Kepala Seksi Kepegawaian
+        return $currentApproverRole === 'Kepala Seksi Kepegawaian';
     }
+
 
     private function getUsersByRoles($roles)
     {
@@ -351,7 +324,14 @@ class DataCuti extends Component
 
 
         // 🔥 GUNAKAN FUNGSI BARU untuk mencari next approver dengan auto-skip
-        $nextApprovers = $this->findNextApproversWithSkip($targetUser);
+        $nextApprovers = $this->findNextApproversWithSkip($targetUser, $user);
+        \Log::info('Next approvers after ' . $user->name . ' (' . $user->roles->first()->name . '):', [
+            'cuti_id' => $cutiId,
+            'next_approvers' => $nextApprovers->pluck('name')->toArray(),
+            'target_user' => $targetUser->name,
+            'target_role' => $targetUser->roles->first()->name ?? 'unknown'
+        ]);
+
 
         // 🔥 CEK APAKAH INI FINAL APPROVAL
         if ($this->isFinalApproval($approverRole, $nextApprovers)) {
@@ -367,7 +347,7 @@ class DataCuti extends Component
                         $userCuti->decrement('sisa_cuti', $cuti->jumlah_hari);
                     } else {
                         $cuti->update(['status_cuti_id' => 2]); // Status: Ditolak
-                        $message = 'Pengajuan Cuti anda (' . $targetUser->name . ') ... Ditolak karena sisa cuti tahunan tidak cukup.';
+                        $message = 'Pengajuan Cuti anda (' . $targetUser->name . ') Ditolak karena sisa cuti tahunan tidak cukup.';
                         Notification::send($targetUser, new UserNotification($message, "/pengajuan/cuti"));
                         return redirect()->route('approvalcuti.index')->with('error', 'Sisa cuti tahunan tidak cukup, pengajuan otomatis ditolak.');
                     }
@@ -433,7 +413,7 @@ class DataCuti extends Component
             }
 
             // Send notification to the user who requested the leave
-            $message = 'Pengajuan Cuti anda (' . $targetUser->name . ') ... telah <span class="text-success-600 font-bold">Disetujui Final</span> oleh ' . $user->name;
+            $message = 'Pengajuan Cuti anda (' . $targetUser->name . ') telah <span class="text-success-600 font-bold">Disetujui Final</span> oleh ' . $user->name;
             Notification::send($targetUser, new UserNotification($message, "/pengajuan/cuti"));
 
             // Record the final approval history
@@ -485,7 +465,7 @@ class DataCuti extends Component
             $targetUser = User::find($userId);
 
             $message = 'Pengajuan Cuti anda (' . $targetUser->name .
-                ') mulai <span class="font-bold">' . $cuti->tanggal_mulai . ' sampai ' .  $cuti->tanggal_selesai .
+                ') mulai <span class="font-bold">' . $cuti->tanggal_mulai . ' sampai ' . $cuti->tanggal_selesai .
                 '</span>  dengan keterangan "' . $cuti->keterangan . '" telah <span class="text-red-600 font-bold">Ditolak</span> oleh ' . $user->name .
                 '. Alasan: "' . $reason . '"';
 
