@@ -30,16 +30,42 @@ class DataCuti extends Component
         $user = auth()->user();
         $this->isKepegawaian = $user->unit_id == $unitKepegawaianId;
     }
+
     public function loadData()
     {
         $user = auth()->user();
         $role = $user->roles->first()->name ?? 'Staf';
 
-        $query = CutiKaryawan::with('user')
-            ->whereIn('status_cuti_id', [3, 4]) // menunggu & approved sementara
+        // Build base query (we will refine it per-role)
+        $baseQuery = CutiKaryawan::with('user')
+            ->whereIn('status_cuti_id', [3, 4]) // 3 = menunggu, 4 = approved sementara (intermediate)
             ->where('user_id', '!=', $user->id);
 
-        // Jika kepegawaian → lihat semua
+        // Jika user adalah Kepala Seksi Kepegawaian -> batasi hanya yg sudah disetujui oleh KS Keuangan
+        if ($role === 'Kepala Seksi Kepegawaian') {
+            // Ambil id cuti yg sudah punya riwayat 'disetujui_intermediate' oleh Kepala Seksi Keuangan
+            $approvedByKeuangan = RiwayatApproval::where('status_approval', 'disetujui_intermediate')
+                ->whereHas('approver.roles', function ($q) {
+                    $q->where('name', 'Kepala Seksi Keuangan');
+                })
+                ->pluck('cuti_id')
+                ->toArray();
+
+            // Jika belum ada yang disetujui KS Keuangan -> kosongkan hasil
+            if (empty($approvedByKeuangan)) {
+                // Kembalikan query yang akan menghasilkan 0 row
+                $query = $baseQuery->whereNull('id')->orderByDesc('id');
+                return $query->paginate(10);
+            }
+
+            // Hanya tampilkan yang termasuk daftar yang sudah disetujui KS Keuangan
+            $query = $baseQuery->whereIn('id', $approvedByKeuangan);
+        } else {
+            // Untuk role selain KS Kepegawaian gunakan baseQuery sebagai starting point
+            $query = $baseQuery;
+        }
+
+        // Jika kepegawaian (unit KEPEGAWAIAN) → lihat semua (override role restrictions)
         if ($this->isKepegawaian) {
             return $query->orderByDesc('id')->paginate(10);
         }
@@ -49,7 +75,6 @@ class DataCuti extends Component
 
         switch ($role) {
             case 'Kepala Ruang':
-                // bisa lihat pengajuan dari staf di ruangnya
                 $query->whereHas(
                     'user',
                     fn($q) =>
@@ -59,7 +84,6 @@ class DataCuti extends Component
                 break;
 
             case 'Kepala Instalasi':
-                // bisa lihat dari Kepala Ruang & Staf di bawah instalasi
                 $query->whereHas(
                     'user',
                     fn($q) =>
@@ -69,7 +93,6 @@ class DataCuti extends Component
                 break;
 
             case 'Kepala Unit':
-                // bisa lihat semua dari bawahnya
                 $query->whereHas(
                     'user',
                     fn($q) =>
@@ -85,7 +108,7 @@ class DataCuti extends Component
                     'user',
                     fn($q) =>
                     $q->whereIn('unit_id', $unitIds)
-                        ->whereHas('roles', fn($r) => $r->whereIn('name', ['Staf', 'Kepala Ruang', 'Kepala Instalasi', 'Kepala Unit']))
+                        ->whereHas('roles', fn($r) => $r->whereIn('name', ['Staf','Staf Keuangan', 'Kepala Ruang', 'Kepala Instalasi', 'Kepala Unit']))
                 );
                 break;
 
@@ -122,6 +145,7 @@ class DataCuti extends Component
 
         return $query->orderByDesc('id')->paginate(10);
     }
+
 
 
     private function getAllChildUnitIds($unitId)
@@ -165,17 +189,24 @@ class DataCuti extends Component
             })->get();
         }
 
-        // 🔹 Case khusus Staf Keuangan → Ka Seksi Keuangan kalau ada, kalau tidak → final
+        // 🔹 Case khusus Staf Keuangan → wajib lewat Ka Seksi Keuangan dulu, baru Ka Seksi Kepegawaian
         if (stripos($targetUserRole, 'Staf Keuangan') !== false) {
             $ksKeu = User::where('unit_id', $unitId)
                 ->whereHas('roles', function ($q) {
                     $q->where('name', 'Kepala Seksi Keuangan');
                 })->get();
 
-            return $ksKeu->count() > 0 ? $ksKeu : User::whereHas('roles', function ($q) {
+            // Jika ada KS Keuangan → kirim ke mereka dulu
+            if ($ksKeu->count() > 0) {
+                return $ksKeu;
+            }
+
+            // Jika tidak ada KS Keuangan → langsung ke KS Kepegawaian (final)
+            return User::whereHas('roles', function ($q) {
                 $q->where('name', 'Kepala Seksi Kepegawaian');
             })->get();
         }
+
 
         // 🔹 Hierarki untuk role biasa (hanya 1 level atasan lalu final)
         $approvalMap = [
@@ -303,6 +334,21 @@ class DataCuti extends Component
         }
 
         $approverRole = $user->roles->first()->name ?? 'default';
+        // 🔥 Tambahan validasi agar KS Kepegawaian tidak bisa approve sebelum KS Keuangan menyetujui
+        if ($approverRole === 'Kepala Seksi Kepegawaian') {
+            $alreadyApprovedByKSKeuangan = RiwayatApproval::where('cuti_id', $cutiId)
+                ->where('status_approval', 'disetujui_intermediate')
+                ->whereHas('approver.roles', function ($q) {
+                    $q->where('name', 'Kepala Seksi Keuangan');
+                })
+                ->exists();
+
+            if (!$alreadyApprovedByKSKeuangan) {
+                return redirect()->route('approvalcuti.index')
+                    ->with('error', 'Cuti belum disetujui oleh Kepala Seksi Keuangan.');
+            }
+        }
+
 
         // 🔥 GUNAKAN FUNGSI BARU untuk mencari next approver dengan auto-skip
         $nextApprovers = $this->findNextApproversWithSkip($targetUser);

@@ -135,7 +135,7 @@ class PengajuanForm extends Component
 
         // 🔹 Case khusus Staf Keuangan → Ka Seksi Keuangan kalau ada, kalau tidak → final
         if (stripos($targetUserRole, 'Staf Keuangan') !== false) {
-            $ksKeu = User::where('unit_id', $unitId)
+            $ksKeu = User::where('unit_id', $unitId) 
                 ->whereHas('roles', function ($q) {
                     $q->where('name', 'Kepala Seksi Keuangan');
                 })->get();
