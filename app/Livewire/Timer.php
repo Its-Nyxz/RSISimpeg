@@ -210,12 +210,12 @@ class Timer extends Component
         }
 
         // Hitung batas mulai & toleransi
-        $startToleransi = $startShift->copy()->subMinutes(15);
-        $batasTerlambat = $startShift->copy()->addMinutes(15);
+        $startToleransi = $startShift->copy()->subMinutes(30);
+        $batasTerlambat = $startShift->copy()->addMinutes(30);
 
         // Cek apakah sudah boleh mulai
         if ($currentTime->lt($startToleransi)) {
-            return $this->sendError('Anda hanya bisa memulai timer 15 menit sebelum waktu shift dimulai.');
+            return $this->sendError('Anda hanya bisa memulai timer 30 menit sebelum waktu shift dimulai.');
         }
 
         // Cek keterlambatan
