@@ -21,24 +21,60 @@ class TimerController extends Controller
             ->get();
 
         // Filter jadwal agar hanya menampilkan jadwal yang masih aktif
-        $jadwals = $jadwals->filter(function ($jadwal) use ($now) {
+        $jadwals = $jadwals->filter(function ($jadwal) use ($now, $user) {
             if (!$jadwal->shift) return false;
 
             $tanggalJadwal = Carbon::parse($jadwal->tanggal_jadwal);
             $jamMasuk = Carbon::parse($tanggalJadwal->toDateString() . ' ' . $jadwal->shift->jam_masuk, 'Asia/Jakarta');
             $jamKeluar = Carbon::parse($tanggalJadwal->toDateString() . ' ' . $jadwal->shift->jam_keluar, 'Asia/Jakarta');
 
-            // Jika jam keluar lebih kecil dari jam masuk, berarti shift malam
+            // Jika jam keluar lebih kecil dari jam masuk → shift malam
             if ($jamKeluar->lessThan($jamMasuk)) {
-                $jamKeluar->addDay(); // tambahkan 1 hari
+                $jamKeluar->addDay();
             }
 
-            // 💡 Tambahkan toleransi 2 jam setelah jam keluar
-            $toleransiSelesaiShiftJam = 2;
+            // Tambahkan toleransi 3 jam setelah jam keluar
+            $toleransiSelesaiShiftJam = 3;
             $jamKeluarPlusToleransi = $jamKeluar->copy()->addHours($toleransiSelesaiShiftJam);
 
-            // Jika waktu sekarang masih antara jam masuk dan jam keluar + toleransi
-            return $now->between($jamMasuk, $jamKeluarPlusToleransi);
+            // ✅ Tambahkan prioritas untuk absen aktif (time_out masih null)
+            $absenAktif = Absen::where('jadwal_id', $jadwal->id)
+                ->where('user_id', $user->id)
+                ->whereNull('time_out')
+                ->exists();
+
+            // 🪵 Log detail
+            logger('🕒 [TimerController] Cek Jadwal Aktif', [
+                'user_id' => $user->id,
+                'jadwal_id' => $jadwal->id,
+                'shift' => $jadwal->shift->nama_shift ?? '-',
+                'now' => $now->format('Y-m-d H:i:s'),
+                'jam_masuk' => $jamMasuk->format('Y-m-d H:i:s'),
+                'jam_keluar' => $jamKeluar->format('Y-m-d H:i:s'),
+                'jam_keluar_plus_toleransi' => $jamKeluarPlusToleransi->format('Y-m-d H:i:s'),
+                'absen_aktif' => $absenAktif,
+            ]);
+
+            // Jika ada absensi aktif (belum time_out), prioritas tertinggi
+            if ($absenAktif) {
+                logger('🚀 Jadwal dipilih karena absensi masih aktif', ['jadwal_id' => $jadwal->id]);
+                return true;
+            }
+
+            // Jika waktu sekarang masih dalam rentang shift + toleransi
+            if ($now->between($jamMasuk, $jamKeluarPlusToleransi)) {
+                logger('✅ Jadwal masih aktif dalam rentang jam', ['jadwal_id' => $jadwal->id]);
+                return true;
+            }
+
+            // Kasus khusus: shift malam setelah tengah malam
+            if ($now->lessThan($jamKeluarPlusToleransi) && $jamMasuk->isYesterday()) {
+                logger('🌙 Shift malam masih aktif setelah tengah malam', ['jadwal_id' => $jadwal->id]);
+                return true;
+            }
+
+            logger('❌ Jadwal tidak aktif', ['jadwal_id' => $jadwal->id]);
+            return false;
         });
 
         // Pilih jadwal aktif atau yang dipilih manual lewat dropdown
@@ -47,6 +83,14 @@ class TimerController extends Controller
             : $jadwals->first();
 
         $jadwal_id = $selectedJadwal?->id;
+
+        // Log hasil akhir
+        logger('🧭 Jadwal Terpilih', [
+            'user_id' => $user->id,
+            'jadwal_id' => $jadwal_id,
+            'now' => $now->format('Y-m-d H:i:s'),
+        ]);
+
         // dd($jadwal_id);
 
         return view('timer.index', compact('jadwals', 'jadwal_id'));
