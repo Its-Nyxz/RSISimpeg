@@ -67,11 +67,25 @@ class TimerController extends Controller
                 return true;
             }
 
-            // Kasus khusus: shift malam setelah tengah malam
-            if ($now->lessThan($jamKeluarPlusToleransi) && $jamMasuk->isYesterday()) {
-                logger('🌙 Shift malam masih aktif setelah tengah malam', ['jadwal_id' => $jadwal->id]);
-                return true;
+            // Kasus khusus: shift malam (jam keluar < jam masuk)
+            if ($jamKeluar->lessThan($jamMasuk)) {
+                $jamKeluar->addDay(); // shift melewati tengah malam
             }
+
+            // Tetap aktif jika sekarang < jamKeluar + toleransi
+            if ($now->lessThanOrEqualTo($jamKeluarPlusToleransi)) {
+                if ($now->greaterThanOrEqualTo($jamMasuk->copy()->subHours(6))) { // jaga jaga jam mulai shift malam
+                    logger('🌙 Shift malam aktif hingga pagi hari', ['jadwal_id' => $jadwal->id]);
+                    return true;
+                }
+            }
+
+            logger('⏰ Cek waktu', [
+                'now' => $now,
+                'jam_masuk' => $jamMasuk,
+                'jam_keluar' => $jamKeluar,
+                'jam_keluar_plus_toleransi' => $jamKeluarPlusToleransi,
+            ]);
 
             logger('❌ Jadwal tidak aktif', ['jadwal_id' => $jadwal->id]);
             return false;
