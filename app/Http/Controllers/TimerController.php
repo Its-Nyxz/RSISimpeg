@@ -35,7 +35,8 @@ class TimerController extends Controller
             }
 
             // Tambahkan toleransi 3 jam setelah jam keluar
-            $jamKeluarPlusToleransi = $jamKeluar->copy()->addHours(3);
+            // $jamKeluarPlusToleransi = $jamKeluar->copy()->addHours(3);
+            $jamKeluarPlusToleransi = $jamKeluar->copy()->addHour();
 
             // ✅ Cek absensi aktif
             $absenAktif = Absen::where('jadwal_id', $jadwal->id)
