@@ -607,10 +607,10 @@ class Timer extends Component
     private function validasiLokasiAtauIp(): bool
     {
         // 0) Bypass untuk testing/dev
-        if (app()->environment(['local', 'testing'])) {
-            logger('Bypass lokasi (env dev/testing).');
-            return true;
-        }
+        // if (app()->environment(['local', 'testing'])) {
+        //     logger('Bypass lokasi (env dev/testing).');
+        //     return true;
+        // }
 
         // 1) Koordinat wajib ada
         $lat = isset($this->latitude) ? floatval($this->latitude) : null;
