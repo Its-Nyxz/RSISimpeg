@@ -127,30 +127,41 @@ class PengajuanForm extends Component
         $unitId = $targetUser->unit_id;
         $parentUnitId = optional($targetUser->unitkerja)->parent_id;
 
-        // 🔹 Case khusus Staf Kepegawaian → langsung final
+        // ✅ KHUSUS MANAGER → langsung kirim ke Wadir (jabatan_id = 2) dan Direktur (jabatan_id = 1)
+        if ($targetUser->jabatan_id == 3) {
+            $wadir = User::where('jabatan_id', 2)->get();
+            $direktur = User::where('jabatan_id', 1)->get();
+            return $wadir->merge($direktur);
+        }
+
+        // ✅ KHUSUS WADIR → langsung kirim ke Direktur (jabatan_id = 1)
+        if ($targetUser->jabatan_id == 2) {
+            return User::where('jabatan_id', 1)->get();
+        }
+
+        // 🔹 Kepala Seksi Kepegawaian & Keuangan → ke Manager
+        if (in_array($targetUserRole, ['Kepala Seksi Kepegawaian', 'Kepala Seksi Keuangan', 'Kepala Seksi'])) {
+            return User::whereHas('roles', fn($q) => $q->where('name', 'Manager'))->get();
+        }
+
+        // 🔹 Staf Kepegawaian → ke Kepala Seksi Kepegawaian
         if (stripos($targetUserRole, 'Staf Kepegawaian') !== false) {
             return User::whereHas('roles', fn($q) => $q->where('name', 'Kepala Seksi Kepegawaian'))->get();
         }
 
-        // 🔹 Case khusus Staf Keuangan → Ka Seksi Keuangan atau fallback ke Ka Seksi Kepegawaian
+        // 🔹 Staf Keuangan → ke Kepala Seksi Keuangan
         if (stripos($targetUserRole, 'Staf Keuangan') !== false) {
-            $ksKeu = User::where('unit_id', $unitId)
-                ->whereHas('roles', fn($q) => $q->where('name', 'Kepala Seksi Keuangan'))
-                ->get();
-
-            return $ksKeu->isNotEmpty()
-                ? $ksKeu
-                : User::whereHas('roles', fn($q) => $q->where('name', 'Kepala Seksi Kepegawaian'))->get();
+            return User::whereHas('roles', fn($q) => $q->where('name', 'Kepala Seksi Keuangan'))->get();
         }
 
-        // 🔹 Hierarki
+        // 🔹 Hierarki umum
         $approvalMap = [
             'Staf' => ['Kepala Ruang', 'Kepala Instalasi', 'Kepala Unit', 'Kepala Seksi', 'Manager', 'Wadir', 'Direktur'],
             'Kepala Ruang' => ['Kepala Instalasi', 'Kepala Unit', 'Kepala Seksi'],
             'Kepala Instalasi' => ['Kepala Seksi'],
             'Kepala Unit' => ['Kepala Seksi'],
             'Kepala Seksi' => ['Manager'],
-            'Manager' => ['Wadir'],
+            'Manager' => ['Wadir', 'Direktur'],
             'Wadir' => ['Direktur'],
             'Direktur' => [],
         ];
@@ -161,39 +172,20 @@ class PengajuanForm extends Component
         foreach ($nextRoles as $role) {
             $query = User::query();
 
-            // Cek dulu di unit yang sama
             if (in_array($role, ['Kepala Ruang', 'Kepala Instalasi', 'Kepala Unit', 'Kepala Seksi'])) {
                 $query->where('unit_id', $unitId);
             }
 
             $users = $query->whereHas('roles', fn($q) => $q->where('name', $role))->get();
 
-            // ✅ Jika STAF → prioritas cari Kepala Ruang di unit yang sama, kalau tidak ada → ke Kepala Instalasi di parent
             if ($targetUserRole === 'Staf' && $role === 'Kepala Ruang') {
                 if ($users->isNotEmpty()) {
                     $nextApprovers = $users;
                     break;
-                } else {
-                    if ($parentUnitId) {
-                        $users = User::where('unit_id', $parentUnitId)
-                            ->whereHas('roles', fn($q) => $q->where('name', 'Kepala Instalasi'))
-                            ->get();
-
-                        if ($users->isNotEmpty()) {
-                            $nextApprovers = $users;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // 🟡 Tambahan: Kepala Ruang → Kepala Instalasi (cek di parent unit)
-            if ($targetUserRole === 'Kepala Ruang' && $role === 'Kepala Instalasi') {
-                if ($parentUnitId) {
+                } elseif ($parentUnitId) {
                     $users = User::where('unit_id', $parentUnitId)
                         ->whereHas('roles', fn($q) => $q->where('name', 'Kepala Instalasi'))
                         ->get();
-
                     if ($users->isNotEmpty()) {
                         $nextApprovers = $users;
                         break;
@@ -201,14 +193,25 @@ class PengajuanForm extends Component
                 }
             }
 
-            // ✅ Default: kalau ketemu atasan langsung, stop
+            if ($targetUserRole === 'Kepala Ruang' && $role === 'Kepala Instalasi') {
+                if ($parentUnitId) {
+                    $users = User::where('unit_id', $parentUnitId)
+                        ->whereHas('roles', fn($q) => $q->where('name', 'Kepala Instalasi'))
+                        ->get();
+                    if ($users->isNotEmpty()) {
+                        $nextApprovers = $users;
+                        break;
+                    }
+                }
+            }
+
             if ($users->isNotEmpty()) {
                 $nextApprovers = $users;
                 break;
             }
         }
 
-        // 🔹 Fallback akhir: Kepala Seksi Kepegawaian
+        // 🚀 Fallback akhir: Kepegawaian
         if ($nextApprovers->isEmpty()) {
             $nextApprovers = User::whereHas('roles', fn($q) => $q->where('name', 'Kepala Seksi Kepegawaian'))->get();
         }
@@ -217,10 +220,11 @@ class PengajuanForm extends Component
     }
 
 
+
     public function save()
     {
         $user = auth()->user();
-        $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
+        $unitKepegawaianId = UnitKerja::where(column: 'nama', 'KEPEGAWAIAN')->value('id');
         $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)->get();
 
         if ($this->tipe === 'cuti') {
@@ -253,16 +257,26 @@ class PengajuanForm extends Component
             // 🔹 Hitung jumlah hari cuti
             $jumlah_hari = (strtotime($this->tanggal_selesai) - strtotime($this->tanggal_mulai)) / 86400 + 1;
 
+
+            // 🔹 Tentukan status default
+            $statusCuti = 3; // default = menunggu atasan
+
+            // 🔹 Jika role user adalah Kepala Instalasi, langsung ke Menunggu Kepegawaian (4)
+            if ($user->hasRole('Kepala Instalasi')) {
+                $statusCuti = 4;
+            }
+
             // 🔹 Simpan pengajuan cuti
             $cuti = CutiKaryawan::create([
                 'user_id' => $user->id,
                 'jenis_cuti_id' => $this->jenis_cuti_id,
-                'status_cuti_id' => 3, // menunggu
+                'status_cuti_id' => $statusCuti,
                 'tanggal_mulai' => $this->tanggal_mulai,
                 'tanggal_selesai' => $this->tanggal_selesai,
                 'jumlah_hari' => $jumlah_hari,
                 'keterangan' => $this->keterangan,
             ]);
+
 
             // --- GANTI BAGIAN APPROVER DI SAVE() UNTUK TIPE 'cuti' DENGAN INI ---
 
