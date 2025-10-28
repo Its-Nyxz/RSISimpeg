@@ -112,19 +112,19 @@ class GenerateAbsenTimeout extends Command
                         continue;
                     }
 
-                    // hitung selesai & toleransi
-                    $shiftSelesai = $jk->copy();
+                    // Hitung waktu selesai shift dan batas toleransi
+                    $shiftSelesai = $jk->copy(); // Sudah benar: jk mungkin sudah +1 hari jika shift malam
                     $toleransi    = $shiftSelesai->copy()->addHours($toleranceHrs);
                     $now          = now($zone);
 
-                    // hormati toleransi (shift malam & siang)
-                    $shouldSkip =
-                        $isShiftMalam ? $now->lt($toleransi) : $now->lte($toleransi);
-
-                    if ($shouldSkip && !$this->option('force')) {
+                    // Hanya skip jika waktu sekarang BELUM melewati toleransi
+                    if ($now->lt($toleransi) && !$this->option('force')) {
                         $skippedToleransi++;
-                        Log::info(($isShiftMalam ? "⏸️ Shift malam" : "⏸️")
-                            . " Absen {$absen->id} masih toleransi s/d {$toleransi->toDateTimeString()} WIB");
+                        Log::info("⏸️ Absen {$absen->id} masih dalam masa toleransi s/d {$toleransi->toDateTimeString()} WIB", [
+                            'now' => $now->toDateTimeString(),
+                            'shift_selesai' => $shiftSelesai->toDateTimeString(),
+                            'malam' => $isShiftMalam,
+                        ]);
                         continue;
                     }
 

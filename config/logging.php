@@ -156,6 +156,12 @@ return [
             'path' => storage_path('logs/absen_timeout.log'),
             'level' => 'info',
         ],
+
+        'timer' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/timer.log'),
+            'level' => 'debug',
+        ],
     ],
 
 ];
