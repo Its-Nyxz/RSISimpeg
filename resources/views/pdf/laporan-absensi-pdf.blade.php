@@ -33,23 +33,18 @@
             background-color: #dcfce7;
         }
 
-        /* Hijau muda */
         .odd-row {
             background-color: #f0fdf4;
         }
 
-        /* Lebih terang */
         .holiday-row {
             background-color: #fecaca;
         }
 
-        /* Merah muda */
         .small-text {
             font-size: 10px;
             color: #4b5563;
         }
-
-        /* Keterangan lebih kecil */
     </style>
 </head>
 
@@ -61,12 +56,13 @@
             <tr>
                 <th>Hari</th>
                 <th>Tanggal</th>
+                <th>Jam Masuk</th> {{-- ✅ Baru --}}
+                <th>Jam Keluar</th> {{-- ✅ Baru --}}
                 <th>Jam Kerja</th>
+                <th>Jam Lembur</th>
                 <th>Rencana Kerja</th>
                 <th>Laporan Kerja</th>
-                <th>Jam Lembur</th>
-                <th>Deskripsi Lembur</th>
-                <th>Real-Time</th>
+                <th>Laporan Lembur</th>
                 <th>Feedback</th>
             </tr>
         </thead>
@@ -75,22 +71,13 @@
                 <tr class="{{ $item['is_holiday'] ? 'holiday-row' : ($index % 2 == 0 ? 'even-row' : 'odd-row') }}">
                     <td>{{ $item['hari'] }}</td>
                     <td>{{ $item['tanggal'] }}</td>
+                    <td>{{ $item['real_masuk'] ?? '-' }}</td> {{-- ✅ dari time_in --}}
+                    <td>{{ $item['real_selesai'] ?? '-' }}</td> {{-- ✅ dari time_out --}}
                     <td>{{ $item['jam_kerja'] }}</td>
-                    <td>{{ $item['rencana_kerja'] }}</td>
-                    <td>
-                        {{ $item['laporan_kerja'] }}
-                        <div class="small-text">
-                            <strong>Keterangan:</strong> {{ $item['keterangan'] ?? '-' }}
-                        </div>
-                    </td>
                     <td>{{ $item['jam_lembur'] }}</td>
+                    <td>{{ $item['rencana_kerja'] }}</td>
+                    <td>{{ $item['laporan_kerja'] }}</td>
                     <td>{{ $item['laporan_lembur'] ?? '-' }}</td>
-                    <td>
-                        <div class="small-text">
-                            <strong>Masuk:</strong> {{ $item['real_masuk'] ?? '-' }}
-                            <strong>Selesai:</strong> {{ $item['real_selesai'] ?? '-' }}
-                        </div>
-                    </td>
                     <td>{{ $item['feedback'] }}</td>
                 </tr>
             @endforeach
