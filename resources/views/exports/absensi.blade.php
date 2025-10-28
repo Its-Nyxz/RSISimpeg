@@ -31,6 +31,8 @@
             <th>Jam Masuk</th>
             <th>Jam Keluar</th>
             <th>Jam Kerja</th>
+            <th>Jam Masuk</th>
+            <th>Jam Pulang</th>
             <th>Jam Lembur</th>
             <th>Rencana Kerja</th>
             <th>Laporan Kerja</th>
@@ -43,12 +45,12 @@
             <tr>
                 <td>{{ $item['hari'] }}</td>
                 <td>{{ $item['tanggal'] }}</td>
-                <td>{!! $item['real_masuk'] !!}</td> <!-- ✅ ambil dari time_in -->
-                <td>{!! $item['real_selesai'] !!}</td> <!-- ✅ ambil dari time_out -->
-                <td>{!! $item['jam_kerja'] !!}</td>
-                <td>{!! $item['jam_lembur'] !!}</td>
-                <td>{!! $item['rencana_kerja'] !!}</td>
-                <td>{!! $item['laporan_kerja'] !!}</td>
+                <td>{{ $item['jam_kerja'] }}</td>
+                <td>{{ $item['real_masuk'] ?? '-' }}</td>
+                <td>{{ $item['real_selesai'] ?? '-' }}</td>
+                <td>{{ $item['jam_lembur'] }}</td>
+                <td>{{ $item['rencana_kerja'] }}</td>
+                <td>{{ $item['laporan_kerja'] }}</td>
                 <td>{!! $item['laporan_lembur'] !!}</td>
                 <td>{!! $item['feedback'] !!}</td>
             </tr>
