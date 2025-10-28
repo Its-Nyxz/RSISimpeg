@@ -52,6 +52,7 @@ class DataCuti extends Component
     {
         $user = auth()->user();
 
+
         // ✅ Pastikan user punya izin approval-cuti
         if (!$user->can('approval-cuti')) {
             logger("User {$user->name} tidak punya izin approval-cuti");
@@ -84,10 +85,12 @@ class DataCuti extends Component
             $q->whereIn('unit_id', $unitIds);
         })->orderByDesc('id')->paginate(10);
 
+
         logger("Total data cuti tampil untuk {$user->name}: " . $result->total());
 
         return $result;
     }
+
 
 
 
@@ -107,6 +110,7 @@ class DataCuti extends Component
             return redirect()->route('approvalcuti.index')
                 ->with('error', 'Pengajuan cuti tidak ditemukan.');
         }
+
 
         // 🔹 Tentukan apakah user adalah final approver (unit KEPEGAWAIAN)
         $userRole = $user->roles->first()->name ?? '';
@@ -191,6 +195,7 @@ class DataCuti extends Component
                     ]
                 );
             }
+
         }
 
         // 🔔 Notifikasi ke pemohon
@@ -233,6 +238,7 @@ class DataCuti extends Component
 
             $message = 'Pengajuan Cuti anda (' . $targetUser->name .
                 ') mulai <span class="font-bold">' . $cuti->tanggal_mulai . ' sampai ' . $cuti->tanggal_selesai .
+
                 '</span> dengan keterangan "' . $cuti->keterangan .
                 '" telah <span class="text-red-600 font-bold">Ditolak</span> oleh ' . $user->name .
                 '. Alasan: "' . $reason . '"';
