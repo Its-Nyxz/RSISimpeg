@@ -294,12 +294,12 @@ class AktivitasAbsensi extends Component
                 'is_lembur' => $isLembur,
                 'is_dinas' => $isDinas,
                 'late' => $isLate,
-                'real_masuk' => optional($absen)->time_in
-                    ? Carbon::parse($absen->time_in)->setTimezone('Asia/Jakarta')->format('H:i:s')
-                    : null,
-                'real_selesai' => optional($absen)->time_out
-                    ? Carbon::parse($absen->time_out)->setTimezone('Asia/Jakarta')->format('H:i:s')
-                    : null,
+                // 'real_masuk' => optional($absen)->time_in
+                //     ? Carbon::parse($absen->time_in)->setTimezone('Asia/Jakarta')->format('H:i:s')
+                //     : null,
+                // 'real_selesai' => optional($absen)->time_out
+                //     ? Carbon::parse($absen->time_out)->setTimezone('Asia/Jakarta')->format('H:i:s')
+                //     : null,
 
             ];
         }
