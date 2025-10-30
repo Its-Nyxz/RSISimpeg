@@ -31,9 +31,9 @@
         <tr style="background-color:#f2f2f2;">
             <th>Hari</th>
             <th>Tanggal</th>
-            <th>Jam Kerja</th>
             <th>Jam Masuk</th>
             <th>Jam Keluar</th>
+            <th>Jam Kerja</th>
             <th>Jam Lembur</th>
             <th>Rencana Kerja</th>
             <th>Laporan Kerja</th>
@@ -47,9 +47,9 @@
             <tr>
                 <td>{{ $item['hari'] ?? '-' }}</td>
                 <td>{{ $item['tanggal'] ?? '-' }}</td>
-                <td>{{ $item['jam_kerja'] ?? '-' }}</td>
                 <td>{{ $item['real_masuk'] ?? '-' }}</td>
                 <td>{{ $item['real_selesai'] ?? '-' }}</td>
+                <td>{{ $item['jam_kerja'] ?? '-' }}</td>
                 <td>{{ $item['jam_lembur'] ?? '-' }}</td>
                 <td>{{ $item['rencana_kerja'] ?? '-' }}</td>
                 <td>{{ $item['laporan_kerja'] ?? '-' }}</td>
