@@ -675,7 +675,7 @@ class Timer extends Component
             'RSI' => [-7.40233, 109.61562],
             'akunbiz' => [-7.548218, 110.812613],
         ];
-        $bufferMeters = 250; // bisa dinaikkan 150 -> 180/200 sesuai kebutuhan
+        $bufferMeters = 300; // bisa dinaikkan 150 -> 180/200 sesuai kebutuhan
 
         foreach ($allowedAreas as $area) {
             [$clat, $clng] = $centers[$area];
