@@ -1,33 +1,35 @@
 <table>
     <thead>
         <tr>
-            <th colspan="8" style="text-align:left;">
+            <th colspan="10" style="text-align:left;">
                 <strong>Nama:</strong> {{ $user->name ?? '-' }}
             </th>
         </tr>
         <tr>
-            <th colspan="8" style="text-align:left;">
+            <th colspan="10" style="text-align:left;">
                 <strong>Unit:</strong> {{ $user->unit->nama ?? '-' }}
             </th>
         </tr>
         <tr>
-            <th colspan="8" style="text-align:left;">
+            <th colspan="10" style="text-align:left;">
                 <strong>Jabatan:</strong>
                 {{ $user->jabatan?->nama ?? ($user->fungsi?->nama ?? ($user->umum?->nama ?? '-')) }}
             </th>
         </tr>
         <tr>
-            <th colspan="8" style="text-align:left;">
+            <th colspan="10" style="text-align:left;">
                 <strong>Periode:</strong> {{ $title }}
             </th>
         </tr>
         <tr>
-            <td colspan="8"></td>
-        </tr> <!-- Spacer -->
+            <td colspan="10"></td>
+        </tr>
 
         <tr>
             <th>Hari</th>
             <th>Tanggal</th>
+            <th>Jam Masuk</th>
+            <th>Jam Keluar</th>
             <th>Jam Kerja</th>
             <th>Jam Masuk</th>
             <th>Jam Pulang</th>
@@ -50,7 +52,7 @@
                 <td>{{ $item['rencana_kerja'] }}</td>
                 <td>{{ $item['laporan_kerja'] }}</td>
                 <td>{!! $item['laporan_lembur'] !!}</td>
-                <td>{{ $item['feedback'] }}</td>
+                <td>{!! $item['feedback'] !!}</td>
             </tr>
         @endforeach
     </tbody>
