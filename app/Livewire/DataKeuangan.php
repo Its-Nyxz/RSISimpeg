@@ -124,21 +124,27 @@ class DataKeuangan extends Component
 
     public function confirmGenerateNetto()
     {
-        $users = $this->loadData(); // sesuai filter & paginasi
+        // Ambil semua user berdasarkan filter (misal unit tertentu, bulan, tahun)
+        $users = $this->loadData();
+        $notifiedUsers = collect(); // kumpulkan user yang sukses digenerate
+
         foreach ($users as $user) {
             $bruto = $user->gajiBruto()
                 ->where('bulan_penggajian', $this->bulan)
                 ->where('tahun_penggajian', $this->tahun)
                 ->first();
 
-            if (!$bruto) continue;
+            if (!$bruto)
+                continue; // skip kalau belum ada data bruto
 
             $totalPotongan = $bruto->potongan->sum('nominal');
             $netto = $bruto->total_bruto - $totalPotongan;
 
-            // Jangan simpan jika netto tidak valid
-            if ($netto <= 0) continue;
+            // skip kalau gaji netto tidak valid
+            if ($netto <= 0)
+                continue;
 
+            // simpan atau update data gaji netto
             GajiNetto::updateOrCreate(
                 ['bruto_id' => $bruto->id],
                 [
@@ -148,15 +154,24 @@ class DataKeuangan extends Component
                 ]
             );
 
-            $namaBulan = Carbon::createFromFormat('!m', $this->bulan)->locale('id')->isoFormat('MMMM');
-            $message = 'Slip Gaji Anda bulan ' . $namaBulan . ' telah tersedia, <span class="text-success-600 font-bold">Silahkan Di Cek</span>.';
-            $url = '/slipgaji'; // sesuaikan dengan route ke halaman slip
-
-            Notification::send($user, new UserNotification($message, $url));
+            // simpan user yang berhasil diproses
+            $notifiedUsers->push($user);
         }
 
-        return redirect()->route('keuangan.index')->with('success', 'Slip Gaji Berhasil dikirim ke Karyawan!');
+        // Kirim notifikasi ke semua user yang berhasil digenerate
+        if ($notifiedUsers->isNotEmpty()) {
+            $namaBulan = Carbon::createFromFormat('!m', $this->bulan)->locale('id')->isoFormat('MMMM');
+            $message = 'Slip Gaji Anda bulan ' . $namaBulan . ' telah tersedia, <span class="text-success-600 font-bold">Silahkan Di Cek</span>.';
+            $url = '/slipgaji'; // route halaman slip gaji
+
+            // kirim notifikasi ke semua user yang dipilih (misal hanya unit A)
+            Notification::send($notifiedUsers, new UserNotification($message, $url));
+        }
+
+        return redirect()->route('keuangan.index')
+            ->with('success', 'Slip gaji berhasil digenerate dan dikirim ke karyawan unit yang dipilih!');
     }
+
 
     public function render()
     {
