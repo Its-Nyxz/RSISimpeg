@@ -21,7 +21,9 @@ class DataCuti extends Component
 {
     use WithPagination;
 
-    public $isKepegawaian = false;  
+
+    public $isKepegawaian = false;
+
     public $unitKepegawaianId;
 
     public function mount()
@@ -246,6 +248,10 @@ class DataCuti extends Component
                         ->with('error', 'Data sisa cuti tidak ditemukan.');
                 }
             }
+        }
+
+        // 🔹 Update status cuti
+        $cuti->update(['status_cuti_id' => $cutiStatus]);
 
             // ✅ Final update
             $cuti->update(['status_cuti_id' => $cutiStatus]);
