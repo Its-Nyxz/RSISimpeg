@@ -224,7 +224,7 @@ class PengajuanForm extends Component
     public function save()
     {
         $user = auth()->user();
-        $unitKepegawaianId = UnitKerja::where(column: 'nama', 'KEPEGAWAIAN')->value('id');
+        $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
         $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)->get();
 
         if ($this->tipe === 'cuti') {

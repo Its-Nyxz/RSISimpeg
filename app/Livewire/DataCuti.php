@@ -21,7 +21,7 @@ class DataCuti extends Component
 {
     use WithPagination;
 
-    public $isKepegawaian = false;
+    public $isKepegawaian = false;  
     public $unitKepegawaianId;
 
     public function mount()
@@ -104,13 +104,15 @@ class DataCuti extends Component
                 // Staf unit sendiri
                 $q->orWhereHas('user', fn($r) => $r->where('unit_id', $user->unit_id));
 
-                // Endah khusus → Akuntansi & Keuangan
-                if ($user->email === 'endah.lestari.d@gmail.com') {
+                // Jika Manager dari unit Akuntansi → bisa lihat juga Akuntansi, Keuangan, dan Kasir
+                if ($user->hasRole('Manager') && stripos($user->unitkerja->nama ?? '', 'Akuntansi') !== false) {
                     $q->orWhereHas('user.unitkerja', fn($u) => $u->where(function ($q2) {
                         $q2->where('nama', 'like', '%Akuntansi%')
-                            ->orWhere('nama', 'like', '%Keuangan%');
+                            ->orWhere('nama', 'like', '%Keuangan%')
+                            ->orWhere('nama', 'like', '%Kasir%');
                     }));
                 }
+
             });
 
             logger("User {$user->name} (Manager) melihat cuti Kepala Seksi, staf unitnya, dan tambahan khusus Endah.");
