@@ -216,13 +216,15 @@ class AktivitasAbsensi extends Component
                 continue;
             }
 
-            // Init akumulasi
+            // Inisialisasi array data harian
             $jamKerjaList = [];
             $jamLemburList = [];
             $rencanaKerjaList = [];
             $laporanKerjaList = [];
             $laporanLemburList = [];
             $feedbackList = [];
+            $jamMasukList = [];
+            $jamKeluarList = [];
             $idList = [];
 
             $isLembur = false;
@@ -237,9 +239,18 @@ class AktivitasAbsensi extends Component
                 $lemburSeconds = 0;
 
                 foreach ($absensiItems as $absen) {
-                    $in = $absen->time_in ? Carbon::parse($absen->time_in) : null;
-                    $out = $absen->time_out ? Carbon::parse($absen->time_out) : null;
+                    $in = $absen->time_in ? Carbon::parse($absen->time_in)->setTimezone('Asia/Jakarta') : null;
+                    $out = $absen->time_out ? Carbon::parse($absen->time_out)->setTimezone('Asia/Jakarta') : null;
 
+                    // Simpan jam masuk dan keluar (gunakan format string)
+                    if ($in) $jamMasukList[] = $in->format('H:i:s');
+                    if ($out) $jamKeluarList[] = $out->format('H:i:s');
+
+                    // Tambahkan juga ke key khusus untuk dipakai di export
+                    $realMasuk = $in ? $in->toTimeString() : '-';
+                    $realSelesai = $out ? $out->toTimeString() : '-';
+
+                    // Hitung durasi kerja / lembur
                     if ($in && $out) {
                         $duration = $in->diffInSeconds($out);
                         if ($absen->is_lembur) {
@@ -253,7 +264,7 @@ class AktivitasAbsensi extends Component
                         if ($absen->late) $isLate = true;
                     }
 
-                    // Gabung field
+                    // Gabungkan deskripsi
                     if ($absen->deskripsi_in) $rencanaKerjaList[] = $absen->deskripsi_in;
                     if ($absen->deskripsi_out) $laporanKerjaList[] = $absen->deskripsi_out;
                     if ($absen->feedback) $feedbackList[] = $absen->feedback;
@@ -271,6 +282,8 @@ class AktivitasAbsensi extends Component
                 'id' => implode(',', $idList),
                 'hari' => Carbon::parse($date)->locale('id')->isoFormat('dddd'),
                 'tanggal' => Carbon::parse($date)->translatedFormat('d F Y'),
+                'real_masuk' => implode('<br>', $jamMasukList) ?: '-',   // ✅ dari time_in
+                'real_selesai' => implode('<br>', $jamKeluarList) ?: '-', // ✅ dari time_out
                 'jam_kerja' => implode('<br>', $jamKerjaList),
                 'jam_lembur' => implode('<br>', $jamLemburList),
                 'rencana_kerja' => implode('<br>', $rencanaKerjaList) ?: '-',
@@ -281,8 +294,13 @@ class AktivitasAbsensi extends Component
                 'is_lembur' => $isLembur,
                 'is_dinas' => $isDinas,
                 'late' => $isLate,
-                'real_masuk' => null, // Jika ingin ditampilkan gabungan jam, bisa buat juga
-                'real_selesai' => null,
+                // 'real_masuk' => optional($absen)->time_in
+                //     ? Carbon::parse($absen->time_in)->setTimezone('Asia/Jakarta')->format('H:i:s')
+                //     : null,
+                // 'real_selesai' => optional($absen)->time_out
+                //     ? Carbon::parse($absen->time_out)->setTimezone('Asia/Jakarta')->format('H:i:s')
+                //     : null,
+
             ];
         }
     }
