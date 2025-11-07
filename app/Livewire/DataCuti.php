@@ -21,7 +21,7 @@ class DataCuti extends Component
 {
     use WithPagination;
 
-    public $isKepegawaian = false;  
+    public $isKepegawaian = false;
     public $unitKepegawaianId;
 
     public function mount()
