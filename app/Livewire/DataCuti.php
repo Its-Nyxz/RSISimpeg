@@ -109,8 +109,72 @@ class DataCuti extends Component
         }
 
 
-        // 🔹 Tentukan apakah user adalah final approver (unit KEPEGAWAIAN)
-        $userRole = $user->roles->first()->name ?? '';
+                RiwayatApproval::create([
+                    'cuti_id' => $cutiId,
+                    'approver_id' => $user->id,
+                    'status_approval' => 'diteruskan_ke_direktur',
+                    'approve_at' => now(),
+                    'catatan' => 'Diteruskan ke Direktur',
+                ]);
+
+                return redirect()->route('approvalcuti.index')
+                    ->with('success', 'Cuti Manager diteruskan ke Direktur untuk persetujuan.');
+            }
+        }
+
+        // 🔹 Jika user adalah Wadir (jabatan_id = 2) atau Direktur (jabatan_id = 1)
+        // dan cuti dari Manager → langsung final approve
+        if (in_array($user->jabatan_id, [1, 2]) && $cuti->user->jabatan_id == 3) {
+            $cutiStatus = 1; // Disetujui Final
+
+            // 🔥 Validasi sisa cuti tahunan
+            if (
+                $cuti->jenisCuti &&
+                strtolower($cuti->jenisCuti->nama_cuti) == 'cuti tahunan'
+            ) {
+                $userCuti = SisaCutiTahunan::where('user_id', $cuti->user_id)
+                    ->where('tahun', now('Asia/Jakarta')->year)
+                    ->first();
+
+                if ($userCuti) {
+                    if ($userCuti->sisa_cuti >= $cuti->jumlah_hari) {
+                        $userCuti->decrement('sisa_cuti', $cuti->jumlah_hari);
+                    } else {
+                        $cuti->update(['status_cuti_id' => 2]); // Ditolak
+                        Notification::send($targetUser, new UserNotification(
+                            'Pengajuan cuti anda ditolak karena sisa cuti tahunan tidak cukup.',
+                            "/pengajuan/cuti"
+                        ));
+                        return redirect()->route('approvalcuti.index')
+                            ->with('error', 'Sisa cuti tahunan tidak cukup, pengajuan otomatis ditolak.');
+                    }
+                } else {
+                    return redirect()->route('approvalcuti.index')
+                        ->with('error', 'Data sisa cuti tidak ditemukan.');
+                }
+            }
+
+            // ✅ Final update
+            $cuti->update(['status_cuti_id' => $cutiStatus]);
+
+            // 🔔 Notifikasi ke pemohon
+            $pesan = "Pengajuan cuti Anda telah <span class='text-success-600 font-bold'>Disetujui Final</span> oleh {$user->name} ({$user->jabatan->nama}).";
+            Notification::send($targetUser, new UserNotification($pesan, "/pengajuan/cuti"));
+
+            // 🧾 Riwayat approval
+            RiwayatApproval::create([
+                'cuti_id' => $cutiId,
+                'approver_id' => $user->id,
+                'status_approval' => 'disetujui_final_wadir_direktur',
+                'approve_at' => now(),
+                'catatan' => null,
+            ]);
+
+            return redirect()->route('approvalcuti.index')
+                ->with('success', 'Cuti Manager telah disetujui final oleh Wadir/Direktur.');
+        }
+
+        // 🔹 Logika existing lainnya (Manager, Kepala Instalasi, Kepegawaian, dst)
         $isFinalApprover = (
             strcasecmp($userRole, 'Kepala Seksi Kepegawaian') === 0 ||
             $user->unit_id == $this->unitKepegawaianId
