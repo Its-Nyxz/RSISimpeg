@@ -24,6 +24,9 @@ class DataCuti extends Component
     public $isKepegawaian = false;
     public $unitKepegawaianId;
 
+    /** ----------------------------------------------------------------
+     *  Initialization
+     *  ---------------------------------------------------------------- */
     public function mount()
     {
         $user = auth()->user();
@@ -35,12 +38,12 @@ class DataCuti extends Component
         $this->isKepegawaian = $user->unit_id == $this->unitKepegawaianId;
     }
 
+    /** Rekursif ambil semua child unit */
     private function getAllChildUnitIds($unitId)
     {
         $unitIds = [$unitId];
 
         $childs = UnitKerja::where('parent_id', $unitId)->pluck('id')->toArray();
-
         foreach ($childs as $childId) {
             $unitIds = array_merge($unitIds, $this->getAllChildUnitIds($childId));
         }
@@ -48,12 +51,14 @@ class DataCuti extends Component
         return $unitIds;
     }
 
+    /** ----------------------------------------------------------------
+     *  Load Data
+     *  ---------------------------------------------------------------- */
     public function loadData()
     {
         $user = auth()->user();
 
-
-        // ✅ Pastikan user punya izin approval-cuti
+        // ✅ Pastikan user punya izin approval cuti
         if (!$user->can('approval-cuti')) {
             logger("User {$user->name} tidak punya izin approval-cuti");
             return CutiKaryawan::whereNull('id')->paginate(10);
@@ -71,20 +76,15 @@ class DataCuti extends Component
 
         // 🔹 Cek apakah unit user punya child (berarti dia atasan)
         $hasChild = UnitKerja::where('parent_id', $user->unit_id)->exists();
+        $unitIds = $hasChild
+            ? $this->getAllChildUnitIds($user->unit_id)
+            : [$user->unit_id];
 
-        if ($hasChild) {
-            $unitIds = $this->getAllChildUnitIds($user->unit_id);
-            logger("User {$user->name} (unit {$user->unitkerja->nama}) punya child unit: " . json_encode($unitIds));
-        } else {
-            $unitIds = [$user->unit_id];
-            logger("User {$user->name} (unit {$user->unitkerja->nama}) tidak punya child, hanya lihat unit: " . json_encode($unitIds));
-        }
+        logger("User {$user->name} melihat cuti untuk unit: " . json_encode($unitIds));
 
-        // 🔹 Filter cuti berdasarkan unit
         $result = $query->whereHas('user', function ($q) use ($unitIds) {
             $q->whereIn('unit_id', $unitIds);
         })->orderByDesc('id')->paginate(10);
-
 
         logger("Total data cuti tampil untuk {$user->name}: " . $result->total());
 
@@ -121,7 +121,7 @@ class DataCuti extends Component
 
         $cutiStatus = $isFinalApprover ? 1 : 4; // 1 = Final, 4 = Menunggu Final
 
-        // 🔥 Validasi sisa cuti jika final
+        // 🔥 Validasi sisa cuti tahunan jika final
         if (
             $cutiStatus == 1 &&
             $cuti->jenisCuti &&
@@ -136,8 +136,10 @@ class DataCuti extends Component
                     $userCuti->decrement('sisa_cuti', $cuti->jumlah_hari);
                 } else {
                     $cuti->update(['status_cuti_id' => 2]);
-                    $message = 'Pengajuan cuti anda ditolak karena sisa cuti tahunan tidak cukup.';
-                    Notification::send($targetUser, new UserNotification($message, "/pengajuan/cuti"));
+                    Notification::send($targetUser, new UserNotification(
+                        'Pengajuan cuti anda ditolak karena sisa cuti tahunan tidak cukup.',
+                        "/pengajuan/cuti"
+                    ));
                     return redirect()->route('approvalcuti.index')
                         ->with('error', 'Sisa cuti tahunan tidak cukup, pengajuan otomatis ditolak.');
                 }
@@ -150,7 +152,7 @@ class DataCuti extends Component
         // 🔹 Update status cuti
         $cuti->update(['status_cuti_id' => $cutiStatus]);
 
-        // 🔹 Jika final → buat jadwal absen
+        // 🔹 Jika final → buat jadwal absen otomatis
         if ($cutiStatus == 1) {
             $shift = Shift::firstOrCreate(
                 ['nama_shift' => 'C'],
@@ -163,10 +165,10 @@ class DataCuti extends Component
             );
 
             $start = Carbon::parse($cuti->tanggal_mulai);
-            $end = Carbon::parse($cuti->tanggal_selesai);
+            $end   = Carbon::parse($cuti->tanggal_selesai);
 
             for ($date = $start; $date->lte($end); $date->addDay()) {
-                JadwalAbsensi::updateOrCreate(
+                $jadwal = JadwalAbsensi::updateOrCreate(
                     ['user_id' => $userId, 'tanggal_jadwal' => $date->toDateString()],
                     ['shift_id' => $shift->id]
                 );
@@ -175,9 +177,7 @@ class DataCuti extends Component
                 Absen::updateOrCreate(
                     [
                         'user_id' => $userId,
-                        'jadwal_id' => JadwalAbsensi::where('user_id', $userId)
-                            ->whereDate('tanggal_jadwal', $date->toDateString())
-                            ->value('id'),
+                        'jadwal_id' => $jadwal->id,
                     ],
                     [
                         'status_absen_id' => $cutiStatusId,
@@ -227,6 +227,9 @@ class DataCuti extends Component
         return redirect()->route('approvalcuti.index')->with('success', "Cuti {$statusText}!");
     }
 
+    /** ----------------------------------------------------------------
+     *  Reject Cuti
+     *  ---------------------------------------------------------------- */
     public function rejectCuti($cutiId, $userId, $reason = null)
     {
         $cuti = CutiKaryawan::find($cutiId);
@@ -236,9 +239,8 @@ class DataCuti extends Component
             $cuti->update(['status_cuti_id' => 2]);
             $targetUser = User::find($userId);
 
-            $message = 'Pengajuan Cuti anda (' . $targetUser->name .
-                ') mulai <span class="font-bold">' . $cuti->tanggal_mulai . ' sampai ' . $cuti->tanggal_selesai .
-
+            $message = 'Pengajuan Cuti anda (' . $targetUser->name . ') mulai ' .
+                '<span class="font-bold">' . $cuti->tanggal_mulai . ' sampai ' . $cuti->tanggal_selesai .
                 '</span> dengan keterangan "' . $cuti->keterangan .
                 '" telah <span class="text-red-600 font-bold">Ditolak</span> oleh ' . $user->name .
                 '. Alasan: "' . $reason . '"';
@@ -257,6 +259,9 @@ class DataCuti extends Component
         }
     }
 
+    /** ----------------------------------------------------------------
+     *  Render
+     *  ---------------------------------------------------------------- */
     public function render()
     {
         $cutiData = $this->loadData();
