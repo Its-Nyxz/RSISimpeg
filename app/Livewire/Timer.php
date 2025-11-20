@@ -57,6 +57,32 @@ class Timer extends Component
         'deskripsi_out.min' => 'Hasil pekerjaan minimal harus :min karakter.',
     ];
 
+    private function normalizeToTimestamp($value)
+    {
+        // Jika sudah null
+        if (is_null($value))
+            return null;
+
+        // Jika sudah integer -> anggap unix timestamp
+        if (is_int($value) || ctype_digit((string) $value)) {
+            return (int) $value;
+        }
+
+        // Jika Carbon instance
+        if ($value instanceof \Carbon\Carbon) {
+            return $value->timestamp;
+        }
+
+        // Jika string datetime -> parse dengan timezone Asia/Jakarta
+        try {
+            return Carbon::parse($value, 'Asia/Jakarta')->timestamp;
+        } catch (\Exception $e) {
+            // fallback null
+            return null;
+        }
+    }
+
+
     public function mount($jadwal_id)
     {
         $this->jadwal_id = $jadwal_id;
@@ -71,15 +97,14 @@ class Timer extends Component
             ->first();
 
         if ($absenBerjalan) {
-            // Timer tetap hidup meski sudah ganti hari
-            $this->timeIn = $absenBerjalan->time_in;
+            // Normalisasi agar selalu dalam UNIX timestamp (detik)
+            $this->timeIn = $this->normalizeToTimestamp($absenBerjalan->time_in);
             $this->timeOut = null;
             $this->isRunning = true;
 
+            // Kalau absen yang berjalan melewati midnight, jangan ubah timeIn.
+            // Biarkan frontend menggunakan now() - timeIn sehingga timer tetap berjalan melewati 00:00.
             return;
-
-            // Lewati seluruh proses pengambilan berdasarkan jadwal_id
-            // karena ini PRIORITAS (timer berjalan)
         }
 
         // ============================================================
@@ -115,18 +140,38 @@ class Timer extends Component
 
                 } else {
 
-                    $totalTimeIn = $absensi->sum('time_in');
-                    $totalTimeOut = $absensi->sum('time_out');
+                    // Hitung total durasi dari tiap record (time_out - time_in), juga ambil earliest time_in untuk referensi
+                    $totalDuration = 0;
+                    $earliestTimeIn = null;
 
-                    $this->timeIn = $totalTimeIn;
-                    $this->timeOut = $totalTimeOut;
+                    foreach ($absensi as $item) {
+                        $ti = $this->normalizeToTimestamp($item->time_in);
+                        $to = $this->normalizeToTimestamp($item->time_out);
 
-                    if ($this->timeOut && $this->timeOut < $this->timeIn) {
-                        $this->timeOut += 86400;
+                        if ($ti && is_null($earliestTimeIn))
+                            $earliestTimeIn = $ti;
+                        if ($ti && $to) {
+                            // jika keluar < masuk -> mungkin melewati tengah malam, tambahkan 1 hari
+                            if ($to < $ti) {
+                                $to += 86400;
+                            }
+                            $totalDuration += max(0, $to - $ti);
+                        } elseif ($ti && is_null($to)) {
+                            // ada sesi yang sedang berjalan -> treat it as running
+                            $this->timeIn = $ti;
+                            $this->timeOut = null;
+                            $this->isRunning = true;
+                        }
                     }
 
-                    $this->keterangan =
-                        "Total waktu kerja: " . gmdate('H:i:s', $totalTimeOut - $totalTimeIn);
+                    // Jika tidak sedang berjalan, set timeIn ke earliest dan timeOut ke earliest + totalDuration (untuk tampilan total)
+                    if (!$this->isRunning) {
+                        $this->timeIn = $earliestTimeIn;
+                        $this->timeOut = $earliestTimeIn ? ($earliestTimeIn + $totalDuration) : null;
+                    }
+
+                    $this->keterangan = "Total waktu kerja: " . gmdate('H:i:s', $totalDuration);
+
 
                     $this->deskripsiLembur = [];
                     foreach ($absensi as $item) {
@@ -170,39 +215,66 @@ class Timer extends Component
 
     private function getLastLemburTimeIn()
     {
-        // Ambil `time_in` dari lembur terakhir yang belum selesai
+        // Ambil lembur yang masih berjalan (belum ada time_out)
         $lastLembur = Absen::where('jadwal_id', $this->jadwal_id)
             ->where('user_id', Auth::id())
             ->where('is_lembur', true)
-            ->whereNull('time_out') // Lembur yang belum ada `time_out`
+            ->whereNull('time_out')
             ->latest()
             ->first();
 
-        // Jika ada lembur yang sedang berjalan, parse `time_in` dan kembalikan timestamp-nya
         if ($lastLembur) {
-            $timeInLembur = Carbon::parse($lastLembur->time_in); // Mengubah `time_in` menjadi objek Carbon
-            return $timeInLembur->timestamp; // Mengambil timestamp dalam detik
+
+            $timeIn = $lastLembur->time_in;
+
+            // Jika sudah timestamp (int) → langsung kembalikan
+            if (is_int($timeIn) || ctype_digit((string) $timeIn)) {
+                return (int) $timeIn;
+            }
+
+            // Jika Carbon instance
+            if ($timeIn instanceof \Carbon\Carbon) {
+                return $timeIn->timestamp;
+            }
+
+            // Jika string datetime → parse dengan TZ Jakarta
+            try {
+                return Carbon::parse($timeIn, 'Asia/Jakarta')->timestamp;
+            } catch (\Exception $e) {
+                return null;
+            }
         }
 
-        return null; // Jika tidak ada lembur, kembalikan null
+        return null;
     }
+
     private function calculateLemburDuration()
     {
-        // Pastikan $this->timeInLembur adalah objek Carbon
         if ($this->timeInLembur) {
-            // Jika timeInLembur adalah timestamp (angka), maka parse menjadi objek Carbon
-            $timeInLembur = Carbon::parse($this->timeInLembur);
 
-            // Dapatkan waktu saat ini
-            $currentTime = Carbon::now();
+            // Jika timeInLembur adalah timestamp, gunakan createFromTimestamp agar tidak salah parsing
+            if (is_int($this->timeInLembur) || ctype_digit((string) $this->timeInLembur)) {
+                $timeInLembur = Carbon::createFromTimestamp((int) $this->timeInLembur, 'Asia/Jakarta');
+            }
+            // Jika Carbon instance
+            elseif ($this->timeInLembur instanceof \Carbon\Carbon) {
+                $timeInLembur = $this->timeInLembur->copy()->timezone('Asia/Jakarta');
+            }
+            // Jika string datetime
+            else {
+                $timeInLembur = Carbon::parse($this->timeInLembur, 'Asia/Jakarta');
+            }
+
+            // Current time (Jakarta)
+            $currentTime = Carbon::now('Asia/Jakarta');
 
             // Hitung durasi lembur dalam detik
             $durationInSeconds = $timeInLembur->diffInSeconds($currentTime);
 
-            // Set durasi lembur
             $this->timeElapsedLembur = $durationInSeconds;
         }
     }
+
     public function openStartModal()
     {
         $this->showStartModal = true;
@@ -362,8 +434,8 @@ class Timer extends Component
         if (!$this->timeOut)
             return;
 
-        $timeIn = Carbon::createFromTimestamp($this->timeIn);
-        $timeOut = Carbon::createFromTimestamp($this->timeOut);
+        $timeIn = Carbon::createFromTimestamp($this->timeIn, 'Asia/Jakarta');
+        $timeOut = Carbon::createFromTimestamp($this->timeOut, 'Asia/Jakarta');
 
         if ($timeOut->lessThan($timeIn)) {
             $timeOut->addDay(); // Tambahkan satu hari jika waktu keluar lebih kecil dari waktu masuk

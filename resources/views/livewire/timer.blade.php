@@ -381,12 +381,12 @@
     @endpush
     {{-- Rencana Kerja --}}
     <h3 class="font-bold mt-4">RENCANA KERJA</h3>
-    <p class="font-semibold text-gray-600">{{ $this->absensiTanpaLembur->first()->deskripsi_in ?? '-' }}</p>
+    {{ optional($this->absensiTanpaLembur?->first())->deskripsi_in ?? '-' }}
 
     {{-- kerja Selesai --}}
-    @if (!empty($this->absensiTanpaLembur->first()->deskripsi_out))
+    @if ($this->absensiTanpaLembur && $this->absensiTanpaLembur->first()?->deskripsi_out)
         <h3 class="font-bold mt-4">SELESAI KERJA</h3>
-        <p class="font-semibold text-gray-600">{{ $this->absensiTanpaLembur->first()->deskripsi_out ?? '-' }}</p>
+        {{ optional($this->absensiTanpaLembur?->first())->deskripsi_out ?? '-' }}
     @endif
 
     @push('scripts')
