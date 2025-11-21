@@ -57,149 +57,70 @@ class Timer extends Component
         'deskripsi_out.min' => 'Hasil pekerjaan minimal harus :min karakter.',
     ];
 
-    private function normalizeToTimestamp($value)
-    {
-        // Jika sudah null
-        if (is_null($value))
-            return null;
-
-        // Jika sudah integer -> anggap unix timestamp
-        if (is_int($value) || ctype_digit((string) $value)) {
-            return (int) $value;
-        }
-
-        // Jika Carbon instance
-        if ($value instanceof \Carbon\Carbon) {
-            return $value->timestamp;
-        }
-
-        // Jika string datetime -> parse dengan timezone Asia/Jakarta
-        try {
-            return Carbon::parse($value, 'Asia/Jakarta')->timestamp;
-        } catch (\Exception $e) {
-            // fallback null
-            return null;
-        }
-    }
-
-
     public function mount($jadwal_id)
     {
         $this->jadwal_id = $jadwal_id;
+
         $this->routeIsDashboard = Request::routeIs('dashboard');
 
-        // ============================================================
-        // 🟢 FIX UTAMA: CARI ABSEN YANG MASIH BERJALAN (SHIFT MALAM)
-        // ============================================================
-        $absenBerjalan = Absen::where('user_id', Auth::id())
-            ->whereNull('time_out')     // belum absen pulang
-            ->latest('time_in')
-            ->first();
+        // ✅ Ambil semua data absensi berdasarkan jadwal_id
+        $absensi = Absen::where('jadwal_id', $this->jadwal_id)
+            ->where('user_id', Auth::id())
+            ->get();
 
-        if ($absenBerjalan) {
-            // Normalisasi agar selalu dalam UNIX timestamp (detik)
-            $this->timeIn = $this->normalizeToTimestamp($absenBerjalan->time_in);
-            $this->timeOut = null;
-            $this->isRunning = true;
+        // Filter data absensi yang is_lembur false
+        $absensiTanpaLembur = $absensi->filter(function ($item) {
+            return !$item->is_lembur; // Hanya ambil yang is_lembur = false
+        });
 
-            // Kalau absen yang berjalan melewati midnight, jangan ubah timeIn.
-            // Biarkan frontend menggunakan now() - timeIn sehingga timer tetap berjalan melewati 00:00.
-            return;
-        }
+        // Kirimkan data absensi yang is_lembur false ke Blade
+        $this->absensiTanpaLembur = $absensiTanpaLembur;
 
-        // ============================================================
-        // 🟢 Jika TIDAK ada absen berjalan, pakai data berdasarkan jadwal
-        // ============================================================
-        if (!$this->isRunning) {
+        if ($absensi->count() > 0) {
+            if ($absensi->count() === 1) {
+                // ✅ Jika hanya ada satu data → Gunakan data langsung
+                $data = $absensi->first();
+                $this->timeIn = $data->time_in;
+                $this->timeOut = $data->time_out;
+                $this->late = $data->late;
+                $this->keterangan = $data->keterangan;
+                $this->deskripsi_in = $data->deskripsi_in;
+                $this->deskripsi_out = $data->deskripsi_out;
+            } else {
+                // ✅ Jika ada lebih dari satu data → Lakukan penjumlahan
+                $totalTimeIn = $absensi->sum('time_in');
+                $totalTimeOut = $absensi->sum('time_out');
 
-            $absensi = Absen::where('jadwal_id', $this->jadwal_id)
-                ->where('user_id', Auth::id())
-                ->get();
-
-            // Filter absensi tanpa lembur
-            $absensiTanpaLembur = $absensi->filter(fn($item) => !$item->is_lembur);
-            $this->absensiTanpaLembur = $absensiTanpaLembur;
-
-            if ($absensi->count() > 0) {
-
-                if ($absensi->count() === 1) {
-
-                    $data = $absensi->first();
-                    $this->timeIn = $data->time_in;
-                    $this->timeOut = $data->time_out;
-
-                    // SHIFT MALAM FIX
-                    if ($this->timeOut && $this->timeOut < $this->timeIn) {
-                        $this->timeOut += 86400;
-                    }
-
-                    $this->late = $data->late;
-                    $this->keterangan = $data->keterangan;
-                    $this->deskripsi_in = $data->deskripsi_in;
-                    $this->deskripsi_out = $data->deskripsi_out;
-
-                } else {
-
-                    // Hitung total durasi dari tiap record (time_out - time_in), juga ambil earliest time_in untuk referensi
-                    $totalDuration = 0;
-                    $earliestTimeIn = null;
-
-                    foreach ($absensi as $item) {
-                        $ti = $this->normalizeToTimestamp($item->time_in);
-                        $to = $this->normalizeToTimestamp($item->time_out);
-
-                        if ($ti && is_null($earliestTimeIn))
-                            $earliestTimeIn = $ti;
-                        if ($ti && $to) {
-                            // jika keluar < masuk -> mungkin melewati tengah malam, tambahkan 1 hari
-                            if ($to < $ti) {
-                                $to += 86400;
-                            }
-                            $totalDuration += max(0, $to - $ti);
-                        } elseif ($ti && is_null($to)) {
-                            // ada sesi yang sedang berjalan -> treat it as running
-                            $this->timeIn = $ti;
-                            $this->timeOut = null;
-                            $this->isRunning = true;
-                        }
-                    }
-
-                    // Jika tidak sedang berjalan, set timeIn ke earliest dan timeOut ke earliest + totalDuration (untuk tampilan total)
-                    if (!$this->isRunning) {
-                        $this->timeIn = $earliestTimeIn;
-                        $this->timeOut = $earliestTimeIn ? ($earliestTimeIn + $totalDuration) : null;
-                    }
-
-                    $this->keterangan = "Total waktu kerja: " . gmdate('H:i:s', $totalDuration);
+                $this->timeIn = $totalTimeIn;
+                $this->timeOut = $totalTimeOut;
 
 
-                    $this->deskripsiLembur = [];
-                    foreach ($absensi as $item) {
-                        if ($item->is_lembur) {
-                            $this->deskripsiLembur[] = [
-                                'deskripsi_in' => $item->deskripsi_in,
-                                'deskripsi_out' => $item->deskripsi_out,
-                                'deskripsi_lembur' => $item->deskripsi_lembur
-                            ];
-                        }
+                $this->keterangan = "Total waktu kerja: " . gmdate('H:i:s', $totalTimeOut - $totalTimeIn);
+
+                // Loop untuk menampilkan deskripsi_in, deskripsi_out atau deskripsi_lembur
+                $this->deskripsiLembur = [];
+                foreach ($absensi as $item) {
+                    if ($item->is_lembur) { // Cek apakah lembur
+                        $this->deskripsiLembur[] = [
+                            'deskripsi_in' => $item->deskripsi_in,
+                            'deskripsi_out' => $item->deskripsi_out,
+                            'deskripsi_lembur' => $item->deskripsi_lembur // Deskripsi lembur
+                        ];
                     }
                 }
-
-                $this->isRunning = $this->timeIn && !$this->timeOut;
-                $this->isLemburRunning = $this->checkIfLemburRunning();
             }
+
+            // ✅ Jika timer masih berjalan
+            $this->isRunning = $this->timeIn && !$this->timeOut;
+            $this->isLemburRunning = $this->checkIfLemburRunning();
         }
 
-        // ============================================================
-        // 🟢 Lembur
-        // ============================================================
+        // Jika lembur sedang berjalan, hitung durasi lembur dari waktu_in lembur terakhir
         if ($this->isLemburRunning) {
             $this->timeInLembur = $this->getLastLemburTimeIn();
             $this->calculateLemburDuration();
         }
     }
-
-
 
     private function checkIfLemburRunning()
     {
@@ -215,66 +136,39 @@ class Timer extends Component
 
     private function getLastLemburTimeIn()
     {
-        // Ambil lembur yang masih berjalan (belum ada time_out)
+        // Ambil `time_in` dari lembur terakhir yang belum selesai
         $lastLembur = Absen::where('jadwal_id', $this->jadwal_id)
             ->where('user_id', Auth::id())
             ->where('is_lembur', true)
-            ->whereNull('time_out')
+            ->whereNull('time_out') // Lembur yang belum ada `time_out`
             ->latest()
             ->first();
 
+        // Jika ada lembur yang sedang berjalan, parse `time_in` dan kembalikan timestamp-nya
         if ($lastLembur) {
-
-            $timeIn = $lastLembur->time_in;
-
-            // Jika sudah timestamp (int) → langsung kembalikan
-            if (is_int($timeIn) || ctype_digit((string) $timeIn)) {
-                return (int) $timeIn;
-            }
-
-            // Jika Carbon instance
-            if ($timeIn instanceof \Carbon\Carbon) {
-                return $timeIn->timestamp;
-            }
-
-            // Jika string datetime → parse dengan TZ Jakarta
-            try {
-                return Carbon::parse($timeIn, 'Asia/Jakarta')->timestamp;
-            } catch (\Exception $e) {
-                return null;
-            }
+            $timeInLembur = Carbon::parse($lastLembur->time_in); // Mengubah `time_in` menjadi objek Carbon
+            return $timeInLembur->timestamp; // Mengambil timestamp dalam detik
         }
 
-        return null;
+        return null; // Jika tidak ada lembur, kembalikan null
     }
-
     private function calculateLemburDuration()
     {
+        // Pastikan $this->timeInLembur adalah objek Carbon
         if ($this->timeInLembur) {
+            // Jika timeInLembur adalah timestamp (angka), maka parse menjadi objek Carbon
+            $timeInLembur = Carbon::parse($this->timeInLembur);
 
-            // Jika timeInLembur adalah timestamp, gunakan createFromTimestamp agar tidak salah parsing
-            if (is_int($this->timeInLembur) || ctype_digit((string) $this->timeInLembur)) {
-                $timeInLembur = Carbon::createFromTimestamp((int) $this->timeInLembur, 'Asia/Jakarta');
-            }
-            // Jika Carbon instance
-            elseif ($this->timeInLembur instanceof \Carbon\Carbon) {
-                $timeInLembur = $this->timeInLembur->copy()->timezone('Asia/Jakarta');
-            }
-            // Jika string datetime
-            else {
-                $timeInLembur = Carbon::parse($this->timeInLembur, 'Asia/Jakarta');
-            }
-
-            // Current time (Jakarta)
-            $currentTime = Carbon::now('Asia/Jakarta');
+            // Dapatkan waktu saat ini
+            $currentTime = Carbon::now();
 
             // Hitung durasi lembur dalam detik
             $durationInSeconds = $timeInLembur->diffInSeconds($currentTime);
 
+            // Set durasi lembur
             $this->timeElapsedLembur = $durationInSeconds;
         }
     }
-
     public function openStartModal()
     {
         $this->showStartModal = true;
@@ -283,12 +177,10 @@ class Timer extends Component
     public function startTimer()
     {
         // Validasi lokasi/IP cek
-        if (!$this->validasiLokasiAtauIp())
-            return;
+        if (!$this->validasiLokasiAtauIp()) return;
 
         // Cegah double start
-        if ($this->isRunning)
-            return;
+        if ($this->isRunning) return;
 
         $this->validateOnly('deskripsi_in');
 
@@ -310,7 +202,7 @@ class Timer extends Component
 
         // Hitung jam mulai dan jam selesai shift
         $startShift = Carbon::parse($shift->jam_masuk, 'Asia/Jakarta');
-        $endShift = Carbon::parse($shift->jam_keluar, 'Asia/Jakarta');
+        $endShift   = Carbon::parse($shift->jam_keluar, 'Asia/Jakarta');
 
         // FIX BUG SHIFT MALAM: Jika jam keluar lebih kecil dari jam masuk, berarti shift melewati tengah malam
         if ($endShift->lessThan($startShift)) {
@@ -336,14 +228,14 @@ class Timer extends Component
         Absen::updateOrCreate(
             [
                 'jadwal_id' => $this->jadwal_id,
-                'user_id' => Auth::id(),
+                'user_id'   => Auth::id(),
             ],
             [
-                'time_in' => $this->timeIn,
-                'deskripsi_in' => $this->deskripsi_in,
-                'late' => $this->late,
-                'keterangan' => $this->keterangan,
-                'present' => 1,
+                'time_in'         => $this->timeIn,
+                'deskripsi_in'    => $this->deskripsi_in,
+                'late'            => $this->late,
+                'keterangan'      => $this->keterangan,
+                'present'         => 1,
                 'status_absen_id' => $this->late ? 2 : 1
             ]
         );
@@ -370,8 +262,7 @@ class Timer extends Component
 
     public function openWorkReportModal()
     {
-        if (!$this->validasiLokasiAtauIp())
-            return;
+        if (!$this->validasiLokasiAtauIp()) return;
 
         $this->validateOnly('deskripsi_out');
 
@@ -397,12 +288,10 @@ class Timer extends Component
 
             // ✅ Ambil shift berdasarkan `jadwal_id`
             $jadwal = JadwalAbsensi::find($this->jadwal_id);
-            if (!$jadwal)
-                return;
+            if (!$jadwal) return;
 
             $shift = Shift::find($jadwal->shift_id);
-            if (!$shift)
-                return;
+            if (!$shift) return;
 
             // ✅ Hitung durasi shift dalam jam
             $shiftDuration = Carbon::parse($shift->jam_masuk, 'Asia/Jakarta')->diffInSeconds(Carbon::parse($shift->jam_keluar, 'Asia/Jakarta'));
@@ -428,14 +317,12 @@ class Timer extends Component
 
     public function completeWorkReport()
     {
-        if (!$this->validasiLokasiAtauIp())
-            return;
+        if (!$this->validasiLokasiAtauIp()) return;
 
-        if (!$this->timeOut)
-            return;
+        if (!$this->timeOut) return;
 
-        $timeIn = Carbon::createFromTimestamp($this->timeIn, 'Asia/Jakarta');
-        $timeOut = Carbon::createFromTimestamp($this->timeOut, 'Asia/Jakarta');
+        $timeIn = Carbon::createFromTimestamp($this->timeIn);
+        $timeOut = Carbon::createFromTimestamp($this->timeOut);
 
         if ($timeOut->lessThan($timeIn)) {
             $timeOut->addDay(); // Tambahkan satu hari jika waktu keluar lebih kecil dari waktu masuk
@@ -448,17 +335,14 @@ class Timer extends Component
             ->where('user_id', auth()->id())
             ->first();
 
-        if (!$absensi)
-            return;
+        if (!$absensi) return;
 
         // ✅ Ambil shift berdasarkan `jadwal_id`
         $jadwal = JadwalAbsensi::find($this->jadwal_id);
-        if (!$jadwal)
-            return;
+        if (!$jadwal) return;
 
         $shift = Shift::find($jadwal->shift_id);
-        if (!$shift)
-            return;
+        if (!$shift) return;
 
         // ✅ Hitung durasi shift dalam jam
         $shiftDuration = Carbon::parse($shift->jam_masuk)->diffInSeconds(Carbon::parse($shift->jam_keluar));
@@ -821,8 +705,7 @@ class Timer extends Component
     {
         $inside = false;
         $n = count($polygon);
-        if ($n < 3)
-            return false;
+        if ($n < 3) return false;
 
         // toleransi ~ 1e-8 derajat ≈ 0.011 meter di lintang ekuator
         $eps = 1e-8;
@@ -864,8 +747,7 @@ class Timer extends Component
     ): bool {
         // cek kolinearitas (jarak ke garis sangat kecil)
         $cross = ($py - $ay) * ($bx - $ax) - ($px - $ax) * ($by - $ay);
-        if (abs($cross) > $eps)
-            return false;
+        if (abs($cross) > $eps) return false;
 
         // cek proyeksi berada antara A dan B (dengan toleransi)
         $dot = ($px - $ax) * ($px - $bx) + ($py - $ay) * ($py - $by);

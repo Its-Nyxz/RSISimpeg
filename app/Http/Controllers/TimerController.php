@@ -35,11 +35,7 @@ class TimerController extends Controller
                 $jadwals = collect([$jadwal]);
                 $jadwal_id = $jadwal->id;
 
-                return view('timer.index', [
-                    'jadwals' => $jadwals,
-                    'jadwal_id' => $jadwal_id,
-                    'timeIn' => $absenAktif?->time_in, // TAMBAHAN
-                ]);
+                return view('timer.index', compact('jadwals', 'jadwal_id'));
             }
         }
 
@@ -64,8 +60,7 @@ class TimerController extends Controller
 
         // 🔎 Filter jadwal yang masih aktif
         $jadwals = $jadwals->filter(function ($jadwal) use ($now, $user, $absenAktifIds) {
-            if (!$jadwal->shift)
-                return false;
+            if (!$jadwal->shift) return false;
 
             // Jika absen aktif masih berjalan
             if (in_array($jadwal->id, $absenAktifIds)) {
@@ -116,11 +111,7 @@ class TimerController extends Controller
             'now' => $now->format('Y-m-d H:i:s'),
         ]);
 
-        return view('timer.index', [
-            'jadwals' => $jadwals,
-            'jadwal_id' => $jadwal_id,
-            'timeIn' => $absenAktif?->time_in, // TAMBAHAN
-        ]);
+        return view('timer.index', compact('jadwals', 'jadwal_id'));
     }
 
     /**
@@ -128,8 +119,7 @@ class TimerController extends Controller
      */
     private function inShiftRange($jadwal, $now): bool
     {
-        if (!$jadwal->shift)
-            return false;
+        if (!$jadwal->shift) return false;
 
         $tanggalJadwal = Carbon::parse($jadwal->tanggal_jadwal, 'Asia/Jakarta');
         $jamMasuk = Carbon::parse($tanggalJadwal->format('Y-m-d') . ' ' . $jadwal->shift->jam_masuk, 'Asia/Jakarta');
