@@ -120,6 +120,24 @@ class Timer extends Component
             $this->timeInLembur = $this->getLastLemburTimeIn();
             $this->calculateLemburDuration();
         }
+
+        if (session()->pull('auto_start_dinas')) {
+
+            // Ambil data absen yang tersimpan saat dinas luar
+            $absen = $this->getAbsenUtama();
+
+            // Buat deskripsi baru
+            $deskripsiSebelumnya = $absen?->deskripsi_in ?? '';
+            $deskripsiBaru = $deskripsiSebelumnya . ' | Dinas keluar kembali';
+
+            // START TIMER OTOMATIS
+            $this->startTimer(
+                bypassLokasi: true,
+                deskripsiOverride: $deskripsiBaru
+            );
+
+            return;
+        }
     }
 
     private function checkIfLemburRunning()
@@ -174,10 +192,28 @@ class Timer extends Component
         $this->showStartModal = true;
     }
 
-    public function startTimer()
+    private function getAbsenUtama()
     {
-        // Validasi lokasi/IP cek
-        if (!$this->validasiLokasiAtauIp()) return;
+        return Absen::where('jadwal_id', $this->jadwal_id)
+            ->where('user_id', Auth::id())
+            ->where(function ($q) {
+                $q->where('is_lembur', false)
+                    ->orWhereNull('is_lembur');
+            })
+            ->orderBy('id', 'asc')
+            ->first();
+    }
+
+    public function startTimer($bypassLokasi = false, $deskripsiOverride = null)
+    {
+        if (!$bypassLokasi && !$this->validasiLokasiAtauIp()) {
+            return;
+        }
+
+        // Jika ada override deskripsi_in
+        if ($deskripsiOverride) {
+            $this->deskripsi_in = $deskripsiOverride;
+        }
 
         // Cegah double start
         if ($this->isRunning) return;
@@ -224,21 +260,32 @@ class Timer extends Component
             ? "Terlambat " . gmdate('H:i:s', $currentTime->diffInSeconds($batasTerlambat))
             : "Masuk tepat waktu";
 
-        // Simpan atau update absen
-        Absen::updateOrCreate(
-            [
-                'jadwal_id' => $this->jadwal_id,
-                'user_id'   => Auth::id(),
-            ],
-            [
+        // Jika belum ada row → cek ulang, jangan create dulu
+        $absen2 = $this->getAbsenUtama();
+
+        if ($absen2) {
+            $absen2->update([
                 'time_in'         => $this->timeIn,
                 'deskripsi_in'    => $this->deskripsi_in,
                 'late'            => $this->late,
                 'keterangan'      => $this->keterangan,
                 'present'         => 1,
                 'status_absen_id' => $this->late ? 2 : 1
-            ]
-        );
+            ]);
+        } else {
+            // Barulah create jika TERBUKTI belum ada sama sekali
+            Absen::create([
+                'jadwal_id'      => $this->jadwal_id,
+                'user_id'        => Auth::id(),
+                'time_in'        => $this->timeIn,
+                'deskripsi_in'   => $this->deskripsi_in,
+                'late'           => $this->late,
+                'keterangan'     => $this->keterangan,
+                'present'        => 1,
+                'status_absen_id' => $this->late ? 2 : 1
+            ]);
+        }
+
 
         // Dispatch event & redirect
         $this->dispatch('timer-started', now()->timestamp);
@@ -426,69 +473,83 @@ class Timer extends Component
     {
         $user = auth()->user();
         $jadwal = JadwalAbsensi::find($this->jadwal_id);
-
-        if (!$jadwal) {
-            $this->dispatch('alert-error', 'Jadwal tidak ditemukan.');
-            return;
-        }
+        if (!$jadwal) return $this->dispatch('alert-error', 'Jadwal tidak ditemukan.');
 
         $shift = Shift::find($jadwal->shift_id);
+        if (!$shift) return $this->dispatch('alert-error', 'Shift tidak ditemukan.');
 
-        if (!$shift) {
-            $this->dispatch('alert-error', 'Shift tidak ditemukan.');
-            return;
+        // 🔥 Ambil 1 row saja TANPA create
+        $absen = $this->getAbsenUtama();
+
+        // Jika belum ada → buat row pertama kali
+        if (!$absen) {
+            $absen = Absen::create([
+                'jadwal_id' => $this->jadwal_id,
+                'user_id'   => $user->id,
+                'time_in'   => null,
+                'present'   => 1,
+                'status_absen_id' => 1,
+                'is_dinas' => true,
+                'keterangan' => 'Dinas keluar (belum mulai kerja)',
+            ]);
         }
 
-        if ($this->akanKembali) {
-            // ✅ Cari absen yang sudah ada
-            $absen = Absen::where('jadwal_id', $this->jadwal_id)
-                ->where('user_id', $user->id)
-                ->where(function ($q) {
-                    $q->where('is_lembur', false)->orWhereNull('is_lembur');
-                })
-                ->first();
-
-            if (!$absen) {
-                $this->dispatch('alert-error', 'Absensi belum dimulai, tidak bisa dinas keluar.');
-                return;
-            }
-
-            // Tambahkan keterangan dengan separator jika sudah ada sebelumnya
-            $deskripsiLama = $absen->deskripsi_in;
-            $deskripsiBaru = 'Dinas keluar: ' . ($this->deskripsi_dinas ?? '-');
+        // =============================================
+        // ✔ CASE 3 — Tidak kembali (langsung pulang)
+        // =============================================
+        if (!$this->akanKembali) {
 
             $absen->update([
+                'time_in'  => Carbon::parse($shift->jam_masuk)->timestamp,
+                'time_out' => Carbon::parse($shift->jam_keluar)->timestamp,
+                'deskripsi_out' => $this->deskripsi_dinas,
+                'status_absen_id' => 1,
+                'present' => 1,
                 'is_dinas' => true,
-                'deskripsi_in' => $deskripsiLama
-                    ? $deskripsiLama . ' | ' . $deskripsiBaru
-                    : $deskripsiBaru,
+                'keterangan' => 'Dinas Keluar Terhitung Hadir',
             ]);
-        } else {
-            // ✅ Tidak kembali → isi time_in & time_out sesuai shift
-            Absen::updateOrCreate(
-                [
-                    'jadwal_id' => $this->jadwal_id,
-                    'user_id' => $user->id,
-                    'is_lembur' => false
-                ],
-                [
-                    'time_in' => Carbon::parse($shift->jam_masuk),
-                    'time_out' => Carbon::parse($shift->jam_keluar),
-                    'deskripsi_out' => $this->deskripsi_dinas,
-                    'status_absen_id' => 1,
-                    'present' => 1,
-                    'is_dinas' => true,
-                    'keterangan' => "Dinas Keluar Terhitung Hadir",
-                ]
-            );
+
+            $this->resetDinasModal();
+            return $this->redirectToTimer();
         }
 
+        // =============================================
+        // ✔ CASE 1 & 2 — Akan kembali
+        // =============================================
+
+        $deskripsiBaru = 'Dinas keluar: ' . ($this->deskripsi_dinas ?? '-');
+
+        // CASE 2 — User SUDAH mulai kerja → hanya UPDATE row
+        $absen->update([
+            'is_dinas' => true,
+            'deskripsi_in' =>
+            $absen->deskripsi_in
+                ? $absen->deskripsi_in . ' | ' . $deskripsiBaru
+                : $deskripsiBaru,
+        ]);
+
+        // CASE 1 — Belum mulai kerja → auto start nanti
+        if (is_null($absen->time_in)) {
+            session()->put('auto_start_dinas', true);
+        }
+
+        $this->resetDinasModal();
+        return $this->redirectToTimer();
+    }
+
+    private function resetDinasModal()
+    {
         $this->deskripsi_dinas = null;
         $this->showDinasModal = false;
-        return $this->routeIsDashboard
-            ? redirect()->route('dashboard') // Jika diakses dari dashboard
-            : redirect()->to('/timer'); // Jika diakses dari route lain
     }
+
+    private function redirectToTimer()
+    {
+        return $this->routeIsDashboard
+            ? redirect()->route('dashboard')
+            : redirect()->to('/timer');
+    }
+
 
     public function openLemburModal()
     {
@@ -753,8 +814,6 @@ class Timer extends Component
         $dot = ($px - $ax) * ($px - $bx) + ($py - $ay) * ($py - $by);
         return $dot <= $eps;
     }
-
-
 
     public function render()
     {
