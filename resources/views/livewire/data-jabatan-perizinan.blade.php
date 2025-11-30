@@ -31,7 +31,25 @@
                             class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300">
                             <i class="fa-solid fa-eye"></i>
                         </a>
-
+                        @if(auth()->user()->hasAnyRole(['Super Admin', 'Kepala Seksi Kepegawaian']))
+                        <button
+                        class="text-red-600 px-3 py-2 rounded-md border hover:bg-red-200"
+                        @click="Swal.fire({
+                            title: 'Apakah Anda yakin?',
+                            text: 'Data yang dihapus tidak dapat dikembalikan!',
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Ya, hapus',
+                            cancelButtonText: 'Batal'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                $wire.deleteJabatan({{ $item['id'] }});
+                            }
+                        })"
+                    >
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                    @endif
                     </div>
                 </div>
             </x-card-tanpa-title>
@@ -112,10 +130,9 @@
                 showConfirmButton: false,
                 timerProgressBar: true
             });
-            swalData = null; 
+            swalData = null;
         }
     })">
     </div>
-
 
 </div>
