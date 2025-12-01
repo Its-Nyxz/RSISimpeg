@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\MasterJabatan;
 use Livewire\Component;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Auth;
 
 class DataJabatanPerizinan extends Component
 {
@@ -101,6 +102,45 @@ class DataJabatanPerizinan extends Component
         return redirect()->route('jabatanperizinan.index')->with('success', 'Nama Jabatan berhasil diupdate.');
     }
 
+    public function deleteJabatan($id)
+    {
+        $user = Auth::user();
+
+        // Hanya Super Admin & Kepala Seksi Kepegawaian yang boleh hapus
+        if (!$user->hasAnyRole(['Super Admin', 'Kepala Seksi Kepegawaian'])) {
+            $this->swalData = [
+                'icon' => 'error',
+                'title' => 'Akses Ditolak!',
+                'text' => 'Anda tidak memiliki izin untuk menghapus jabatan.',
+                'timer' => 2000
+            ];
+            return;
+        }
+
+        $jabatan = Role::findOrFail($id);
+
+        // Role tertentu tidak boleh dihapus
+        if (in_array($jabatan->name, ['Super Admin', 'Kepala Seksi Kepegawaian'])) {
+            $this->swalData = [
+                'icon' => 'error',
+                'title' => 'Tidak Bisa Dihapus!',
+                'text' => 'Role ini tidak dapat dihapus.',
+                'timer' => 2000
+            ];
+            return;
+        }
+
+        $jabatan->delete();
+
+        $this->loadData();
+
+        $this->swalData = [
+            'icon' => 'success',
+            'title' => 'Berhasil!',
+            'text' => 'Hak Akses berhasil dihapus.',
+            'timer' => 2000
+        ];
+    }
 
     public function render()
     {
