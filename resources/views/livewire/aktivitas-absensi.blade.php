@@ -55,61 +55,65 @@
 
             <!-- Tombol Aksi -->
             <div class="flex items-center gap-2">
-                <!-- Tombol Export -->
+                <!-- Export PDF -->
                 <div class="relative group">
-                    <!-- Mobile Icon -->
                     <button wire:click="exportPdfHistory"
-                        class="sm:hidden w-12 h-12 flex items-center justify-center rounded-lg bg-blue-100 text-blue-900 hover:bg-blue-600 hover:text-white transition"
-                        aria-label="Export PDF">
+                        class="sm:hidden w-12 h-12 flex items-center justify-center rounded-lg bg-blue-100 text-blue-900 hover:bg-blue-600 hover:text-white transition">
                         <i class="fas fa-download text-lg"></i>
                     </button>
-                    <!-- Tooltip -->
                     <div
                         class="absolute z-10 hidden group-hover:flex bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-800 rounded shadow">
                         Export PDF
                     </div>
-                    <!-- Desktop Full -->
                     <button wire:click="exportPdfHistory"
                         class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-blue-100 text-blue-900 hover:bg-blue-600 hover:text-white transition">
                         <i class="fas fa-download mr-1"></i> Export
                     </button>
                 </div>
 
-                <!-- Tombol Export Excel -->
+                <!-- Export Excel (1 User) -->
                 <div class="relative group">
-                    <!-- Mobile Icon -->
                     <button wire:click="exportExcelHistory"
-                        class="sm:hidden w-12 h-12 flex items-center justify-center rounded-lg bg-yellow-100 text-yellow-900 hover:bg-yellow-600 hover:text-white transition"
-                        aria-label="Export Excel">
+                        class="sm:hidden w-12 h-12 flex items-center justify-center rounded-lg bg-yellow-100 text-yellow-900 hover:bg-yellow-600 hover:text-white transition">
                         <i class="fas fa-file-excel text-lg"></i>
                     </button>
-                    <!-- Tooltip -->
                     <div
                         class="absolute z-10 hidden group-hover:flex bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-800 rounded shadow">
                         Export Excel
                     </div>
-                    <!-- Desktop Full -->
                     <button wire:click="exportExcelHistory"
                         class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-yellow-100 text-yellow-900 hover:bg-yellow-600 hover:text-white transition">
                         <i class="fas fa-file-excel mr-1"></i> Excel
                     </button>
                 </div>
 
+                <!-- Export All Users -->
+                <div class="relative group">
+                    <button wire:click="exportAllUsers"
+                        class="sm:hidden w-12 h-12 flex items-center justify-center rounded-lg bg-emerald-100 text-emerald-900 hover:bg-emerald-600 hover:text-white transition">
+                        <i class="fas fa-file-excel text-lg"></i>
+                    </button>
+                    <div
+                        class="absolute z-10 hidden group-hover:flex bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-800 rounded shadow">
+                        Export Semua Pegawai
+                    </div>
+                    <button wire:click="exportAllUsers"
+                        class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-emerald-100 text-emerald-900 hover:bg-emerald-600 hover:text-white transition">
+                        <i class="fas fa-file-excel mr-1"></i> Export All
+                    </button>
+                </div>
+
                 @can('list-history-create')
-                    <!-- Tombol Tambah -->
+                    <!-- Tambah -->
                     <div class="relative group">
-                        <!-- Mobile Icon -->
                         <a href="{{ route('aktivitasabsensi.create', ['user_id' => $selectedUserId]) }}"
-                            class="sm:hidden w-12 h-12 flex items-center justify-center rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition"
-                            aria-label="Tambah Jadwal">
+                            class="sm:hidden w-12 h-12 flex items-center justify-center rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition">
                             <i class="fa fa-plus text-lg"></i>
                         </a>
-                        <!-- Tooltip -->
                         <div
                             class="absolute z-10 hidden group-hover:flex bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-800 rounded shadow">
                             Tambah Jadwal
                         </div>
-                        <!-- Desktop Full -->
                         <a href="{{ route('aktivitasabsensi.create', ['user_id' => $selectedUserId]) }}"
                             class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition">
                             + Tambah
@@ -117,6 +121,7 @@
                     </div>
                 @endcan
             </div>
+
 
         </div>
 

@@ -11,11 +11,14 @@ use App\Models\Holidays;
 use Illuminate\Support\Str;
 use App\Models\JadwalAbsensi;
 use App\Exports\AbsensiExport;
+use App\Exports\AbsensiMultiUserExport;
 use App\Models\UnitKerja;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Unit;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
+
+
 
 class AktivitasAbsensi extends Component
 {
@@ -32,6 +35,8 @@ class AktivitasAbsensi extends Component
     public $units = [];
 
     public $canAccessAllUnits = false;
+
+
 
     public function mount()
     {
@@ -243,8 +248,10 @@ class AktivitasAbsensi extends Component
                     $out = $absen->time_out ? Carbon::parse($absen->time_out)->setTimezone('Asia/Jakarta') : null;
 
                     // Simpan jam masuk dan keluar (gunakan format string)
-                    if ($in) $jamMasukList[] = $in->format('H:i:s');
-                    if ($out) $jamKeluarList[] = $out->format('H:i:s');
+                    if ($in)
+                        $jamMasukList[] = $in->format('H:i:s');
+                    if ($out)
+                        $jamKeluarList[] = $out->format('H:i:s');
 
                     // Tambahkan juga ke key khusus untuk dipakai di export
                     $realMasuk = $in ? $in->toTimeString() : '-';
@@ -260,18 +267,24 @@ class AktivitasAbsensi extends Component
                             $workSeconds += $duration;
                         }
 
-                        if ($absen->is_dinas) $isDinas = true;
-                        if ($absen->late) $isLate = true;
+                        if ($absen->is_dinas)
+                            $isDinas = true;
+                        if ($absen->late)
+                            $isLate = true;
                     }
 
                     // Gabungkan deskripsi
-                    if ($absen->deskripsi_in) $rencanaKerjaList[] = $absen->deskripsi_in;
-                    if ($absen->deskripsi_out) $laporanKerjaList[] = $absen->deskripsi_out;
-                    if ($absen->feedback) $feedbackList[] = $absen->feedback;
+                    if ($absen->deskripsi_in)
+                        $rencanaKerjaList[] = $absen->deskripsi_in;
+                    if ($absen->deskripsi_out)
+                        $laporanKerjaList[] = $absen->deskripsi_out;
+                    if ($absen->feedback)
+                        $feedbackList[] = $absen->feedback;
                     if ($absen->is_lembur && $absen->deskripsi_lembur)
                         $laporanLemburList[] = $absen->deskripsi_lembur;
 
-                    if ($absen->id) $idList[] = $absen->id;
+                    if ($absen->id)
+                        $idList[] = $absen->id;
                 }
 
                 $jamKerjaList[] = gmdate('H:i:s', $workSeconds);
@@ -365,7 +378,7 @@ class AktivitasAbsensi extends Component
         $pdf = Pdf::loadView('pdf.laporan-absensi-pdf', compact('items', 'title', 'user'));
 
         return response()->streamDownload(
-            fn() => print($pdf->output()),
+            fn() => print ($pdf->output()),
             "Laporan Absensi {$user->name} Bulan {$month} Tahun {$year}.pdf"
         );
     }
@@ -380,6 +393,21 @@ class AktivitasAbsensi extends Component
 
         return Excel::download(new AbsensiExport($items, $user, $title), "Laporan_Absensi_{$user->name}_{$month}_{$year}.xlsx");
     }
+
+    public function exportExcelMultiple(array $userIds)
+    {
+        $users = User::whereIn('id', $userIds)->get();
+
+        return Excel::download(
+            new AbsensiMultiUserExport(
+                $users,
+                $this->month,
+                $this->year
+            ),
+            "Laporan_Absensi_{$this->month}_{$this->year}.xlsx"
+        );
+    }
+
 
     public function render()
     {
@@ -453,5 +481,37 @@ class AktivitasAbsensi extends Component
                 ->pluck('name', 'id')
                 ->toArray();
         }
+    }
+
+    public function exportAllUsers()
+    {
+        // 1. pastikan unit ada
+        if (!$this->selectedUnitId) {
+            session()->flash('error', 'Unit belum dipilih');
+            return;
+        }
+
+        $unit = UnitKerja::find($this->selectedUnitId);
+
+        if (!$unit) {
+            session()->flash('error', 'Unit tidak ditemukan');
+            return;
+        }
+
+        // 2. ambil semua user DI UNIT TERSEBUT
+        $userIds = User::where('unit_id', $unit->id)
+            ->pluck('id')
+            ->toArray();
+
+        if (empty($userIds)) {
+            session()->flash('error', 'Tidak ada pegawai di unit ini');
+            return;
+        }
+
+        // 3. export
+        return Excel::download(
+            new AbsensiMultiUserExport($userIds, $this->month, $this->year),
+            "Laporan_Absensi_{$unit->nama}_{$this->month}_{$this->year}.xlsx"
+        );
     }
 }

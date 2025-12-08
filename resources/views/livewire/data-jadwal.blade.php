@@ -60,10 +60,11 @@
 
             <select wire:model.live="tahun"
                 class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
-                @foreach (range(now()->year - 5, now()->year) as $y)
+                @foreach (range(now()->year - 3, now()->year + 2) as $y)
                     <option value="{{ $y }}">{{ $y }}</option>
                 @endforeach
             </select>
+
         </div>
 
         <!-- Tombol-Tombol Kanan -->
