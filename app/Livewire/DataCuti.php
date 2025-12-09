@@ -213,7 +213,7 @@ class DataCuti extends Component
             );
 
             $start = Carbon::parse($cuti->tanggal_mulai);
-            $end   = Carbon::parse($cuti->tanggal_selesai);
+            $end = Carbon::parse($cuti->tanggal_selesai);
 
             for ($date = $start; $date->lte($end); $date->addDay()) {
                 $jadwal = JadwalAbsensi::updateOrCreate(
