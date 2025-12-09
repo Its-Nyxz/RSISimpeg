@@ -6,6 +6,7 @@ use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use App\Livewire\AktivitasAbsensi;
+use Carbon\Carbon;
 
 class AbsensiUserSheet implements FromView, WithTitle
 {
@@ -22,6 +23,13 @@ class AbsensiUserSheet implements FromView, WithTitle
 
     public function view(): View
     {
+        // Set locale Indonesia agar nama bulan dalam bahasa Indonesia
+        Carbon::setLocale('id');
+
+        // Buat format bulan → nama bulan (contoh: "Desember 2025")
+        $title = Carbon::createFromDate($this->year, $this->month, 1)
+                       ->translatedFormat('F Y');
+
         $component = new AktivitasAbsensi();
         $component->selectedUserId = $this->user->id;
         $component->month = $this->month;
@@ -31,7 +39,7 @@ class AbsensiUserSheet implements FromView, WithTitle
         return view('exports.absensi', [
             'items' => $component->items,
             'user'  => $this->user,
-            'title' => $this->month . ' ' . $this->year,
+            'title' => $title,   // ← dikirim ke blade
         ]);
     }
 
