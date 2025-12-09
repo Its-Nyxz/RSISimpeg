@@ -90,7 +90,7 @@
                 <!-- Export All Users -->
                 <div class="relative group">
                     <button wire:click="exportAllUsers"
-                        class="sm:hidden w-12 h-12 flex items-center justify-center rounded-lg bg-emerald-100 text-emerald-900 hover:bg-emerald-600 hover:text-white transition">
+                        class="sm:hidden w-12 h-12 flex items-center justify-center rounded-lg bg-info-100 text-info-900 hover:bg-info-600 hover:text-white transition">
                         <i class="fas fa-file-excel text-lg"></i>
                     </button>
                     <div
@@ -98,7 +98,7 @@
                         Export Semua Pegawai
                     </div>
                     <button wire:click="exportAllUsers"
-                        class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-emerald-100 text-emerald-900 hover:bg-emerald-600 hover:text-white transition">
+                        class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-info-100 text-info-900 hover:bg-info-600 hover:text-white transition">
                         <i class="fas fa-file-excel mr-1"></i> Export All
                     </button>
                 </div>
