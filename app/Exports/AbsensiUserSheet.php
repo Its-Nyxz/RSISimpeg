@@ -2,14 +2,12 @@
 
 namespace App\Exports;
 
-use Livewire\Livewire;
-use App\Livewire\AktivitasAbsensi;
-use Maatwebsite\Excel\Concerns\FromArray;
+use Illuminate\Contracts\View\View;
+use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use App\Models\UnitKerja;
+use App\Livewire\AktivitasAbsensi;
 
-
-class AbsensiUserSheet implements FromArray, WithTitle
+class AbsensiUserSheet implements FromView, WithTitle
 {
     protected $user;
     protected $month;
@@ -17,24 +15,28 @@ class AbsensiUserSheet implements FromArray, WithTitle
 
     public function __construct($user, $month, $year)
     {
-        $this->user = $user;
+        $this->user  = $user;
         $this->month = $month;
-        $this->year = $year;
+        $this->year  = $year;
     }
 
-    public function array(): array
+    public function view(): View
     {
         $component = new AktivitasAbsensi();
         $component->selectedUserId = $this->user->id;
         $component->month = $this->month;
-        $component->year = $this->year;
+        $component->year  = $this->year;
         $component->loadData();
 
-        return $component->items;
+        return view('exports.absensi', [
+            'items' => $component->items,
+            'user'  => $this->user,
+            'title' => $this->month . ' ' . $this->year,
+        ]);
     }
 
     public function title(): string
     {
-        return $this->user->name;
+        return $this->user->name ?: 'User';
     }
 }
