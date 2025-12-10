@@ -32,7 +32,12 @@ class AktivitasAbsensi extends Component
 
     public $selectedUnitId;
 
+    public $showExportModal = false;
+    public $exportSelectedUsers = [];
+    public $allUsers = [];
+
     public $units = [];
+    public $canExportAll = false;
 
     public $canAccessAllUnits = false;
 
@@ -45,6 +50,9 @@ class AktivitasAbsensi extends Component
 
         // Load units berdasarkan akses
         $this->loadUnits();
+
+        // Permission untuk export all
+        $this->checkExportAllPermission();
 
         // Set default unit
         $this->selectedUnitId = auth()->user()->unit_id;
@@ -450,17 +458,21 @@ class AktivitasAbsensi extends Component
 
     public function updatedSelectedUnitId($unitId)
     {
-        // Validasi akses unit
-        if (!$this->canAccessAllUnits && $unitId != auth()->user()->unit_id) {
-            // Jika user tidak punya akses dan mencoba akses unit lain, kembalikan ke unit sendiri
-            $this->selectedUnitId = auth()->user()->unit_id;
-            return;
-        }
-
+        // Update subordinates dan selected user
         $this->loadSubordinates();
         $this->selectedUserId = !empty($this->subordinates) ? array_key_first($this->subordinates) : auth()->id();
         $this->loadData();
+
+        // Update list user di modal export jika modal terbuka
+        if ($this->showExportModal) {
+            $this->allUsers = User::where('unit_id', $this->selectedUnitId)
+                ->orderBy('name')
+                ->pluck('name', 'id')
+                ->toArray();
+            $this->exportSelectedUsers = [];
+        }
     }
+
 
     public function updatedSelectedUserId($userId)
     {
@@ -483,35 +495,56 @@ class AktivitasAbsensi extends Component
         }
     }
 
-    public function exportAllUsers()
+    private function checkExportAllPermission()
     {
-        // 1. pastikan unit ada
-        if (!$this->selectedUnitId) {
-            session()->flash('error', 'Unit belum dipilih');
-            return;
-        }
+        $roles = collect(Auth::user()->roles()->pluck('name'));
 
-        $unit = UnitKerja::find($this->selectedUnitId);
+        // Hanya Kepala Seksi Kepegawaian dan Kepala Unit yang boleh
+        $this->canExportAll = $roles->contains(function ($role) {
+            return $role === 'Kepala Seksi Kepegawaian' || $role === 'Kepala Unit';
+        });
+    }
 
-        if (!$unit) {
-            session()->flash('error', 'Unit tidak ditemukan');
-            return;
-        }
-
-        // 2. ambil semua user DI UNIT TERSEBUT
-        $userIds = User::where('unit_id', $unit->id)
-            ->pluck('id')
+    public function openExportAllModal()
+    {
+        // Ambil user sesuai unit yang sedang dipilih
+        $this->allUsers = User::where('unit_id', $this->selectedUnitId)
+            ->orderBy('name')
+            ->pluck('name', 'id')
             ->toArray();
 
-        if (empty($userIds)) {
-            session()->flash('error', 'Tidak ada pegawai di unit ini');
+        $this->exportSelectedUsers = [];
+        $this->showExportModal = true;
+    }
+
+    public function exportSelected()
+    {
+        if (empty($this->exportSelectedUsers)) {
+            $this->dispatch('alert', type: 'error', message: 'Pilih minimal 1 user.');
             return;
         }
 
-        // 3. export
+        $unitName = UnitKerja::find($this->selectedUnitId)?->nama ?? 'Unit';
+        $monthName = Carbon::create()->month($this->month)->locale('id')->translatedFormat('F');
+        $year = $this->year;
+
         return Excel::download(
-            new AbsensiMultiUserExport($userIds, $this->month, $this->year),
-            "Laporan_Absensi_{$unit->nama}_{$this->month}_{$this->year}.xlsx"
+            new AbsensiMultiUserExport(
+                $this->exportSelectedUsers,
+                $this->month,
+                $this->year
+            ),
+            "Laporan_Absensi_{$unitName}_{$monthName}_{$year}.xlsx"
         );
     }
+
+    public function toggleSelectAll()
+    {
+        if (count($this->exportSelectedUsers) === count($this->allUsers)) {
+            $this->exportSelectedUsers = [];
+        } else {
+            $this->exportSelectedUsers = array_keys($this->allUsers);
+        }
+    }
+
 }

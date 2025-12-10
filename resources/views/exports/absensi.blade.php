@@ -6,15 +6,15 @@
                 <strong>Nama:</strong> {{ $user->name ?? '-' }}
             </th>
         </tr>
-        <tr>
-            <th colspan="11" style="text-align:left;">
-                <strong>Unit:</strong> {{ $user->unit->nama ?? '-' }}
-            </th>
+            <tr>
+        <th colspan="11" style="text-align:left;">
+            <strong>Unit:</strong> {{ $user->unitKerja->nama ?? '-' }}
+        </th>
         </tr>
         <tr>
             <th colspan="11" style="text-align:left;">
                 <strong>Jabatan:</strong>
-                {{ $user->jabatan?->nama ?? ($user->fungsi?->nama ?? ($user->umum?->nama ?? '-')) }}
+                {{ $user->kategorijabatan->nama ?? '-' }}
             </th>
         </tr>
         <tr>
