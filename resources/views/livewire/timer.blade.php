@@ -381,15 +381,78 @@
     @endpush
     {{-- Rencana Kerja --}}
     <h3 class="font-bold mt-4">RENCANA KERJA</h3>
-    {{ optional($this->absensiTanpaLembur?->first())->deskripsi_in ?? '-' }}
+    <p class="font-semibold text-gray-600">{{ $this->absensiTanpaLembur->first()->deskripsi_in ?? '-' }}</p>
 
     {{-- kerja Selesai --}}
-    @if ($this->absensiTanpaLembur && $this->absensiTanpaLembur->first()?->deskripsi_out)
+    @if (!empty($this->absensiTanpaLembur->first()->deskripsi_out))
         <h3 class="font-bold mt-4">SELESAI KERJA</h3>
-        {{ optional($this->absensiTanpaLembur?->first())->deskripsi_out ?? '-' }}
+        <p class="font-semibold text-gray-600">{{ $this->absensiTanpaLembur->first()->deskripsi_out ?? '-' }}</p>
     @endif
 
+
     @push('scripts')
+        <script>
+            let lokasiTerakhir = null;
+
+            function ambilLokasiTerbaru() {
+                if (!navigator.geolocation) {
+                    Swal.fire('Error', 'Browser tidak mendukung Geolocation.', 'error');
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    function(pos) {
+                        lokasiTerakhir = {
+                            lat: pos.coords.latitude,
+                            lng: pos.coords.longitude,
+                            accuracy: pos.coords.accuracy
+                        };
+
+                        console.log("📍 Lokasi:", lokasiTerakhir.lat, lokasiTerakhir.lng);
+                    },
+                    function() {
+                        Swal.fire('Gagal', 'Izin lokasi dibutuhkan.', 'error');
+                    }, {
+                        enableHighAccuracy: true,
+                        timeout: 8000,
+                        maximumAge: 10000
+                    }
+                );
+            }
+
+            // Fungsi kirim lokasi ke Livewire
+            window.kirimLokasiKeLivewire = function(aksi = 'start') {
+                if (!lokasiTerakhir) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Menunggu Lokasi',
+                        text: 'GPS belum terbaca, mohon tunggu beberapa detik.',
+                    });
+                    return;
+                }
+
+                // Kirim ke Backend untuk validasi
+                @this.set('latitude', lokasiTerakhir.lat);
+                @this.set('longitude', lokasiTerakhir.lng);
+
+                if (aksi === 'start') {
+                    @this.call('startTimer');
+                } else if (aksi === 'stop') {
+                    @this.call('openWorkReportModal');
+                }
+            };
+
+            document.addEventListener('DOMContentLoaded', () => {
+                ambilLokasiTerbaru();
+
+                // Refresh lokasi tiap 20 detik
+                setInterval(ambilLokasiTerbaru, 20000);
+            });
+        </script>
+    @endpush
+
+
+    {{-- @push('scripts')
         <script>
             // const lokasiKantor = {
             //     lat: -7.402330130327286,
@@ -966,7 +1029,7 @@
                 setInterval(ambilLokasiTerbaru, 30000);
             });
         </script>
-    @endpush
+    @endpush --}}
 
     {{-- @push('scripts')
         <script>

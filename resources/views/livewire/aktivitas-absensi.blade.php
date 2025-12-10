@@ -98,8 +98,8 @@
                         class="absolute z-10 hidden group-hover:flex bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-800 rounded shadow">
                         Export Semua Pegawai
                     </div>
-                    <button wire:click="openExportAllModal"
-                        class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-emerald-100 text-emerald-900 hover:bg-emerald-600 hover:text-white transition">
+                    <button wire:click="exportAllUsers"
+                        class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-info-100 text-info-900 hover:bg-info-600 hover:text-white transition">
                         <i class="fas fa-file-excel mr-1"></i> Export All
                     </button>
                 </div>
