@@ -112,7 +112,10 @@
                         <div class="max-h-60 overflow-y-auto border rounded p-3">
                             @foreach ($allUsers as $id => $name)
                                 <label class="flex items-center gap-2 mb-2">
-                                    <input type="checkbox" wire:model="exportSelectedUsers" value="{{ $id }}">
+                                    <input type="checkbox"
+                                        wire:model="exportSelectedUsers"
+                                        value="{{ $id }}"
+                                        class="w-4 h-4 text-success-600 border-gray-300 rounded focus:ring-success-500 accent-green-700">
                                     <span>{{ $name }}</span>
                                 </label>
                             @endforeach
