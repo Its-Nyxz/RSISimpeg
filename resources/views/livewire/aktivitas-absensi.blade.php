@@ -88,8 +88,9 @@
                 </div>
 
                 <!-- Export All Users -->
+                @if ($canExportAll)
                 <div class="relative group">
-                    <button wire:click="exportAllUsers"
+                    <button wire:click="openExportAllModal"
                         class="sm:hidden w-12 h-12 flex items-center justify-center rounded-lg bg-emerald-100 text-emerald-900 hover:bg-emerald-600 hover:text-white transition">
                         <i class="fas fa-file-excel text-lg"></i>
                     </button>
@@ -97,11 +98,46 @@
                         class="absolute z-10 hidden group-hover:flex bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-800 rounded shadow">
                         Export Semua Pegawai
                     </div>
-                    <button wire:click="exportAllUsers"
+                    <button wire:click="openExportAllModal"
                         class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-emerald-100 text-emerald-900 hover:bg-emerald-600 hover:text-white transition">
                         <i class="fas fa-file-excel mr-1"></i> Export All
                     </button>
                 </div>
+                @endif
+                @if ($showExportModal)
+                <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white w-96 rounded-lg shadow-lg p-6">
+                        <h2 class="text-lg font-semibold mb-3">Pilih Pegawai untuk Export</h2>
+
+                        <div class="max-h-60 overflow-y-auto border rounded p-3">
+                            @foreach ($allUsers as $id => $name)
+                                <label class="flex items-center gap-2 mb-2">
+                                    <input type="checkbox" wire:model="exportSelectedUsers" value="{{ $id }}">
+                                    <span>{{ $name }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+
+                        <div class="flex justify-end mt-4 gap-2">
+                            <button wire:click="toggleSelectAll" class="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600">
+                                @if(count($exportSelectedUsers) === count($allUsers))
+                                    Pilih Semua
+                                @else
+                                    Pilih Semua
+                                @endif
+                            </button>
+
+                            <button wire:click="$set('showExportModal', false)" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">
+                                Batal
+                            </button>
+
+                            <button wire:click="exportSelected" class="px-4 py-2 rounded bg-emerald-600 text-white hover:bg-emerald-700">
+                                Export
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                @endif
 
                 @can('list-history-create')
                     <!-- Tambah -->

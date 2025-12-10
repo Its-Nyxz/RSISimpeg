@@ -39,7 +39,7 @@ class AbsensiUserSheet implements FromView, WithTitle
         return view('exports.absensi', [
             'items' => $component->items,
             'user'  => $this->user,
-            'title' => $title,   // ← dikirim ke blade
+            'title' => $title,
         ]);
     }
 
