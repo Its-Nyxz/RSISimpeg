@@ -2,14 +2,13 @@
 
 namespace App\Exports;
 
-use Livewire\Livewire;
-use App\Livewire\AktivitasAbsensi;
-use Maatwebsite\Excel\Concerns\FromArray;
+use Illuminate\Contracts\View\View;
+use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use App\Models\UnitKerja;
+use App\Livewire\AktivitasAbsensi;
+use Carbon\Carbon;
 
-
-class AbsensiUserSheet implements FromArray, WithTitle
+class AbsensiUserSheet implements FromView, WithTitle
 {
     protected $user;
     protected $month;
@@ -22,19 +21,30 @@ class AbsensiUserSheet implements FromArray, WithTitle
         $this->year = $year;
     }
 
-    public function array(): array
+    public function view(): View
     {
+        // Set locale Indonesia agar nama bulan dalam bahasa Indonesia
+        Carbon::setLocale('id');
+
+        // Buat format bulan → nama bulan (contoh: "Desember 2025")
+        $title = Carbon::createFromDate($this->year, $this->month, 1)
+            ->translatedFormat('F Y');
+
         $component = new AktivitasAbsensi();
         $component->selectedUserId = $this->user->id;
         $component->month = $this->month;
         $component->year = $this->year;
         $component->loadData();
 
-        return $component->items;
+        return view('exports.absensi', [
+            'items' => $component->items,
+            'user' => $this->user,
+            'title' => $title,
+        ]);
     }
 
     public function title(): string
     {
-        return $this->user->name;
+        return $this->user->name ?: 'User';
     }
 }
