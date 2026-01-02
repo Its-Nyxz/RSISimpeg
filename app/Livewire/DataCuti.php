@@ -30,13 +30,14 @@ class DataCuti extends Component
     public function mount()
     {
         $user = auth()->user();
+   
         // dd(UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id'));
 
         // Ambil ID unit KEPEGAWAIAN sekali saja
         $this->unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
 
         // Tandai apakah user berasal dari unit KEPEGAWAIAN
-        $this->isKepegawaian = $user->unit_id == $this->unitKepegawaianId;
+        $this->isKepegawaian = $user->unit_id == $this->unitKepegawaianId || $user->roles->pluck('id')->first() == 2;
     }
 
     /** Rekursif ambil semua child unit */
