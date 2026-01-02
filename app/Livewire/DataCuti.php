@@ -30,6 +30,7 @@ class DataCuti extends Component
     public function mount()
     {
         $user = auth()->user();
+        // dd(UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id'));
 
         // Ambil ID unit KEPEGAWAIAN sekali saja
         $this->unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
@@ -161,9 +162,9 @@ class DataCuti extends Component
         /** ------------------------------------------------------------
          *  Logika default (Manager, Kepala, Kepegawaian, dst)
          *  ------------------------------------------------------------ */
-        $userRole = $user->roles->pluck('name')->first();
+        $userRoleId = $user->roles->pluck('id')->first();
         $isFinalApprover = (
-            strcasecmp($userRole, 'Kepala Seksi Kepegawaian') === 0 ||
+            $userRoleId == 2 ||
             $user->unit_id == $this->unitKepegawaianId
         );
 
@@ -253,7 +254,7 @@ class DataCuti extends Component
         // 🔔 Jika belum final → notifikasi ke Kepegawaian
         if (!$isFinalApprover) {
             $finalApprovers = User::where('unit_id', $this->unitKepegawaianId)
-                ->orWhereHas('roles', fn($q) => $q->where('name', 'Kepala Seksi Kepegawaian'))
+                ->orWhereHas('roles', fn($q) => $q->where('id', 2))
                 ->get();
 
             if ($finalApprovers->count() > 0) {
@@ -311,6 +312,8 @@ class DataCuti extends Component
      *  ---------------------------------------------------------------- */
     public function render()
     {
+        // $user = auth()->user();
+        // dd(UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id'));
         $cutiData = $this->loadData();
 
         return view('livewire.data-cuti', [
