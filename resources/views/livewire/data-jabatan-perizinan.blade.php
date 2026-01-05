@@ -31,7 +31,7 @@
                             class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300">
                             <i class="fa-solid fa-eye"></i>
                         </a>
-                        @if(auth()->user()->hasAnyRole(['Super Admin', 'Kepala Seksi Kepegawaian']))
+                        @if(auth()->user()->can('hak-akses') && $item['id'] > 15)
                         <button
                         class="text-red-600 px-3 py-2 rounded-md border hover:bg-red-200"
                         @click="Swal.fire({
