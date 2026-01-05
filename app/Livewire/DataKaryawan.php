@@ -46,7 +46,8 @@ class DataKaryawan extends Component
 
     public function loadData()
     {
-        $roles = ['Super Admin', 'Kepala Seksi Kepegawaian', 'Staf Kepegawaian', 'Kepegawaian', 'Administrator'];
+        $roles = Auth::user()->hasRole('Super Admin') ||
+            Auth::user()->roles()->where('name', 'like', '%Kepegawaian%')->exists();
         $unit_id = Auth::user()->unit_id;
 
         return User::with(['kategorijabatan', 'unitKerja', 'roles', 'jenis'])
