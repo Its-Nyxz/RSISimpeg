@@ -18,8 +18,12 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('generate:cuti-tahunan')
-            ->yearlyOn(1, 1, '00:00')
-            ->timezone('Asia/Jakarta');
+            ->dailyAt('00:10')
+            ->timezone('Asia/Jakarta')
+            ->when(function () {
+                return now('Asia/Jakarta')->isJanuary() &&
+                    now('Asia/Jakarta')->day === 1;
+            });
 
         $schedule->command('kenaikan:berkala')
             ->dailyAt('02:00')
@@ -48,7 +52,7 @@ class Kernel extends ConsoleKernel
         //     ->appendOutputTo(storage_path('logs/absen-timeout.log'));
     }
 
-    
+
 
     /**
      * Register the commands for the application.
