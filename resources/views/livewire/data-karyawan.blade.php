@@ -14,7 +14,7 @@
                 <option value="0">Non Aktif</option>
             </select>
 
-            @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->nama === 'KEPEGAWAIAN')
+            @if (auth()->user()->hasRole('Super Admin') || str(auth()->user()->unitKerja->nama)->is(['KEPEGAWAIAN', 'Adm Kepegawaian']))
                 <select wire:model.live="selectedUnit"
                     class="rounded-lg px-2 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
                     <option value="">-- Pilih Unit --</option>
