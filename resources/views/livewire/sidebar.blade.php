@@ -34,7 +34,7 @@
                     <livewire:side-link href="/users" title="Add User" icon="fa-solid fa-user-plus" />
                         @endcan --}}
                         <livewire:side-link title="Aktivitas Kerja" icon="fa-solid fa-user" :child="array_filter([
-                            auth()->user()->can('timer') ? ['title' => 'Timer', 'href' => '/timer'] : null,
+                            // auth()->user()->can('timer') ? ['title' => 'Timer', 'href' => '/timer'] : null,
                             auth()->user()->can('list-history')
                                 ? [
                                     'title' => 'History',
@@ -200,7 +200,7 @@
                     <livewire:side-link href="/users" title="Add User" icon="fa-solid fa-user-plus" />
                         @endcan --}}
                 <livewire:side-link title="Aktivitas Kerja" icon="fa-solid fa-user" :child="array_filter([
-                    auth()->user()->can('timer') ? ['title' => 'Timer', 'href' => '/timer'] : null,
+                    // auth()->user()->can('timer') ? ['title' => 'Timer', 'href' => '/timer'] : null,
                     auth()->user()->can('list-history')
                         ? [
                             'title' => 'History',
