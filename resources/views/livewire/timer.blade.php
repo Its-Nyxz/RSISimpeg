@@ -393,6 +393,10 @@
     @push('scripts')
         <script>
             let lokasiTerakhir = null;
+            let bestAccuracy = Infinity;
+            let intervalId = null;
+
+            const AKURASI_MAKSIMUM = 20; // meter (semakin kecil semakin akurat)
 
             function ambilLokasiTerbaru() {
                 if (!navigator.geolocation) {
@@ -402,38 +406,73 @@
 
                 navigator.geolocation.getCurrentPosition(
                     function(pos) {
+                        const acc = pos.coords.accuracy;
+
+                        // Abaikan jika akurasi lebih buruk dari sebelumnya
+                        if (acc >= bestAccuracy) {
+                            console.log('⏭️ Lokasi diabaikan (akurasi buruk):', acc);
+                            return;
+                        }
+
                         lokasiTerakhir = {
                             lat: pos.coords.latitude,
                             lng: pos.coords.longitude,
-                            accuracy: pos.coords.accuracy
+                            accuracy: acc
                         };
 
-                        console.log("📍 Lokasi:", lokasiTerakhir.lat, lokasiTerakhir.lng);
+                        bestAccuracy = acc;
+
+                        console.log(`📍 Lokasi update (${acc} m):`, lokasiTerakhir.lat, lokasiTerakhir.lng);
+
+                        // Stop kalau sudah sangat akurat
+                        if (acc <= AKURASI_MAKSIMUM) {
+                            clearInterval(intervalId);
+                            console.log('✅ Akurasi optimal tercapai, berhenti refresh GPS');
+                        }
                     },
-                    function() {
-                        Swal.fire('Gagal', 'Izin lokasi dibutuhkan.', 'error');
+                    function(err) {
+                        console.warn('GPS error:', err.message);
                     }, {
                         enableHighAccuracy: true,
                         timeout: 8000,
-                        maximumAge: 10000
+                        maximumAge: 0
                     }
                 );
             }
 
-            // Fungsi kirim lokasi ke Livewire
             window.kirimLokasiKeLivewire = function(aksi = 'start') {
                 if (!lokasiTerakhir) {
                     Swal.fire({
                         icon: 'info',
                         title: 'Menunggu Lokasi',
-                        text: 'GPS belum terbaca, mohon tunggu beberapa detik.',
+                        text: 'Sedang mencari lokasi akurat...',
                     });
                     return;
                 }
 
-                // Kirim ke Backend untuk validasi
+                if (lokasiTerakhir.accuracy > 30 && lokasiTerakhir.accuracy <= 50) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'GPS Kurang Stabil',
+                        text: 'Lokasi masih bisa diterima, tapi disarankan tunggu sebentar.',
+                        timer: 2500,
+                        showConfirmButton: false
+                    });
+                }
+
+                // Validasi terakhir sebelum kirim
+                if (lokasiTerakhir.accuracy > 50) {
+                    Swal.fire(
+                        'Lokasi Tidak Akurat',
+                        'Mohon pindah ke area terbuka agar GPS lebih akurat.',
+                        'warning'
+                    );
+                    return;
+                }
+
                 @this.set('latitude', lokasiTerakhir.lat);
                 @this.set('longitude', lokasiTerakhir.lng);
+                @this.set('accuracy', lokasiTerakhir.accuracy);
 
                 if (aksi === 'start') {
                     @this.call('startTimer');
@@ -445,11 +484,12 @@
             document.addEventListener('DOMContentLoaded', () => {
                 ambilLokasiTerbaru();
 
-                // Refresh lokasi tiap 20 detik
-                setInterval(ambilLokasiTerbaru, 20000);
+                // 15 detik = balance akurasi & baterai
+                intervalId = setInterval(ambilLokasiTerbaru, 15000);
             });
         </script>
     @endpush
+
 
 
     {{-- @push('scripts')
