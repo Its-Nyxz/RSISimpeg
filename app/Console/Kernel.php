@@ -17,13 +17,13 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('generate:cuti-tahunan')
-            ->dailyAt('00:10')
-            ->timezone('Asia/Jakarta')
-            ->when(function () {
-                return now('Asia/Jakarta')->isJanuary() &&
-                    now('Asia/Jakarta')->day === 1;
-            });
+        // $schedule->command('generate:cuti-tahunan')
+        //     ->dailyAt('00:10')
+        //     ->timezone('Asia/Jakarta')
+        //     ->when(function () {
+        //         return now('Asia/Jakarta')->isJanuary() &&
+        //             now('Asia/Jakarta')->day === 1;
+        //     });
 
         $schedule->command('kenaikan:berkala')
             ->dailyAt('02:00')
