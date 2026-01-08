@@ -138,7 +138,9 @@
                             @if ($isKepegawaian)
                                 <tr>
                                     <td class="font-semibold">Sisa Cuti Tahunan</td>
-                                    <td>: {{ $user->sisaCutiTahunan?->sisa_cuti ?? '0' }} kali</td>
+
+                                    {{-- @dd($user->sisaCutiTahunan()?->where('tahun', now('Asia/Jakarta')->year)->first()->sisa_cuti) --}}
+                                    <td>: {{ $user->sisaCutiTahunan()?->where('tahun', now('Asia/Jakarta')->year)->first()->sisa_cuti ?? '0' }} kali</td>
                                 </tr>
                             @endif
                         </tbody>
