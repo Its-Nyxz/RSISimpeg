@@ -446,10 +446,12 @@
                 ambilLokasiTerbaru();
 
                 // Refresh lokasi tiap 20 detik
-                setInterval(ambilLokasiTerbaru, 20000);
+                setInterval(ambilLokasiTerbaru, 15000);
             });
         </script>
     @endpush
+
+
 
 
     {{-- @push('scripts')
