@@ -687,9 +687,6 @@ class Timer extends Component
             return false;
         }
 
-        $accuracy = isset($this->accuracy) ? floatval($this->accuracy) : null;
-
-
         // 3) Satu set polygon saja
         $polygons = [
             'RSI' => [
@@ -722,58 +719,36 @@ class Timer extends Component
                 [-7.5480292246177925, 110.81254935825416],
             ],
         ];
+
+        // 4) Tentukan area yang diizinkan untuk user (bisa dibuat dinamis per role/unit)
         $allowedAreas = ['RSI', 'akunbiz'];
 
-        // 4) Polygon = prioritas tertinggi (abaikan accuracy)
+        // 5) Coba point-in-polygon (boundary-inclusive)
         foreach ($allowedAreas as $area) {
             if ($this->isPointInPolygonInclusive($lat, $lng, $polygons[$area])) {
-                logger('Lokasi valid via polygon', [
-                    'area' => $area,
-                    'accuracy' => $accuracy
-                ]);
+                logger('Lokasi valid via polygon', ['area' => $area, 'lat' => $lat, 'lng' => $lng]);
                 return true;
             }
         }
 
-        // 5) Accuracy sangat buruk → tolak (karena di luar polygon)
-        if ($accuracy === null || $accuracy > 120) {
-            $this->dispatch(
-                'alert-error',
-                message: 'Sinyal GPS sangat lemah. Tunggu 10–15 detik atau pindah ke area terbuka.'
-            );
-            return false;
-        }
+        // 6) Fallback radius buffer
+        $centers = [
+            'RSI' => [-7.40233, 109.61562],
+            'akunbiz' => [-7.548218, 110.812613],
+        ];
+        $bufferMeters = 150; // bisa dinaikkan 150 -> 180/200 sesuai kebutuhan
 
-        // 6) Buffer hanya untuk accuracy layak
-        $allowBuffer = $accuracy <= 50;
-
-        if ($allowBuffer) {
-            $centers = [
-                'RSI' => [-7.40233, 109.61562],
-                'akunbiz' => [-7.548218, 110.812613],
-            ];
-            $bufferMeters = 200;
-
-            foreach ($allowedAreas as $area) {
-                [$clat, $clng] = $centers[$area];
-                $jarak = $this->hitungJarakMeter($lat, $lng, $clat, $clng);
-
-                if ($jarak <= $bufferMeters) {
-                    logger('Lokasi valid via buffer', [
-                        'area' => $area,
-                        'jarak_m' => $jarak,
-                        'accuracy' => $accuracy
-                    ]);
-                    return true;
-                }
+        foreach ($allowedAreas as $area) {
+            [$clat, $clng] = $centers[$area];
+            $jarak = $this->hitungJarakMeter($lat, $lng, $clat, $clng);
+            if ($jarak <= $bufferMeters) {
+                logger('Lokasi valid via buffer', ['area' => $area, 'jarak_m' => $jarak]);
+                return true;
             }
         }
 
         logger('Lokasi ditolak', ['lat' => $lat, 'lng' => $lng]);
-        $this->dispatch(
-            'alert-error',
-            message: 'Lokasi belum presisi. Tunggu beberapa detik lalu coba lagi.'
-        );
+        $this->dispatch('alert-error', message: 'Anda di luar area absensi yang diizinkan.');
         return false;
     }
 
