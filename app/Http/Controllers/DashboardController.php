@@ -30,7 +30,7 @@ class DashboardController extends Controller
             ->sortBy(fn($q) => optional($q->shift)->jam_masuk)
             ->first();
 
-        $batasShiftBaru = $jadwalHariIniPertama && $jadwalHariIniPertama->shift
+        $batasShiftBaru = $jadwalHariIniPertama && $jadwalHariIniPertama->shift && $jadwalHariIniPertama->shift->jam_masuk
             ? Carbon::parse($today->toDateString() . ' ' . $jadwalHariIniPertama->shift->jam_masuk)->subMinutes(40)
             : $today->copy()->hour(10);
 
@@ -72,7 +72,10 @@ class DashboardController extends Controller
                     });
             })
             ->exists();
+        // dd($jadwalHariIniPertama->shift->jam_masuk);
+        // dd($jadwalHariIniPertama);
         // dd($batasShiftBaru);
+        // dd($jadwalKemarinMasihAktif);
 
         // $jadwalKemarinMasihAktif && $today->lessThan($batasShiftBaru\
         $tampilkanKemarin=false;
