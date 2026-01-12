@@ -20,16 +20,62 @@ class DashboardController extends Controller
         $today = now();
         $bulanIni = $today->month;
         $tahunIni = $today->year;
+        $kemarin = Carbon::yesterday();
 
-        // Tambahkan ini supaya setiap buka dashboard langsung cek dan buatkan absen tidak masuk kalau perlu
-        // $this->buatAbsenTidakMasukHariIni($user->id);
+        // 1. Cari jadwal pertama hari ini untuk pembatas waktu (cutoff)
+        $jadwalHariIniPertama = $user->jadwalabsensi()
+            ->whereDate('tanggal_jadwal', $today->toDateString())
+            ->with('shift')
+            ->get()
+            ->sortBy(fn($q) => optional($q->shift)->jam_masuk)
+            ->first();
+
+        $batasShiftBaru = $jadwalHariIniPertama && $jadwalHariIniPertama->shift
+            ? Carbon::parse($today->toDateString() . ' ' . $jadwalHariIniPertama->shift->jam_masuk)
+            : $today->copy()->hour(10);
+
+        // 2. CEK JADWAL KEMARIN (Utamakan dari Jadwal)
+        // Cari apakah ada jadwal kemarin yang shift malam DAN absennya belum selesai
+        // 2. CEK JADWAL KEMARIN BERDASARKAN RECORD JADWAL
+        $jadwalKemarinMasihAktif = $user->jadwalabsensi()
+            ->whereDate('tanggal_jadwal', $kemarin->toDateString()) // Harus dikunci di tanggal kemarin
+            ->where(function ($query) use ($user) {
+                $query->whereHas('absensi', function ($q) use ($user) {
+                    $q->where('user_id', $user->id)
+                        ->where(function ($sq) {
+                            $sq->whereNull('time_out')
+                                ->orWhere('is_lembur', 1);
+                        });
+                })
+                    ->orWhereHas('absensi', function ($q) use ($user) {
+                        $q->where('user_id', $user->id)
+                            ->whereNotNull('time_out')
+                            ->where('updated_at', '>', now()->subMinutes(60));
+                    });
+            })
+            ->exists();
+        // dd($batasShiftBaru);
+        // 3. Penentuan Output $jadwals
+        if ($jadwalKemarinMasihAktif && $today->lessThan($batasShiftBaru)) {
+            // Ambil data dari hari kemarin
+            $jadwals = $user->jadwalabsensi()
+                ->whereDate('tanggal_jadwal', $kemarin->toDateString())
+                ->with(['shift', 'absensi'])
+                ->get();
+        } else {
+            // Ambil data hari ini
+            $jadwals = $user->jadwalabsensi()
+                ->whereDate('tanggal_jadwal', $today->toDateString())
+                ->with(['shift', 'absensi'])
+                ->get();
+        }
 
 
         // Ambil jadwal milik user berdasarkan tanggal hari ini
-        $jadwals = $user->jadwalabsensi()
-            ->whereDate('tanggal_jadwal', now()->toDateString())
-            ->with('shift')
-            ->get();
+        // $jadwals = $user->jadwalabsensi()
+        //     ->whereDate('tanggal_jadwal', now()->toDateString())
+        //     ->with('shift')
+        //     ->get();
 
         // Pilih salah satu jadwal
         $selectedJadwal = $request->get('jadwal_id')
