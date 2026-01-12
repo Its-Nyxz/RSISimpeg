@@ -132,7 +132,10 @@
                             @php
                                 $isKepegawaian = Auth::user()
                                     ?->getRoleNames()
-                                    ?->contains(fn($role) => str_contains(strtolower($role), 'kepegawaian'));
+                                    ?->contains(
+                                        fn($role) => str_contains(strtolower($role), 'kepegawaian') ||
+                                            str_contains(strtolower($role), 'super admin'),
+                                    );
                             @endphp
 
                             @if ($isKepegawaian)

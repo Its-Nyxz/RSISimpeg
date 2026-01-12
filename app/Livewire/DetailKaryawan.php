@@ -394,11 +394,20 @@ class DetailKaryawan extends Component
         $golDihitung = $pendidikanAwal->minim_gol + $naikGol;
         $golBaru = min($golDihitung, $pendidikanAwal->maxim_gol); // tidak boleh lebih dari maksimal gol
 
-        // Update penyesuaian jadi dibatalkan
+        // Update  penyesuaian yg di hapus jadi dibatalkan
         $penyesuaian->update([
             'status_penyesuaian' => 2,
         ]);
 
+        // update penyesuai an sebelumnya menjadi aktif
+        $penyesuaianLama = Penyesuaian::where('user_id', $this->user_id)
+            ->where('status_penyesuaian', 0)
+            ->latest('created_at')
+            ->first();
+        // jadikan aktif
+        $penyesuaianLama?->update(['status_penyesuaian' => 1]);
+
+        
         // Update data user (kategori_pendidikan dan masa_kerja + selisih)
         $user->update([
             'kategori_pendidikan' => $penyesuaian->penyesuaian->pendidikan_awal,

@@ -107,13 +107,14 @@ class KenaikanGolongan extends Component
 
             if ($user->tmt) {
                 $baseTmt = Carbon::parse($user->tmt);
+             
                 $now = Carbon::now();
 
                 // Hitung masa kerja
                 $diff = $baseTmt->diff($now);
                 $masaKerjaTahun = $diff->y;
                 $masaKerjaBulan = $diff->m;
-                $masaKerjaTotal = floor($baseTmt->floatDiffInYears($now));
+                $masaKerjaTotal = $user->masa_kerja;
 
                 $user->masa_kerja_tahun = $masaKerjaTahun;
                 $user->masa_kerja_bulan = $masaKerjaBulan;
