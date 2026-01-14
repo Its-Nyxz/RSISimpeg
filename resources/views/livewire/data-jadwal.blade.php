@@ -1,7 +1,7 @@
 <div>
     <div class="flex justify-between items-center gap-4 mb-2">
         <div>
-            @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->nama == 'KEPEGAWAIAN')
+            @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->id == 87)
                 <!-- Input Pencarian -->
                 <select wire:model.live="selectedUnit"
                     class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">>
@@ -74,7 +74,7 @@
                 @can('template-jadwal')
                     @php
                         $canSelectUnit =
-                            auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->nama == 'KEPEGAWAIAN';
+                            auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->id == 87;
                         $unitId = $canSelectUnit ? $selectedUnit : auth()->user()->unit_id;
                     @endphp
 
@@ -304,22 +304,9 @@
                     <div><strong>Keterangan:</strong> {{ $shiftKeterangan ?? '-' }}</div>
                 </div>
 
-                @php
-                    $canEditShift = auth()
-                        ->user()
-                        ->hasAnyRole([
-                            'Super Admin',
-                            'Kepala Seksi Kepegawaian',
-                            'Kepala Seksi Keuangan',
-                            'Kepala Unit',
-                            'Kepala Sub Unit',
-                            'Kepala Instalasi',
-                            'Kepala Ruang',
-                            'Kepala Seksi',
-                        ]);
-                @endphp
+          
 
-                @if ($canEditShift)
+                @can('edit-jadwal')
                     <div class="mt-6 border-t pt-4">
                         <h3 class="text-sm font-semibold mb-2">Ubah Shift</h3>
 
@@ -349,7 +336,9 @@
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
-                @endif
+  
+                @endcan
+                    
 
                 <!-- Tombol Tutup -->
                 <div class="mt-6 text-center">

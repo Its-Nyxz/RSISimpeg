@@ -30,7 +30,7 @@ class UpdateKenaikanGolongan extends Command
         $today = Carbon::today();
         $testMode = $this->option('test');
 
-        $unitKepegawaianId = UnitKerja::whereRaw('LOWER(nama) = ?', ['kepegawaian'])->value('id');
+        $unitKepegawaianId = 87;
         $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)->get();
 
         $users = User::whereNotNull('tmt')

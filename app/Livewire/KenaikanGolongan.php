@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Spatie\Permission\Models\Role;
 
 class KenaikanGolongan extends Component
 {
@@ -35,7 +36,7 @@ class KenaikanGolongan extends Component
     public function mount()
     {
         $this->units = UnitKerja::all();
-        $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
+        $unitKepegawaianId = 87;
         $user = auth()->user();
         $this->isKepegawaian = $user->unit_id == $unitKepegawaianId;
     }
@@ -58,7 +59,12 @@ class KenaikanGolongan extends Component
 
     public function loadData()
     {
-        $roles = ['Super Admin', 'Kepala Seksi Kepegawaian', 'Staf Kepegawaian', 'Kepegawaian', 'Administrator'];
+        // $roles = Role::whereIn('name', ['Super Admin', 'Administrator'])
+        //     ->orWhere('name', 'like', '%Kepegawaian%')
+        //     ->pluck('id')
+        //     ->toArray();
+
+        $roles = [1, 2, 14, 12];
         $unit_id = Auth::user()->unit_id;
 
         $users = User::with([

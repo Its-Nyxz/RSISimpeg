@@ -91,7 +91,7 @@ class DetailKaryawan extends Component
         // Cek Role untuk melihat Riwayat Jabatan
         $this->canSeeRiwayat = auth()->user()->hasRole('Super Admin')
             || auth()->user()->roles()->where('name', 'LIKE', '%Kepala%')->exists()
-            || auth()->user()->unitKerja->nama === 'KEPEGAWAIAN';
+            || auth()->user()->unitKerja->id === 87;
 
         // Query riwayat approval hanya jika user memiliki akses dan hanya untuk user yang sedang dilihat
         if ($this->canSeeRiwayat) {
@@ -123,7 +123,7 @@ class DetailKaryawan extends Component
 
         if (
             auth()->user()->hasRole(['Super Admin', 'Kepala Unit', 'Kepegawaian']) ||
-            auth()->user()->unitKerja->nama == 'KEPEGAWAIAN'
+            auth()->user()->unitKerja->id == 87
         ) {
 
             $this->listRiwayatApproval = RiwayatApproval::with(['cuti.user', 'approver'])
@@ -407,7 +407,7 @@ class DetailKaryawan extends Component
         // jadikan aktif
         $penyesuaianLama?->update(['status_penyesuaian' => 1]);
 
-        
+
         // Update data user (kategori_pendidikan dan masa_kerja + selisih)
         $user->update([
             'kategori_pendidikan' => $penyesuaian->penyesuaian->pendidikan_awal,

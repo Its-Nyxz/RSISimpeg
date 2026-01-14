@@ -35,7 +35,7 @@ class DataCuti extends Component
         // dd(UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id'));
 
         // Ambil ID unit KEPEGAWAIAN sekali saja
-        $this->unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
+        $this->unitKepegawaianId = 87;
 
         // Tandai apakah user berasal dari unit KEPEGAWAIAN
         $this->isKepegawaian = $user->unit_id == $this->unitKepegawaianId || $user->roles->pluck('id')->first() == 2;

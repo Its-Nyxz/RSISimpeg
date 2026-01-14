@@ -40,7 +40,7 @@ class DashboardController extends Controller
 
 
         // Menyaring Sertifikat SIP/STR
-        if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN') {
+        if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja?->id === 87) {
             // Super Admin atau Kepegawaian melihat semua SIP/STR
             $masaBerlakuSipStr = SourceFile::whereHas('jenisFile', function ($query) {
                 $query->where('name', 'like', '%sip%')

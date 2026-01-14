@@ -14,7 +14,7 @@
                 <option value="0">Non Aktif</option>
             </select>
 
-            @if (auth()->user()->hasRole(['Super Admin', 'Administrator']) || str(auth()->user()->unitKerja->nama)->is(['KEPEGAWAIAN', 'ADM KEPEGAWAIAN'])  || auth()->user()->can('create-data-karyawan'))
+            @if (auth()->user()->hasRole(['Super Admin', 'Administrator']) || auth()->user()->unitKerja->id == 87  || auth()->user()->can('create-data-karyawan'))
                 <select wire:model.live="selectedUnit"
                     class="rounded-lg px-2 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
                     <option value="">-- Pilih Unit --</option>
@@ -36,7 +36,7 @@
         <!-- AKSI -->
         <div class="flex flex-wrap justify-center md:justify-end items-center gap-3 w-full md:w-auto">
 
-            @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->nama === 'KEPEGAWAIAN' || auth()->user()->can('create-data-karyawan')  )
+            @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->id === 87 || auth()->user()->can('create-data-karyawan')  )
                 <!-- EXPORT -->
                 <div class="relative group">
                     <a href="{{ route('datakaryawan.export') }}" target="_blank"

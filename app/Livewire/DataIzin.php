@@ -23,7 +23,7 @@ class DataIzin extends Component
     public function mount()
     {
         $this->loadData();
-        $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
+        $unitKepegawaianId = 87;
         $user = auth()->user();
 
         $this->isKepegawaian = $user->unit_id == $unitKepegawaianId;
@@ -32,7 +32,7 @@ class DataIzin extends Component
     public function loadData()
     {
         $user = auth()->user();
-        $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
+        $unitKepegawaianId = 87;
 
         if ($user->unit_id == $unitKepegawaianId) {
             // Kalau dari unit KEPEGAWAIAN:
@@ -61,7 +61,7 @@ class DataIzin extends Component
 
     public function approveIzin($izinId, $userId)
     {
-        $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
+        $unitKepegawaianId = 87;
         $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)
             ->permission('approval-izin') // ✅ Spatie helper method
             ->get();
@@ -166,7 +166,7 @@ class DataIzin extends Component
 
     public function rejectIzin($izinId, $userId, $reason = null)
     {
-        $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
+        $unitKepegawaianId = 87;
         $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)->get();
         $izin = IzinKaryawan::find($izinId);
         if ($izin) {
