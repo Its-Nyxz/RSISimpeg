@@ -17,29 +17,29 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('generate:cuti-tahunan')
-        //     ->yearlyOn(1, 1, '00:00')
-        //     ->timezone('Asia/Jakarta');
+        $schedule->command('generate:cuti-tahunan')
+            ->yearlyOn(1, 1, '00:00')
+            ->timezone('Asia/Jakarta');
 
-        // $schedule->command('kenaikan:berkala')
-        //     ->dailyAt('02:00')
-        //     ->timezone('Asia/Jakarta');
+        $schedule->command('kenaikan:berkala')
+            ->dailyAt('02:00')
+            ->timezone('Asia/Jakarta');
 
-        // $schedule->command('kenaikan:golongan')
-        //     ->dailyAt('03:00')
-        //     ->timezone('Asia/Jakarta');
+        $schedule->command('kenaikan:golongan')
+            ->dailyAt('03:00')
+            ->timezone('Asia/Jakarta');
 
-        // $schedule->command('update:masa-kerja')
-        //     ->dailyAt('01:00')
-        //     ->timezone('Asia/Jakarta');
+        $schedule->command('update:masa-kerja')
+            ->dailyAt('01:00')
+            ->timezone('Asia/Jakarta');
 
-        // $schedule->command('generate:absen-alpha')
-        //     ->dailyAt('08:00')
-        //     ->timezone('Asia/Jakarta');
+        $schedule->command('generate:absen-alpha')
+            ->dailyAt('08:00')
+            ->timezone('Asia/Jakarta');
 
-        // $schedule->command('kenaikan:kontrak')
-        //     ->dailyAt('00:30')
-        //     ->timezone('Asia/Jakarta');
+        $schedule->command('kenaikan:kontrak')
+            ->dailyAt('00:30')
+            ->timezone('Asia/Jakarta');
 
         // $schedule->command('generate:absen-timeout')
         //     ->everyFiveMinutes()
@@ -60,4 +60,3 @@ class Kernel extends ConsoleKernel
         require base_path('routes/console.php');
     }
 }
-    
