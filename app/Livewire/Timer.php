@@ -77,34 +77,29 @@ class Timer extends Component
         $this->absensiTanpaLembur = $absensiTanpaLembur;
 
         if ($absensi->count() > 0) {
-            if ($absensi->count() === 1) {
-                // ✅ Jika hanya ada satu data → Gunakan data langsung
-                $data = $absensi->first();
-                $this->timeIn = $data->time_in;
-                $this->timeOut = $data->time_out;
-                $this->late = $data->late;
-                $this->keterangan = $data->keterangan;
-                $this->deskripsi_in = $data->deskripsi_in;
-                $this->deskripsi_out = $data->deskripsi_out;
-            } else {
-                // ✅ Jika ada lebih dari satu data → Lakukan penjumlahan
-                $totalTimeIn = $absensi->sum('time_in');
-                $totalTimeOut = $absensi->sum('time_out');
+            // ✅ Ambil data non-lembur utama (bukan penjumlahan)
+            $absenUtama = $absensi->where('is_lembur', false)->first() ?? $absensi->first();
+            
+            if ($absenUtama) {
+                $this->timeIn = $absenUtama->time_in;
+                $this->timeOut = $absenUtama->time_out;
+                $this->late = $absenUtama->late;
+                $this->keterangan = $absenUtama->keterangan;
+                $this->deskripsi_in = $absenUtama->deskripsi_in;
+                $this->deskripsi_out = $absenUtama->deskripsi_out;
+            }
+            
+            // ✅ Jika ada lembur, kumpulkan untuk display
+            if ($absensi->count() > 1) {
 
-                $this->timeIn = $totalTimeIn;
-                $this->timeOut = $totalTimeOut;
-
-
-                $this->keterangan = "Total waktu kerja: " . gmdate('H:i:s', $totalTimeOut - $totalTimeIn);
-
-                // Loop untuk menampilkan deskripsi_in, deskripsi_out atau deskripsi_lembur
+                // Kumpulkan data lembur untuk display
                 $this->deskripsiLembur = [];
                 foreach ($absensi as $item) {
-                    if ($item->is_lembur) { // Cek apakah lembur
+                    if ($item->is_lembur) {
                         $this->deskripsiLembur[] = [
                             'deskripsi_in' => $item->deskripsi_in,
                             'deskripsi_out' => $item->deskripsi_out,
-                            'deskripsi_lembur' => $item->deskripsi_lembur // Deskripsi lembur
+                            'deskripsi_lembur' => $item->deskripsi_lembur
                         ];
                     }
                 }
@@ -316,9 +311,9 @@ class Timer extends Component
         if ($this->isRunning) {
             $this->timeOut = now()->timestamp;
             $this->isRunning = false;
-            // dd($this->jadwal_id);
-            $timeIn = Carbon::createFromTimestamp($this->timeIn);
-            $timeOut = Carbon::createFromTimestamp($this->timeOut);
+            // ✅ PERBAIKAN BUG: Set timezone Asia/Jakarta agar konsisten
+            $timeIn = Carbon::createFromTimestamp($this->timeIn, 'Asia/Jakarta');
+            $timeOut = Carbon::createFromTimestamp($this->timeOut, 'Asia/Jakarta');
 
             // ✅ Hitung selisih waktu dalam detik
             $selisih = $timeIn->diffInSeconds($timeOut);
@@ -368,11 +363,13 @@ class Timer extends Component
 
         if (!$this->timeOut) return;
 
-        $timeIn = Carbon::createFromTimestamp($this->timeIn);
-        $timeOut = Carbon::createFromTimestamp($this->timeOut);
+        // ✅ PERBAIKAN BUG: Set timezone Asia/Jakarta agar konsisten dengan startTimer()
+        $timeIn = Carbon::createFromTimestamp($this->timeIn, 'Asia/Jakarta');
+        $timeOut = Carbon::createFromTimestamp($this->timeOut, 'Asia/Jakarta');
 
+        // ✅ PERBAIKAN BUG: Handle shift malam - jika waktu keluar lebih kecil dari masuk, berarti melewati tengah malam
         if ($timeOut->lessThan($timeIn)) {
-            $timeOut->addDay(); // Tambahkan satu hari jika waktu keluar lebih kecil dari waktu masuk
+            $timeOut->addDay();
         }
 
         $selisih = $timeIn->diffInSeconds($timeOut);
@@ -391,8 +388,16 @@ class Timer extends Component
         $shift = Shift::find($jadwal->shift_id);
         if (!$shift) return;
 
-        // ✅ Hitung durasi shift dalam jam
-        $shiftDuration = Carbon::parse($shift->jam_masuk)->diffInSeconds(Carbon::parse($shift->jam_keluar));
+        // ✅ PERBAIKAN BUG: Hitung durasi shift dengan timezone konsisten
+        $startShift = Carbon::parse($shift->jam_masuk, 'Asia/Jakarta');
+        $endShift = Carbon::parse($shift->jam_keluar, 'Asia/Jakarta');
+        
+        // Jika jam keluar lebih kecil dari jam masuk, berarti shift melewati tengah malam
+        if ($endShift->lessThan($startShift)) {
+            $endShift->addDay();
+        }
+        
+        $shiftDuration = $startShift->diffInSeconds($endShift);
         $shiftHours = $shiftDuration / 3600;
 
         // ✅ Ambil ID dari tabel `status_absens`

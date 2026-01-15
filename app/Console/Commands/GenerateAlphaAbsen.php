@@ -63,9 +63,13 @@ class GenerateAlphaAbsen extends Command
                     continue;
                 }
 
-                $jamMasuk = Carbon::parse($shift->jam_masuk);
-                $jamKeluar = Carbon::parse($shift->jam_keluar);
-                $isMalam = $jamKeluar->lessThan($jamMasuk);
+                $startShift = Carbon::parse($shift->jam_masuk, 'Asia/Jakarta');
+                $endShift = Carbon::parse($shift->jam_keluar, 'Asia/Jakarta');
+
+                if ($endShift->lessThan($startShift)) {
+                    $endShift->addDay();  // ✅ Shift melewati tengah malam
+                }
+                $shiftDuration = $startShift->diffInSeconds($endShift);
 
                 $shiftSelesai = Carbon::parse($jadwal->tanggal_jadwal)
                     ->addDays($isMalam ? 1 : 0)
@@ -89,8 +93,8 @@ class GenerateAlphaAbsen extends Command
                 $dataAbsen = [
                     'jadwal_id' => $jadwal->id,
                     'user_id' => $user->id,
-                    'time_in' => Carbon::createFromTime(0, 0)->timestamp,
-                    'time_out' => Carbon::createFromTime(0, 0)->timestamp,
+                    'time_in' => Carbon::createFromTimestamp($this->timeIn, 'Asia/Jakarta')->timestamp,
+                    'time_out' => Carbon::createFromTimestamp($this->timeOut, 'Asia/Jakarta')->timestamp,
                 ];
 
                 if ($shift->nama_shift === 'L') {
