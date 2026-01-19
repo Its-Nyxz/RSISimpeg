@@ -30,7 +30,7 @@ class KenaikanKontrak extends Component
     public function mount()
     {
         $this->units = UnitKerja::all();
-        $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
+        $unitKepegawaianId = 87;
         $user = auth()->user();
         $this->isKepegawaian = $user->unit_id == $unitKepegawaianId;
     }
@@ -53,7 +53,8 @@ class KenaikanKontrak extends Component
 
     public function loadData()
     {
-        $roles = ['Super Admin', 'Kepala Seksi Kepegawaian', 'Staf Kepegawaian', 'Kepegawaian', 'Administrator'];
+        // $roles = ['Super Admin', 'Kepala Seksi Kepegawaian', 'Staf Kepegawaian', 'Kepegawaian', 'Administrator'];
+        $roles = [1, 2, 14, 12];
         $unit_id = Auth::user()->unit_id;
 
         $users = User::with([
@@ -126,7 +127,7 @@ class KenaikanKontrak extends Component
                 $user->kenaikan_berkala_waktu = $kenaikanDate->format('Y-m-d');
 
                 $masaKerjaTahunDepan = $masaKerjaTotal + 1;
-            
+
                 $gapokNaik = GapokKontrak::where('kategori_jabatan_id', $kategoriJabatanId)
                     ->where('pendidikan_id', $pendidikanId)
                     ->where('min_masa_kerja', '<=', $masaKerjaTahunDepan)

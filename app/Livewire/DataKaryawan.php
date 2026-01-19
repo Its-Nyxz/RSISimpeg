@@ -48,10 +48,11 @@ class DataKaryawan extends Component
     public function loadData()
     {
       
-        $roles = Role::whereIn('name', ['Super Admin', 'Administrator'])
-            ->orWhere('name', 'like', '%Kepegawaian%')
-            ->pluck('id')
-            ->toArray();
+        // $roles = Role::whereIn('name', ['Super Admin', 'Administrator'])
+        //     ->orWhere('name', 'like', '%Kepegawaian%')
+        //     ->pluck('id')
+        //     ->toArray();
+        $roles = [1, 2, 14, 12];
         $unit_id = Auth::user()->unit_id;
 
 

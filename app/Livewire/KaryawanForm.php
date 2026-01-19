@@ -19,6 +19,7 @@ use App\Models\KategoriJabatan;
 use App\Models\MasterJatahCuti;
 use App\Models\SisaCutiTahunan;
 use App\Models\MasterPendidikan;
+use App\Models\Penyesuaian;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB; // sementara
@@ -417,7 +418,7 @@ class KaryawanForm extends Component
             $roles = Role::whereIn('id', (array) $this->selectedRoles)->pluck('name')->toArray();
             $user->syncRoles($roles);
         }
-        
+
         if (strtolower($jenis) === 'tetap') {
             $currentYear = Carbon::now('Asia/Jakarta')->year;
 
@@ -513,8 +514,10 @@ class KaryawanForm extends Component
         // }
 
 
-        
+
         $user = User::findOrFail($this->user_id);
+
+
 
         // jika karyawan tetap
         if (strtolower($this->selectedJenisKaryawan) == 1) {
@@ -538,6 +541,25 @@ class KaryawanForm extends Component
 
 
         if ($this->tmt) {
+
+            // apakah tmt user dan tmt form tidak sama
+            if ($user->tmt != $this->tmt) {
+
+                // cek apakah mempunyai penyesuaian
+                $penyesuaian = Penyesuaian::where('user_id', $this->user_id)
+                    ->where('status_penyesuaian', 1)
+                    ->latest('created_at')
+                    ->exists();
+
+                if ($penyesuaian) {
+                    //    jika memiliki penyesuaian 
+                    return redirect()->route('detailkaryawan.show', $this->user_id)
+                        ->with('error', 'Karyawan memiliki penyesuaian, TMT tidak dapat di ubah');
+                }
+            }
+
+
+
             $start = Carbon::parse($this->tmt);
             $now = Carbon::now();
 
@@ -581,6 +603,8 @@ class KaryawanForm extends Component
                 $this->masakerja = floor($start->floatDiffInYears($now));
             }
         }
+
+
 
         // Ambil ID kategori jabatan aktif terakhir (yang belum selesai)
         $oldJabatanId = RiwayatJabatan::where('user_id', $user->id)

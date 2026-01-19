@@ -386,7 +386,7 @@ class AktivitasAbsensi extends Component
         $pdf = Pdf::loadView('pdf.laporan-absensi-pdf', compact('items', 'title', 'user'));
 
         return response()->streamDownload(
-            fn() => print ($pdf->output()),
+            fn() => print($pdf->output()),
             "Laporan Absensi {$user->name} Bulan {$month} Tahun {$year}.pdf"
         );
     }
@@ -497,11 +497,12 @@ class AktivitasAbsensi extends Component
 
     private function checkExportAllPermission()
     {
-        $roles = collect(Auth::user()->roles()->pluck('name'));
+        $roles = Auth::user()->roles()->pluck('id', 'name');
 
-        // Hanya Kepala Seksi Kepegawaian dan Kepala Unit yang boleh
-        $this->canExportAll = $roles->contains(function ($role) {
-            return $role === 'Kepala Seksi Kepegawaian' || $role === 'Kepala Unit';
+        $this->canExportAll = $roles->contains(function ($id, $name) {
+            return $name === 'Kepala Seksi Kepegawaian' ||
+                $name === 'Kepala Unit' ||
+                $id == 2;
         });
     }
 
@@ -546,5 +547,4 @@ class AktivitasAbsensi extends Component
             $this->exportSelectedUsers = array_keys($this->allUsers);
         }
     }
-
 }

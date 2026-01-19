@@ -42,7 +42,7 @@ class DataTukarJadwal extends Component
 
     public function approveTukar($tukarId, $userId)
     {
-        $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
+        $unitKepegawaianId = 87;
         $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)->get();
         $tukar = TukarJadwal::find($tukarId);
         if ($tukar) {
@@ -79,7 +79,7 @@ class DataTukarJadwal extends Component
     }
     public function rejectTukar($tukarId, $userId, $reason = null)
     {
-        $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
+        $unitKepegawaianId =87;
         $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)->get();
         $tukar = TukarJadwal::find($tukarId);
 
