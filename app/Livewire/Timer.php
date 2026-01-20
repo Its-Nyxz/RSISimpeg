@@ -79,7 +79,7 @@ class Timer extends Component
         if ($absensi->count() > 0) {
             // ✅ Ambil data non-lembur utama (bukan penjumlahan)
             $absenUtama = $absensi->where('is_lembur', false)->first() ?? $absensi->first();
-            
+
             if ($absenUtama) {
                 $this->timeIn = $absenUtama->time_in;
                 $this->timeOut = $absenUtama->time_out;
@@ -88,7 +88,7 @@ class Timer extends Component
                 $this->deskripsi_in = $absenUtama->deskripsi_in;
                 $this->deskripsi_out = $absenUtama->deskripsi_out;
             }
-            
+
             // ✅ Jika ada lembur, kumpulkan untuk display
             if ($absensi->count() > 1) {
 
@@ -391,12 +391,12 @@ class Timer extends Component
         // ✅ PERBAIKAN BUG: Hitung durasi shift dengan timezone konsisten
         $startShift = Carbon::parse($shift->jam_masuk, 'Asia/Jakarta');
         $endShift = Carbon::parse($shift->jam_keluar, 'Asia/Jakarta');
-        
+
         // Jika jam keluar lebih kecil dari jam masuk, berarti shift melewati tengah malam
         if ($endShift->lessThan($startShift)) {
             $endShift->addDay();
         }
-        
+
         $shiftDuration = $startShift->diffInSeconds($endShift);
         $shiftHours = $shiftDuration / 3600;
 
@@ -672,11 +672,18 @@ class Timer extends Component
 
     private function validasiLokasiAtauIp(): bool
     {
+
+        // cek IP adress user
+
+        $ipUser = request()->ip();
+
+        // dd($ipUser);
+
         // 0) Bypass untuk testing/dev
-        if (app()->environment(['local', 'testing'])) {
-            logger('Bypass lokasi (env dev/testing).');
-            return true;
-        }
+        // if (app()->environment(['local', 'testing'])) {
+        //     logger('Bypass lokasi (env dev/testing).');
+        //     return true;
+        // }
 
         // 1) Koordinat wajib ada
         $lat = isset($this->latitude) ? floatval($this->latitude) : null;
@@ -684,12 +691,35 @@ class Timer extends Component
         if ($lat === null || $lng === null) {
             $this->dispatch('alert-error', message: 'Lokasi belum tersedia. Aktifkan GPS.');
             return false;
-        }
+        } 
 
-        // 2) Hanya mobile (opsional, bisa dibuat role-based)
-        if (!$this->isMobileDevice()) {
-            $this->dispatch('alert-error', message: 'Absensi hanya dari perangkat mobile.');
-            return false;
+        // // 2) Hanya mobile (opsional, bisa dibuat role-based)
+        // if (!$this->isMobileDevice()) {
+        //     $this->dispatch('alert-error', message: 'Absensi hanya dari perangkat mobile.');
+        //     return false;
+        // }
+
+
+        $allowedIps = [
+            'Akunbiz' => [
+                '36.65.118.246',
+                '127.0.0.1',
+            ],
+            'RSI' => [
+                ''
+            ],
+        ];
+
+
+
+        foreach ($allowedIps as $area => $ips) {
+            if (in_array($ipUser, $ips, true)) {
+                logger('Absensi valid via IP', [
+                    'area' => $area,
+                    'ip' => $ipUser
+                ]);
+                return true;
+            }
         }
 
         // 3) Satu set polygon saja
@@ -714,19 +744,19 @@ class Timer extends Component
                 [-7.401305255305822, 109.6161648013101],
                 [-7.400995608604191, 109.6160583992057]
             ],
-            'akunbiz' => [
-                [-7.5480292246177925, 110.81254935825416],
-                [-7.5482477832903925, 110.81246947815623],
-                [-7.548326971187805, 110.81266012532296],
-                [-7.548210828932952, 110.81275385130493],
-                [-7.548082016577297, 110.81279006361632],
-                [-7.5480197220645096, 110.8127133787226],
-                [-7.5480292246177925, 110.81254935825416],
-            ],
+            // 'akunbiz' => [
+            //     [-7.5480292246177925, 110.81254935825416],
+            //     [-7.5482477832903925, 110.81246947815623],
+            //     [-7.548326971187805, 110.81266012532296],
+            //     [-7.548210828932952, 110.81275385130493],
+            //     [-7.548082016577297, 110.81279006361632],
+            //     [-7.5480197220645096, 110.8127133787226],
+            //     [-7.5480292246177925, 110.81254935825416],
+            // ],
         ];
 
         // 4) Tentukan area yang diizinkan untuk user (bisa dibuat dinamis per role/unit)
-        $allowedAreas = ['RSI', 'akunbiz'];
+        $allowedAreas = ['RSI'];
 
         // 5) Coba point-in-polygon (boundary-inclusive)
         foreach ($allowedAreas as $area) {
