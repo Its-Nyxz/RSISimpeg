@@ -77,34 +77,29 @@ class Timer extends Component
         $this->absensiTanpaLembur = $absensiTanpaLembur;
 
         if ($absensi->count() > 0) {
-            if ($absensi->count() === 1) {
-                // ✅ Jika hanya ada satu data → Gunakan data langsung
-                $data = $absensi->first();
-                $this->timeIn = $data->time_in;
-                $this->timeOut = $data->time_out;
-                $this->late = $data->late;
-                $this->keterangan = $data->keterangan;
-                $this->deskripsi_in = $data->deskripsi_in;
-                $this->deskripsi_out = $data->deskripsi_out;
-            } else {
-                // ✅ Jika ada lebih dari satu data → Lakukan penjumlahan
-                $totalTimeIn = $absensi->sum('time_in');
-                $totalTimeOut = $absensi->sum('time_out');
+            // ✅ Ambil data non-lembur utama (bukan penjumlahan)
+            $absenUtama = $absensi->where('is_lembur', false)->first() ?? $absensi->first();
 
-                $this->timeIn = $totalTimeIn;
-                $this->timeOut = $totalTimeOut;
+            if ($absenUtama) {
+                $this->timeIn = $absenUtama->time_in;
+                $this->timeOut = $absenUtama->time_out;
+                $this->late = $absenUtama->late;
+                $this->keterangan = $absenUtama->keterangan;
+                $this->deskripsi_in = $absenUtama->deskripsi_in;
+                $this->deskripsi_out = $absenUtama->deskripsi_out;
+            }
 
+            // ✅ Jika ada lembur, kumpulkan untuk display
+            if ($absensi->count() > 1) {
 
-                $this->keterangan = "Total waktu kerja: " . gmdate('H:i:s', $totalTimeOut - $totalTimeIn);
-
-                // Loop untuk menampilkan deskripsi_in, deskripsi_out atau deskripsi_lembur
+                // Kumpulkan data lembur untuk display
                 $this->deskripsiLembur = [];
                 foreach ($absensi as $item) {
-                    if ($item->is_lembur) { // Cek apakah lembur
+                    if ($item->is_lembur) {
                         $this->deskripsiLembur[] = [
                             'deskripsi_in' => $item->deskripsi_in,
                             'deskripsi_out' => $item->deskripsi_out,
-                            'deskripsi_lembur' => $item->deskripsi_lembur // Deskripsi lembur
+                            'deskripsi_lembur' => $item->deskripsi_lembur
                         ];
                     }
                 }
@@ -316,9 +311,9 @@ class Timer extends Component
         if ($this->isRunning) {
             $this->timeOut = now()->timestamp;
             $this->isRunning = false;
-            // dd($this->jadwal_id);
-            $timeIn = Carbon::createFromTimestamp($this->timeIn);
-            $timeOut = Carbon::createFromTimestamp($this->timeOut);
+            // ✅ PERBAIKAN BUG: Set timezone Asia/Jakarta agar konsisten
+            $timeIn = Carbon::createFromTimestamp($this->timeIn, 'Asia/Jakarta');
+            $timeOut = Carbon::createFromTimestamp($this->timeOut, 'Asia/Jakarta');
 
             // ✅ Hitung selisih waktu dalam detik
             $selisih = $timeIn->diffInSeconds($timeOut);
@@ -368,11 +363,13 @@ class Timer extends Component
 
         if (!$this->timeOut) return;
 
-        $timeIn = Carbon::createFromTimestamp($this->timeIn);
-        $timeOut = Carbon::createFromTimestamp($this->timeOut);
+        // ✅ PERBAIKAN BUG: Set timezone Asia/Jakarta agar konsisten dengan startTimer()
+        $timeIn = Carbon::createFromTimestamp($this->timeIn, 'Asia/Jakarta');
+        $timeOut = Carbon::createFromTimestamp($this->timeOut, 'Asia/Jakarta');
 
+        // ✅ PERBAIKAN BUG: Handle shift malam - jika waktu keluar lebih kecil dari masuk, berarti melewati tengah malam
         if ($timeOut->lessThan($timeIn)) {
-            $timeOut->addDay(); // Tambahkan satu hari jika waktu keluar lebih kecil dari waktu masuk
+            $timeOut->addDay();
         }
 
         $selisih = $timeIn->diffInSeconds($timeOut);
@@ -391,8 +388,16 @@ class Timer extends Component
         $shift = Shift::find($jadwal->shift_id);
         if (!$shift) return;
 
-        // ✅ Hitung durasi shift dalam jam
-        $shiftDuration = Carbon::parse($shift->jam_masuk)->diffInSeconds(Carbon::parse($shift->jam_keluar));
+        // ✅ PERBAIKAN BUG: Hitung durasi shift dengan timezone konsisten
+        $startShift = Carbon::parse($shift->jam_masuk, 'Asia/Jakarta');
+        $endShift = Carbon::parse($shift->jam_keluar, 'Asia/Jakarta');
+
+        // Jika jam keluar lebih kecil dari jam masuk, berarti shift melewati tengah malam
+        if ($endShift->lessThan($startShift)) {
+            $endShift->addDay();
+        }
+
+        $shiftDuration = $startShift->diffInSeconds($endShift);
         $shiftHours = $shiftDuration / 3600;
 
         // ✅ Ambil ID dari tabel `status_absens`
@@ -675,7 +680,7 @@ class Timer extends Component
         return false;
     }
 
-    private function validasiLokasiAtauIp(): bool
+    private function ipDiWhitelist($ip, $whitelist): bool
     {
         // 0) Bypass untuk testing/dev
         if (app()->environment(['local', 'testing'])) {
@@ -691,7 +696,9 @@ class Timer extends Component
             '192.168.31.',
             '10.10.',
             '36.77.',
-            '36.65'
+            '36.65',
+            '36.64.',
+            '180.245.'
         ];
 
         if ($this->ipDiWhitelist($ipUser, $ipWhitelist)) {
@@ -736,15 +743,15 @@ class Timer extends Component
                 [-7.401305255305822, 109.6161648013101],
                 [-7.400995608604191, 109.6160583992057]
             ],
-            'akunbiz' => [
-                [-7.5480292246177925, 110.81254935825416],
-                [-7.5482477832903925, 110.81246947815623],
-                [-7.548326971187805, 110.81266012532296],
-                [-7.548210828932952, 110.81275385130493],
-                [-7.548082016577297, 110.81279006361632],
-                [-7.5480197220645096, 110.8127133787226],
-                [-7.5480292246177925, 110.81254935825416],
-            ],
+            // 'akunbiz' => [
+            //     [-7.5480292246177925, 110.81254935825416],
+            //     [-7.5482477832903925, 110.81246947815623],
+            //     [-7.548326971187805, 110.81266012532296],
+            //     [-7.548210828932952, 110.81275385130493],
+            //     [-7.548082016577297, 110.81279006361632],
+            //     [-7.5480197220645096, 110.8127133787226],
+            //     [-7.5480292246177925, 110.81254935825416],
+            // ],
         ];
 
         // 5) Tentukan area yang diizinkan untuk user (bisa dibuat dinamis per role/unit)

@@ -223,6 +223,9 @@ class DataJadwal extends Component
 
             $this->reset('file');
 
+            // Reload data sebelum redirect untuk memastikan data tampil
+            $this->loadData();
+
             return redirect()->route('jadwal.index')->with('success', 'Data Jadwal Berhasil Diinput');
         } catch (\Throwable $e) {
             Log::error('Import Gagal: ' . $e->getMessage());
