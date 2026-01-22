@@ -165,7 +165,8 @@
     </div>
 
     @php
-        $roles = ['Super Admin', 'Kepala Seksi Kepegawaian', 'Staf Seksi Kepegawaian', 'Administrator'];
+        // $roles = ['Super Admin', 'Kepala Seksi Kepegawaian', 'Staf Seksi Kepegawaian', 'Administrator'];
+         $roles = [1, 2, 14, 12];
     @endphp
 
     @if (Auth::user()->hasAnyRole($roles))

@@ -12,6 +12,7 @@ use App\Models\StatusAbsen;
 use App\Models\CutiKaryawan;
 use Livewire\WithPagination;
 use App\Models\JadwalAbsensi;
+use App\Models\MasterJatahCuti;
 use App\Models\SisaCutiTahunan;
 use App\Models\RiwayatApproval;
 use App\Notifications\UserNotification;
@@ -30,11 +31,11 @@ class DataCuti extends Component
     public function mount()
     {
         $user = auth()->user();
-   
+
         // dd(UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id'));
 
         // Ambil ID unit KEPEGAWAIAN sekali saja
-        $this->unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
+        $this->unitKepegawaianId = 87;
 
         // Tandai apakah user berasal dari unit KEPEGAWAIAN
         $this->isKepegawaian = $user->unit_id == $this->unitKepegawaianId || $user->roles->pluck('id')->first() == 2;
@@ -177,6 +178,64 @@ class DataCuti extends Component
             $cuti->jenisCuti &&
             strtolower($cuti->jenisCuti->nama_cuti) == 'cuti tahunan'
         ) {
+
+            // dd($targetUser->jenis_id != 1);
+            if ($targetUser->jenis_id != 1 || empty($targetUser->jenis_id)) {
+                //chek user apakah data jenis dan tmt masuk terisi
+                // 1. Cek jika KEDUANYA kosong
+                if (empty($targetUser->jenis_id) && empty($targetUser->tmt_masuk) && empty($targetUser->tmt)) {
+                    return redirect()->route('approvalcuti.index')
+                        ->with('error', 'Data jenis Karyawan & TMT belum terisi');
+                }
+
+                // 2. Cek jika salah satu saja yang kosong
+                if (empty($targetUser->jenis_id)) {
+                    return redirect()->route('approvalcuti.index')
+                        ->with('error', 'Data jenis Karyawan belum terisi');
+                }
+
+                if (empty($targetUser->tmt_masuk)) {
+                    return redirect()->route('approvalcuti.index')
+                        ->with('error', 'Data TMT masuk belum terisi');
+                }
+                if (empty($targetUser->tmt)) {
+                    return redirect()->route('approvalcuti.index')
+                        ->with('error', 'Data TMT belum terisi');
+                }
+
+                //chek user apakah data jenis = kontrak dan tmt masuk  sudah bekrja selama 12 bulan >
+                $now = now('Asia/Jakarta');
+                $tmt = Carbon::parse($targetUser->tmt, 'Asia/Jakarta');
+                $targetTanggal = $tmt->copy()->addMonths(12);
+
+                // 3. Cek Kondisi
+                if ($targetUser->jenis_id === 3) {
+                    // jika masa kerja belum 12 bulan
+                    if (!$now->greaterThanOrEqualTo($targetTanggal)) {
+                        // targetUser kontrak belum boleh cuti
+                        $sisaBulan = ceil($now->floatDiffInMonths($targetTanggal));
+                        return redirect()->route('approvalcuti.index')
+                            ->with('error', "Maaf, karyawan kontrak baru bisa cuti setelah 12 bulan. Sisa masa tunggu: $sisaBulan bulan lagi.");
+                    } else {
+                        $currentYear = now('Asia/Jakarta')->year;
+                        // 1. Ambil jatah cuti dari master, default ke 12 jika tidak ada
+                        $jatahCuti = MasterJatahCuti::where('tahun', $currentYear)->value('jumlah_cuti') ?? 12;
+
+                        // 2. Cek apakah sisa cuti tahun ini sudah dibuat untuk targetUser ini
+                        // Jika belum ada, maka buat baru. Jika sudah ada, ambil datanya.
+                        SisaCutiTahunan::firstOrCreate(
+                            [
+                                'user_id' => $targetUser->id,
+                                'tahun'   => $currentYear
+                            ],
+                            [
+                                'sisa_cuti' => $jatahCuti // Ini hanya diisi jika record baru dibuat
+                            ]
+                        );
+                    }
+                }
+            };
+            // dd('1');
             $userCuti = SisaCutiTahunan::where('user_id', $userId)
                 ->where('tahun', now('Asia/Jakarta')->year)
                 ->first();

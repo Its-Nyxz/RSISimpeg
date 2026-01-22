@@ -670,6 +670,16 @@ class Timer extends Component
         return preg_match('/android|iphone|ipad|ipod|mobile|blackberry|windows phone/i', $agent);
     }
 
+    private function ipDiWhitelist($ip, $whitelist): bool
+    {
+        foreach ($whitelist as $prefix) {
+            if (str_starts_with($ip, $prefix)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private function validasiLokasiAtauIp(): bool
     {
 
@@ -691,38 +701,24 @@ class Timer extends Component
         if ($lat === null || $lng === null) {
             $this->dispatch('alert-error', message: 'Lokasi belum tersedia. Aktifkan GPS.');
             return false;
-        } 
-
-        // // 2) Hanya mobile (opsional, bisa dibuat role-based)
-        // if (!$this->isMobileDevice()) {
-        //     $this->dispatch('alert-error', message: 'Absensi hanya dari perangkat mobile.');
-        //     return false;
-        // }
-
-
-        $allowedIps = [
-            'Akunbiz' => [
-                '36.65.118.246',
-                '127.0.0.1',
-            ],
-            'RSI' => [
-                ''
-            ],
-        ];
-
-
-
-        foreach ($allowedIps as $area => $ips) {
-            if (in_array($ipUser, $ips, true)) {
-                logger('Absensi valid via IP', [
-                    'area' => $area,
-                    'ip' => $ipUser
-                ]);
-                return true;
-            }
         }
 
-        // 3) Satu set polygon saja
+        // 2) Hanya mobile (opsional, bisa dibuat role-based)
+        if (!$this->isMobileDevice()) {
+            $this->dispatch('alert-error', message: 'Absensi hanya dari perangkat mobile.');
+            return false;
+        }
+
+        // 3) GPS wajib aktif jika bukan IP kantor
+        $lat = isset($this->latitude) ? floatval($this->latitude) : null;
+        $lng = isset($this->longitude) ? floatval($this->longitude) : null;
+
+        if ($lat === null || $lng === null) {
+            $this->dispatch('alert-error', message: 'GPS wajib aktif jika tidak menggunakan WiFi kantor.');
+            return false;
+        }
+
+        // 4) Satu set polygon saja
         $polygons = [
             'RSI' => [
                 [-7.400995608604191, 109.6160583992057],
@@ -756,9 +752,9 @@ class Timer extends Component
         ];
 
         // 4) Tentukan area yang diizinkan untuk user (bisa dibuat dinamis per role/unit)
-        $allowedAreas = ['RSI'];
+        $allowedAreas = ['RSI', 'akunbiz'];
 
-        // 5) Coba point-in-polygon (boundary-inclusive)
+        // 6) Coba point-in-polygon (boundary-inclusive)
         foreach ($allowedAreas as $area) {
             if ($this->isPointInPolygonInclusive($lat, $lng, $polygons[$area])) {
                 logger('Lokasi valid via polygon', ['area' => $area, 'lat' => $lat, 'lng' => $lng]);
@@ -766,7 +762,7 @@ class Timer extends Component
             }
         }
 
-        // 6) Fallback radius buffer
+        // 7) Fallback radius buffer
         $centers = [
             'RSI' => [-7.40233, 109.61562],
             'akunbiz' => [-7.548218, 110.812613],

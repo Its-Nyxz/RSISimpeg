@@ -11,8 +11,11 @@ use App\Models\UnitKerja;
 use App\Models\TukarJadwal;
 use App\Models\CutiKaryawan;
 use App\Models\IzinKaryawan;
+use App\Models\MasterJatahCuti;
+use App\Models\SisaCutiTahunan;
 use Livewire\WithFileUploads;
 use App\Notifications\UserNotification;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Notification;
 
 class PengajuanForm extends Component
@@ -221,6 +224,7 @@ class PengajuanForm extends Component
 
 
 
+
     public function save()
     {
         $user = auth()->user();
@@ -234,9 +238,9 @@ class PengajuanForm extends Component
                 'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
                 'keterangan' => 'nullable|string|max:255',
             ]);
-
+            // dd(auth()->user());
             $user = auth()->user();
-            $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
+            $unitKepegawaianId = 87;
 
             // 🔹 Validasi cuti ganda
             $cekCutiSama = CutiKaryawan::where('user_id', $user->id)
@@ -247,13 +251,97 @@ class PengajuanForm extends Component
                 $this->dispatch('swal:modal', icon: 'error', title: 'Pengajuan Gagal', text: 'Anda sudah mengajukan cuti di tanggal tersebut.');
                 return;
             }
+            
+            if ($this->jenis_cuti_id == 1) {
 
-            // 🔹 Validasi masa kerja (untuk karyawan kontrak)
-            if ($user->jenis_id === 3 && !$this->cekMasaKerjaBolehCuti($user)) {
-                $this->dispatch('swal:modal', icon: 'error', title: 'Pengajuan Ditolak', text: 'Karyawan kontrak belum memenuhi masa kerja minimal 12 bulan.');
-                return;
+                if ($user->jenis_id != 1 || empty($user->jenis_id)) {
+                    //chek user apakah data jenis dan tmt masuk terisi
+                    // 1. Jika SEMUA kosong
+                    if (
+                        empty($user->jenis_id) &&
+                        empty($user->tmt_masuk) &&
+                        empty($user->tmt)
+                    ) {
+                        $this->dispatch(
+                            'swal:modal',
+                            icon: 'error',
+                            title: 'Pengajuan Ditolak',
+                            text: 'Data Jenis Karyawan & TMT belum terisi'
+                        );
+                        return;
+                    }
+
+                    // 2. Jika salah satu kosong
+                    if (empty($user->jenis_id)) {
+                        $this->dispatch(
+                            'swal:modal',
+                            icon: 'error',
+                            title: 'Pengajuan Ditolak',
+                            text: 'Data Jenis Karyawan belum terisi'
+                        );
+                        return;
+                    }
+
+                    if (empty($user->tmt_masuk)) {
+                        $this->dispatch(
+                            'swal:modal',
+                            icon: 'error',
+                            title: 'Pengajuan Ditolak',
+                            text: 'Data TMT masuk belum terisi'
+                        );
+                        return;
+                    }
+
+                    if (empty($user->tmt)) {
+                        $this->dispatch(
+                            'swal:modal',
+                            icon: 'error',
+                            title: 'Pengajuan Ditolak',
+                            text: 'Data TMT belum terisi'
+                        );
+                        return;
+                    }
+                    // dd('p');
+                    //chek user apakah data jenis = kontrak dan tmt masuk  sudah bekrja selama 12 bulan >
+                    $now = now('Asia/Jakarta');
+                    $tmt = Carbon::parse($user->tmt, 'Asia/Jakarta');
+                    $targetTanggal = $tmt->copy()->addMonths(12);
+
+                    // 3. Cek Kondisi
+                    if ($user->jenis_id === 3) {
+                        // jika masa kerja belum 12 bulan
+                        if (!$now->greaterThanOrEqualTo($targetTanggal)) {
+                            // User kontrak belum boleh cuti
+                            $sisaBulan = ceil($now->floatDiffInMonths($targetTanggal));
+                            $this->dispatch('swal:modal', icon: 'error', title: 'Pengajuan Ditolak', text: "Maaf, karyawan kontrak baru bisa cuti setelah 12 bulan. Sisa masa tunggu: $sisaBulan bulan lagi.");
+                            return;
+                        } else {
+                            $currentYear = now('Asia/Jakarta')->year;
+                            // 1. Ambil jatah cuti dari master, default ke 12 jika tidak ada
+                            $jatahCuti = MasterJatahCuti::where('tahun', $currentYear)->value('jumlah_cuti') ?? 12;
+
+                            // 2. Cek apakah sisa cuti tahun ini sudah dibuat untuk user ini
+                            // Jika belum ada, maka buat baru. Jika sudah ada, ambil datanya.
+                            SisaCutiTahunan::firstOrCreate(
+                                [
+                                    'user_id' => $user->id,
+                                    'tahun'   => $currentYear
+                                ],
+                                [
+                                    'sisa_cuti' => $jatahCuti // Ini hanya diisi jika record baru dibuat
+                                ]
+                            );
+                        }
+                    }
+                }
+
+                // dd($user->masa_kerja);
+                // 🔹 Validasi masa kerja (untuk karyawan kontrak)
+                if ($user->jenis_id === 3 && !$this->cekMasaKerjaBolehCuti($user)) {
+                    $this->dispatch('swal:modal', icon: 'error', title: 'Pengajuan Ditolak', text: 'Karyawan kontrak belum memenuhi masa kerja minimal 12 bulan.');
+                    return;
+                }
             }
-
             // 🔹 Hitung jumlah hari cuti
             $jumlah_hari = (strtotime($this->tanggal_selesai) - strtotime($this->tanggal_mulai)) / 86400 + 1;
 

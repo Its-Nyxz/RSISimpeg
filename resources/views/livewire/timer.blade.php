@@ -422,6 +422,18 @@
 
             // Fungsi kirim lokasi ke Livewire
             window.kirimLokasiKeLivewire = function(aksi = 'start') {
+
+                // Jika desktop → kirim langsung tanpa GPS
+                if (!/android|iphone|ipad|mobile/i.test(navigator.userAgent)) {
+                    if (aksi === 'start') {
+                        @this.call('startTimer');
+                    } else {
+                        @this.call('openWorkReportModal');
+                    }
+                    return;
+                }
+
+                // Mobile tetap pakai GPS
                 if (!lokasiTerakhir) {
                     Swal.fire({
                         icon: 'info',
@@ -431,25 +443,27 @@
                     return;
                 }
 
-                // Kirim ke Backend untuk validasi
                 @this.set('latitude', lokasiTerakhir.lat);
                 @this.set('longitude', lokasiTerakhir.lng);
 
                 if (aksi === 'start') {
                     @this.call('startTimer');
-                } else if (aksi === 'stop') {
+                } else {
                     @this.call('openWorkReportModal');
                 }
             };
+
 
             document.addEventListener('DOMContentLoaded', () => {
                 ambilLokasiTerbaru();
 
                 // Refresh lokasi tiap 20 detik
-                setInterval(ambilLokasiTerbaru, 20000);
+                setInterval(ambilLokasiTerbaru, 15000);
             });
         </script>
     @endpush
+
+
 
 
     {{-- @push('scripts')

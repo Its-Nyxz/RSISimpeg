@@ -201,7 +201,7 @@ class DataJadwal extends Component
         $monthName = Carbon::createFromDate($this->tahun, $this->bulan, 1)->translatedFormat('F');
 
         // Dapatkan nama unit berdasarkan role
-        $canSelectUnit = auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->nama === 'KEPEGAWAIAN';
+        $canSelectUnit = auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->id === 87;
 
         $unitNama = $canSelectUnit
             ? UnitKerja::find($this->selectedUnit)?->nama
@@ -261,7 +261,7 @@ class DataJadwal extends Component
     {
         $allowedRoles = [
             'Super Admin',
-            'Kepala Seksi Kepegawaian',
+            2,
             'Kepala Seksi Keuangan',
             'Kepala Unit',
             'Kepala Sub Unit',
@@ -344,7 +344,7 @@ class DataJadwal extends Component
     {
         $allowedRoles = [
             'Super Admin',
-            'Kepala Seksi Kepegawaian',
+            2,
             'Kepala Seksi Keuangan',
             'Kepala Unit',
             'Kepala Sub Unit',

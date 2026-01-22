@@ -61,16 +61,18 @@
                                 Ubah Unit Kerja
                                 <div class="tooltip-arrow" data-popper-arrow></div>
                             </div>
-                            <button type="button"
-                                onclick="confirmAlert('Yakin ingin menghapus Unit Kerja ini?', 'Ya, hapus!', () => @this.call('destroy', {{ $item['id'] }}))"
-                                class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300 relative group">
-                                <i class="fa-solid fa-trash"></i>
-                                <div id="tooltip-destroy-{{ $item['id'] }}"
-                                    class="absolute z-10 hidden group-hover:block bottom-full mb-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-md">
-                                    Hapus
-                                    <div class="tooltip-arrow" data-popper-arrow></div>
-                                </div>
-                            </button>
+                            @if ($item['id'] != 87)
+                                <button type="button"
+                                    onclick="confirmAlert('Yakin ingin menghapus Unit Kerja ini?', 'Ya, hapus!', () => @this.call('destroy', {{ $item['id'] }}))"
+                                    class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300 relative group">
+                                    <i class="fa-solid fa-trash"></i>
+                                    <div id="tooltip-destroy-{{ $item['id'] }}"
+                                        class="absolute z-10 hidden group-hover:block bottom-full mb-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-md">
+                                        Hapus
+                                        <div class="tooltip-arrow" data-popper-arrow></div>
+                                    </div>
+                                </button>
+                            @endif
 
                         </td>
                     </tr>

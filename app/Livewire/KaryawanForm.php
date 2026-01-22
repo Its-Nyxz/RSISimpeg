@@ -19,6 +19,7 @@ use App\Models\KategoriJabatan;
 use App\Models\MasterJatahCuti;
 use App\Models\SisaCutiTahunan;
 use App\Models\MasterPendidikan;
+use App\Models\Penyesuaian;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB; // sementara
@@ -512,7 +513,53 @@ class KaryawanForm extends Component
         //     return back()->with('error', 'Kategori Jabatan tidak ditemukan.');
         // }
 
+
+
+        $user = User::findOrFail($this->user_id);
+
+
+
+        // jika karyawan tetap
+        if (strtolower($this->selectedJenisKaryawan) == 1) {
+            $currentYear = Carbon::now('Asia/Jakarta')->year;
+
+            $sudahAda = SisaCutiTahunan::where('user_id', $user->id)
+                ->where('tahun', $currentYear)
+                ->exists();
+
+            if (!$sudahAda) {
+                $jatahCuti = MasterJatahCuti::where('tahun', $currentYear)
+                    ->value('jumlah_cuti') ?? 12;
+
+                SisaCutiTahunan::firstOrCreate([
+                    'user_id' => $user->id,
+                    'tahun' => $currentYear,
+                    'sisa_cuti' => $jatahCuti,
+                ]);
+            }
+        }
+
+
         if ($this->tmt) {
+
+            // apakah tmt user dan tmt form tidak sama
+            if ($user->tmt != $this->tmt) {
+
+                // cek apakah mempunyai penyesuaian
+                $penyesuaian = Penyesuaian::where('user_id', $this->user_id)
+                    ->where('status_penyesuaian', 1)
+                    ->latest('created_at')
+                    ->exists();
+
+                if ($penyesuaian) {
+                    //    jika memiliki penyesuaian 
+                    return redirect()->route('detailkaryawan.show', $this->user_id)
+                        ->with('error', 'Karyawan memiliki penyesuaian, TMT tidak dapat di ubah');
+                }
+            }
+
+
+
             $start = Carbon::parse($this->tmt);
             $now = Carbon::now();
 
@@ -521,13 +568,43 @@ class KaryawanForm extends Component
             if (strtolower($jenis) === 'kontrak') {
                 // Hitung dalam bulan
                 $this->masakerja = floor($start->diffInMonths($now));
+                if ($this->masakerja >= 12) {
+                    $currentYear = now('Asia/Jakarta')->year;
+
+                    // 1. Ambil jatah cuti dari master, default ke 12 jika tidak ada
+                    $jatahCuti = MasterJatahCuti::where('tahun', $currentYear)->value('jumlah_cuti') ?? 12;
+
+                    // 2. Gunakan firstOrCreate agar tidak terjadi duplikat saat di-refresh (Testing Friendly)
+                    SisaCutiTahunan::firstOrCreate(
+                        [
+                            'user_id' => $this->user_id,
+                            'tahun'   => $currentYear
+                        ],
+                        [
+                            'sisa_cuti' => $jatahCuti
+                        ]
+                    );
+                } else {
+                    // JIKA MASA KERJA < 12 BULAN 
+                    // Cek apakah ada sisa cuti di database
+                    $cekSisaCuti = SisaCutiTahunan::where('user_id', $this->user_id)
+                        ->where('tahun', now('Asia/Jakarta')->year)
+                        ->first();
+
+                    if ($cekSisaCuti) {
+                        // Jika ditemukan, maka hapus (delete) agar menjadi null saat dipanggil nanti
+                        $cekSisaCuti->delete();
+                    }
+
+                    // Jika tidak ada, ya sudah (lanjut saja)
+                }
             } else {
                 // Hitung dalam tahun (pembulatan bawah)
                 $this->masakerja = floor($start->floatDiffInYears($now));
             }
         }
 
-        $user = User::findOrFail($this->user_id);
+
 
         // Ambil ID kategori jabatan aktif terakhir (yang belum selesai)
         $oldJabatanId = RiwayatJabatan::where('user_id', $user->id)

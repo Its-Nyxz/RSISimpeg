@@ -9,6 +9,7 @@ use App\Models\Shift;
 use App\Models\JadwalAbsensi;
 use App\Models\TukarJadwal;
 use App\Notifications\UserNotification;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Notification;
 
 class CreateJadwal extends Component
@@ -94,6 +95,7 @@ class CreateJadwal extends Component
             if ($user) {
                 $this->user_id = $user->id;
                 $this->nama = $user->name;
+                $this->tanggal = Carbon::now('Asia/Jakarta')->toDateString();
             }
         }
     }

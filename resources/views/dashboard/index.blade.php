@@ -20,7 +20,7 @@
                                 {{-- Kalau sisa hari kurang dari 7 --}}
                                 @if ($sisaHari <= 7)
                                     <li class="flex items-center">
-                                        @if (auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN' || auth()->user()->hasRole('Super Admin'))
+                                        @if (auth()->user()->unitKerja?->id === 87 || auth()->user()->hasRole('Super Admin'))
                                             <strong class="mr-2">{{ $file->user->name ?? '-' }}</strong> -
                                         @endif
                                         <span>{{ $file->jenisFile->name ?? '-' }} berakhir
@@ -39,7 +39,7 @@
                                 @if ($sisaHari <= 7)
                                     {{-- Pelatihan yang hampir expired, ditampilkan di bagian yang sama dengan SIP/STR --}}
                                     <li class="flex items-center">
-                                        @if (auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN' || auth()->user()->hasRole('Super Admin'))
+                                        @if (auth()->user()->unitKerja?->id === 87 || auth()->user()->hasRole('Super Admin'))
                                             <strong class="mr-2">{{ $file->user->name ?? '-' }}</strong> -
                                         @endif
                                         <span>{{ $file->jenisFile->name ?? '-' }} berakhir
@@ -60,7 +60,7 @@
         <div class="w-1/3 ml-4">
             {{-- Only display the total jam card if there are pelatihan records or if total jam is greater than 0 --}}
             @if (count($masaBerlakuPelatihan) > 0 ||
-                    ((auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN' || auth()->user()->hasRole('Super Admin')) &&
+                    ((auth()->user()->unitKerja?->id === 87 || auth()->user()->hasRole('Super Admin')) &&
                         $masaBerlakuPelatihan->sum('jumlah_jam') > 0))
                 <div
                     class="flex items-center bg-blue-100 border-l-4 border-blue-500 text-blue-800 px-4 py-2 rounded-lg text-sm max-w-2xl overflow-y-auto max-h-28">
@@ -68,7 +68,7 @@
                         <p class="font-bold mb-2">Total Jam Sertifikat Pelatihan</p>
 
                         {{-- Jika login sebagai Kepegawaian atau Super Admin --}}
-                        @if (auth()->user()->unitKerja?->nama === 'KEPEGAWAIAN' || auth()->user()->hasRole('Super Admin'))
+                        @if (auth()->user()->unitKerja?->id === 87 || auth()->user()->hasRole('Super Admin'))
                             <ul class="list-disc list-inside space-y-2">
                                 @php
                                     // Ambil data user yang terkait dengan pelatihan dan pastikan tidak ada duplikasi

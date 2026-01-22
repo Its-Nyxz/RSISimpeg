@@ -8,6 +8,7 @@ use App\Models\UnitKerja;
 use Livewire\WithPagination;
 use App\Models\JenisKaryawan;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Role;
 
 class DataKaryawan extends Component
 {
@@ -46,8 +47,14 @@ class DataKaryawan extends Component
 
     public function loadData()
     {
-        $roles = ['Super Admin', 'Kepala Seksi Kepegawaian', 'Staf Kepegawaian', 'Kepegawaian', 'Administrator'];
+      
+        // $roles = Role::whereIn('name', ['Super Admin', 'Administrator'])
+        //     ->orWhere('name', 'like', '%Kepegawaian%')
+        //     ->pluck('id')
+        //     ->toArray();
+        $roles = [1, 2, 14, 12];
         $unit_id = Auth::user()->unit_id;
+
 
         return User::with(['kategorijabatan', 'unitKerja', 'roles', 'jenis'])
             ->where('id', '>', '1') // Eager load jabatan dan unitKerja

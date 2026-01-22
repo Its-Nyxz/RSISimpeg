@@ -91,7 +91,7 @@ class DetailKaryawan extends Component
         // Cek Role untuk melihat Riwayat Jabatan
         $this->canSeeRiwayat = auth()->user()->hasRole('Super Admin')
             || auth()->user()->roles()->where('name', 'LIKE', '%Kepala%')->exists()
-            || auth()->user()->unitKerja->nama === 'KEPEGAWAIAN';
+            || auth()->user()->unitKerja->id === 87;
 
         // Query riwayat approval hanya jika user memiliki akses dan hanya untuk user yang sedang dilihat
         if ($this->canSeeRiwayat) {
@@ -123,7 +123,7 @@ class DetailKaryawan extends Component
 
         if (
             auth()->user()->hasRole(['Super Admin', 'Kepala Unit', 'Kepegawaian']) ||
-            auth()->user()->unitKerja->nama == 'KEPEGAWAIAN'
+            auth()->user()->unitKerja->id == 87
         ) {
 
             $this->listRiwayatApproval = RiwayatApproval::with(['cuti.user', 'approver'])
@@ -394,10 +394,19 @@ class DetailKaryawan extends Component
         $golDihitung = $pendidikanAwal->minim_gol + $naikGol;
         $golBaru = min($golDihitung, $pendidikanAwal->maxim_gol); // tidak boleh lebih dari maksimal gol
 
-        // Update penyesuaian jadi dibatalkan
+        // Update  penyesuaian yg di hapus jadi dibatalkan
         $penyesuaian->update([
             'status_penyesuaian' => 2,
         ]);
+
+        // update penyesuai an sebelumnya menjadi aktif
+        $penyesuaianLama = Penyesuaian::where('user_id', $this->user_id)
+            ->where('status_penyesuaian', 0)
+            ->latest('created_at')
+            ->first();
+        // jadikan aktif
+        $penyesuaianLama?->update(['status_penyesuaian' => 1]);
+
 
         // Update data user (kategori_pendidikan dan masa_kerja + selisih)
         $user->update([

@@ -107,7 +107,7 @@ class DataJabatanPerizinan extends Component
         $user = Auth::user();
 
         // Hanya Super Admin & Kepala Seksi Kepegawaian yang boleh hapus
-        if (!$user->hasAnyRole(['Super Admin', 'Kepala Seksi Kepegawaian'])) {
+        if (!$user->can('hak-akses')) {
             $this->swalData = [
                 'icon' => 'error',
                 'title' => 'Akses Ditolak!',
