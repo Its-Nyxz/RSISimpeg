@@ -680,32 +680,35 @@ class Timer extends Component
         return false;
     }
 
-    private function validasiLokasiAtauIp(): bool
+    private function ipDiWhitelist($ip, $whitelist): bool
     {
-
-        // cek IP adress user
-
-        $ipUser = request()->ip();
-
-        // dd($ipUser);
-
         // 0) Bypass untuk testing/dev
-        // if (app()->environment(['local', 'testing'])) {
-        //     logger('Bypass lokasi (env dev/testing).');
-        //     return true;
-        // }
-
-        // 1) Koordinat wajib ada
-        $lat = isset($this->latitude) ? floatval($this->latitude) : null;
-        $lng = isset($this->longitude) ? floatval($this->longitude) : null;
-        if ($lat === null || $lng === null) {
-            $this->dispatch('alert-error', message: 'Lokasi belum tersedia. Aktifkan GPS.');
-            return false;
+        if (app()->environment(['local', 'testing'])) {
+            logger('Bypass lokasi (env dev/testing).');
+            return true;
         }
 
-        // 2) Hanya mobile (opsional, bisa dibuat role-based)
+        // 1) CEK IP KANTOR DULU (PRIORITAS)
+        $ipUser = request()->ip();
+
+        $ipWhitelist = [
+            '192.168.100.',
+            '192.168.31.',
+            '10.10.',
+            '36.77.',
+            '36.65',
+            '36.64.',
+            '180.245.'
+        ];
+
+        if ($this->ipDiWhitelist($ipUser, $ipWhitelist)) {
+            logger('Valid via IP kantor', ['ip' => $ipUser]);
+            return true; // ⬅ langsung lolos tanpa mobile & GPS
+        }
+
+        // 2) Jika bukan IP kantor → wajib mobile
         if (!$this->isMobileDevice()) {
-            $this->dispatch('alert-error', message: 'Absensi hanya dari perangkat mobile.');
+            $this->dispatch('alert-error', message: 'Di luar jaringan kantor hanya bisa absen dari HP.');
             return false;
         }
 
@@ -751,7 +754,7 @@ class Timer extends Component
             // ],
         ];
 
-        // 4) Tentukan area yang diizinkan untuk user (bisa dibuat dinamis per role/unit)
+        // 5) Tentukan area yang diizinkan untuk user (bisa dibuat dinamis per role/unit)
         $allowedAreas = ['RSI', 'akunbiz'];
 
         // 6) Coba point-in-polygon (boundary-inclusive)
