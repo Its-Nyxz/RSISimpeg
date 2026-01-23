@@ -121,7 +121,13 @@ class DataJadwal extends Component
             })
             ->get();
 
-        $this->jadwals = $jadwalData->groupBy('user_id')->map(fn($items) => $items->values());
+            $this->jadwals = $jadwalData->groupBy('user_id')
+            ->sortBy(function ($items) {
+                // Mengurutkan berdasarkan nama user dari baris pertama setiap grup
+                return optional($items->first()->user)->name;
+            })
+            ->map(fn($items) => $items->values());
+        
 
         $this->filteredShifts = [];
         foreach ($jadwalData as $jadwal) {
