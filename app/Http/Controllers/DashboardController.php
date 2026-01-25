@@ -39,29 +39,67 @@ class DashboardController extends Controller
         // 2. CEK JADWAL KEMARIN BERDASARKAN RECORD JADWAL
         $jadwalKemarinMasihAktif = $user->jadwalabsensi()
             ->whereDate('tanggal_jadwal', $kemarin->toDateString())
-            ->whereHas('absensi', function ($q) use ($user) {
-                $q->where('user_id', $user->id)
-                    ->where(function ($query) {
-                        // KONDISI A: Status Terdaftar (1, 2, 3)
-                        $query->where(function ($subA) {
-                            $subA->whereIn('status_absen_id', [1, 2, 3])
-                                ->where(function ($active) {
-                                    $active->whereNull('time_out')
-                                        ->orWhere('updated_at', '>', now()->subMinutes(60));
-                                });
+            ->where(function ($mainQuery) use ($user) {
+                $mainQuery->whereHas('shift', function ($q) {
+                    // SYARAT UTAMA: Harus Shift Malam (Lintas Hari)
+                    $q->whereRaw('jam_keluar < jam_masuk');
+                })
+                    ->where(function ($subQuery) use ($user) {
+                        // KONDISI 1: Belum ada absen sama sekali (Beri kesempatan absen masuk susulan)
+                        $subQuery->whereDoesntHave('absensi', function ($q) use ($user) {
+                            $q->where('user_id', $user->id);
                         })
-                            // KONDISI B: Lembur (status_absen_id adalah NULL)
-                            ->orWhere(function ($subB) {
-                                $subB->where('is_lembur', 1)
-                                    ->whereNull('status_absen_id')
-                                    ->whereNull('time_out');
+                            // KONDISI 2: Sudah ada absen dan sedang berjalan
+                            ->orWhereHas('absensi', function ($q) use ($user) {
+                                $q->where('user_id', $user->id)
+                                    ->where(function ($statusGroup) {
+                                        // Jalur A: Status Hadir (1, 2, 3) yang belum checkout / buffer 60 menit
+                                        $statusGroup->where(function ($reguler) {
+                                            $reguler->whereIn('status_absen_id', [1, 2, 3])
+                                                ->where(function ($active) {
+                                                    $active->whereNull('time_out')
+                                                        ->orWhere('updated_at', '>', now()->subMinutes(60));
+                                                });
+                                        })
+                                            // Jalur B: Lembur aktif (Status NULL, is_lembur 1, belum checkout)
+                                            ->orWhere(function ($lembur) {
+                                                $lembur->where('is_lembur', 1)
+                                                    ->whereNull('status_absen_id')
+                                                    ->whereNull('time_out');
+                                            });
+                                    });
                             });
                     });
             })
             ->exists();
         // dd($batasShiftBaru);
+
+        // $jadwalKemarinMasihAktif && $today->lessThan($batasShiftBaru\
+        $tampilkanKemarin=false;
+        
+        if ($jadwalKemarinMasihAktif) {
+            $jadwalDataKemarin = $user->jadwalabsensi()
+                ->whereDate('tanggal_jadwal', $kemarin->toDateString())
+                ->with(['shift', 'absensi' => fn($q) => $q->where('user_id', $user->id)])
+                ->get()
+                ->sortByDesc(fn($q) => optional($q->shift)->jam_masuk)
+                ->first();
+
+            $absensi = $jadwalDataKemarin->absensi->first();
+            $jamKeluar = Carbon::parse($today->toDateString() . ' ' . $jadwalDataKemarin->shift->jam_keluar);
+            // cek apakah ada absen
+            if (!$absensi) {
+                if (now()->lessThan($jamKeluar)) {
+                    $tampilkanKemarin = true;
+                }
+            }else{
+                if($today->lessThan($batasShiftBaru)){
+                    $tampilkanKemarin = true;
+                }
+            }
+        }
         // 3. Penentuan Output $jadwals
-        if ($jadwalKemarinMasihAktif && $today->lessThan($batasShiftBaru)) {
+        if ($tampilkanKemarin) {
             // Ambil data dari hari kemarin
             $jadwals = $user->jadwalabsensi()
                 ->whereDate('tanggal_jadwal', $kemarin->toDateString())
@@ -75,7 +113,7 @@ class DashboardController extends Controller
                 ->get();
         }
 
-
+    // dd($jadwals);
         // Ambil jadwal milik user berdasarkan tanggal hari ini
         // $jadwals = $user->jadwalabsensi()
         //     ->whereDate('tanggal_jadwal', now()->toDateString())
