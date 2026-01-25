@@ -35,6 +35,11 @@ class KenaikanGolongan extends Component
 
     public function mount()
     {
+        $now = Carbon::now('Asia/Jakarta');
+
+        $this->bulan = $now->format('n');
+        $this->tahun = $now->format('Y');
+
         $this->units = UnitKerja::all();
         $unitKepegawaianId = 87;
         $user = auth()->user();
@@ -113,7 +118,7 @@ class KenaikanGolongan extends Component
 
             if ($user->tmt) {
                 $baseTmt = Carbon::parse($user->tmt);
-             
+
                 $now = Carbon::now();
 
                 // Hitung masa kerja
@@ -180,7 +185,6 @@ class KenaikanGolongan extends Component
 
                         $user->kenaikan_golongan_gaji = $kenaikanGapok?->nominal_gapok;
                         $user->golonganBaruNama = $golonganBerikutnya->nama ?? '-';
-
                     } else {
 
                         $user->kenaikan_golongan_waktu = $baseTmt->copy()->addYears(16)->format('Y-m-d');
@@ -239,7 +243,6 @@ class KenaikanGolongan extends Component
                                 ->format('Y-m-d');
                         }
                     }
-
                 } else {
                     $user->kenaikan_golongan_waktu = null;
                     $user->kenaikan_golongan_gaji = null;

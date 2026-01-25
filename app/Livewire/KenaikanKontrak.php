@@ -29,6 +29,11 @@ class KenaikanKontrak extends Component
 
     public function mount()
     {
+         $now = Carbon::now('Asia/Jakarta');
+
+        $this->bulan = $now->format('n');
+        $this->tahun = $now->format('Y');
+        
         $this->units = UnitKerja::all();
         $unitKepegawaianId = 87;
         $user = auth()->user();
