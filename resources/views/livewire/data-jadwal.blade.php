@@ -144,9 +144,10 @@
     @enderror
 
     <div class="relative overflow-auto max-h-full shadow-md rounded-lg">
-        <table class="w-full text-sm text-left text-gray-700">
-            <thead class="text-sm uppercase bg-success-400 text-success-900">
+        <table class="w-full text-sm text-left text-gray-700 border-separate border-spacing-0">
+            <thead class="text-sm uppercase bg-success-400 text-success-900 sticky top-0 z-20">
                 <tr>
+                    <th class="px-4 py-3">No</th>
                     <th class="px-4 py-3">Nama</th>
                     <th class="px-4 py-3">Pendidikan</th>
                     <th class="px-4 py-3">PJ</th> <!-- Pindahkan ke sini -->
@@ -174,6 +175,9 @@
                 @foreach ($jadwals as $user_id => $jadwalUser)
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
                         <td class="px-4 py-3 font-medium text-success-900 whitespace-nowrap">
+                            {{ $loop->iteration }}
+                        </td>
+                        <td class="px-4 py-3 font-medium text-success-900 whitespace-nowrap sticky left-0 z-10 bg-inherit border-r border-success-200 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                             {{ optional(optional($jadwalUser)->first())->user->name ?? '-' }}
                         </td>
                         <td class="px-4 py-3">
