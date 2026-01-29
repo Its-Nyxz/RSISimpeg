@@ -31,26 +31,31 @@ class DashboardController extends Controller
             ->first();
 
         $batasShiftBaru = $jadwalHariIniPertama && $jadwalHariIniPertama->shift
-            ? Carbon::parse($today->toDateString() . ' ' . $jadwalHariIniPertama->shift->jam_masuk)
+            ? Carbon::parse($today->toDateString() . ' ' . $jadwalHariIniPertama->shift->jam_masuk)->subMinutes(40)
             : $today->copy()->hour(10);
 
         // 2. CEK JADWAL KEMARIN (Utamakan dari Jadwal)
         // Cari apakah ada jadwal kemarin yang shift malam DAN absennya belum selesai
         // 2. CEK JADWAL KEMARIN BERDASARKAN RECORD JADWAL
         $jadwalKemarinMasihAktif = $user->jadwalabsensi()
-            ->whereDate('tanggal_jadwal', $kemarin->toDateString()) // Harus dikunci di tanggal kemarin
-            ->where(function ($query) use ($user) {
-                $query->whereHas('absensi', function ($q) use ($user) {
-                    $q->where('user_id', $user->id)
-                        ->where(function ($sq) {
-                            $sq->whereNull('time_out')
-                                ->orWhere('is_lembur', 1);
-                        });
-                })
-                    ->orWhereHas('absensi', function ($q) use ($user) {
-                        $q->where('user_id', $user->id)
-                            ->whereNotNull('time_out')
-                            ->where('updated_at', '>', now()->subMinutes(60));
+            ->whereDate('tanggal_jadwal', $kemarin->toDateString())
+            ->whereHas('absensi', function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                    ->where(function ($query) {
+                        // KONDISI A: Status Terdaftar (1, 2, 3)
+                        $query->where(function ($subA) {
+                            $subA->whereIn('status_absen_id', [1, 2, 3])
+                                ->where(function ($active) {
+                                    $active->whereNull('time_out')
+                                        ->orWhere('updated_at', '>', now()->subMinutes(60));
+                                });
+                        })
+                            // KONDISI B: Lembur (status_absen_id adalah NULL)
+                            ->orWhere(function ($subB) {
+                                $subB->where('is_lembur', 1)
+                                    ->whereNull('status_absen_id')
+                                    ->whereNull('time_out');
+                            });
                     });
             })
             ->exists();

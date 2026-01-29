@@ -80,6 +80,10 @@ class GenerateAlphaAbsen extends Command
                     $this->warn("  → Tidak ada shift untuk Jadwal ID {$jadwal->id}");
                     continue;
                 }
+                // Validasi: Jika shift null atau jam_keluar null, lewati
+                if (!$shift->jam_keluar && !$shift->jam_masuk) {
+                    continue;
+                }
 
                 // Parse waktu shift dengan benar
                 $startShift = Carbon::parse($shift->jam_masuk, 'Asia/Jakarta');
