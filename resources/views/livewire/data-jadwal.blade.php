@@ -143,9 +143,9 @@
         <span class="text-red-500 text-sm">{{ $message }}</span>
     @enderror
 
-    <div class="relative overflow-auto max-h-full shadow-md rounded-lg">
+    <div class="relative overflow-auto max-h-[600px] shadow-md rounded-lg border">
         <table class="w-full text-sm text-left text-gray-700 border-separate border-spacing-0">
-            <thead class="text-sm uppercase bg-success-400 text-success-900 sticky top-0 z-20">
+            <thead class="text-sm uppercase bg-success-400 text-success-900 sticky top-0 z-30">
                 <tr>
                     <th class="px-4 py-3">No</th>
                     <th class="px-4 py-3">Nama</th>

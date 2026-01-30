@@ -231,12 +231,16 @@ class Timer extends Component
             return $this->sendError('Shift tidak ditemukan.');
         }
 
-        // Hitung jam mulai dan jam selesai shift
-        $startShift = Carbon::parse($shift->jam_masuk, 'Asia/Jakarta');
-        $endShift   = Carbon::parse($shift->jam_keluar, 'Asia/Jakarta');
+
+        $tanggalJadwal = Carbon::parse($jadwal->tanggal_jadwal);
+        // 1. Set Start Shift sesuai tanggal jadwal
+        $startShift = Carbon::parse($tanggalJadwal->toDateString() . ' ' . $shift->jam_masuk);
+
+        // 2. Set End Shift (Logika Lintas Hari)
+        $endShift = Carbon::parse($tanggalJadwal->toDateString() . ' ' . $shift->jam_keluar);
 
         // FIX BUG SHIFT MALAM: Jika jam keluar lebih kecil dari jam masuk, berarti shift melewati tengah malam
-        if ($endShift->lessThan($startShift)) {
+        if ($shift->jam_keluar < $shift->jam_masuk) {
             $endShift->addDay();
         }
 
