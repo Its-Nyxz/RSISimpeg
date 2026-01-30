@@ -680,7 +680,7 @@ class Timer extends Component
         return false;
     }
 
-    private function ipDiWhitelist($ip, $whitelist): bool
+    private function validasiLokasiAtauIp(): bool
     {
         // 0) Bypass untuk testing/dev
         if (app()->environment(['local', 'testing'])) {
@@ -695,6 +695,7 @@ class Timer extends Component
             '192.168.100.',
             '192.168.31.',
             '10.10.',
+            '125.166',
             '36.77.',
             '36.65',
             '36.64.',
