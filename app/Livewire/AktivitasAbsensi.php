@@ -436,7 +436,8 @@ class AktivitasAbsensi extends Component
 
         // Cek apakah user dari unit kepegawaian (sesuaikan dengan nama unit di database Anda)
         $isHRUnit = auth()->user()->unitKerja &&
-            (str_contains(strtolower(auth()->user()->unitKerja->nama), 'kepegawaian') ||
+            (   auth()->user()->unitKerja->id == 87 ||
+                str_contains(strtolower(auth()->user()->unitKerja->nama), 'kepegawaian') ||
                 str_contains(strtolower(auth()->user()->unitKerja->nama), 'hrd') ||
                 str_contains(strtolower(auth()->user()->unitKerja->nama), 'hr'));
 
@@ -524,9 +525,9 @@ class AktivitasAbsensi extends Component
             $this->dispatch('alert', type: 'error', message: 'Pilih minimal 1 user.');
             return;
         }
-
+        
         $unitName = UnitKerja::find($this->selectedUnitId)?->nama ?? 'Unit';
-        $monthName = Carbon::create()->month($this->month)->locale('id')->translatedFormat('F');
+        $monthName = Carbon::create()->month((int)$this->month)->locale('id')->translatedFormat('F');
         $year = $this->year;
 
         return Excel::download(
