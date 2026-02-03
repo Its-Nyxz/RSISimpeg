@@ -17,16 +17,16 @@ class DataApproval extends Component
     public $hari;
     public $bulan;
     public $tahun;
-    public $search = ''; 
+    public $search = '';
     public $units;
     public $isKepegawaian = false;
     public $selectedUnit = null;
     public $showModalDetailCuti = false;
-    public $detailCuti; 
+    public $detailCuti;
 
     public function openDetail($id)
     {
-        $this->detailCuti = CutiKaryawan::with(['user', 'jenisCuti', 'statusCuti','riwayatApprovals'])->find($id);
+        $this->detailCuti = CutiKaryawan::with(['user', 'jenisCuti', 'statusCuti', 'riwayatApprovals'])->find($id);
         $this->showModalDetailCuti = true;
     }
 
@@ -45,7 +45,8 @@ class DataApproval extends Component
         $user = auth()->user();
 
         $this->isKepegawaian = $user->unit_id == $unitKepegawaianId;
-        $this->selectedUnit = $this->isKepegawaian ? null : $user->unitkerja->id;
+        $this->selectedUnit = $this->isKepegawaian ? null : $user->unitkerja?->id;
+        // dd($this->selectedUnit);
     }
 
     public function loadData()
@@ -62,20 +63,22 @@ class DataApproval extends Component
                 $q->whereHas('cuti.user', function ($userQuery) {
                     $userQuery->where('name', 'like', '%' . $this->search . '%');
                 });
+            })
+
+            // Filter Unit Kerja (Jika dipilih dari dropdown)
+            ->when($this->selectedUnit, function ($q) {
+                $q->whereHas('cuti.user', function ($u) {
+                    $u->where('unit_id', $this->selectedUnit);
+                });
             });
 
-        // Filter Unit Kerja
-        if ($this->selectedUnit) {
-            $query->whereHas('cuti.user.unitKerja', function ($q) {
-                $q->where('id', $this->selectedUnit);
+
+        $user = auth()->user();
+        if (!$user->hasRole('Super Admin')) {
+            $query->whereHas('approver', function ($q) use ($user) {
+                $q->where('unit_id', $user->unit_id);
             });
         }
-
-
-        $unitIds = User::where('unit_id', auth()->user()->unitkerja->id)
-            ->pluck('id');
-        // 2. Gunakan whereIn untuk memfilter query
-        $query->whereIn('approver_id', $unitIds);
 
 
 
