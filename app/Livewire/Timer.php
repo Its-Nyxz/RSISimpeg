@@ -393,8 +393,12 @@ class Timer extends Component
         if (!$shift) return;
 
         // ✅ PERBAIKAN BUG: Hitung durasi shift dengan timezone konsisten
-        $startShift = Carbon::parse($shift->jam_masuk, 'Asia/Jakarta');
-        $endShift = Carbon::parse($shift->jam_keluar, 'Asia/Jakarta');
+        $tanggalJadwal = Carbon::parse($jadwal->tanggal_jadwal);
+        // 1. Set Start Shift sesuai tanggal jadwal
+        $startShift = Carbon::parse($tanggalJadwal->toDateString() . ' ' . $shift->jam_masuk);
+
+        // 2. Set End Shift (Logika Lintas Hari)
+        $endShift = Carbon::parse($tanggalJadwal->toDateString() . ' ' . $shift->jam_keluar);
 
         // Jika jam keluar lebih kecil dari jam masuk, berarti shift melewati tengah malam
         if ($endShift->lessThan($startShift)) {
@@ -409,24 +413,31 @@ class Timer extends Component
         $statusTepatWaktu = StatusAbsen::where('nama', 'Tepat Waktu')->value('id');
         $statusTerlambat = StatusAbsen::where('nama', 'Keterlambatan')->value('id');
 
+
+        $timeOutAbsensi = 0;
         // ✅ Tentukan status absen berdasarkan hasil kerja
         if ($jamKerja < $shiftHours) {
             // Jika pulang lebih awal
             $statusAbsenId = $statusPulangAwal;
+            $timeOutAbsensi = $timeOut->timestamp;
         } elseif ($this->late) {
             // Jika masuk terlambat
             $statusAbsenId = $statusTerlambat;
+            $timeOutAbsensi = $endShift->getTimestamp();
         } else {
             // Jika tepat waktu
             $statusAbsenId = $statusTepatWaktu;
+            $timeOutAbsensi = $endShift->getTimestamp();
         }
 
         // ✅ Cek apakah lembur terjadi
         // $isOvertime = $jamKerja > $shiftHours;
 
+
+
         // ✅ Simpan data ke database
         $absensi->update([
-            'time_out' => $timeOut->timestamp,
+            'time_out' => $timeOutAbsensi,
             'deskripsi_out' => $this->deskripsi_out,
             'keterangan' => "Total waktu bekerja: " . gmdate('H:i:s', $selisih),
             // 'deskripsi_lembur' => $isOvertime ? $this->deskripsi_lembur : null,

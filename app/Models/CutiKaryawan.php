@@ -27,7 +27,9 @@ class CutiKaryawan extends Model
     {
         return $this->belongsTo(StatusCuti::class);
     }
-    
-    
-}
 
+    public function riwayatApprovals()
+    {
+        return $this->hasMany(RiwayatApproval::class, 'cuti_id');
+    }
+}
