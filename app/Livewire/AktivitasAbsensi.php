@@ -503,7 +503,7 @@ class AktivitasAbsensi extends Component
         $this->canExportAll = $roles->contains(function ($id, $name) {
             return $name === 'Kepala Seksi Kepegawaian' ||
                 $name === 'Kepala Unit' ||
-                $id == 2;
+                $id == 2 || $name === 'Super Admin';
         });
     }
 
