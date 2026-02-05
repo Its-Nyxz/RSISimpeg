@@ -14,7 +14,7 @@
                 <option value="0">Non Aktif</option>
             </select>
 
-            @if (auth()->user()->hasRole(['Super Admin', 'Administrator']) || auth()->user()->unitKerja->id == 87  || auth()->user()->can('create-data-karyawan'))
+            @if (auth()->user()->hasRole(['Super Admin', 'Administrator']) || auth()->user()->unitKerja->id == 87 || auth()->user()->can('create-data-karyawan'))
                 <select wire:model.live="selectedUnit"
                     class="rounded-lg px-2 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
                     <option value="">-- Pilih Unit --</option>
@@ -36,7 +36,7 @@
         <!-- AKSI -->
         <div class="flex flex-wrap justify-center md:justify-end items-center gap-3 w-full md:w-auto">
 
-            @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->id === 87 || auth()->user()->can('create-data-karyawan')  )
+            @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->id === 87 || auth()->user()->can('create-data-karyawan'))
                 <!-- EXPORT -->
                 <div class="relative group">
                     <a href="{{ route('datakaryawan.export') }}" target="_blank"
@@ -75,8 +75,7 @@
                         class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                         <div class="bg-white p-6 rounded-lg w-full max-w-md shadow-lg">
                             <h2 class="text-lg font-semibold mb-4">Import Data Karyawan</h2>
-                            <form action="{{ route('datakaryawan.import') }}" method="POST"
-                                enctype="multipart/form-data">
+                            <form action="{{ route('datakaryawan.import') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <input type="file" name="file" id="fileInput" accept=".xlsx"
                                     class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer focus:outline-none">
@@ -173,62 +172,5 @@
             </tbody>
         </table>
     </div>
-    <div class="mt-4 flex gap-2 justify-center items-center">
-        {{-- Previous Page Link --}}
-        @if (!$users->onFirstPage())
-            <button wire:click="previousPage" wire:loading.attr="disabled"
-                class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                &laquo; Sebelumnya
-            </button>
-        @endif
-
-        {{-- Pagination Numbers --}}
-        @php
-            $totalPages = $users->lastPage();
-            $currentPage = $users->currentPage();
-            $range = 3; // Range around current page
-        @endphp
-
-        {{-- First Page --}}
-        @if ($currentPage > $range + 1)
-            <button wire:click="gotoPage(1)"
-                class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                1
-            </button>
-            @if ($currentPage > $range + 2)
-                <span class="px-2 py-1 text-gray-500">...</span>
-            @endif
-        @endif
-
-        {{-- Pages Around Current Page --}}
-        @for ($page = max($currentPage - $range, 1); $page <= min($currentPage + $range, $totalPages); $page++)
-            @if ($page == $currentPage)
-                <span class="px-2 py-1 bg-success-600 text-white rounded-md text-sm">{{ $page }}</span>
-            @else
-                <button wire:click="gotoPage({{ $page }})"
-                    class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                    {{ $page }}
-                </button>
-            @endif
-        @endfor
-
-        {{-- Last Page --}}
-        @if ($currentPage < $totalPages - $range)
-            @if ($currentPage < $totalPages - $range - 1)
-                <span class="px-2 py-1 text-gray-500">...</span>
-            @endif
-            <button wire:click="gotoPage({{ $totalPages }})"
-                class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                {{ $totalPages }}
-            </button>
-        @endif
-
-        {{-- Next Page Link --}}
-        @if ($users->hasMorePages())
-            <button wire:click="nextPage" wire:loading.attr="disabled"
-                class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                Selanjutnya &raquo;
-            </button>
-        @endif
-    </div>
+    <x-responsive-pagination :data="$users" />
 </div>

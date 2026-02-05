@@ -9,7 +9,7 @@
     <x-sidebar /> --}}
     <livewire:navbar />
     <livewire:sidebar />
-    <div class="container ps-10 pt-[7rem] sm:ps-[20rem] max-w-[90%] sm:max-w-[96%] md:max-w-[98%] text-gray-800">
+    <div class="relative min-h-screen px-4 pt-24 pb-10 sm:px-6 sm:ps-[18rem] max-w-full text-gray-800">
         {{ $slot }}
     </div>
     @stack('html')

@@ -29,7 +29,8 @@
                 @forelse ($masakerja as $item)
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
                         <td class="px-6 py-4">
-                            {{ $loop->iteration + ($masakerja->currentPage() - 1) * $masakerja->perPage() }}</td>
+                            {{ $loop->iteration + ($masakerja->currentPage() - 1) * $masakerja->perPage() }}
+                        </td>
                         <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
                             {{ $item['nama'] }}
                         </td>
@@ -55,62 +56,5 @@
             </tbody>
         </table>
     </div>
-    <div class="mt-4 flex gap-2 justify-center items-center">
-        {{-- Previous Page Link --}}
-        @if (!$masakerja->onFirstPage())
-            <button wire:click="previousPage" wire:loading.attr="disabled"
-                class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                &laquo; Sebelumnya
-            </button>
-        @endif
-
-        {{-- Pagination Numbers --}}
-        @php
-            $totalPages = $masakerja->lastPage();
-            $currentPage = $masakerja->currentPage();
-            $range = 3; // Range around current page
-        @endphp
-
-        {{-- First Page --}}
-        @if ($currentPage > $range + 1)
-            <button wire:click="gotoPage(1)"
-                class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                1
-            </button>
-            @if ($currentPage > $range + 2)
-                <span class="px-2 py-1 text-gray-500">...</span>
-            @endif
-        @endif
-
-        {{-- Pages Around Current Page --}}
-        @for ($page = max($currentPage - $range, 1); $page <= min($currentPage + $range, $totalPages); $page++)
-            @if ($page == $currentPage)
-                <span class="px-2 py-1 bg-success-600 text-white rounded-md text-sm">{{ $page }}</span>
-            @else
-                <button wire:click="gotoPage({{ $page }})"
-                    class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                    {{ $page }}
-                </button>
-            @endif
-        @endfor
-
-        {{-- Last Page --}}
-        @if ($currentPage < $totalPages - $range)
-            @if ($currentPage < $totalPages - $range - 1)
-                <span class="px-2 py-1 text-gray-500">...</span>
-            @endif
-            <button wire:click="gotoPage({{ $totalPages }})"
-                class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                {{ $totalPages }}
-            </button>
-        @endif
-
-        {{-- Next Page Link --}}
-        @if ($masakerja->hasMorePages())
-            <button wire:click="nextPage" wire:loading.attr="disabled"
-                class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                Selanjutnya &raquo;
-            </button>
-        @endif
-    </div>
+    <x-responsive-pagination :data="$masakerja" />
 </div>
