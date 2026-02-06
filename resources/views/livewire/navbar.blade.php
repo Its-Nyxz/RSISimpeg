@@ -1,6 +1,6 @@
 <header class="z-40 sm:z-50 fixed w-full">
-    <nav class="bg-gradient-to-r from-yellow-300 via-green-500 to-green-700 text-white px-4 py-4 shadow-xl">
-        <div class="flex justify-between items-center mx-3">
+    <nav class="bg-gradient-to-r from-yellow-300 via-green-500 to-green-700 text-white px-3 py-3 md:px-4 md:py-4 shadow-xl">
+        <div class="flex justify-between items-center mx-1 md:mx-3">
             <!-- Kiri: Sidebar toggle + Logo -->
             <div class="flex items-center">
                 <button data-drawer-target="default-sidebar" data-drawer-toggle="default-sidebar"
@@ -10,23 +10,23 @@
                     <i class="fa-solid fa-bars"></i>
                 </button>
                 <a href="/" class="flex items-center">
-                    <img src="{{ asset('img/logo.png') }}" class="mr-3 h-6 sm:h-9 hidden sm:flex" alt="Logo" />
-                    <span class="self-center text-[1.2rem] sm:text-xl font-bold whitespace-nowrap text-zinc-950">
+                    <img src="{{ asset('img/logo.png') }}" class="mr-2 h-8 sm:mr-3 sm:h-9 hidden sm:flex" alt="Logo" />
+                    <span class="self-center text-lg sm:text-xl font-bold whitespace-nowrap text-zinc-950 leading-tight">
                         SIMPEG
-                        <span class="font-medium">RSI BANJARNEGARA</span>
+                        <span class="block sm:inline font-medium text-sm sm:text-xl">RSI BANJARNEGARA</span>
                     </span>
                 </a>
             </div>
 
             <!-- Kanan: Mobile & Desktop -->
-            <div class="flex items-center space-x-2">
-                <!-- ✅ Nama dan Foto Profil: tampil hanya di desktop -->
-                <div class="hidden sm:flex items-center">
-                    <span class="font-medium text-white me-2 capitalize">
+            <div class="flex items-center space-x-1 sm:space-x-2">
+                <!-- ✅ Nama dan Foto Profil: Nama desktop only, Foto all -->
+                <div class="flex items-center">
+                    <span class="hidden sm:block font-medium text-white me-2 capitalize">
                         {{ auth()->user()->name }}
                     </span>
                     <a href="{{ route('userprofile.index') }}"
-                        class="text-white bg-success-950 rounded-full me-2 hover:bg-gray-100 transition duration-150 hover:text-success-950 px-1 py-1">
+                        class="text-white bg-success-950 rounded-full me-1 sm:me-2 hover:bg-gray-100 transition duration-150 hover:text-success-950 px-1 py-1">
                         {!! auth()->user()->photo
                             ? '<img src="' .
                                 asset('storage/photos/' . auth()->user()->photo) .
@@ -42,7 +42,7 @@
 
                 <!-- ✅ Logout: tampil di semua mode -->
                 <a href="{{ route('logout') }}"
-                    class="text-white bg-success-950 rounded-full hover:bg-gray-100 hover:text-success-950 px-3 py-2">
+                    class="text-white bg-success-950 rounded-full hover:bg-gray-100 hover:text-success-950 px-2 py-2 sm:px-3 sm:py-2">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                 </a>
             </div>
