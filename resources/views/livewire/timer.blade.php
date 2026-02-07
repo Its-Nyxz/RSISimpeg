@@ -56,7 +56,7 @@
                 {{-- Tombol Mulai Lembur --}}
                 <button wire:click="openLemburModal"
                     class="px-6 py-2 font-bold rounded bg-yellow-500 hover:bg-yellow-700 text-white"
-                    style="display: {{ !$isLemburRunning && $timeOut ? 'inline-block' : 'none' }}">
+                    style="display: {{ !$isLemburRunning && !$isRunning ? 'inline-block' : 'none' }}">
                     Mulai Lembur
                 </button>
 
