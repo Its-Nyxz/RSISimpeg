@@ -42,7 +42,7 @@
                 <button id="stopButton" wire:click="$set('showStopModal', true)"
                     class="px-6 py-2 font-bold rounded 
                 {{ !$isRunning || $timeOut ? 'bg-gray-600 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700 text-white' }}"
-                    style="display: {{ $isRunning ? 'inline-block' : 'none' }}"
+                    style="display: {{ $isRunning && $isLemburRunning ? 'inline-block' : 'none' }}"
                     {{ !$isRunning || $timeOut ? 'disabled' : '' }}>
                     Selesai
                 </button>
