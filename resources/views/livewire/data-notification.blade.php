@@ -28,10 +28,10 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 @if ($notifications && count($notifications) > 0)
                     @foreach ($notifications as $notification)
-                        <tr
-                            class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
+                        <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{!! $notification->data['message'] ?? 'Tidak ada pesan' !!}</div>
+                                <div class="text-sm text-gray-900">{!! $notification->data['message'] ?? 'Tidak ada pesan' !!}
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-500">{{ $notification->created_at->format('d M Y, H:i') }}
@@ -52,8 +52,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 @if (isset($notification->data['url']))
-                                    <button
-                                        wire:click="markAsRead('{{ $notification->id }}','{{ $notification->data['url'] }}')"
+                                    <button wire:click="markAsRead('{{ $notification->id }}','{{ $notification->data['url'] }}')"
                                         class="bg-success-700 text-white font-medium rounded-md px-3 py-2 hover:bg-success-800 focus:ring-4 focus:outline-none focus:ring-success-300">
                                         <i class="fa-solid fa-magnifying-glass"></i>
                                     </button>
@@ -74,72 +73,5 @@
         </table>
     </div>
 
-    @if ($notifications && $notifications->hasPages())
-        <div class="mt-4 flex gap-2 justify-center items-center mb-4">
-            {{-- Previous Page Link --}}
-            @if ($notifications->onFirstPage())
-                <span class="px-2 py-1 bg-gray-200 text-gray-500 rounded-md text-sm cursor-not-allowed">
-                    &laquo; Sebelumnya
-                </span>
-            @else
-                <button wire:click="previousPage" wire:loading.attr="disabled"
-                    class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                    &laquo; Sebelumnya
-                </button>
-            @endif
-
-            {{-- Pagination Numbers --}}
-            @php
-                $totalPages = $notifications->lastPage();
-                $currentPage = $notifications->currentPage();
-                $range = 2; // Range around current page
-            @endphp
-
-            {{-- First Page --}}
-            @if ($currentPage > $range + 1)
-                <button wire:click="gotoPage(1)"
-                    class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                    1
-                </button>
-                @if ($currentPage > $range + 2)
-                    <span class="px-2 py-1 text-gray-500">...</span>
-                @endif
-            @endif
-
-            {{-- Pages Around Current Page --}}
-            @for ($page = max($currentPage - $range, 1); $page <= min($currentPage + $range, $totalPages); $page++)
-                @if ($page == $currentPage)
-                    <span class="px-2 py-1 bg-success-600 text-white rounded-md text-sm">{{ $page }}</span>
-                @else
-                    <button wire:click="gotoPage({{ $page }})"
-                        class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                        {{ $page }}
-                    </button>
-                @endif
-            @endfor
-
-            {{-- Last Page --}}
-            @if ($currentPage < $totalPages - $range)
-                @if ($currentPage < $totalPages - $range - 1)
-                    <span class="px-2 py-1 text-gray-500">...</span>
-                @endif
-                <button wire:click="gotoPage({{ $totalPages }})"
-                    class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                    {{ $totalPages }}
-                </button>
-            @endif
-
-            {{-- Next Page Link --}}
-            @if ($notifications->hasMorePages())
-                <button wire:click="nextPage" wire:loading.attr="disabled"
-                    class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                    Selanjutnya &raquo;
-                </button>
-            @else
-                <span class="px-2 py-1 bg-gray-200 text-gray-500 rounded-md text-sm cursor-not-allowed">
-                    Selanjutnya &raquo;
-                </span>
-            @endif
-        </div>
-    @endif
+    <x-responsive-pagination :data="$notifications" />
 </div>
