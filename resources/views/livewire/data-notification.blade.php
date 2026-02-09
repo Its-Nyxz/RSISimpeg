@@ -65,8 +65,14 @@
                     @endforeach
                 @else
                     <tr>
-                        <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
-                            Tidak ada notifikasi
+                        <td colspan="4" class="px-6 py-8 text-center text-sm text-gray-500">
+                            <div class="flex flex-col items-center justify-center gap-2">
+                                <div class="bg-gray-100 p-3 rounded-full">
+                                    <i class="fa-regular fa-bell-slash text-2xl text-gray-400"></i>
+                                </div>
+                                <span class="font-medium text-gray-600">Tidak ada notifikasi saat ini</span>
+                                <span class="text-xs text-gray-400">Notifikasi terbaru akan muncul di sini.</span>
+                            </div>
                         </td>
                     </tr>
                 @endif
