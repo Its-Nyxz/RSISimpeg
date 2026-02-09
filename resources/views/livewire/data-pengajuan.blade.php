@@ -116,56 +116,5 @@
     </div>
 
     <!-- Navigasi Pagination -->
-    <div class="mt-4 flex flex-wrap gap-1 sm:gap-2 justify-center items-center px-2">
-        @if ($dataPengajuan->onFirstPage() == false)
-            <button wire:click="previousPage" wire:loading.attr="disabled"
-                class="px-2 py-1 sm:px-3 sm:py-1.5 bg-success-100 hover:bg-success-600 text-success-900 hover:text-white rounded-md text-xs sm:text-sm transition">
-                &laquo; <span class="hidden sm:inline">Sebelumnya</span>
-            </button>
-        @endif
-
-        @php
-            $totalPages = $dataPengajuan->lastPage();
-            $currentPage = $dataPengajuan->currentPage();
-            $range = 3;
-        @endphp
-
-        @if ($currentPage > $range + 1)
-            <button wire:click="gotoPage(1)"
-                class="px-2 py-1 sm:px-3 sm:py-1.5 bg-success-100 hover:bg-success-600 text-success-900 hover:text-white rounded-md text-xs sm:text-sm transition">
-                1
-            </button>
-            @if ($currentPage > $range + 2)
-                <span class="px-1 sm:px-2 py-1 text-gray-500 text-xs sm:text-sm">...</span>
-            @endif
-        @endif
-
-        @for ($page = max($currentPage - $range, 1); $page <= min($currentPage + $range, $totalPages); $page++)
-            @if ($page == $currentPage)
-                <span class="px-2 py-1 sm:px-3 sm:py-1.5 bg-success-600 text-white rounded-md text-xs sm:text-sm shadow-sm">{{ $page }}</span>
-            @else
-                <button wire:click="gotoPage({{ $page }})"
-                    class="px-2 py-1 sm:px-3 sm:py-1.5 bg-success-100 hover:bg-success-600 text-success-900 hover:text-white rounded-md text-xs sm:text-sm transition">
-                    {{ $page }}
-                </button>
-            @endif
-        @endfor
-
-        @if ($currentPage < $totalPages - $range)
-            @if ($currentPage < $totalPages - $range - 1)
-                <span class="px-1 sm:px-2 py-1 text-gray-500 text-xs sm:text-sm">...</span>
-            @endif
-            <button wire:click="gotoPage({{ $totalPages }})"
-                class="px-2 py-1 sm:px-3 sm:py-1.5 bg-success-100 hover:bg-success-600 text-success-900 hover:text-white rounded-md text-xs sm:text-sm transition">
-                {{ $totalPages }}
-            </button>
-        @endif
-
-        @if ($dataPengajuan->hasMorePages())
-            <button wire:click="nextPage" wire:loading.attr="disabled"
-                class="px-2 py-1 sm:px-3 sm:py-1.5 bg-success-100 hover:bg-success-600 text-success-900 hover:text-white rounded-md text-xs sm:text-sm transition">
-                <span class="hidden sm:inline">Selanjutnya</span> &raquo;
-            </button>
-        @endif
-    </div>
+    <x-responsive-pagination :data="$dataPengajuan" />
 </div>

@@ -5,9 +5,9 @@
             <div class="flex items-center gap-2 sm:gap-0">
                 <button data-drawer-target="default-sidebar" data-drawer-toggle="default-sidebar"
                     aria-controls="default-sidebar" type="button"
-                    class="inline-flex items-center p-2 text-md hover:text-success-100 me-1 transition duration-100 text-success-950 rounded-lg sm:hidden hover:bg-success-700 focus:outline-none focus:ring-2 focus:ring-gray-200">
+                    class="inline-flex items-center p-2 text-sm text-white rounded-lg sm:hidden hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50 transition-colors">
                     <span class="sr-only">Open sidebar</span>
-                    <i class="fa-solid fa-bars"></i>
+                    <i class="fa-solid fa-bars text-xl"></i>
                 </button>
                 <a href="/" class="flex items-center group">
                     <img src="{{ asset('img/logo.png') }}" class="mr-2 sm:mr-3 h-8 sm:h-9 transition-transform group-hover:scale-105" alt="Logo" />

@@ -111,23 +111,6 @@
                 @endforelse
             </tbody>
         </table>
-        <div class="flex justify-center items-center space-x-4 bg-white shadow-md p-4 rounded-sm">
-            <button wire:click="prevPage" @if ($currentPage === 1) disabled @endif
-                class="px-4 py-2 rounded-md border text-sm bg-white text-gray-700 border-gray-300 hover:bg-gray-100 disabled:bg-gray-300 disabled:text-gray-500 disabled:border-gray-400">
-                &larr; Prev
-            </button>
-
-            <span class="text-sm text-gray-700">
-                Halaman <strong>{{ $currentPage }}</strong>
-                @if ($totalShifts > 0)
-                    dari {{ ceil($totalShifts / $perPage) }}
-                @endif
-            </span>
-
-            <button wire:click="nextPage" @if ($currentPage * $perPage >= $totalShifts) disabled @endif
-                class="px-4 py-2 rounded-md border text-sm bg-white text-gray-700 border-gray-300 hover:bg-gray-100 disabled:bg-gray-300 disabled:text-gray-500 disabled:border-gray-400">
-                Next &rarr;
-            </button>
-        </div>
+        <x-responsive-pagination :data="$shifts" />
     </div>
 </div>

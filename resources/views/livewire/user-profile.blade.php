@@ -19,12 +19,12 @@
                 <!-- Foto Profile -->
                 <div class="w-32 h-32 flex-shrink-0 overflow-hidden rounded-full border-2 border-gray-300">
                     {!! $userprofile->photo
-                        ? '<img src="' .
-                            asset('storage/photos/' . $userprofile->photo) .
-                            '" 
+    ? '<img src="' .
+    asset('storage/photos/' . $userprofile->photo) .
+    '" 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      alt="User Profile" 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      class="w-full h-full object-cover">'
-                        : '<div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500">
+    : '<div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500">
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     <i class="fa-solid fa-user text-5xl"></i>
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>' !!}
                 </div>
@@ -166,7 +166,7 @@
 
     @php
         // $roles = ['Super Admin', 'Kepala Seksi Kepegawaian', 'Staf Seksi Kepegawaian', 'Administrator'];
-         $roles = [1, 2, 14, 12];
+        $roles = [1, 2, 14, 12];
     @endphp
 
     @if (Auth::user()->hasAnyRole($roles))
@@ -176,14 +176,13 @@
                     {{-- <h1 class="text-2xl font-bold text-success-900">Data Users</h1> --}}
                     <div class="flex justify-between items-center gap-4 mb-3">
                         <div class="flex-1">
-                            <input type="text" wire:keyup="updateSearch($event.target.value)"
-                                placeholder="Cari User..."
+                            <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari User..."
                                 class="w-full rounded-lg px-10 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
                         </div>
                         {{-- <a href="{{ route('users.create') }}"
-                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                        + Tambah User
-                    </a> --}}
+                            class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                            + Tambah User
+                        </a> --}}
                     </div>
                 </div>
                 <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -278,62 +277,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="mt-4 flex gap-2 justify-center items-center">
-
-                    @if (!$users->onFirstPage())
-                        <button wire:click="previousPage" wire:loading.attr="disabled"
-                            class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                            &laquo; Sebelumnya
-                        </button>
-                    @endif
-
-                    @php
-                        $totalPages = $users->lastPage();
-                        $currentPage = $users->currentPage();
-                        $range = 3; // Range around current page
-                    @endphp
-
-                    @if ($currentPage > $range + 1)
-                        <button wire:click="gotoPage(1)"
-                            class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                            1
-                        </button>
-                        @if ($currentPage > $range + 2)
-                            <span class="px-2 py-1 text-gray-500">...</span>
-                        @endif
-                    @endif
-
-                    @for ($page = max($currentPage - $range, 1); $page <= min($currentPage + $range, $totalPages); $page++)
-                        @if ($page == $currentPage)
-                            <span
-                                class="px-2 py-1 bg-success-600 text-white rounded-md text-sm">{{ $page }}</span>
-                        @else
-                            <button wire:click="gotoPage({{ $page }})"
-                                class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                                {{ $page }}
-                            </button>
-                        @endif
-                    @endfor
-
-
-                    @if ($currentPage < $totalPages - $range)
-                        @if ($currentPage < $totalPages - $range - 1)
-                            <span class="px-2 py-1 text-gray-500">...</span>
-                        @endif
-                        <button wire:click="gotoPage({{ $totalPages }})"
-                            class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                            {{ $totalPages }}
-                        </button>
-                    @endif
-
-
-                    @if ($users->hasMorePages())
-                        <button wire:click="nextPage" wire:loading.attr="disabled"
-                            class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                            Selanjutnya &raquo;
-                        </button>
-                    @endif
-                </div>
+                <x-responsive-pagination :data="$users" />
             </x-card>
         </div>
     @endif
