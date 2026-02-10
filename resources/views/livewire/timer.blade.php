@@ -34,7 +34,7 @@
                 <button id="startButton" wire:click="$set('showStartModal', true)"
                     class="px-6 py-2 font-bold rounded 
                 {{ $timeOut ? 'bg-gray-400 cursor-not-allowed' : 'bg-success-600 hover:bg-success-700 text-white' }}"
-                    style="display: {{ $isRunning || $isLemburRunning || !$timeOut ? 'none' : 'inline-block' }}" {{ $timeOut ? 'disabled' : '' }}>
+                    style="display: {{ $isRunning || $isLemburRunning || $timeOut ? 'none' : 'inline-block' }}" {{ $timeOut ? 'disabled' : '' }}>
                     Mulai
                 </button>
 
@@ -42,7 +42,7 @@
                 <button id="stopButton" wire:click="$set('showStopModal', true)"
                     class="px-6 py-2 font-bold rounded 
                 {{ !$isRunning || $timeOut ? 'bg-gray-600 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700 text-white' }}"
-                    style="display: {{ $isRunning && !$isLemburRunning || !$timeOut ? 'inline-block' : 'none' }}"
+                    style="display: {{ $isRunning && !$isLemburRunning || $timeOut ? 'inline-block' : 'none' }}"
                     {{ !$isRunning || $timeOut ? 'disabled' : '' }}>
                     Selesai
                 </button>
