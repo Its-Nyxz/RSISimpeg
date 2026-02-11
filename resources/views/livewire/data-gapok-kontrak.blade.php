@@ -54,8 +54,7 @@
                         <td class="px-6 py-4">{{ $kontrak['min_masa_kerja'] }} Bulan</td>
                         <td class="px-6 py-4">{{ $kontrak['max_masa_kerja'] }} Bulan</td>
                         <td class="px-6 py-4">
-                            {{ rupiah($kontrak['nominal_aktif']) }}
-                        </td>
+                            {{ rupiah($kontrak['nominal_aktif']) }}</td>
                         <td class="px-6 py-4">
                             <a href="{{ route('gapokkontrak.edit', $kontrak['id']) }}"
                                 class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300"
@@ -77,7 +76,64 @@
             </tbody>
         </table>
     </div>
-    <x-responsive-pagination :data="$kontraks" />
+    <div class="mt-4 flex gap-2 justify-center items-center">
+        {{-- Previous Page Link --}}
+        @if (!$kontraks->onFirstPage())
+            <button wire:click="previousPage" wire:loading.attr="disabled"
+                class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
+                &laquo; Sebelumnya
+            </button>
+        @endif
+
+        {{-- Pagination Numbers --}}
+        @php
+            $totalPages = $kontraks->lastPage();
+            $currentPage = $kontraks->currentPage();
+            $range = 3; // Range around current page
+        @endphp
+
+        {{-- First Page --}}
+        @if ($currentPage > $range + 1)
+            <button wire:click="gotoPage(1)"
+                class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
+                1
+            </button>
+            @if ($currentPage > $range + 2)
+                <span class="px-2 py-1 text-gray-500">...</span>
+            @endif
+        @endif
+
+        {{-- Pages Around Current Page --}}
+        @for ($page = max($currentPage - $range, 1); $page <= min($currentPage + $range, $totalPages); $page++)
+            @if ($page == $currentPage)
+                <span class="px-2 py-1 bg-success-600 text-white rounded-md text-sm">{{ $page }}</span>
+            @else
+                <button wire:click="gotoPage({{ $page }})"
+                    class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
+                    {{ $page }}
+                </button>
+            @endif
+        @endfor
+
+        {{-- Last Page --}}
+        @if ($currentPage < $totalPages - $range)
+            @if ($currentPage < $totalPages - $range - 1)
+                <span class="px-2 py-1 text-gray-500">...</span>
+            @endif
+            <button wire:click="gotoPage({{ $totalPages }})"
+                class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
+                {{ $totalPages }}
+            </button>
+        @endif
+
+        {{-- Next Page Link --}}
+        @if ($kontraks->hasMorePages())
+            <button wire:click="nextPage" wire:loading.attr="disabled"
+                class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
+                Selanjutnya &raquo;
+            </button>
+        @endif
+    </div>
 
 
 

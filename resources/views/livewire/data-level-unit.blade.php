@@ -49,9 +49,35 @@
                         <td colspan="5" class="text-center px-6 py-4">Tidak ada data Level Unit.</td>
                     </tr>
                 @endforelse
-            </tbody>
+            </tbody>            
         </table>
     </div>
 
-    <x-responsive-pagination :data="$levelunit" />
+    <div class="mt-4 flex gap-2 justify-center items-center">
+        @if (!$levelunit->onFirstPage())
+            <button wire:click="previousPage" wire:loading.attr="disabled"
+                class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
+                &laquo; Sebelumnya
+            </button>
+        @endif
+
+        @for ($page = max($levelunit->currentPage() - 3, 1); $page <= min($levelunit->currentPage() + 3, $levelunit->lastPage()); $page++)
+            @if ($page == $levelunit->currentPage())
+                <span class="px-2 py-1 bg-success-600 text-white rounded-md text-sm">{{ $page }}</span>
+            @else
+                <button wire:click="gotoPage({{ $page }})"
+                    class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
+                    {{ $page }}
+                </button>
+            @endif
+        @endfor
+
+        @if ($levelunit->hasMorePages())
+            <button wire:click="nextPage" wire:loading.attr="disabled"
+                class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
+                Selanjutnya &raquo;
+            </button>
+        @endif
+    </div>
 </div>
+

@@ -69,6 +69,7 @@ use App\Http\Controllers\TunjanganKinerjaController;
 use App\Http\Controllers\MasterPenyesuaianController;
 use App\Http\Controllers\PeringatanKaryawanController;
 use App\Http\Controllers\ProposionalitasPointController;
+use App\Http\Controllers\RiwayatApprovalController;
 
 Route::get('/', function () {
     return redirect()->to('/login');
@@ -165,6 +166,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('approvalcuti', CutiController::class)->middleware('permission:approval-cuti');
     Route::resource('approvalizin', IzinController::class)->middleware('permission:approval-izin');
     Route::resource('approvaltukar', TukarJadwalController::class)->middleware('permission:approval-tukar-jadwal');
+    Route::resource('riwayatapproval', RiwayatApprovalController::class);
     Route::resource('peringatan', PeringatanKaryawanController::class);
     Route::resource('slipgaji', GajiNettoController::class);
     Route::get('/slip-gaji/download/{id}', [GajiNettoController::class, 'download'])
