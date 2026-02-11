@@ -2,35 +2,35 @@
     class="fixed top-0 left-0 z-50 sm:z-40 w-56 sm:w-72 h-screen transition-transform -translate-x-full sm:translate-x-0"
     aria-label="Sidenav">
     <!-- Kontainer Scrollable -->
-    <div class="h-full flex flex-col overflow-hidden">
-        <!-- Header Logo dan Salam -->
-        <div
-            class="py-3 sm:py-24 px-3 h-full bg-gradient-to-b from-yellow-400 via-success-500 to-success-800 overflow-y-auto">
-            <!-- Logo -->
-            <div class="flex sm:hidden justify-between items-center w-full mb-4 px-2">
-                <img src="{{ asset('img/logo.png') }}" class="mr-3 h-10 w-auto" alt="Logo" />
-                <button type="button" data-drawer-hide="default-sidebar" aria-controls="default-sidebar"
-                    class="text-white hover:bg-white/20 p-2 rounded-lg transition-colors">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                    <span class="sr-only">Close sidebar</span>
-                </button>
-            </div>
-
-            <!-- Welcome Message -->
-            <div class="mb-5 px-2">
-                <div class="font-light text-xl text-center sm:text-start text-white">Selamat Datang,</div>
-                <div class="font-semibold text-xl text-center sm:text-start text-white"
-                    style="text-transform: capitalize;">
-                    {{ auth()->user()->name }}
+    <aside id="default-sidebar"
+        class="fixed top-0 left-0 z-50 sm:z-40 w-56 sm:w-72 h-screen transition-transform -translate-x-full sm:translate-x-0"
+        aria-label="Sidenav">
+        <!-- Kontainer Scrollable -->
+        <div class="h-full flex flex-col overflow-hidden">
+            <!-- Header Logo dan Salam -->
+            <div
+                class="py-3 sm:py-24 px-3 h-full bg-gradient-to-b from-yellow-400 via-green-500 to-green-800 overflow-y-auto">
+                {{-- <div class="py-3 sm:py-24 px-3 h-full bg-success-950 overflow-y-auto"> --}}
+                <!-- Logo -->
+                <div class="flex sm:hidden justify-center w-100 mb-4">
+                    <img src="{{ asset('img/logo.png') }}" class="mr-3 h-16 " alt="Logo" />
                 </div>
-            </div>
 
-            <!-- Konten Scrollable -->
-            <div class="flex-1 overflow-y-auto py-4 px-3 space-y-4">
-                <!-- Navigation -->
-                <ul class="space-y-2 border-t pt-4">
-                    <livewire:side-link href="/dashboard" title="Home" icon="fa-solid fa-house" />
-                    {{-- @can('add-user')
+                <!-- Welcome Message -->
+                <div class="mb-5 px-2">
+                    <div class="font-light text-xl text-center sm:text-start text-white">Selamat Datang,</div>
+                    <div class="font-semibold text-xl text-center sm:text-start text-white"
+                        style="text-transform: capitalize;">
+                        {{ auth()->user()->name }}
+                    </div>
+                </div>
+
+                <!-- Konten Scrollable -->
+                <div class="flex-1 overflow-y-auto py-4 px-3 space-y-4">
+                    <!-- Navigation -->
+                    <ul class="space-y-2 border-t pt-4">
+                        <livewire:side-link href="/dashboard" title="Home" icon="fa-solid fa-house" />
+                        {{-- @can('add-user')
                     <livewire:side-link href="/users" title="Add User" icon="fa-solid fa-user-plus" />
                         @endcan --}}
                         <livewire:side-link title="Aktivitas Kerja" icon="fa-solid fa-user" :child="array_filter([
@@ -46,6 +46,9 @@
                                         ['title' => 'Cuti', 'href' => route('pengajuan.index', 'cuti')],
                                         ['title' => 'Izin', 'href' => route('pengajuan.index', 'ijin')],
                                         ['title' => 'Peringatan', 'href' => '/peringatan'],
+                                        auth()->user()->can('approval-cuti')
+                                            ? ['title' => 'Approval', 'href' => '/riwayatapproval']
+                                            : null,
                                         // auth()->user()->can('override-lokasi')
                                         //     ? ['title' => 'Kendala Lokasi', 'href' => '/overridelokasi']
                                         //     : null,
