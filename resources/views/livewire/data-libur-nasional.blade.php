@@ -1,40 +1,41 @@
 <div>
-    <div class="flex flex-col md:flex-row justify-between items-center py-4 mb-4 gap-4">
-        <h1 class="text-2xl font-bold text-success-900 w-full md:w-auto text-left">Master Hari Libur Nasional</h1>
-        
-        <div class="flex flex-col sm:flex-row w-full md:w-auto items-stretch sm:items-center gap-3">
-            <!-- Select Tahun -->
-            <div class="w-full sm:w-auto">
+    <div class="flex justify-between py-2 mb-3">
+        <h1 class="text-2xl font-bold text-success-900">Master Hari Libur Nasional</h1>
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-3">
+
+            <div>
                 <select wire:model="year" wire:change="updateYear($event.target.value)"
-                    class="w-full sm:w-auto rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600 bg-white shadow-sm transition duration-200 ease-in-out cursor-pointer hover:border-success-400">
-                    @foreach (range(now()->year - 3, now()->year + 1) as $year)
+                    class="rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600">
+                    @foreach (range(now()->year - 3, now()->year) as $year)
                         <option value="{{ $year }}">{{ $year }}</option>
                     @endforeach
                 </select>
             </div>
-
-            <!-- Search Input -->
-            <div class="w-full sm:w-64 relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i class="fa-solid fa-search text-gray-400"></i>
-                </div>
+            <div class="flex-1">
                 <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Hari..."
-                    class="w-full rounded-lg pl-10 pr-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600 shadow-sm transition duration-200 ease-in-out" />
+                    class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
             </div>
-
             <!-- Tombol Tambah hari libur -->
-            <div class="relative group w-full sm:w-auto">
+            <div class="relative group mt-2 sm:mt-0">
+                <!-- Mobile (ikon saja) -->
                 <a href="{{ route('liburnasional.create') }}"
-                    class="flex items-center justify-center w-full sm:w-auto px-5 py-2.5 text-sm rounded-lg font-medium bg-success-600 text-white hover:bg-success-700 hover:shadow-lg transition duration-200 ease-in-out transform hover:-translate-y-0.5">
-                    <i class="fa fa-plus mr-2"></i> Tambah
+                    class="sm:hidden p-3 rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition"
+                    aria-label="Tambah hari libur" data-tooltip-target="tooltip-libur" data-tooltip-placement="top">
+                    <i class="fa fa-plus"></i>
                 </a>
-                
-                <!-- Tooltip (Optional, maybe not needed if text is clear) -->
-                <div role="tooltip"
-                    class="absolute z-10 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-opacity duration-300 bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm whitespace-nowrap pointer-events-none">
+
+                <!-- Tooltip -->
+                <div id="tooltip-libur" role="tooltip"
+                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
                     Tambah Hari Libur
-                    <div class="tooltip-arrow absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
+                    <div class="tooltip-arrow" data-popper-arrow></div>
                 </div>
+
+                <!-- Desktop (teks penuh) -->
+                <a href="{{ route('liburnasional.create') }}"
+                    class="hidden sm:flex items-center px-5 py-2.5 text-sm rounded-lg font-medium bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition">
+                    + Tambah Hari Libur
+                </a>
             </div>
         </div>
     </div>
