@@ -69,7 +69,7 @@
                             </td>
                         @else
                             <td
-                                class="border border-gray-300 p-2 font-extrabold whitespace-nowrap
+                                class="border border-gray-300 p-1.5 sm:p-3 font-extrabold whitespace-nowrap
                                 {{ is_null($pengajuan->is_approved) ? 'text-gray-900' : ($pengajuan->is_approved ? 'text-success-900' : 'text-red-900') }}">
                                 {{ is_null($pengajuan->is_approved) ? 'Menunggu' : ($pengajuan->is_approved ? 'Disetujui' : 'Ditolak') }}
                             </td>
