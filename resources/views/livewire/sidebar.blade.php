@@ -215,6 +215,9 @@
                                 ['title' => 'Cuti', 'href' => route('pengajuan.index', 'cuti')],
                                 ['title' => 'Izin', 'href' => route('pengajuan.index', 'ijin')],
                                 ['title' => 'Peringatan', 'href' => '/peringatan'],
+                                auth()->user()->can('approval-cuti')
+                                            ? ['title' => 'Approval', 'href' => '/riwayatapproval']
+                                            : null,
                                 // auth()->user()->can('override-lokasi')
                                 //     ? ['title' => 'Kendala Lokasi', 'href' => '/overridelokasi']
                                 //     : null,
