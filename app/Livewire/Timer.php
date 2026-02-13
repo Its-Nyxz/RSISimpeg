@@ -583,13 +583,48 @@ class Timer extends Component
             $this->dispatch('alert-error', message: 'Lembur sudah berjalan.');
             return;
         }
-        $now = now(); // akan pakai timezone dari config/app.php
+
+        $now = now();
+        $actualJadwalId = $this->jadwal_id;
+
+        if (!$this->jadwal_id || $this->jadwal_id == 0) {
+
+            $unitId = Auth::user()->unit_id;
+
+            if (!$unitId) {
+                $this->dispatch('alert-error', message: 'Unit kerja Anda belum terdaftar. Hubungi admin.');
+                return;
+            }
+
+            $shiftLembur = Shift::firstOrCreate(
+                [
+                    'unit_id' => $unitId,
+                    'nama_shift' => 'O',
+                    'keterangan' => 'Overtime'
+                ],
+                [
+                    'jam_masuk' => '00:00:00',
+                    'jam_keluar' => '23:59:59',
+                ]
+            );
+
+            $jadwalLembur = JadwalAbsensi::create([
+                'user_id' => Auth::id(),
+                'shift_id' => $shiftLembur->id,
+                'tanggal_jadwal' => $now->format('Y-m-d'),
+            ]);
+
+            $actualJadwalId = $jadwalLembur->id;
+            $this->jadwal_id = $actualJadwalId;
+        }
+
+
         $this->timeInLembur = $now->timestamp;
         $this->isLemburRunning = true;
 
         // ✅ Simpan data lembur sebagai record baru
         Absen::create([
-            'jadwal_id' => $this->jadwal_id,
+            'jadwal_id' => $actualJadwalId,
             'user_id' => Auth::id(),
             'time_in' => $this->timeInLembur,
             'deskripsi_in' => 'Mulai lembur: ' . $now->format('H:i:s'),
