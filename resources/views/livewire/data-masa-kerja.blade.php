@@ -1,16 +1,19 @@
 <div>
-    <div class="flex justify-between py-2 mb-3">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-2 mb-3">
         <h1 class="text-2xl font-bold text-success-900">Masa Kerja</h1>
-        <div class="flex justify-between items-center gap-4 mb-3">
+        <div class="flex items-center gap-2 w-full sm:w-auto">
             <!-- Input Pencarian -->
-            <div class="flex-1">
-                <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Masa Kerja..."
-                    class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
-            </div>
-
-            <!-- Tombol Tambah Merk -->
+            <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Masa Kerja..."
+                class="flex-1 sm:w-64 rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
+            <!-- Mobile Icon Only -->
             <a href="{{ route('masakerja.create') }}"
-                class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                class="sm:hidden inline-flex items-center justify-center p-2.5 rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition shrink-0"
+                aria-label="Tambah Masa Kerja">
+                <i class="fa fa-plus"></i>
+            </a>
+            <!-- Desktop Button -->
+            <a href="{{ route('masakerja.create') }}"
+                class="hidden sm:inline-flex items-center px-5 py-2.5 text-sm rounded-lg font-medium whitespace-nowrap bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition">
                 + Tambah Masa Kerja
             </a>
         </div>

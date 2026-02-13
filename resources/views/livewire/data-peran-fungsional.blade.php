@@ -1,21 +1,14 @@
 <div>
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-2 mb-3">
         <h1 class="text-2xl font-bold text-success-900">Peran Fungsional</h1>
-            <!-- 
-                <div class="flex justify-between items-center gap-4 mb-3">
-                    <div class="flex-1">
-                        <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Kenaikan Berkala & Golongan..."
-                            class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
-                    </div>
-    
-                    <a href="#"
-                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                        + Tambah Kenaikan Berkala & Golongan
-                    </a>
-                </div>
-            -->
-                
-                <table class="w-full text-sm text-left text-gray-700" style="margin-top: 20px;">
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+            <!-- Input Pencarian -->
+            <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Peran Fungsional..."
+                class="flex-1 sm:w-64 rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
+        </div>
+    </div>
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <table class="w-full text-sm text-left text-gray-700">
                     <thead class="text-sm uppercase bg-success-400 text-success-900">
                         <tr>
                             <th scope="col" class="px-6 py-3">No</th>
