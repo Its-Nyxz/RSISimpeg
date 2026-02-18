@@ -15,6 +15,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\JadwalTemplateExport;
 use App\Exports\PotonganTemplateExport;
 use App\Notifications\UserNotification;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
 class DataKeuangan extends Component
@@ -49,25 +50,39 @@ class DataKeuangan extends Component
 
     public function loadData()
     {
-        return User::with(['kategorijabatan', 'unitKerja', 'roles'])->where('id', '>', '1')
+        return User::with(['kategorijabatan', 'unitKerja', 'roles', 'urutanKeuangan'])
+            ->where('id', '>', 1)
+            ->where('status_karyawan', '1')
+
+            // Gunakan Subquery untuk mengambil kolom 'urutan' tanpa JOIN eksplisit
+            ->orderBy(
+                DB::table('urutan_keuangan_user')
+                    ->select('urutan')
+                    ->whereColumn('user_id', 'users.id')
+                    ->limit(1),
+                'asc'
+            )
+
+            ->orderBy('name', 'asc')
+
+            // Sisa filter Anda tetap sama
             ->when($this->search, function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%')
-                    ->orWhere('no_ktp', 'like', '%' . $this->search . '%')
-                    ->orWhere('alamat', 'like', '%' . $this->search . '%');
+                $query->where(function ($q) {
+                    $q->where('name', 'like', '%' . $this->search . '%')
+                        ->orWhere('no_ktp', 'like', '%' . $this->search . '%')
+                        ->orWhere('alamat', 'like', '%' . $this->search . '%');
+                });
             })
             ->when($this->selectedUnit, function ($query) {
                 $unitIds = UnitKerja::where('id', $this->selectedUnit)
                     ->orWhere('parent_id', $this->selectedUnit)
-                    ->pluck('id')
-                    ->toArray();
-
+                    ->pluck('id')->toArray();
                 $query->whereIn('unit_id', $unitIds);
             })
-            ->where('status_karyawan', '=', '1')
             ->when($this->selectedJenisKaryawan, function ($query) {
                 $query->where('jenis_id', $this->selectedJenisKaryawan);
-            })->orderBy('name', 'asc')
-            ->orderBy('created_at', 'asc')->paginate(15);
+            })
+            ->paginate(15);
     }
 
     public function downloadTemplate()

@@ -303,6 +303,7 @@
             <table class="w-full text-sm text-center text-gray-700">
                 <thead class="text-sm uppercase bg-success-400 text-success-900">
                     <tr>
+                        <th scope="col" class="px-6 py-3">No</th>
                         <th scope="col" class="px-6 py-3">Nama</th>
                         <th scope="col" class="px-6 py-3">NIP</th>
                         <th scope="col" class="px-6 py-3">Alamat</th>
@@ -315,6 +316,7 @@
                     @forelse ($users as $user)
                         <tr
                             class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
+                            <td class="px-6 py-4">{{ $user->urutanKeuangan->urutan ?? '-' }}</td>
                             <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
                                 {{ $user->nama_bersih }}
                             </td>
