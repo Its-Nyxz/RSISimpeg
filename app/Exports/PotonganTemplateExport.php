@@ -66,6 +66,8 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents
                 $highestRow = $sheet->getHighestRow();
                 $highestColumn = $sheet->getHighestColumn();
 
+
+                $sheet->freezePane('D6');
                 // --- EFEK PADDING VERTIKAL (Padding Y) ---
                 // Mengatur tinggi baris untuk semua baris (Header + Data)
                 for ($i = 1; $i <= $highestRow; $i++) {

@@ -125,13 +125,20 @@ class DataKeuangan extends Component
 
         try {
             // Lakukan proses import dengan filter bulan & tahun
-            Excel::import(new PotonganImport($this->bulan, $this->tahun), $this->file->getRealPath());
+            // Excel::import(new PotonganImport($this->bulan, $this->tahun), $this->file->getRealPath());
 
             // Reset input file setelah sukses
-            $this->reset('file');
-
+            // $this->reset('file');
+            
             // Kirim notifikasi sukses ke Livewire
+            
+            // return redirect()->route('keuangan.index')->with('success', 'Data Potongan berhasil dimasukan');
+            $impor = new PotonganImport($this->bulan, $this->tahun);
+            Excel::import($impor, $this->file->getRealPath());
+            $this->reset('file');
+            
             return redirect()->route('keuangan.index')->with('success', 'Data Potongan berhasil dimasukan');
+
         } catch (\Exception $e) {
             return redirect()->route('keuangan.index')->with('error', 'Terjadi Kesalahan');
         }

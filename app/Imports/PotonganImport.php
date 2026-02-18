@@ -18,34 +18,54 @@ class PotonganImport implements ToCollection
 
     public function collection(Collection $rows)
     {
-        $header = $rows->shift();
+        // 1. Mengambil baris pertama sebagai header
+        $headerAtas = $rows[3] ?? [];
+        $headerBawah = $rows[4] ?? [];
+
+        $header = collect($headerBawah)->map(function ($value, $index) use ($headerAtas) {
+            // Jika baris bawah kosong (karena rowspan), ambil dari baris atasnya
+            return (is_null($value) || $value === '') ? ($headerAtas[$index] ?? null) : $value;
+        })->toArray();
+
+        // dd($header);
+
+        // 2. Persiapan Master Data
         $masterPotongans = MasterPotongan::orderBy('id')->get();
-        $mapPotongans = $masterPotongans->keyBy('slug'); // gunakan slug yang sudah pasti valid
+        $mapPotongans = $masterPotongans->keyBy('slug');
+
+        // 3. Mapping Header Potongan (Dimulai dari Indeks 14: Pinjaman Koperasi)
         $headerSlugs = collect($header)
-            ->slice(13)
+            ->slice(14)
             ->map(fn($h) => $h ? Str::slug(trim($h)) : null)
             ->values();
+
         logger()->info("SLUGS dari HEADER:", $headerSlugs->toArray());
-        logger()->info("SLUGS dari MASTER:", $mapPotongans->keys()->toArray());
-        foreach ($rows as $row) {
-            $slug = trim($row[0] ?? '');
-            $user = User::where('slug', $slug)->with(['jenis'])->first();
-            if (!$user) continue;
 
-            $brutoValue = $this->cleanRupiah($row[12] ?? 0);
+        foreach ($rows->slice(5) as $row) {
+            // 4. Identifikasi User (Slug ada di indeks 1)
+            $slug = trim($row[1] ?? '');
+            $user = User::where('slug', $slug)->with(['jenis', 'kategorijabatan', 'kategorifungsional'])->first();
+            
+            if (!$user) {
+                Log::warning("PotonganImport: User dengan slug '{$slug}' tidak ditemukan.");
+                continue;
+            }
 
-            $gapok = (int) $this->cleanRupiah($row[4] ?? 0);
-            $nom_jabatan = (int) $this->cleanRupiah($row[5] ?? 0);
-            $nom_fungsi  = (int) $this->cleanRupiah($row[6] ?? 0);
-            $nom_umum    = (int) $this->cleanRupiah($row[7] ?? 0);
-            $nom_makan   = (int) $this->cleanRupiah($row[8] ?? 0);
-            $nom_transport = (int) $this->cleanRupiah($row[9] ?? 0);
-            $nom_khusus  = (int) $this->cleanRupiah($row[10] ?? 0);
-            $nom_lainnya = (int) $this->cleanRupiah($row[11] ?? 0); // Tunjangan Tukin
+            // 5. Ekstraksi Komponen Gaji (Indeks bergeser +1 karena kolom 'No')
+            $gapok         = (int) $this->cleanRupiah($row[5] ?? 0);
+            $nom_jabatan   = (int) $this->cleanRupiah($row[6] ?? 0);
+            $nom_fungsi    = (int) $this->cleanRupiah($row[7] ?? 0);
+            $nom_umum      = (int) $this->cleanRupiah($row[8] ?? 0);
+            $nom_makan     = (int) $this->cleanRupiah($row[9] ?? 0);
+            $nom_transport = (int) $this->cleanRupiah($row[10] ?? 0);
+            $nom_khusus    = (int) $this->cleanRupiah($row[11] ?? 0);
+            $nom_lainnya   = (int) $this->cleanRupiah($row[12] ?? 0); 
+            $brutoValue    = (int) $this->cleanRupiah($row[13] ?? 0); // Kolom TOTAL
 
-            // Total bruto dihitung ulang dari semua komponen
+            // Hitung ulang bruto untuk memastikan validitas
             $total_bruto = $gapok + $nom_jabatan + $nom_fungsi + $nom_umum + $nom_khusus + $nom_makan + $nom_transport + $nom_lainnya;
 
+            // 6. Simpan/Update Gaji Bruto
             $bruto = GajiBruto::updateOrCreate(
                 [
                     'user_id' => $user->id,
@@ -66,33 +86,23 @@ class PotonganImport implements ToCollection
                 ]
             );
 
+            // Gunakan total bruto hasil hitung sistem
+            $brutoNominal = $bruto->total_bruto;
 
-            $brutoNominal = $bruto->total_bruto ?? $brutoValue;
-            $gapok = (int) $this->cleanRupiah($row[3] ?? 0);
-            $tunjangan = array_sum([
-                (int) $this->cleanRupiah($row[4] ?? 0),
-                (int) $this->cleanRupiah($row[5] ?? 0),
-                (int) $this->cleanRupiah($row[6] ?? 0),
-            ]);
-            $makanTransport = (int) $this->cleanRupiah($row[8] ?? 0) + (int) $this->cleanRupiah($row[9] ?? 0);
-
+            // 7. Proses Potongan yang ada di Kolom Excel (Indeks 14 ke atas)
             foreach ($headerSlugs as $i => $slugKey) {
-                $val = $row[$i + 13] ?? null;
-                $originalHeader = $header[$i + 13] ?? 'UNKNOWN';
+                $colIndex = $i + 14;
+                $val = $row[$colIndex] ?? null;
+                $originalHeader = $header[$colIndex] ?? 'UNKNOWN';
 
                 $master = $mapPotongans[$slugKey] ?? null;
                 if (!$master) {
-                    Log::warning("PotonganImport: Tidak ditemukan master untuk kolom '{$originalHeader}' → slug '{$slugKey}'");
+                    Log::warning("PotonganImport: Master untuk '{$originalHeader}' tidak ditemukan.");
                     continue;
                 }
 
                 $cleanVal = (int) $this->cleanRupiah($val);
                 if ($cleanVal <= 0) continue;
-
-                if (!$bruto || !$master->id) {
-                    Log::error("Potongan gagal: bruto_id/master_id null. User: {$user->slug}");
-                    continue;
-                }
 
                 Potongan::updateOrCreate([
                     'bruto_id' => $bruto->id,
@@ -104,8 +114,14 @@ class PotonganImport implements ToCollection
                 ]);
             }
 
+            // 8. Hitung Potongan Otomatis (Jika tidak ada di Excel)
+            $tunjangan = $nom_jabatan + $nom_fungsi + $nom_umum;
+            $makanTransport = $nom_makan + $nom_transport;
+
             foreach ($masterPotongans as $master) {
                 $key = $master->slug;
+                
+                // Cek apakah potongan ini sudah masuk dari Excel tadi
                 $existing = Potongan::where([
                     'bruto_id' => $bruto->id,
                     'master_potongan_id' => $master->id,
@@ -117,6 +133,7 @@ class PotonganImport implements ToCollection
 
                 $nom = 0;
 
+                // Logika PPh21
                 if (Str::contains($key, 'pph')) {
                     $kategoriInduk = $user->kategoriPphInduk();
                     $tax = $kategoriInduk
@@ -125,17 +142,23 @@ class PotonganImport implements ToCollection
                         ->orderBy('upper_limit')->first()
                         : null;
                     $nom = round($brutoNominal * ($tax?->persentase ?? 0));
-                } elseif (Str::contains($key, 'tenaga-kerja')) {
-                    $nom = round(0.03 * ((int) $gapok + (int) $tunjangan));
-                } elseif (Str::contains($key, 'bpjs-kesehatan-ortu')) {
-                    $nom = $user->bpjs_ortu ? round(0.01 * ((int) $gapok + (int) $tunjangan + (int) $makanTransport)) : 0;
-                } elseif (Str::contains($key, 'bpjs-kesehatan') && !Str::contains($key, ['ortu', 'rekonsiliasi'])) {
-                    $nom = round(0.01 * ((int) $gapok + (int) $tunjangan + (int) $makanTransport));
+                } 
+                // Logika BPJS Tenaga Kerja (3%)
+                elseif (Str::contains($key, 'tenaga-kerja')) {
+                    $nom = round(0.03 * ($gapok + $tunjangan));
+                } 
+                // Logika BPJS Kesehatan Ortu (1%)
+                elseif (Str::contains($key, 'bpjs-kesehatan-ortu')) {
+                    $nom = $user->bpjs_ortu ? round(0.01 * ($gapok + $tunjangan + $makanTransport)) : 0;
+                } 
+                // Logika BPJS Kesehatan Standar (1%)
+                elseif (Str::contains($key, 'bpjs-kesehatan') && !Str::contains($key, ['ortu', 'rekonsiliasi'])) {
+                    $nom = round(0.01 * ($gapok + $tunjangan + $makanTransport));
                 }
 
+                // Logika Organisasi Profesi (IDI / PPNI)
                 $jabatanKategori = strtolower($user->kategorijabatan?->nama ?? '');
                 $jabatanFungsional = strtolower($user->kategorifungsional?->nama ?? '');
-
                 $isDokter = Str::contains($jabatanKategori, 'dokter') || Str::contains($jabatanFungsional, 'dokter');
                 $isBidan  = Str::contains($jabatanKategori, 'bidan')  || Str::contains($jabatanFungsional, 'bidan');
 
@@ -145,21 +168,23 @@ class PotonganImport implements ToCollection
                     $nom = $master->nominal;
                 }
 
-                // if ($nom > 0) {
-                Potongan::create([
-                    'bruto_id' => $bruto->id,
-                    'master_potongan_id' => $master->id,
-                    'bulan_penggajian' => $this->bulan,
-                    'tahun_penggajian' => $this->tahun,
-                    'nominal' => $nom,
-                ]);
-                // }
+                // Simpan jika ada nominal yang dihasilkan
+                if ($nom > 0) {
+                    Potongan::create([
+                        'bruto_id' => $bruto->id,
+                        'master_potongan_id' => $master->id,
+                        'bulan_penggajian' => $this->bulan,
+                        'tahun_penggajian' => $this->tahun,
+                        'nominal' => $nom,
+                    ]);
+                }
             }
         }
     }
 
     protected function cleanRupiah($value): string
     {
+        if (is_numeric($value)) return (string) $value;
         return preg_replace('/[^\d]/', '', $value ?? '');
     }
 }
