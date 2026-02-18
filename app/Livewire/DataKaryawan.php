@@ -21,6 +21,7 @@ class DataKaryawan extends Component
     public $selectedUnit = null;
     public $selectedJenisKaryawan = null;
     public $jenisKaryawans = [];
+    public $selectedPensiun = '0';
 
     public function mount()
     {
@@ -47,6 +48,8 @@ class DataKaryawan extends Component
 
     public function loadData()
     {
+        // $cek = User::where('pensiun', '1')->count();
+        // dd("Jumlah orang yang pensiun: " . $cek);
       
         // $roles = Role::whereIn('name', ['Super Admin', 'Administrator'])
         //     ->orWhere('name', 'like', '%Kepegawaian%')
@@ -58,6 +61,7 @@ class DataKaryawan extends Component
 
         return User::with(['kategorijabatan', 'unitKerja', 'roles', 'jenis'])
             ->where('id', '>', '1') // Eager load jabatan dan unitKerja
+            ->where('pensiun', '0')
             ->when(!Auth::user()->hasAnyRole($roles), function ($query) use ($unit_id) {
                 $unitIds = UnitKerja::where('id', $unit_id)
                     ->orWhere('parent_id', $unit_id)
@@ -66,6 +70,9 @@ class DataKaryawan extends Component
 
                 $query->whereIn('unit_id', $unitIds);
             })
+            ->when(isset($this->selectedPensiun), function ($query) {
+                    $query->where('pensiun', $this->selectedPensiun);
+                })
             ->when($this->search, function ($query) use ($roles, $unit_id) {
                 $query->where(function ($q) {
                     $q->where('name', 'like', '%' . $this->search . '%')

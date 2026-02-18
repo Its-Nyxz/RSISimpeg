@@ -56,7 +56,7 @@ class KaryawanSheet implements FromArray, WithHeadings, WithTitle, WithEvents
             'jenis',
             'khusus',
             'kategoriPPH',
-        ])->where('id', '!=', 1)->get();
+        ])->where('id', '!=', 1)->where('status_karyawan', 1)->where('pensiun', 0)->get();
 
         foreach ($users as $user) {
             $data[] = [
