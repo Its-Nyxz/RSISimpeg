@@ -22,10 +22,15 @@ class EditUrutan extends Component
 {
 
     public $jenisId;
+    public $namaJenis;
 
-    public function mount()
+    public function mount($jenisId)
     {
+        $this->jenisId = $jenisId;
         $this->loadData();
+
+        $dataJenis = JenisKaryawan::find($this->jenisId);
+        $this->namaJenis = $dataJenis ? $dataJenis->nama : 'Karyawan';
     }
 
     public function updateUrutan($items)
