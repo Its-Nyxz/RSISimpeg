@@ -155,6 +155,7 @@ Route::middleware('auth')->group(function () {
     Route::get('keuangan/{user}/potongan/{bulan}/{tahun}', [KeuanganController::class, 'potongan'])->name('keuangan.potongan')->middleware('permission:view-keuangan');
     Route::get('/userprofile/upload', action: [UserProfileController::class, 'upload'])->name('userprofile.upload');
     Route::get('/keuangan/export', [KeuanganController::class, 'export'])->name('keuangan.export')->middleware('permission:view-keuangan');
+    Route::get('/keuangan/urutan/user/{jenis}', [KeuanganController::class, 'urutanUser'])->name('keuangan.urutan.user')->middleware('permission:view-keuangan');
     Route::resource('keuangan', KeuanganController::class)->middleware('permission:view-keuangan');
     Route::resource('userprofile', UserProfileController::class);
     Route::resource('proposionalitas', ProposionalitasPointController::class);

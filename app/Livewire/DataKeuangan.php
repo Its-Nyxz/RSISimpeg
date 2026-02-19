@@ -39,6 +39,7 @@ class DataKeuangan extends Component
         $this->jenisKaryawans = JenisKaryawan::all();
         $this->bulan = now()->month;
         $this->tahun = now()->year;
+        $this->selectedJenisKaryawan =  1;
         $this->loadData();
     }
 

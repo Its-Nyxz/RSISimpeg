@@ -105,6 +105,15 @@
                             @endif
                             {{-- @endcan --}}
                         @endif
+
+                        <div class="flex items-center">
+                            <a href="{{ route('keuangan.urutan.user', $selectedJenisKaryawan) }}"
+                                class="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-600 hover:text-white transition shadow-sm group">
+                                <i class="fas fa-sort-numeric-down text-gray-500 group-hover:text-white"></i>
+                                <span class="font-medium">Edit No Urut</span>
+                            </a>
+                        </div>
+
                     </div>
                 </div>
 
@@ -170,7 +179,6 @@
                             </div>
                         </div>
                     @endif
-
                 </div>
 
             </div>
