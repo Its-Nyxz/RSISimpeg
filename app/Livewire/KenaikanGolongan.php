@@ -79,7 +79,6 @@ class KenaikanGolongan extends Component
             'pendidikanUser',
             'pendingGolonganGapok',
             'jenis',
-            'golongan',
         ])
             ->where('id', '>', 1)
             ->where('jenis_id', 1)
