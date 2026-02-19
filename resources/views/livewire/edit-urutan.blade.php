@@ -3,7 +3,7 @@
         <div class="mb-4">
             <!-- Tulisan Keuangan -->
             <div class="py-2 mb-3">
-                <h1 class="text-2xl font-bold text-success-900">Urutan karyawan Tetap</h1>
+                <h1 class="text-2xl font-bold text-success-900">Urutan Karyawan {{ $namaJenis }}</h1>
             </div>
         </div>
     </div>
