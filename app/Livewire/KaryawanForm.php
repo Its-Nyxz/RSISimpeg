@@ -20,6 +20,7 @@ use App\Models\MasterJatahCuti;
 use App\Models\SisaCutiTahunan;
 use App\Models\MasterPendidikan;
 use App\Models\Penyesuaian;
+use App\Models\UrutanKeuanganUser;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB; // sementara
@@ -413,6 +414,15 @@ class KaryawanForm extends Component
             'password' => Hash::make('123'),
         ]);
 
+        $maxUrutan = UrutanKeuanganUser::max('urutan');
+
+        UrutanKeuanganUser::create(
+            [
+                'user_id' => $user->id,
+                'urutan' => $maxUrutan + 1,
+            ]
+        );
+
         // Update roles jika user baru dibuat atau diperbarui
         if (!empty($this->selectedRoles)) {
             $roles = Role::whereIn('id', (array) $this->selectedRoles)->pluck('name')->toArray();
@@ -662,8 +672,17 @@ class KaryawanForm extends Component
             'bpjs_ortu' =>  $this->bpjsOrtu ?? null,
         ]);
 
+        $urutan = UrutanKeuanganUser::where('user_id', $user->id)->first();
 
+        if (!$urutan) {
+            // Jika ternyata belum punya urutan (kasus yang bikin muncul '-'), buat baru
+            $maxUrutan = UrutanKeuanganUser::max('urutan') ?? 0;
 
+            UrutanKeuanganUser::create([
+                'user_id' => $user->id,
+                'urutan'  => $maxUrutan + 1,
+            ]);
+        }
 
         if (!empty($this->selectedRoles)) {
             $roles = Role::whereIn('id', (array) $this->selectedRoles)->pluck('name')->toArray();
