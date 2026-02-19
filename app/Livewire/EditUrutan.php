@@ -41,7 +41,6 @@ class EditUrutan extends Component
                 DB::table('urutan_keuangan_user')->updateOrInsert(
                     [
                         'user_id' => $item['value'],
-                        'jenis_id' => $this->jenisId // Tambahkan filter jenis_id di sini
                     ],
                     [
                         'urutan' => $item['order']
@@ -68,7 +67,7 @@ class EditUrutan extends Component
             ->orderBy('urutan_keuangan_urutan', 'asc')
             ->orderBy('name', 'asc')
             ->get();
-    }
+    }   
 
 
     public function render()
