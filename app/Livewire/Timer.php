@@ -414,20 +414,16 @@ class Timer extends Component
         $statusTerlambat = StatusAbsen::where('nama', 'Keterlambatan')->value('id');
 
 
-        $timeOutAbsensi = 0;
         // ✅ Tentukan status absen berdasarkan hasil kerja
         if ($jamKerja < $shiftHours) {
             // Jika pulang lebih awal
             $statusAbsenId = $statusPulangAwal;
-            $timeOutAbsensi = $timeOut->timestamp;
         } elseif ($this->late) {
             // Jika masuk terlambat
             $statusAbsenId = $statusTerlambat;
-            $timeOutAbsensi = $endShift->getTimestamp();
         } else {
             // Jika tepat waktu
             $statusAbsenId = $statusTepatWaktu;
-            $timeOutAbsensi = $endShift->getTimestamp();
         }
 
         // ✅ Cek apakah lembur terjadi
@@ -437,7 +433,7 @@ class Timer extends Component
 
         // ✅ Simpan data ke database
         $absensi->update([
-            'time_out' => $timeOutAbsensi,
+            'time_out' => $timeOut->timestamp,
             'deskripsi_out' => $this->deskripsi_out,
             'keterangan' => "Total waktu bekerja: " . gmdate('H:i:s', $selisih),
             // 'deskripsi_lembur' => $isOvertime ? $this->deskripsi_lembur : null,
