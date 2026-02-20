@@ -11,4 +11,9 @@ class UrutanKeuanganUser extends Model
 
     protected $table = 'urutan_keuangan_user';
     protected $fillable = ['user_id', 'urutan'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
