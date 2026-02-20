@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Exports\JadwalExport;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Shift;
@@ -121,13 +122,13 @@ class DataJadwal extends Component
             })
             ->get();
 
-            $this->jadwals = $jadwalData->groupBy('user_id')
+        $this->jadwals = $jadwalData->groupBy('user_id')
             ->sortBy(function ($items) {
                 // Mengurutkan berdasarkan nama user dari baris pertama setiap grup
                 return optional($items->first()->user)->name;
             })
             ->map(fn($items) => $items->values());
-        
+
 
         $this->filteredShifts = [];
         foreach ($jadwalData as $jadwal) {
@@ -191,6 +192,37 @@ class DataJadwal extends Component
     public function closeShiftModal()
     {
         $this->showModalShift = false;
+    }
+
+    public function export()
+    {
+        // 1. Pastikan data ter-load sesuai filter saat ini
+        $this->loadData();
+
+        $unitId = $this->selectedUnit ?? auth()->user()->unit->id;
+        $unit = UnitKerja::find($unitId);
+        $namaUnit = $unit ? str_replace(' ', '_', $unit->nama) : 'Semua_Unit';
+
+        // 2. Ubah Angka Bulan menjadi Nama Bulan (Bahasa Indonesia)
+        // 'id' untuk Indonesia, pastikan locale sudah diset atau gunakan format manual
+        $monthName = \Carbon\Carbon::createFromFormat('m', $this->bulan)->translatedFormat('F');
+
+        // 3. Gabungkan menjadi Nama File yang Cantik
+        // Format: Jadwal_Shift_NamaUnit_Bulan_Tahun.xlsx
+        $fileName = 'Jadwal_Shift_' . $namaUnit . '_' . $monthName . '_' . $this->tahun . '.xlsx';
+
+        // 3. Return download menggunakan Laravel Excel
+        return Excel::download(
+            new JadwalExport(
+                $this->jadwals,
+                $this->tanggalJadwal,
+                $this->filteredShifts,
+                $namaUnit,   // Variabel yang kita buat sebelumnya
+                $monthName,  // Variabel yang kita buat sebelumnya
+                $this->tahun
+            ),
+            $fileName
+        );
     }
 
 
