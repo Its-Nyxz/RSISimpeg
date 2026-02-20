@@ -29,11 +29,11 @@ class KenaikanKontrak extends Component
 
     public function mount()
     {
-         $now = Carbon::now('Asia/Jakarta');
+        $now = Carbon::now('Asia/Jakarta');
 
         $this->bulan = $now->format('n');
         $this->tahun = $now->format('Y');
-        
+
         $this->units = UnitKerja::all();
         $unitKepegawaianId = 87;
         $user = auth()->user();
@@ -168,10 +168,14 @@ class KenaikanKontrak extends Component
                 $tglBerkala = $user->kenaikan_berkala_waktu ?? null;
 
                 $matchBerkala = $tglBerkala ? Carbon::parse($tglBerkala) : null;
+                $matchTmt = $user->tmt ? Carbon::parse($user->tmt) : null;
 
                 return ($matchBerkala && (
                     (empty($bulan) || $matchBerkala->month == $bulan) &&
-                    (empty($tahun) || $matchBerkala->year == $tahun)
+                    (empty($tahun) || $matchBerkala->year == $tahun) ||
+                    ($matchTmt && (
+                        (empty($bulan) || $matchTmt->month == $bulan)
+                    ))
                 )
                 );
             })->values();
@@ -179,10 +183,10 @@ class KenaikanKontrak extends Component
 
         // Manual pagination (karena sudah pakai ->get())
         $perPage = 15;
-        $currentPage = $this->page ?? 1;
-        $paged = $users->slice(($currentPage - 1) * $perPage, $perPage)->values();
+        $currentPage = $this->paginators['page'] ?? 1; // Livewire melacak halaman di sini
+        $items = $users->forPage($currentPage, $perPage);
         return new LengthAwarePaginator(
-            $paged,
+            $items,
             $users->count(),
             $perPage,
             $currentPage,
