@@ -20,6 +20,7 @@ use App\Models\MasterJatahCuti;
 use App\Models\SisaCutiTahunan;
 use App\Models\MasterPendidikan;
 use App\Models\Penyesuaian;
+use App\Models\UrutanKeuanganUser;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB; // sementara
@@ -413,6 +414,15 @@ class KaryawanForm extends Component
             'password' => Hash::make('123'),
         ]);
 
+        $maxUrutan = UrutanKeuanganUser::max('urutan');
+
+        UrutanKeuanganUser::create(
+            [
+                'user_id' => $user->id,
+                'urutan' => $maxUrutan + 1,
+            ]
+        );
+
         // Update roles jika user baru dibuat atau diperbarui
         if (!empty($this->selectedRoles)) {
             $roles = Role::whereIn('id', (array) $this->selectedRoles)->pluck('name')->toArray();
@@ -604,8 +614,6 @@ class KaryawanForm extends Component
             }
         }
 
-
-
         // Ambil ID kategori jabatan aktif terakhir (yang belum selesai)
         $oldJabatanId = RiwayatJabatan::where('user_id', $user->id)
             ->where('tunjangan', 'jabatan')
@@ -631,7 +639,57 @@ class KaryawanForm extends Component
         $this->updateRiwayatJabatan($user->id, $oldUmumId, $kategoriUmum, 'umum');
         // dd($oldJabatanId, $oldFungsionalId, $oldUmumId);
 
+        $dataUrutan = UrutanKeuanganUser::where('user_id', $user->id)->first();
+
+        // Simpan jenis_id lama dan baru untuk perbandingan
+        $jenisIdLama = $user->jenis_id;
+        $jenisIdBaru = $this->selectedJenisKaryawan;
+
+        // Cek apakah terjadi perpindahan jenis karyawan
+        if ($jenisIdLama != $jenisIdBaru) {
+
+            // Rapikan Kategori Lama (Tutup Lubang)
+            // Jika dia punya urutan di kategori lama, semua yang di bawahnya harus naik (-1)
+            if ($dataUrutan) {
+                UrutanKeuanganUser::whereHas('user', function ($q) use ($jenisIdLama) {
+                    $q->where('jenis_id', $jenisIdLama);
+                })
+                    ->where('urutan', '>', $dataUrutan->urutan)
+                    ->decrement('urutan');
+            }
+
+            // Tentukan Urutan di Kategori Baru (Taruh di Paling Bawah)
+            $maxUrutanBaru = UrutanKeuanganUser::whereHas('user', function ($q) use ($jenisIdBaru) {
+                $q->where('jenis_id', $jenisIdBaru);
+            })->max('urutan') ?? 0;
+
+            // Eksekusi Update atau Create data urutan
+            if ($dataUrutan) {
+                $dataUrutan->update(['urutan' => $maxUrutanBaru + 1]);
+            } else {
+                UrutanKeuanganUser::create([
+                    'user_id' => $user->id,
+                    'urutan'  => $maxUrutanBaru + 1
+                ]);
+            }
+        }
+
         $user = User::findOrFail($this->user_id);
+
+        // PENTING: Ambil jenis_id lama SEBELUM diupdate
+        $jenisIdLama = $user->getOriginal('jenis_id') ?? $user->jenis_id;
+        $jenisIdBaru = $this->selectedJenisKaryawan;
+
+        // Ambil data urutan saat ini
+        $dataUrutan = UrutanKeuanganUser::where('user_id', $user->id)->first();
+
+        // Jalankan Update User
+        $unit = UnitKerja::where('nama', $this->unit)->first();
+        $kategoriJabatan = KategoriJabatan::where('nama', $this->jabatan)->first();
+        $kategoriFungsional = KategoriJabatan::where('nama', $this->fungsional)->first();
+        $kategoriUmum = KategoriJabatan::where('nama', $this->umum)->first();
+
+
         $user->update([
             'name' => $this->nama ?? null,
             'slug' => Str::slug($this->nama) ?? null, // ← Tambahan
@@ -662,8 +720,43 @@ class KaryawanForm extends Component
             'bpjs_ortu' =>  $this->bpjsOrtu ?? null,
         ]);
 
+        if ($jenisIdLama != $jenisIdBaru) {
+            // 1. RAPIKAN KATEGORI LAMA (Tutup Lubang)
+            if ($dataUrutan) {
+                UrutanKeuanganUser::whereHas('user', function ($q) use ($jenisIdLama) {
+                    $q->where('jenis_id', $jenisIdLama);
+                })
+                    ->where('urutan', '>', $dataUrutan->urutan)
+                    ->decrement('urutan');
+            }
 
+            // 2. PINDAHKAN KE KATEGORI BARU (Taruh paling bawah)
+            // Kita hitung orang LAIN di kategori baru (kecuali si user ini sendiri)
+            $totalOrangKategoriBaru = UrutanKeuanganUser::whereHas('user', function ($q) use ($jenisIdBaru) {
+                $q->where('jenis_id', $jenisIdBaru);
+            })
+                ->where('user_id', '!=', $user->id) // Jangan hitung diri sendiri dulu
+                ->count();
 
+            $nomorUrutBaru = $totalOrangKategoriBaru + 1;
+
+            UrutanKeuanganUser::updateOrCreate(
+                ['user_id' => $user->id],
+                ['urutan' => $nomorUrutBaru]
+            );
+        } else {
+            // JIKA TIDAK PINDAH JENIS, tapi data urutan belum ada sama sekali (Kasus '-')
+            if (!$dataUrutan) {
+                $totalCount = UrutanKeuanganUser::whereHas('user', function ($q) use ($jenisIdBaru) {
+                    $q->where('jenis_id', $jenisIdBaru);
+                })->count();
+
+                UrutanKeuanganUser::create([
+                    'user_id' => $user->id,
+                    'urutan'  => $totalCount + 1
+                ]);
+            }
+        }
 
         if (!empty($this->selectedRoles)) {
             $roles = Role::whereIn('id', (array) $this->selectedRoles)->pluck('name')->toArray();

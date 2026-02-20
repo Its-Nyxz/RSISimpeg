@@ -1,33 +1,29 @@
 <div>
-    <div class="flex justify-between py-2 mb-3">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-2 mb-3">
         <h1 class="text-2xl font-bold text-success-900">Master Tunjangan Umum</h1>
         <!-- Kontrol Aksi -->
-        <div class="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
+        <div class="flex items-center gap-2 w-full sm:w-auto">
             <!-- Input Pencarian -->
             <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Tunjangan..."
-                class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
-
+                class="flex-1 sm:w-64 rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
             <!-- Tombol Tambah Umum -->
-            <div class="flex items-center gap-2 mt-2 sm:mt-0">
-                <!-- Mobile Icon Only -->
-                <a href="{{ route('umum.create') }}"
-                    class="sm:hidden p-3 rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition"
-                    aria-label="Tambah Umum" data-tooltip-target="tooltip-umum" data-tooltip-placement="top">
-                    <i class="fa fa-plus"></i>
-                </a>
-                <!-- Tooltip -->
-                <div id="tooltip-umum" role="tooltip"
-                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
-                    Tambah Umum
-                    <div class="tooltip-arrow" data-popper-arrow></div>
-                </div>
-
-                <!-- Desktop Button -->
-                <a href="{{ route('umum.create') }}"
-                    class="hidden sm:inline-flex items-center px-5 py-2.5 text-sm rounded-lg font-medium whitespace-nowrap bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition">
-                    + Tambah Umum
-                </a>
+            <!-- Mobile Icon Only -->
+            <a href="{{ route('umum.create') }}"
+                class="sm:hidden inline-flex items-center justify-center p-2.5 rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition shrink-0"
+                aria-label="Tambah Umum" data-tooltip-target="tooltip-umum" data-tooltip-placement="top">
+                <i class="fa fa-plus"></i>
+            </a>
+            <!-- Tooltip -->
+            <div id="tooltip-umum" role="tooltip"
+                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                Tambah Umum
+                <div class="tooltip-arrow" data-popper-arrow></div>
             </div>
+            <!-- Desktop Button -->
+            <a href="{{ route('umum.create') }}"
+                class="hidden sm:inline-flex items-center px-5 py-2.5 text-sm rounded-lg font-medium whitespace-nowrap bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition">
+                + Tambah Umum
+            </a>
         </div>
     </div>
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg">

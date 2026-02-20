@@ -220,4 +220,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(SourceFile::class);
     }
+
+    public function urutanKeuangan()
+    {
+        return $this->hasOne(UrutanKeuanganUser::class, 'user_id');
+    }
 }

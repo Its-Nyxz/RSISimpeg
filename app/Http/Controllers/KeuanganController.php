@@ -21,6 +21,10 @@ class KeuanganController extends Controller
     {
         return view("keuangan.potongan", compact('user', 'bulan', 'tahun'));
     }
+    public function urutanUser($jenisId)
+    {
+        return view("keuangan.urutan", compact('jenisId'));
+    }
 
     public function export(Request $request)
     {

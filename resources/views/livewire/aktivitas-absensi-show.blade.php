@@ -41,9 +41,10 @@
                 <x-card title="Data Absensi" class="mb-6 text-success-900">
                     <div style="font-family: 'Gilroy-Regular', sans-serif; font-size: 14px;">
                         <div class="mb-4"><strong>Hari, Tanggal</strong> : {{ $tanggalFormatted }}</div>
-                        <div class="mb-4"><strong>Jam Kerja</strong> : {{ $jamKerjaFormatted }}</div>
+                        <div class="mb-4"><strong>Shift </strong> : {{ $absen->jadwalAbsen->shift->keterangan }}, {{ $absen->jadwalAbsen->shift->jam_masuk }} - {{ $absen->jadwalAbsen->shift->jam_keluar }}</div>
                         <div class="mb-4"><strong>Real Time Jam Masuk</strong> : {{ $realMasukFormatted }}</div>
                         <div class="mb-4"><strong>Real Time Jam Keluar</strong> : {{ $realKeluarFormatted }}</div>
+                        <div class="mb-4"><strong>Jam Kerja</strong> : {{ $jamKerjaFormatted }}</div>
                         <div class="mb-4"><strong>Rencana Kerja</strong> :
                             {{ $absen->deskripsi_in ?? '-' }}
                             @if (!empty($keteranganDinas))

@@ -270,6 +270,7 @@ class KenaikanGolongan extends Component
 
                 $matchGol = $tglGol ? Carbon::parse($tglGol) : null;
                 $matchBerkala = $tglBerkala ? Carbon::parse($tglBerkala) : null;
+                $matchTmt = $user->tmt ? Carbon::parse($user->tmt) : null;
 
                 return (
                     ($matchGol && (
@@ -279,6 +280,9 @@ class KenaikanGolongan extends Component
                     ($matchBerkala && (
                         (empty($bulan) || $matchBerkala->month == $bulan) &&
                         (empty($tahun) || $matchBerkala->year == $tahun)
+                    )) ||
+                    ($matchTmt && (
+                        (empty($bulan) || $matchTmt->month == $bulan)
                     ))
                 );
             })->values();
@@ -286,11 +290,11 @@ class KenaikanGolongan extends Component
 
         // PAGINATION
         $perPage = 15;
-        $currentPage = $this->page ?? 1;
-        $paged = $users->slice(($currentPage - 1) * $perPage, $perPage)->values();
+        $currentPage = $this->paginators['page'] ?? 1; // Livewire melacak halaman di sini
+        $items = $users->forPage($currentPage, $perPage);
 
         return new LengthAwarePaginator(
-            $paged,
+            $items,
             $users->count(),
             $perPage,
             $currentPage,

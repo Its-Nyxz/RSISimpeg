@@ -1,242 +1,186 @@
-    <div class="container mx-auto mt-4 sm:mt-6 p-4 sm:p-6 bg-white shadow-md rounded-lg">
-        <!-- Header -->
-        <div class="py-2 mb-3">
-            <h1 class="text-xl sm:text-2xl font-bold text-green-700">List History Absensi</h1>
-        </div>
+<div class="container mx-auto mt-4 sm:mt-6 p-4 sm:p-6 bg-white shadow-md rounded-lg">
+    <div class="py-2 mb-4 border-b border-gray-100">
+        <h1 class="text-xl sm:text-2xl font-bold text-green-700">List History Absensi</h1>
+    </div>
 
-        <!-- Filter & Tombol Aksi -->
-        <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-4">
+    <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-6">
 
-            <!-- Filter Dropdown -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 w-full xl:w-auto">
-                @can('list-history-user')
-                    <!-- Filter Unit - Hanya tampil jika bisa akses semua unit -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 w-full xl:w-auto">
+            @can('list-history-user')
+                <div class="col-span-2 md:col-span-1">
                     @if ($canAccessAllUnits)
                         <select wire:model.live="selectedUnitId"
-                            class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-success-500 w-full">
+                            class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-success-500 w-full transition duration-150">
                             @foreach ($units as $id => $name)
                                 <option value="{{ $id }}">{{ $name }}</option>
                             @endforeach
                         </select>
                     @else
-                        <!-- Jika tidak bisa akses semua unit, tampilkan unit sendiri saja (readonly) -->
-                        <div class="border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100 w-full truncate">
-                            {{ auth()->user()->unitKerja->nama ?? 'Unit Tidak Diketahui' }}
+                        <div class="border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-50 text-gray-600 w-full truncate">
+                            <i class="fa-solid fa-building mr-1 text-xs"></i> {{ auth()->user()->unitKerja->nama ?? 'Unit Unknown' }}
                         </div>
                     @endif
+                </div>
 
-                    <!-- Filter Pegawai -->
+                <div class="col-span-2 md:col-span-1">
                     <select wire:model.live="selectedUserId"
-                        class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-success-500 w-full">
+                        class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-success-500 w-full transition duration-150">
                         @forelse ($subordinates as $id => $name)
                             <option value="{{ $id }}">{{ $name }}</option>
                         @empty
                             <option value="{{ auth()->id() }}">{{ auth()->user()->name }}</option>
                         @endforelse
                     </select>
-                @endcan
-
-                <select wire:model.live="month"
-                    class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-success-500 w-full">
-                    @foreach (range(1, 12) as $m)
-                        <option value="{{ $m }}">
-                            {{ \Carbon\Carbon::create(null, $m)->translatedFormat('F') }}
-                        </option>
-                    @endforeach
-                </select>
-
-                <select wire:model.live="year"
-                    class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-success-500 w-full">
-                    @foreach (range(date('Y') - 3, date('Y') + 1) as $y)
-                        <option value="{{ $y }}">{{ $y }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <!-- Tombol Aksi -->
-            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
-                <!-- Export PDF -->
-                <div class="relative group">
-                    <button wire:click="exportPdfHistory"
-                        class="sm:hidden w-10 h-10 flex items-center justify-center rounded-lg bg-blue-100 text-blue-900 hover:bg-blue-600 hover:text-white transition">
-                        <i class="fas fa-download text-base"></i>
-                    </button>
-                    <div
-                        class="absolute z-10 hidden group-hover:flex bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-800 rounded shadow">
-                        Export PDF
-                    </div>
-                    <button wire:click="exportPdfHistory"
-                        class="hidden sm:flex items-center px-4 py-2 text-sm rounded-lg font-medium bg-blue-100 text-blue-900 hover:bg-blue-600 hover:text-white transition">
-                        <i class="fas fa-download mr-1"></i> Export
-                    </button>
                 </div>
+            @endcan
 
-                <!-- Export Excel (1 User) -->
-                <div class="relative group">
-                    <button wire:click="exportExcelHistory"
-                        class="sm:hidden w-10 h-10 flex items-center justify-center rounded-lg bg-yellow-100 text-yellow-900 hover:bg-yellow-600 hover:text-white transition">
-                        <i class="fas fa-file-excel text-base"></i>
-                    </button>
-                    <div
-                        class="absolute z-10 hidden group-hover:flex bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-800 rounded shadow">
-                        Export Excel
-                    </div>
-                    <button wire:click="exportExcelHistory"
-                        class="hidden sm:flex items-center px-4 py-2 text-sm rounded-lg font-medium bg-yellow-100 text-yellow-900 hover:bg-yellow-600 hover:text-white transition">
-                        <i class="fas fa-file-excel mr-1"></i> Excel
-                    </button>
-                </div>
+            <select wire:model.live="month"
+                class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-success-500 w-full transition duration-150">
+                @foreach (range(1, 12) as $m)
+                    <option value="{{ $m }}">
+                        {{ \Carbon\Carbon::create(null, $m)->translatedFormat('F') }}
+                    </option>
+                @endforeach
+            </select>
 
-                <!-- Export All Users -->
-                @if ($canExportAll)
-                    <div class="relative group">
-                        <button wire:click="openExportAllModal"
-                            class="sm:hidden w-10 h-10 flex items-center justify-center rounded-lg bg-info-100 text-info-900 hover:bg-info-600 hover:text-white transition">
-                            <i class="fas fa-file-excel text-base"></i>
-                        </button>
-                        <div
-                            class="absolute z-10 hidden group-hover:flex bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-800 rounded shadow">
-                            Export Semua Pegawai
-                        </div>
-                        <button wire:click="openExportAllModal"
-                            class="hidden sm:flex items-center px-4 py-2 text-sm rounded-lg font-medium bg-info-100 text-info-900 hover:bg-info-600 hover:text-white transition">
-                            <i class="fas fa-file-excel mr-1"></i> All
-                        </button>
-                    </div>
-                @endif
-                @if ($showExportModal)
-                    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                        <div class="bg-white w-full max-w-md rounded-lg shadow-lg p-6">
-                            <h2 class="text-lg font-semibold mb-3">Pilih Pegawai untuk Export</h2>
-
-                            <div class="max-h-60 overflow-y-auto border rounded p-3">
-                                @foreach ($allUsers as $id => $name)
-                                    <label class="flex items-center gap-2 mb-2">
-                                        <input type="checkbox" wire:model="exportSelectedUsers"
-                                            value="{{ $id }}"
-                                            class="w-4 h-4 text-success-600 border-gray-300 rounded focus:ring-success-500 accent-green-700">
-                                        <span>{{ $name }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
-
-                            <div class="flex flex-col sm:flex-row justify-end mt-4 gap-2">
-                                <button wire:click="toggleSelectAll"
-                                    class="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 text-sm">
-                                    @if (count($exportSelectedUsers) === count($allUsers))
-                                        Pilih Semua
-                                    @else
-                                        Pilih Semua
-                                    @endif
-                                </button>
-
-                                <button wire:click="$set('showExportModal', false)"
-                                    class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-sm">
-                                    Batal
-                                </button>
-
-                                <button wire:click="exportSelected"
-                                    class="px-4 py-2 rounded bg-success-600 text-white hover:bg-success-700 text-sm">
-                                    Export
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-
-                @can('list-history-create')
-                    <!-- Tambah -->
-                    <div class="relative group">
-                        <a href="{{ route('aktivitasabsensi.create', ['user_id' => $selectedUserId]) }}"
-                            class="sm:hidden w-10 h-10 flex items-center justify-center rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition">
-                            <i class="fa fa-plus text-base"></i>
-                        </a>
-                        <div
-                            class="absolute z-10 hidden group-hover:flex bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-800 rounded shadow">
-                            Tambah Jadwal
-                        </div>
-                        <a href="{{ route('aktivitasabsensi.create', ['user_id' => $selectedUserId]) }}"
-                            class="hidden sm:flex items-center px-4 py-2 text-sm rounded-lg font-medium bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition">
-                            + Tambah
-                        </a>
-                    </div>
-                @endcan
-            </div>
-
-
+            <select wire:model.live="year"
+                class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-success-500 w-full transition duration-150">
+                @foreach (range(date('Y') - 3, date('Y') + 1) as $y)
+                    <option value="{{ $y }}">{{ $y }}</option>
+                @endforeach
+            </select>
         </div>
 
-        <!-- Absensi Table -->
-        <div class="relative overflow-x-auto shadow-md sm:rounded-lg border border-gray-200">
-            <table class="w-full text-xs sm:text-sm text-center text-gray-700">
-                <thead class="text-center text-xs sm:text-sm bg-green-300 text-green-900 uppercase">
-                    <tr>
-                        <th scope="col" class="px-3 py-3 sm:px-6 sm:py-3 whitespace-nowrap">Hari</th>
-                        <th scope="col" class="px-3 py-3 sm:px-6 sm:py-3 whitespace-nowrap">Tanggal</th>
-                        <th scope="col" class="px-3 py-3 sm:px-6 sm:py-3 whitespace-nowrap">Jam Kerja</th>
-                        <th scope="col" class="px-3 py-3 sm:px-6 sm:py-3 min-w-[200px]">Rencana Kerja</th>
-                        <th scope="col" class="px-3 py-3 sm:px-6 sm:py-3 min-w-[200px]">Laporan Kerja</th>
-                        <th scope="col" class="px-3 py-3 sm:px-6 sm:py-3 whitespace-nowrap">Jam Lembur</th>
-                        <th scope="col" class="px-3 py-3 sm:px-6 sm:py-3 min-w-[150px]">Deskripsi Lembur</th>
-                        <th scope="col" class="px-3 py-3 sm:px-6 sm:py-3 min-w-[150px]">Feedback</th>
-                        {{-- @can('list-history-edit') --}}
-                        <th scope="col" class="px-3 py-3 sm:px-6 sm:py-3 whitespace-nowrap sticky right-0 bg-green-300 z-10 shadow-l">Action</th>
-                        {{-- @endcan --}}
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($items as $item)
-                        <tr
-                            class="{{ $item['is_holiday']
-                                ? 'bg-red-200'
-                                : ($item['is_lembur']
-                                    ? 'bg-yellow-200'
-                                    : ($item['is_dinas']
-                                        ? 'bg-blue-200'
-                                        : ($item['late']
-                                            ? 'bg-red-400'
-                                            : ($loop->even
-                                                ? 'bg-green-100'
-                                                : 'bg-green-50')))) }} border-b border-green-300 hover:bg-green-200 transition duration-150">
-                            <td class="px-3 py-2 sm:px-6 sm:py-4 font-medium text-green-900 whitespace-nowrap">
-                                {{ $item['hari'] }}
-                            </td>
-                            <td class="px-3 py-2 sm:px-6 sm:py-4 whitespace-nowrap">{{ $item['tanggal'] }}</td>
-                            <td class="px-3 py-2 sm:px-6 sm:py-4 whitespace-nowrap">{!! $item['jam_kerja'] !!}</td>
-                            <td class="px-3 py-2 sm:px-6 sm:py-4 text-left">{!! $item['rencana_kerja'] !!}</td>
-                            <td class="px-3 py-2 sm:px-6 sm:py-4 text-left">{!! $item['laporan_kerja'] !!}</td>
-                            <td class="px-3 py-2 sm:px-6 sm:py-4 whitespace-nowrap">{!! $item['jam_lembur'] !!}</td>
-                            <td class="px-3 py-2 sm:px-6 sm:py-4 text-left">{!! $item['laporan_lembur'] !!}</td>
-                            <td class="px-3 py-2 sm:px-6 sm:py-4 text-left">{!! $item['feedback'] !!}</td>
-                            <td class="px-3 py-2 sm:px-6 sm:py-4 sticky right-0 bg-inherit z-10 shadow-l">
-                                <div class="flex gap-1 justify-center">
-                                    @can('list-history-edit')
-                                        @if (!is_null($item['id']))
-                                            <a href="{{ route('aktivitasabsensi.edit', $item['id']) }}"
-                                                class="text-success-900 p-1.5 sm:px-3 sm:py-2 rounded-md border bg-white/50 hover:bg-success-300 transition"
-                                                data-tooltip-target="tooltip-item-{{ $item['id'] }}">
-                                                <i class="fa-solid fa-pen text-xs sm:text-sm"></i>
-                                            </a>
-                                        @endif
-                                    @endcan
+        <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-start sm:justify-end">
+            <button wire:click="exportPdfHistory"
+                class="flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg font-medium bg-blue-100 text-blue-900 hover:bg-blue-600 hover:text-white transition shadow-sm"
+                title="Export PDF">
+                <i class="fas fa-file-pdf"></i>
+                <span class="hidden sm:inline">PDF</span>
+            </button>
 
-                                    @if (!is_null($item['id']))
-                                        <a href="{{ route('aktivitasabsensi.show', $item['id']) }}"
-                                            class="text-success-900 p-1.5 sm:px-3 sm:py-2 rounded-md border bg-white/50 hover:bg-success-300 transition"
-                                            data-tooltip-target="tooltip-show-{{ $item['id'] }}">
-                                            <i class="fa-solid fa-eye text-xs sm:text-sm"></i>
-                                        </a>
-                                    @endif
-                                </div>
-                            </td>
+            <button wire:click="exportExcelHistory"
+                class="flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg font-medium bg-yellow-100 text-yellow-900 hover:bg-yellow-600 hover:text-white transition shadow-sm"
+                title="Export Excel">
+                <i class="fas fa-file-excel"></i>
+                <span class="hidden sm:inline">Excel</span>
+            </button>
 
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="9" class="text-center py-4 text-gray-500 italic">Tidak ada data</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+            @if ($canExportAll)
+                <button wire:click="openExportAllModal"
+                    class="flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg font-medium bg-indigo-100 text-indigo-900 hover:bg-indigo-600 hover:text-white transition shadow-sm"
+                    title="Export Semua Pegawai">
+                    <i class="fas fa-users-gear"></i>
+                    <span class="hidden sm:inline">All</span>
+                </button>
+            @endif
+
+            @can('list-history-create')
+                <a href="{{ route('aktivitasabsensi.create', ['user_id' => $selectedUserId]) }}"
+                    class="flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg font-medium bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition shadow-sm"
+                    title="Tambah Jadwal">
+                    <i class="fa fa-plus"></i>
+                    <span class="hidden sm:inline">Tambah</span>
+                </a>
+            @endcan
         </div>
     </div>
+
+    <div class="relative overflow-x-auto shadow-sm sm:rounded-lg border border-gray-200">
+        <table class="w-full text-xs sm:text-sm text-center text-gray-700">
+            <thead class="bg-green-300 text-green-900 uppercase font-bold sticky top-0">
+                <tr>
+                    <th class="px-3 py-3 whitespace-nowrap">Hari</th>
+                    <th class="px-3 py-3 whitespace-nowrap">Tanggal</th>
+                    <th class="px-3 py-3 whitespace-nowrap">Jam Kerja</th>
+                    <th class="px-3 py-3 min-w-[200px]">Rencana</th>
+                    <th class="px-3 py-3 min-w-[200px]">Laporan</th>
+                    <th class="px-3 py-3 whitespace-nowrap">Lembur</th>
+                    <th class="px-3 py-3 min-w-[150px]">Ket. Lembur</th>
+                    <th class="px-3 py-3 min-w-[150px]">Feedback</th>
+                    <th class="px-3 py-3 whitespace-nowrap sticky right-0 bg-green-300 z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.05)]">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-green-200">
+           
+                @forelse ($items as $item)
+
+                    <tr class="{{ $item['is_holiday'] ? 'bg-red-100' : ($item['is_lembur'] ? 'bg-yellow-100' : ($item['is_dinas'] ? 'bg-blue-100' : ($item['late'] ? 'bg-red-300' : ($loop->even ? 'bg-green-50' : 'bg-white')))) }} hover:bg-green-200 transition duration-75">
+                        <td class="px-3 py-4 font-semibold text-green-900">{{ $item['hari'] }}</td>
+                        <td class="px-3 py-4 whitespace-nowrap">{{ $item['tanggal'] }}</td>
+                        <td class="px-3 py-4 whitespace-nowrap">{!! $item['jam_kerja'] !!}</td>
+                        <td class="px-3 py-4 text-left leading-relaxed">{!! $item['rencana_kerja'] !!}</td>
+                        <td class="px-3 py-4 text-left leading-relaxed">
+                            {!! $item['nama_shift'] == "L" ? '<span class="italic text-red-600 font-medium">Libur</span>' : $item['laporan_kerja'] !!}
+                        </td>
+                        <td class="px-3 py-4 whitespace-nowrap">{!! $item['jam_lembur'] !!}</td>
+                        <td class="px-3 py-4 text-left">{!! $item['laporan_lembur'] !!}</td>
+                        <td class="px-3 py-4 text-left italic text-gray-500">{!! $item['feedback'] !!}</td>
+                        <td class="px-3 py-4 sticky right-0 bg-inherit z-10 shadow-[-4px_0_10px_rgba(0,0,0,0.05)]">
+                            <div class="flex gap-1.5 justify-center">
+                                @can('list-history-edit')
+                                    @if ($item['id'])
+                                        <a href="{{ route('aktivitasabsensi.edit', $item['id']) }}"
+                                            class="bg-white/80 p-2 rounded-md border border-success-200 text-success-900 hover:bg-success-600 hover:text-white transition shadow-sm">
+                                            <i class="fa-solid fa-pen text-xs"></i>
+                                        </a>
+                                    @endif
+                                @endcan
+                                @if ($item['id'])
+                                    <a href="{{ route('aktivitasabsensi.show', $item['id']) }}"
+                                        class="bg-white/80 p-2 rounded-md border border-success-200 text-success-900 hover:bg-success-600 hover:text-white transition shadow-sm">
+                                        <i class="fa-solid fa-eye text-xs"></i>
+                                    </a>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="9" class="text-center py-10 text-gray-400 italic bg-gray-50">
+                            <i class="fa-solid fa-inbox block text-2xl mb-2"></i>
+                            Tidak ada data absensi ditemukan
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    @if ($showExportModal)
+        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div class="bg-white w-full max-w-md rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+                <div class="bg-success-700 p-4 text-white">
+                    <h2 class="text-lg font-bold">Export Laporan Pegawai</h2>
+                </div>
+                <div class="p-6">
+                    <div class="max-h-60 overflow-y-auto border border-gray-100 rounded-lg p-3 bg-gray-50 mb-4">
+                        @foreach ($allUsers as $id => $name)
+                            <label class="flex items-center gap-3 p-2 hover:bg-white rounded cursor-pointer transition">
+                                <input type="checkbox" wire:model="exportSelectedUsers" value="{{ $id }}"
+                                    class="w-4 h-4 text-success-600 border-gray-300 rounded focus:ring-success-500 accent-success-700">
+                                <span class="text-sm text-gray-700">{{ $name }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-end gap-2">
+                        <button wire:click="toggleSelectAll" class="text-sm font-medium text-blue-600 hover:text-blue-800 px-3">
+                            Pilih Semua
+                        </button>
+                        <div class="flex gap-2">
+                            <button wire:click="$set('showExportModal', false)"
+                                class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-semibold transition">
+                                Batal
+                            </button>
+                            <button wire:click="exportSelected"
+                                class="px-4 py-2 rounded-lg bg-success-600 hover:bg-success-700 text-white text-sm font-semibold transition shadow-md">
+                                Export
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+</div>

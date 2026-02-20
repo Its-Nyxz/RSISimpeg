@@ -303,6 +303,7 @@ class AktivitasAbsensi extends Component
                 'id' => implode(',', $idList),
                 'hari' => Carbon::parse($date)->locale('id')->isoFormat('dddd'),
                 'tanggal' => Carbon::parse($date)->translatedFormat('d F Y'),
+                'nama_shift' => $shift->nama_shift,
                 'real_masuk' => implode('<br>', $jamMasukList) ?: '-',   // ✅ dari time_in
                 'real_selesai' => implode('<br>', $jamKeluarList) ?: '-', // ✅ dari time_out
                 'jam_kerja' => implode('<br>', $jamKerjaList),
@@ -311,7 +312,7 @@ class AktivitasAbsensi extends Component
                 'laporan_kerja' => implode('<br>', $laporanKerjaList) ?: '-',
                 'laporan_lembur' => implode('<br>', $laporanLemburList) ?: '-',
                 'feedback' => implode('<br>', $feedbackList) ?: '-',
-                'is_holiday' => $this->isHoliday($date),
+                'is_holiday' => $this->isHoliday($date, $shift->nama_shift),
                 'is_lembur' => $isLembur,
                 'is_dinas' => $isDinas,
                 'late' => $isLate,
@@ -333,13 +334,14 @@ class AktivitasAbsensi extends Component
             'id' => null,
             'hari' => Carbon::parse($date)->locale('id')->isoFormat('dddd'),
             'tanggal' => Carbon::parse($date)->translatedFormat('d F Y'),
+            'nama_shift' => null,
             'jam_kerja' => '00:00:00',
             'jam_lembur' => '00:00:00',
             'rencana_kerja' => '-',
             'laporan_kerja' => '-',
             'laporan_lembur' => '-',
             'feedback' => '-',
-            'is_holiday' => $this->isHoliday($date),
+            'is_holiday' => $this->isHoliday($date, null),
             'is_lembur' => false,
             'is_dinas' => false,
             'late' => false,
@@ -349,12 +351,12 @@ class AktivitasAbsensi extends Component
     }
 
     // Fungsi untuk menandai tanggal merah (libur nasional atau Minggu)
-    public function isHoliday($date)
+    public function isHoliday($date, $shift_name)
     {
         $carbonDate = Carbon::parse($date);
 
         // Tandai merah jika hari Minggu
-        if ($carbonDate->isSunday()) {
+        if ($carbonDate->isSunday() || $shift_name == "L") {
             return true;
         }
 
