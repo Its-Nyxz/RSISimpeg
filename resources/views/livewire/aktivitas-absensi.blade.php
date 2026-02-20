@@ -204,7 +204,7 @@
                             <td class="px-3 py-2 sm:px-6 sm:py-4 whitespace-nowrap">{{ $item['tanggal'] }}</td>
                             <td class="px-3 py-2 sm:px-6 sm:py-4 whitespace-nowrap">{!! $item['jam_kerja'] !!}</td>
                             <td class="px-3 py-2 sm:px-6 sm:py-4 text-left">{!! $item['rencana_kerja'] !!}</td>
-                            <td class="px-3 py-2 sm:px-6 sm:py-4 text-left">{!! $item['laporan_kerja'] !!}</td>
+                            <td class="px-3 py-2 sm:px-6 sm:py-4 text-left">{!! $item['nama_shift'] == "L" ? "Libur" : $item['laporan_kerja'] !!}</td>
                             <td class="px-3 py-2 sm:px-6 sm:py-4 whitespace-nowrap">{!! $item['jam_lembur'] !!}</td>
                             <td class="px-3 py-2 sm:px-6 sm:py-4 text-left">{!! $item['laporan_lembur'] !!}</td>
                             <td class="px-3 py-2 sm:px-6 sm:py-4 text-left">{!! $item['feedback'] !!}</td>
