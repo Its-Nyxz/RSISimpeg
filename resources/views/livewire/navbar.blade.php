@@ -1,52 +1,55 @@
-<header class="z-40 sm:z-50 fixed w-full">
-    <nav class="bg-gradient-to-r from-yellow-300 via-green-500 to-green-700 text-white px-3 sm:px-4 py-3 sm:py-4 shadow-xl transition-all duration-300">
-        <div class="flex justify-between items-center mx-1 sm:mx-3">
-            <!-- Kiri: Sidebar toggle + Logo -->
-            <div class="flex items-center gap-2 sm:gap-0">
+<header class="z-40 sm:z-50 fixed w-full shadow-lg">
+    <nav class="bg-gradient-to-r from-yellow-300 via-green-500 to-green-700 text-white px-2 sm:px-4 py-2.5 sm:py-4 transition-all duration-300">
+        <div class="flex justify-between items-center max-w-full mx-auto">
+            
+            <div class="flex items-center min-w-0 flex-shrink">
                 <button data-drawer-target="default-sidebar" data-drawer-toggle="default-sidebar"
                     aria-controls="default-sidebar" type="button"
-                    class="inline-flex items-center p-2 text-md hover:text-success-100 me-1 transition duration-100 text-success-950 rounded-lg sm:hidden hover:bg-success-700 focus:outline-none focus:ring-2 focus:ring-gray-200">
+                    class="inline-flex items-center p-2 text-lg text-success-950 rounded-lg sm:hidden hover:bg-success-700 hover:text-white focus:outline-none transition duration-150">
                     <span class="sr-only">Open sidebar</span>
                     <i class="fa-solid fa-bars"></i>
                 </button>
-                <a href="/" class="flex items-center group">
-                    <img src="{{ asset('img/logo.png') }}" class="mr-2 sm:mr-3 h-8 sm:h-9 transition-transform group-hover:scale-105" alt="Logo" />
-                    <span class="self-center text-sm sm:text-xl font-bold whitespace-nowrap text-zinc-950 flex flex-col sm:block leading-tight">
-                        <span>SIMPEG</span>
-                        <span class="font-medium sm:ml-1">RSI BANJARNEGARA</span>
-                    </span>
+                
+                <a href="/" class="flex items-center group min-w-0">
+                    <img src="{{ asset('img/logo.png') }}" class="mr-2 h-7 sm:h-9 transition-transform group-hover:scale-105 flex-shrink-0" alt="Logo" />
+                    <div class="flex flex-col sm:flex-row sm:items-baseline leading-none sm:leading-tight overflow-hidden">
+                        <span class="text-xs sm:text-xl font-extrabold text-zinc-950 tracking-tight">SIMPEG</span>
+                        <span class="text-[10px] sm:text-lg font-medium text-zinc-900 sm:ml-1 truncate">RSI BANJARNEGARA</span>
+                    </div>
                 </a>
             </div>
 
-            <!-- Kanan: Mobile & Desktop -->
-            <div class="flex items-center space-x-2 sm:space-x-3">
-                <!-- ✅ Nama dan Foto Profil -->
-                <div class="flex items-center">
-                    <span class="hidden md:block font-medium text-white me-2 capitalize text-sm sm:text-base">
+            <div class="flex items-center gap-1.5 sm:gap-3 ml-2 flex-shrink-0">
+                
+                <div class="hidden lg:flex items-center border-r border-white/20 pr-3 mr-1">
+                    <span class="font-semibold text-white capitalize text-sm truncate max-w-[150px]">
                         {{ auth()->user()->name }}
                     </span>
-                    <a href="{{ route('userprofile.index') }}"
-                        class="text-white bg-success-950 rounded-full hover:bg-gray-100 transition duration-150 hover:text-success-950 p-1 flex-shrink-0">
-                        {!! auth()->user()->photo
-                            ? '<img src="' .
-                                asset('storage/photos/' . auth()->user()->photo) .
-                                '" alt="Profile" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover border border-gray-300">'
-                            : '<div class="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-gray-200 rounded-full border border-gray-300 text-gray-500"><i class="fa-solid fa-user text-xs sm:text-sm"></i></div>' !!}
-                    </a>
                 </div>
 
-                <!-- ✅ Notifikasi -->
-                <div class="relative inline-block">
+                <a href="{{ route('userprofile.index') }}"
+                    class="text-white bg-success-950 rounded-full hover:bg-white hover:text-success-950 transition-all duration-200 p-0.5 sm:p-1 flex-shrink-0 shadow-md">
+                    @if(auth()->user()->photo)
+                        <img src="{{ asset('storage/photos/' . auth()->user()->photo) }}" 
+                             alt="Profile" 
+                             class="w-7 h-7 sm:w-9 sm:h-9 rounded-full object-cover border border-white/50">
+                    @else
+                        <div class="w-7 h-7 sm:w-9 sm:h-9 flex items-center justify-center bg-success-800 rounded-full border border-white/50 text-white">
+                            <i class="fa-solid fa-user text-[10px] sm:text-sm"></i>
+                        </div>
+                    @endif
+                </a>
+
+                <div class="relative flex-shrink-0">
                     <livewire:notification />
                 </div>
 
-                <!-- ✅ Logout -->
                 <a href="{{ route('logout') }}"
-                    class="text-white bg-success-950 rounded-full hover:bg-gray-100 hover:text-success-950 px-2 py-1.5 sm:px-3 sm:py-2 transition-colors duration-200">
+                    title="Logout"
+                    class="text-white bg-success-950 rounded-full hover:bg-red-500 hover:text-white px-2.5 py-2.5 sm:px-3.5 sm:py-2.5 transition-all duration-200 shadow-md flex items-center justify-center">
                     <i class="fa-solid fa-arrow-right-from-bracket text-xs sm:text-base"></i>
                 </a>
             </div>
         </div>
     </nav>
 </header>
-

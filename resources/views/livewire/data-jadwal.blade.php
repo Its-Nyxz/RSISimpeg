@@ -73,8 +73,7 @@
                 {{-- Tombol Download Template --}}
                 @can('template-jadwal')
                     @php
-                        $canSelectUnit =
-                            auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->id == 87;
+                        $canSelectUnit = auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->id == 87;
                         $unitId = $canSelectUnit ? $selectedUnit : auth()->user()->unit_id;
                     @endphp
 
@@ -88,6 +87,8 @@
                         <i class="fas fa-download mr-2"></i> <span>Template</span>
                     </a>
                 @endcan
+
+
 
                 {{-- Tombol Import Excel --}}
                 @can('import-jadwal')
@@ -110,8 +111,8 @@
 
                             <div wire:loading wire:target="file">
                                 <div class="w-full bg-gray-200 rounded-full h-2">
-                                    <div class="bg-success-500 h-2 rounded-full"
-                                        style="width: 0%;" x-data="{ progress: 0 }" x-init="$watch('progress', value => {
+                                    <div class="bg-success-500 h-2 rounded-full" style="width: 0%;" x-data="{ progress: 0 }"
+                                        x-init="$watch('progress', value => {
                                             setInterval(() => {
                                                 if (progress < 100) progress += 10;
                                             }, 200);
@@ -127,6 +128,29 @@
                         </div>
                     @endif
                 @endcan
+
+
+                @php
+                    $canSelectUnit = auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->id == 87;
+                    $unitId = $canSelectUnit ? $selectedUnit : auth()->user()->unit_id;
+                @endphp
+
+                @if ($canSelectUnit)
+                    <button wire:click="export" wire:loading.attr="disabled"
+                        class="w-full sm:w-auto flex items-center justify-center text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-4 py-2 transition shadow-sm">
+                        <i class="fas fa-file-export mr-2" wire:loading.remove wire:target="export"></i>
+                        <svg wire:loading wire:target="export" class="animate-spin h-4 w-4 mr-2 text-current"
+                            fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                        <span>Export</span>
+                    </button>
+                @endif
+
                 {{-- Tombol Tambah Jadwal --}}
                 @can('tambah-jadwal')
                     <a href="{{ route('jadwal.create') }}"
@@ -140,7 +164,7 @@
 
     @error('file')
         <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50" role="alert">
-             <span class="font-medium">Error!</span> {{ $message }}
+            <span class="font-medium">Error!</span> {{ $message }}
         </div>
     @enderror
 
@@ -148,12 +172,22 @@
         <table class="w-full text-xs sm:text-sm text-left text-gray-700 border-separate border-spacing-0">
             <thead class="text-xs sm:text-sm uppercase bg-success-400 text-success-900 sticky top-0 z-30 shadow-md">
                 <tr>
-                    <th class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap bg-success-400 border-b border-success-500">No</th>
-                    <th class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap sticky left-0 z-40 bg-success-400 border-r border-b border-success-500 min-w-[120px] sm:min-w-[150px] shadow-sm">Nama</th>
-                    <th class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap border-b border-success-500 hidden md:table-cell">Pendidikan</th>
-                    <th class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap text-center border-b border-success-500">PJ</th> <!-- Pindahkan ke sini -->
-                    <th class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap border-b border-success-500 hidden lg:table-cell">Tanggal Masuk</th>
-                    <th class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap border-b border-success-500 hidden md:table-cell">Lama Kerja</th>
+                    <th class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap bg-success-400 border-b border-success-500">
+                        No</th>
+                    <th
+                        class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap sticky left-0 z-40 bg-success-400 border-r border-b border-success-500 min-w-[120px] sm:min-w-[150px] shadow-sm">
+                        Nama</th>
+                    <th
+                        class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap border-b border-success-500 hidden md:table-cell">
+                        Pendidikan</th>
+                    <th class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap text-center border-b border-success-500">PJ
+                    </th> <!-- Pindahkan ke sini -->
+                    <th
+                        class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap border-b border-success-500 hidden lg:table-cell">
+                        Tanggal Masuk</th>
+                    <th
+                        class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap border-b border-success-500 hidden md:table-cell">
+                        Lama Kerja</th>
                     @foreach ($tanggalJadwal as $tanggal)
                         @php
                             $carbonDate = \Carbon\Carbon::parse($tanggal);
@@ -167,19 +201,24 @@
                         </th>
                     @endforeach
                     @can('edit-jadwal')
-                        <th class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap bg-success-400 sticky right-0 z-40 border-l border-b border-success-500 shadow-sm">Aksi</th>
+                        <th
+                            class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap bg-success-400 sticky right-0 z-40 border-l border-b border-success-500 shadow-sm">
+                            Aksi</th>
                     @endcan
                 </tr>
             </thead>
 
             <tbody>
                 @foreach ($jadwals as $user_id => $jadwalUser)
-                    <tr class="odd:bg-white even:bg-gray-50 border-b border-gray-200 hover:bg-success-50 transition duration-150">
+                    <tr
+                        class="odd:bg-white even:bg-gray-50 border-b border-gray-200 hover:bg-success-50 transition duration-150">
                         <td class="px-2 py-2 sm:px-4 sm:py-3 font-medium text-gray-900 whitespace-nowrap text-center">
                             {{ $loop->iteration }}
                         </td>
-                        <td class="px-2 py-2 sm:px-4 sm:py-3 font-medium text-gray-900 whitespace-nowrap sticky left-0 z-20 bg-inherit border-r border-gray-200 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] min-w-[120px] sm:min-w-[150px]">
-                            <div class="truncate max-w-[120px] sm:max-w-none" title="{{ optional(optional($jadwalUser)->first())->user->name ?? '-' }}">
+                        <td
+                            class="px-2 py-2 sm:px-4 sm:py-3 font-medium text-gray-900 whitespace-nowrap sticky left-0 z-20 bg-inherit border-r border-gray-200 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] min-w-[120px] sm:min-w-[150px]">
+                            <div class="truncate max-w-[120px] sm:max-w-none"
+                                title="{{ optional(optional($jadwalUser)->first())->user->name ?? '-' }}">
                                 {{ optional(optional($jadwalUser)->first())->user->name ?? '-' }}
                             </div>
                         </td>
@@ -196,8 +235,9 @@
                                     ->where('is_pj', true)
                                     ->exists();
                             @endphp
-                            @if($isPJ)
-                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">Iya</span>
+                            @if ($isPJ)
+                                <span
+                                    class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">Iya</span>
                             @else
                                 -
                             @endif
@@ -269,13 +309,15 @@
         </table>
     </div>
     @if ($showModalShift)
-        <div class="fixed inset-0 bg-gray-900 bg-opacity-75 flex justify-center items-center z-50 p-4 backdrop-blur-sm">
-            <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col transform transition-all scale-100">
+        <div
+            class="fixed inset-0 bg-gray-900 bg-opacity-75 flex justify-center items-center z-50 p-4 backdrop-blur-sm">
+            <div
+                class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col transform transition-all scale-100">
                 <div class="p-4 sm:p-6 border-b flex justify-between items-center bg-gray-50 rounded-t-xl">
-                     <h2 class="text-lg font-bold text-gray-800">Keterangan Shift per Unit</h2>
-                     <button wire:click="closeShiftModal" class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                    <h2 class="text-lg font-bold text-gray-800">Keterangan Shift per Unit</h2>
+                    <button wire:click="closeShiftModal" class="text-gray-400 hover:text-gray-600 focus:outline-none">
                         <i class="fa-solid fa-times text-xl"></i>
-                     </button>
+                    </button>
                 </div>
 
                 <div class="overflow-y-auto p-4 sm:p-6 flex-1">
@@ -293,7 +335,9 @@
                                 @foreach ($dataShifts as $shift)
                                     <tr class="hover:bg-gray-50">
                                         <td class="p-2 sm:p-3 text-gray-800">{{ $shift->unitKerja->nama ?? '-' }}</td>
-                                        <td class="p-2 sm:p-3 text-center font-bold text-success-700 bg-success-50 rounded">{{ $shift->nama_shift }}</td>
+                                        <td
+                                            class="p-2 sm:p-3 text-center font-bold text-success-700 bg-success-50 rounded">
+                                            {{ $shift->nama_shift }}</td>
                                         <td class="p-2 sm:p-3 text-center text-gray-600">{{ $shift->jam_masuk }}</td>
                                         <td class="p-2 sm:p-3 text-center text-gray-600">{{ $shift->jam_keluar }}</td>
                                     </tr>
@@ -313,8 +357,10 @@
         </div>
     @endif
     @if ($showModalDetailShift)
-        <div class="fixed inset-0 z-50 bg-gray-900 bg-opacity-80 flex items-center justify-center p-4 backdrop-blur-sm">
-            <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm sm:max-w-md relative overflow-hidden transform transition-all scale-100 flex flex-col max-h-[90vh]">
+        <div
+            class="fixed inset-0 z-50 bg-gray-900 bg-opacity-80 flex items-center justify-center p-4 backdrop-blur-sm">
+            <div
+                class="bg-white rounded-xl shadow-2xl w-full max-w-sm sm:max-w-md relative overflow-hidden transform transition-all scale-100 flex flex-col max-h-[90vh]">
 
                 <!-- Header -->
                 <div class="bg-success-600 p-4 sm:p-6 text-white text-center">
@@ -327,16 +373,18 @@
                     <div class="space-y-4">
                         <div class="flex justify-between items-center border-b border-gray-100 pb-3">
                             <span class="text-gray-500 text-sm">Nama Shift</span>
-                            <span class="font-bold text-gray-900 text-lg bg-gray-100 px-3 py-1 rounded-full">{{ $shiftNama }}</span>
+                            <span
+                                class="font-bold text-gray-900 text-lg bg-gray-100 px-3 py-1 rounded-full">{{ $shiftNama }}</span>
                         </div>
                         <div class="flex justify-between items-center border-b border-gray-100 pb-3">
                             <span class="text-gray-500 text-sm">Jam Operasional</span>
-                            <span class="font-medium text-gray-800 font-mono">{{ $shiftJamMasuk }} - {{ $shiftJamKeluar }}</span>
+                            <span class="font-medium text-gray-800 font-mono">{{ $shiftJamMasuk }} -
+                                {{ $shiftJamKeluar }}</span>
                         </div>
                         <div>
                             <span class="text-gray-500 text-sm block mb-2">Keterangan</span>
                             <div class="bg-gray-50 p-3 rounded-lg text-gray-700 italic text-sm border border-gray-200">
-                                @if($shiftKeterangan && $shiftKeterangan !== 'null')
+                                @if ($shiftKeterangan && $shiftKeterangan !== 'null')
                                     {{ $shiftKeterangan }}
                                 @else
                                     <span class="text-gray-400">Tidak ada keterangan</span>
@@ -347,17 +395,20 @@
 
                     @can('edit-jadwal')
                         <div class="mt-8 border-t border-gray-200 pt-6">
-                            <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-4">Ubah / Hapus Shift</h3>
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-gray-500 mb-4">Ubah / Hapus Shift
+                            </h3>
 
                             <div class="space-y-4">
                                 <div>
-                                    <label for="selectedShiftId" class="block text-xs font-medium text-gray-700 mb-1">Ganti dengan Shift:</label>
+                                    <label for="selectedShiftId"
+                                        class="block text-xs font-medium text-gray-700 mb-1">Ganti dengan Shift:</label>
                                     <select wire:model="selectedShiftId" id="selectedShiftId"
                                         class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-success-500 focus:border-success-500 outline-none transition shadow-sm bg-white">
                                         <option value="">-- Pilih Shift Baru --</option>
                                         @foreach ($dataShifts as $shift)
                                             <option value="{{ $shift->id }}">
-                                                {{ $shift->nama_shift }} ({{ $shift->jam_masuk }} - {{ $shift->jam_keluar }})
+                                                {{ $shift->nama_shift }} ({{ $shift->jam_masuk }} -
+                                                {{ $shift->jam_keluar }})
                                             </option>
                                         @endforeach
                                     </select>
