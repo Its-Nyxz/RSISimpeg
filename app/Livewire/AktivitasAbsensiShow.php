@@ -16,6 +16,10 @@ class AktivitasAbsensiShow extends Component
     public $realKeluarFormatted;
     public $isLembur = false;
     public $lemburFormatted = '-';
+
+    public $lemburMasukFormatted;
+
+    public $lembutKeluarFormatted;
     public $keteranganDinas = null;
 
     public function mount($absen)
@@ -54,6 +58,8 @@ class AktivitasAbsensiShow extends Component
         if ($absensiSemua->isNotEmpty()) {
             $this->isLembur = true;
             $totalLemburDetik = 0;
+            $firstLemburIn = null;
+            $lastLemburOut = null;
 
             foreach ($absensiSemua as $rowLembur) {
                 $lemburIn = Carbon::parse($rowLembur->time_in);
@@ -61,10 +67,20 @@ class AktivitasAbsensiShow extends Component
 
                 if ($lemburIn && $lemburOut) {
                     $totalLemburDetik += $lemburIn->diffInSeconds($lemburOut);
+                    
+                    // Ambil jam masuk lembur pertama
+                    if ($firstLemburIn === null) {
+                        $firstLemburIn = $lemburIn;
+                    }
+                    
+                    // Ambil jam keluar lembur terakhir
+                    $lastLemburOut = $lemburOut;
                 }
             }
 
             $this->lemburFormatted = gmdate('H:i:s', $totalLemburDetik);
+            $this->lemburMasukFormatted = $firstLemburIn ? $firstLemburIn->format('H:i:s') : '-';
+            $this->lembutKeluarFormatted = $lastLemburOut ? $lastLemburOut->format('H:i:s') : '-';
         }
 
         $dinasLuar = Absen::where('user_id', $absen->user_id)
@@ -87,6 +103,8 @@ class AktivitasAbsensiShow extends Component
             'realMasukFormatted' => $this->realMasukFormatted,
             'realKeluarFormatted' => $this->realKeluarFormatted,
             'isLembur' => $this->isLembur,
+            'lemburMasukFormatted' => $this->lemburMasukFormatted,
+            'lembutKeluarFormatted' => $this->lembutKeluarFormatted,
             'lemburFormatted' => $this->lemburFormatted,
         ]);
 
