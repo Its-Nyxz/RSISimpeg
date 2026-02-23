@@ -1,337 +1,173 @@
-<div class="space-y-6 mb-5">
-    <!-- Header -->
-    <div class="flex justify-between items-center">
+<div class="space-y-6 mb-5 px-2 sm:px-0">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div class="flex items-center space-x-3">
-            <i class="fa-solid fa-gear text-3xl text-gray-700"></i>
-            <h1 class="text-2xl font-bold text-success-900">Settings</h1>
+            <i class="fa-solid fa-gear text-2xl sm:text-3xl text-gray-700"></i>
+            <h1 class="text-xl sm:text-2xl font-bold text-success-900">Settings</h1>
         </div>
 
-        <!-- Kotak No. KTP -->
-        <div class="bg-success-600 text-white text-sm font-bold px-4 py-2 rounded-lg">
-            {{ $userprofile->nip ?? '-' }}
+        <div class="w-full sm:w-auto bg-success-600 text-white text-sm font-bold px-4 py-2 rounded-lg text-center">
+            <span class="sm:hidden">NIP: </span>{{ $userprofile->nip ?? '-' }}
         </div>
     </div>
 
-    <div class="grid md:grid-cols-2 gap-6">
-        <!-- Profile Card -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <x-card :title="'Profile'">
-            <div class="flex items-center space-x-6">
-                <!-- Foto Profile -->
-                <div class="w-32 h-32 flex-shrink-0 overflow-hidden rounded-full border-2 border-gray-300">
+            <div class="flex flex-col lg:flex-row items-center lg:items-start space-y-4 lg:space-y-0 lg:space-x-6">
+                <div class="w-28 h-28 sm:w-32 sm:h-32 flex-shrink-0 overflow-hidden rounded-full border-2 border-gray-300">
                     {!! $userprofile->photo
-                        ? '<img src="' .
-                            asset('storage/photos/' . $userprofile->photo) .
-                            '" 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     alt="User Profile" 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     class="w-full h-full object-cover">'
-                        : '<div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <i class="fa-solid fa-user text-5xl"></i>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               </div>' !!}
+                        ? '<img src="' . asset('storage/photos/' . $userprofile->photo) . '" class="w-full h-full object-cover">'
+                        : '<div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-500"><i class="fa-solid fa-user text-4xl sm:text-5xl"></i></div>' 
+                    !!}
                 </div>
 
-                <!-- Data Profile -->
-                <div class="text-sm text-gray-700 space-y-3 flex-1">
-                    <div class="grid grid-cols-2">
-                        <div class="font-semibold">Nama</div>
-                        <div>: {{ $userprofile->name }}</div>
+                <div class="text-sm text-gray-700 space-y-3 w-full">
+                    @php
+                        $profileData = [
+                            'Nama' => $userprofile->name,
+                            'TTL' => ($userprofile->tempat ?? '-') . ', ' . ($userprofile->tanggal_lahir ? formatDate($userprofile->tanggal_lahir) : '-'),
+                            'No. KTP' => $userprofile->no_ktp,
+                            'No. HP' => $userprofile->no_hp,
+                            'No. Rekening' => $userprofile->no_rek,
+                            'Pendidikan' => $userprofile->pendidikanUser->deskripsi ?? '-',
+                            'Instansi' => $userprofile->institusi,
+                            'Struktural' => $userprofile->kategorijabatan->nama ?? '-',
+                            'Fungsional' => $userprofile->kategorifungsional->nama ?? '-',
+                            'Gender' => $userprofile->jk === null ? '-' : ($userprofile->jk == 1 ? 'Laki-Laki' : 'Perempuan'),
+                            'Alamat' => $userprofile->alamat,
+                        ];
+                    @endphp
+
+                    @foreach ($profileData as $label => $value)
+                    <div class="grid grid-cols-12 border-b border-gray-50 pb-1">
+                        <div class="col-span-5 font-semibold">{{ $label }}</div>
+                        <div class="col-span-7 text-right sm:text-left">: {{ $value }}</div>
                     </div>
-                    <div class="grid grid-cols-2">
-                        <div class="font-semibold">Tempat, Tanggal Lahir</div>
-                        <div>: {{ $userprofile->tempat ?? '-' }},
-                            {{ $userprofile->tanggal_lahir ? formatDate($userprofile->tanggal_lahir) : '-' }}
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2">
-                        <div class="font-semibold">No. KTP</div>
-                        <div>: {{ $userprofile->no_ktp }}</div>
-                    </div>
-                    <div class="grid grid-cols-2">
-                        <div class="font-semibold">No. HP</div>
-                        <div>: {{ $userprofile->no_hp }}</div>
-                    </div>
-                    <div class="grid grid-cols-2">
-                        <div class="font-semibold">No. Rekening</div>
-                        <div>: {{ $userprofile->no_rek }}</div>
-                    </div>
-                    <div class="grid grid-cols-2">
-                        <div class="font-semibold">Kategori Pendidikan</div>
-                        <div>: {{ $userprofile->pendidikanUser->deskripsi ?? '-' }}</div>
-                    </div>
-                    <div class="grid grid-cols-2">
-                        <div class="font-semibold">Pendidikan</div>
-                        <div>: {{ $userprofile->pendidikan ?? '-' }}</div>
-                    </div>
-                    <div class="grid grid-cols-2">
-                        <div class="font-semibold">Institusi</div>
-                        <div>: {{ $userprofile->institusi }}</div>
-                    </div>
-                    <div class="grid grid-cols-2">
-                        <div class="font-semibold">Jabatan Struktural</div>
-                        <div>: {{ $userprofile->kategorijabatan->nama ?? '-' }}</div>
-                    </div>
-                    <div class="grid grid-cols-2">
-                        <div class="font-semibold">Jabatan Fungsional</div>
-                        <div>: {{ $userprofile->kategorifungsional->nama ?? '-' }}</div>
-                    </div>
-                    <div class="grid grid-cols-2">
-                        <div class="font-semibold">Jenis Kelamin</div>
-                        <div>:
-                            {{ $userprofile->jk === null ? '-' : ($userprofile->jk == 1 ? 'Laki-Laki' : 'Perempuan') }}
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2">
-                        <div class="font-semibold">Alamat</div>
-                        <div>: {{ $userprofile->alamat }}</div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
 
-            <!-- Tombol Edit Profile -->
-            <div class="mt-4">
+            <div class="mt-6">
                 <a href="{{ route('userprofile.editprofile') }}"
-                    class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                    class="block text-center sm:inline-block text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
                     Edit Profile
                 </a>
             </div>
         </x-card>
 
-        <!-- Login & Security Card -->
         <x-card :title="'Login dan Keamanan'">
-            <div class="text-sm text-gray-700 space-y-3">
-                <div class="flex items-center justify-between">
-                    <p><strong>NIP :</strong>
-                        @if ($showNip)
-                            {{ $userprofile->nip ?? '-' }}
-                        @else
-                            ••••••••
-                        @endif
-                    </p>
-                    <button wire:click="toggleNip"
-                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                        <i class="{{ $showNip ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash' }}"></i>
-                    </button>
-                </div>
-                <div class="flex items-center justify-between">
-                    <p><strong>No. WhatsApp :</strong> {{ $userprofile->no_hp ?? '-' }}</p>
-                    <a href="{{ route('userprofile.editnomor') }}"
-                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                        <i class="fa-solid fa-pen"></i>
-                    </a>
-                </div>
+            <div class="text-sm text-gray-700 space-y-4">
+                @php
+                    $securityItems = [
+                        ['label' => 'NIP', 'value' => $showNip ? ($userprofile->nip ?? '-') : '••••••••', 'route' => null, 'type' => 'toggle'],
+                        ['label' => 'WhatsApp', 'value' => $userprofile->no_hp ?? '-', 'route' => 'userprofile.editnomor'],
+                        ['label' => 'Email', 'value' => $userprofile->email ?? '-', 'route' => 'userprofile.editemail'],
+                        ['label' => 'Username', 'value' => $userprofile->username ?? '-', 'route' => 'userprofile.editusername'],
+                    ];
+                @endphp
 
-                <div class="flex items-center justify-between">
-                    <p><strong>Email :</strong> {{ $userprofile->email ?? '-' }}</p>
-                    <a href="{{ route('userprofile.editemail') }}"
-                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                        <i class="fa-solid fa-pen"></i>
-                    </a>
-                </div>
-
-                <div class="flex items-center justify-between">
-                    <p><strong>Username :</strong> {{ $userprofile->username ?? '-' }}</p>
-                    <a href="{{ route('userprofile.editusername') }}"
-                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                        <i class="fa-solid fa-pen"></i>
-                    </a>
-                </div>
-
-                @if (!$userprofile->hasRole('Super Admin'))
-                    <div class="flex items-center justify-between">
-                        <p><strong>Password :</strong> ************</p>
-                        <a href="{{ route('userprofile.editpassword') }}"
-                            class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
+                @foreach ($securityItems as $item)
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3">
+                    <div class="break-all">
+                        <p class="text-xs text-gray-500 uppercase font-bold">{{ $item['label'] }}</p>
+                        <p class="text-sm font-medium">{{ $item['value'] }}</p>
+                    </div>
+                    @if($item['type'] ?? '' === 'toggle')
+                        <button wire:click="toggleNip" class="w-full sm:w-auto flex justify-center text-success-900 bg-success-50 p-2 rounded-lg hover:bg-success-600 hover:text-white transition">
+                            <i class="{{ $showNip ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash' }}"></i>
+                        </button>
+                    @elseif($item['route'])
+                        <a href="{{ route($item['route']) }}" class="w-full sm:w-auto flex justify-center text-success-900 bg-success-50 p-2 rounded-lg hover:bg-success-600 hover:text-white transition">
                             <i class="fa-solid fa-pen"></i>
                         </a>
+                    @endif
+                </div>
+                @endforeach
+
+                @if (!$userprofile->hasRole('Super Admin'))
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3">
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase font-bold">Password</p>
+                        <p class="text-sm font-medium">************</p>
                     </div>
+                    <a href="{{ route('userprofile.editpassword') }}" class="w-full sm:w-auto flex justify-center text-success-900 bg-success-50 p-2 rounded-lg hover:bg-success-600 hover:text-white transition">
+                        <i class="fa-solid fa-pen"></i>
+                    </a>
+                </div>
                 @endif
 
-                <div class="flex items-center justify-between">
-                    <p><strong>Hak Akses :</strong> {{ Auth::user()->roles->first()->name ?? '-' }}</p>
-                    <a href="#"
-                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                        <i class="fa-solid fa-minus"></i>
-                    </a>
-                </div>
-                <div class="flex items-center justify-between">
-                    <p><strong>Dokumen :</strong></p>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-4">
                     <a href="{{ route('userprofile.upload') }}"
-                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                        Upload Dokumen
+                        class="block text-center w-full bg-success-600 text-white font-medium rounded-lg text-sm px-5 py-2.5 hover:bg-success-700 transition">
+                        Upload Dokumen pendukung
                     </a>
                 </div>
-
             </div>
         </x-card>
     </div>
 
-    @php
-        // $roles = ['Super Admin', 'Kepala Seksi Kepegawaian', 'Staf Seksi Kepegawaian', 'Administrator'];
-         $roles = [1, 2, 14, 12];
-    @endphp
-
-    @if (Auth::user()->hasAnyRole($roles))
-        <div>
+    @if (Auth::user()->hasAnyRole([1, 2, 14, 12]))
+        <div class="mt-6">
             <x-card :title="'Data Users'">
-                <div class="flex justify-end mb-3">
-                    {{-- <h1 class="text-2xl font-bold text-success-900">Data Users</h1> --}}
-                    <div class="flex justify-between items-center gap-4 mb-3">
-                        <div class="flex-1">
-                            <input type="text" wire:keyup="updateSearch($event.target.value)"
-                                placeholder="Cari User..."
-                                class="w-full rounded-lg px-10 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
+                <div class="mb-4">
+                    <div class="relative w-full sm:w-64 ml-auto">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
                         </div>
-                        {{-- <a href="{{ route('users.create') }}"
-                        class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                        + Tambah User
-                    </a> --}}
+                        <input type="text" wire:keyup="updateSearch($event.target.value)"
+                            placeholder="Cari User..."
+                            class="w-full rounded-lg pl-10 pr-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600" />
                     </div>
                 </div>
-                <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-                    <table class="w-full text-sm text-center text-gray-700">
-                        <thead class="text-sm uppercase bg-success-400 text-success-900">
+
+                <div class="relative overflow-x-auto border border-gray-200 rounded-xl">
+                    <table class="w-full text-sm text-left text-gray-700">
+                        <thead class="text-xs uppercase bg-success-400 text-success-900">
                             <tr>
-                                <th scope="col" class="px-6 py-3">Username</th>
-                                <th scope="col" class="px-6 py-3">Nama</th>
-                                <th scope="col" class="px-6 py-3">Email</th>
-                                {{-- <th scope="col" class="px-6 py-3">Password</th> --}}
-                                {{-- <th scope="col" class="px-6 py-3">Jabatan</th> --}}
-                                {{-- <th scope="col" class="px-6 py-3">Unit</th> --}}
-                                <th scope="col" class="px-6 py-3">Action</th>
+                                <th class="px-4 py-3 whitespace-nowrap">Username</th>
+                                <th class="px-4 py-3 whitespace-nowrap">Nama</th>
+                                <th class="px-4 py-3 whitespace-nowrap text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse ($users as $user)
-                                <tr
-                                    class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
-                                    <td class="px-6 py-3">{{ $user->username ?? '-' }}</td>
-                                    <td scope="row" class=" font-medium text-success-900 whitespace-nowrap">
-                                        {{ $user->name }}
-                                    </td>
-                                    <td class="px-6 py-3">{{ $user->email ?? '-' }}</td>
-                                    {{-- <td class="px-6 py-3">{{ $user->password ?? '-' }}</td> --}}
-                                    {{-- <td class="px-6 py-3">{{ $user->kategorijabatan->nama ?? '-' }}</td> --}}
-                                    {{-- <td class="px-6 py-3">{{ $user->unitKerja->nama ?? '-' }}</td> --}}
-                                    <td class="px-6 py-3 flex justify-center items-center gap-2">
-                                        {{-- Edit Email & Password --}}
-                                        <div class="relative">
-                                            <a href="{{ route('users.edit', ['id' => $user->id]) }}"
-                                                class="w-10 h-10 flex items-center justify-center rounded-md bg-blue-100 hover:bg-blue-600 transition"
-                                                data-tooltip-target="tooltip-edit-{{ $user->id }}">
-                                                <i class="fa-solid fa-pen text-blue-900"></i>
+                                <tr class="odd:bg-white even:bg-success-50 border-b hover:bg-success-100 transition">
+                                    <td class="px-4 py-3 font-medium">{{ $user->username ?? '-' }}</td>
+                                    <td class="px-4 py-3 break-words min-w-[150px]">{{ $user->name }}</td>
+                                    <td class="px-4 py-3">
+                                        <div class="flex justify-center items-center gap-2">
+                                            <a href="{{ route('users.edit', $user->id) }}" class="p-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-600 hover:text-white transition">
+                                                <i class="fa-solid fa-pen"></i>
                                             </a>
-                                            <div id="tooltip-edit-{{ $user->id }}" role="tooltip"
-                                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip mt-2 left-1/2 -translate-x-1/2">
-                                                Edit Email & Password
-                                                <div class="tooltip-arrow" data-popper-arrow></div>
-                                            </div>
-                                        </div>
-
-                                        {{-- Reset Password --}}
-                                        <div class="relative">
-                                            <form id="resetPassword-form-{{ $user->id }}"
-                                                action="{{ route('users.resetPassword', $user->id) }}" method="POST"
-                                                style="display: none;">
-                                                @csrf
-                                                @method('PUT')
-                                            </form>
-                                            <a href="javascript:void(0);"
-                                                onclick="confirmAlert('Ingin mereset password menjadi 123?', 'Ya, Yakin!',function() { document.getElementById('resetPassword-form-{{ $user->id }}').submit(); })"
-                                                class="w-10 h-10 flex items-center justify-center rounded-md bg-yellow-100 hover:bg-yellow-500 transition"
-                                                data-tooltip-target="tooltip-reset-{{ $user->id }}">
-                                                <i class="fa-solid fa-rotate-right text-yellow-900"></i>
-                                            </a>
-                                            <div id="tooltip-reset-{{ $user->id }}" role="tooltip"
-                                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip mt-2 left-1/2 -translate-x-1/2">
-                                                Reset Password
-                                                <div class="tooltip-arrow" data-popper-arrow></div>
-                                            </div>
-                                        </div>
-
-                                        {{-- Hapus User --}}
-                                        <div class="relative">
-                                            <form id="delete-form-{{ $user->id }}"
-                                                action="{{ route('users.destroy', $user->id) }}" method="POST"
-                                                style="display: none;">
-                                                @csrf
-                                                @method('DELETE')
-                                            </form>
-                                            <a href="javascript:void(0);"
-                                                onclick="confirmAlert('Ingin menghapus user ini?', 'Ya, Hapus!',function() { document.getElementById('delete-form-{{ $user->id }}').submit(); })"
-                                                class="w-10 h-10 flex items-center justify-center rounded-md bg-red-100 hover:bg-red-500 transition"
-                                                data-tooltip-target="tooltip-delete-{{ $user->id }}">
-                                                <i class="fa-solid fa-trash text-red-900"></i>
-                                            </a>
-                                            <div id="tooltip-delete-{{ $user->id }}" role="tooltip"
-                                                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip mt-2 left-1/2 -translate-x-1/2">
-                                                Hapus User
-                                                <div class="tooltip-arrow" data-popper-arrow></div>
-                                            </div>
+                                            <button onclick="confirmAlert('Reset password jadi 123?', 'Ya!', () => $wire.resetPassword({{ $user->id }}))" class="p-2 bg-yellow-100 text-yellow-700 rounded-md hover:bg-yellow-500 hover:text-white transition">
+                                                <i class="fa-solid fa-rotate-right"></i>
+                                            </button>
+                                            <button onclick="confirmAlert('Hapus user?', 'Ya!', () => $wire.deleteUser({{ $user->id }}))" class="p-2 bg-red-100 text-red-700 rounded-md hover:bg-red-500 hover:text-white transition">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
                                         </div>
                                     </td>
-
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center px-6 py-4">Tidak ada data User.</td>
+                                    <td colspan="3" class="text-center py-10 text-gray-500">Data tidak ditemukan</td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
-                <div class="mt-4 flex gap-2 justify-center items-center">
 
+                <div class="mt-4 flex flex-wrap justify-center gap-2">
+                    {{-- Navigasi pagination disingkat untuk mobile --}}
                     @if (!$users->onFirstPage())
-                        <button wire:click="previousPage" wire:loading.attr="disabled"
-                            class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                            &laquo; Sebelumnya
-                        </button>
+                        <button wire:click="previousPage" class="px-3 py-1 bg-success-100 rounded-md text-xs sm:text-sm">&laquo;</button>
                     @endif
-
-                    @php
-                        $totalPages = $users->lastPage();
-                        $currentPage = $users->currentPage();
-                        $range = 3; // Range around current page
-                    @endphp
-
-                    @if ($currentPage > $range + 1)
-                        <button wire:click="gotoPage(1)"
-                            class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                            1
-                        </button>
-                        @if ($currentPage > $range + 2)
-                            <span class="px-2 py-1 text-gray-500">...</span>
-                        @endif
-                    @endif
-
-                    @for ($page = max($currentPage - $range, 1); $page <= min($currentPage + $range, $totalPages); $page++)
-                        @if ($page == $currentPage)
-                            <span
-                                class="px-2 py-1 bg-success-600 text-white rounded-md text-sm">{{ $page }}</span>
-                        @else
-                            <button wire:click="gotoPage({{ $page }})"
-                                class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                                {{ $page }}
-                            </button>
-                        @endif
-                    @endfor
-
-
-                    @if ($currentPage < $totalPages - $range)
-                        @if ($currentPage < $totalPages - $range - 1)
-                            <span class="px-2 py-1 text-gray-500">...</span>
-                        @endif
-                        <button wire:click="gotoPage({{ $totalPages }})"
-                            class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                            {{ $totalPages }}
-                        </button>
-                    @endif
-
+                    
+                    <span class="px-4 py-1 bg-success-600 text-white rounded-md text-xs sm:text-sm">
+                        Hal {{ $users->currentPage() }} dari {{ $users->lastPage() }}
+                    </span>
 
                     @if ($users->hasMorePages())
-                        <button wire:click="nextPage" wire:loading.attr="disabled"
-                            class="px-2 py-1 bg-success-100 hover:bg-success-600 text-success-900 rounded-md text-sm">
-                            Selanjutnya &raquo;
-                        </button>
+                        <button wire:click="nextPage" class="px-3 py-1 bg-success-100 rounded-md text-xs sm:text-sm">&raquo;</button>
                     @endif
                 </div>
             </x-card>
