@@ -48,7 +48,8 @@
                 </button>
                 {{-- Tombol Dinas Luar --}}
                 <button id="dinasKeluarButton" wire:click="$set('showDinasModal', true)"
-                    class="px-6 py-2 font-bold rounded bg-blue-600 hover:bg-blue-700 text-white">
+                    class="px-6 py-2 font-bold rounded bg-blue-600 hover:bg-blue-700 text-white"
+                    style="display : {{ !$isLemburRunning && !$isRunning ? 'inline-block' : 'none' }}">
                     Dinas Luar
                 </button>
 
