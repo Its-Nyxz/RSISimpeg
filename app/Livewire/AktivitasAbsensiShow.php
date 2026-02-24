@@ -19,7 +19,7 @@ class AktivitasAbsensiShow extends Component
 
     public $lemburMasukFormatted;
 
-    public $lembutKeluarFormatted;
+    public $lemburKeluarFormatted;
     public $keteranganDinas = null;
 
     public function mount($absen)
@@ -62,8 +62,8 @@ class AktivitasAbsensiShow extends Component
             $lastLemburOut = null;
 
             foreach ($absensiSemua as $rowLembur) {
-                $lemburIn = Carbon::parse($rowLembur->time_in);
-                $lemburOut = Carbon::parse($rowLembur->time_out);
+                $lemburIn = Carbon::parse($rowLembur->time_in)->timezone('Asia/Jakarta');
+                $lemburOut = Carbon::parse($rowLembur->time_out)->timezone('Asia/Jakarta');
 
                 if ($lemburIn && $lemburOut) {
                     $totalLemburDetik += $lemburIn->diffInSeconds($lemburOut);
@@ -80,7 +80,7 @@ class AktivitasAbsensiShow extends Component
 
             $this->lemburFormatted = gmdate('H:i:s', $totalLemburDetik);
             $this->lemburMasukFormatted = $firstLemburIn ? $firstLemburIn->format('H:i:s') : '-';
-            $this->lembutKeluarFormatted = $lastLemburOut ? $lastLemburOut->format('H:i:s') : '-';
+            $this->lemburKeluarFormatted = $lastLemburOut ? $lastLemburOut->format('H:i:s') : '-';
         }
 
         $dinasLuar = Absen::where('user_id', $absen->user_id)
