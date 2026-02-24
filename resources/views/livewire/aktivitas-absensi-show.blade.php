@@ -64,6 +64,7 @@
                             <div class="mb-4"><strong>Real Time Jam Masuk Lembur</strong> : {{ $lemburMasukFormatted }}</div>
                             <div class="mb-4"><strong>Real Time Jam Keluar Lembur</strong> : {{ $lemburKeluarFormatted }}</div>
                             <div class="mb-4"><strong>Durasi Lembur</strong> : {{ $lemburFormatted }}</div>
+                            <div class="mb-4"><strong>Deskripsi Lembur</strong> : {{ $absen->deskripsi_lembur}}</div>
                         @endif
                         <div class="mb-4"><strong>Feedback</strong> :
                             {{ $absen->feedback ?? '-' }}</div>
