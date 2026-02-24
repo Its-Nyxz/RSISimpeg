@@ -55,9 +55,16 @@
                         </div>
                         <div class="mb-4"><strong>Laporan Kerja</strong> :
                             {{ $absen->deskripsi_out ?? '-' }}</div>
+                        
+                        <!-- Divider Jam Kerja Biasa -->
+                        <hr class="my-4 border-t-2 border-success-300">
+                        
                         <div class="mb-4"><strong>Status Lembur</strong> : {{ $isLembur ? 'Ya' : 'Tidak' }}</div>
                         @if ($isLembur)
+                            <div class="mb-4"><strong>Real Time Jam Masuk Lembur</strong> : {{ $lemburMasukFormatted }}</div>
+                            <div class="mb-4"><strong>Real Time Jam Keluar Lembur</strong> : {{ $lemburKeluarFormatted }}</div>
                             <div class="mb-4"><strong>Durasi Lembur</strong> : {{ $lemburFormatted }}</div>
+                            <div class="mb-4"><strong>Deskripsi Lembur</strong> : {{ $absen->deskripsi_lembur}}</div>
                         @endif
                         <div class="mb-4"><strong>Feedback</strong> :
                             {{ $absen->feedback ?? '-' }}</div>

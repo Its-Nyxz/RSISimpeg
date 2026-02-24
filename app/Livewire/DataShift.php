@@ -5,11 +5,12 @@ namespace App\Livewire;
 use App\Models\Shift;
 use App\Models\UnitKerja;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class DataShift extends Component
 {
+    use WithPagination;
     public $search = '';
-    public $shifts = [];
     public $units;
     public $selectedUnit = null;
 
@@ -26,28 +27,9 @@ class DataShift extends Component
     public function updateSearch($value)
     {
         $this->search = $value;
-        $this->currentPage = 1;
-        $this->loadData();
+        $this->resetPage();
     }
 
-    public function updatedSearch()
-    {
-        $this->currentPage = 1;
-        $this->loadData();
-    }
-    public function nextPage()
-    {
-        $this->currentPage++;
-        $this->loadData();
-    }
-
-    public function prevPage()
-    {
-        if ($this->currentPage > 1) {
-            $this->currentPage--;
-            $this->loadData();
-        }
-    }
 
     public function loadData()
     {
@@ -57,19 +39,17 @@ class DataShift extends Component
         $query = Shift::with('unitKerja')
             ->when($unitIdToFilter, fn($q) => $q->where('unit_id', $unitIdToFilter))
             ->when($this->search, function ($q) {
-                $q->where('nama_shift', 'like', '%' . $this->search . '%')
-                    ->orWhere('jam_masuk', 'like', '%' . $this->search . '%')
-                    ->orWhere('jam_keluar', 'like', '%' . $this->search . '%')
-                    ->orWhere('keterangan', 'like', '%' . $this->search . '%');
+                $q->where(function ($innerQuery) {
+                    $innerQuery->where('nama_shift', 'like', '%' . $this->search . '%')
+                        ->orWhere('jam_masuk', 'like', '%' . $this->search . '%')
+                        ->orWhere('jam_keluar', 'like', '%' . $this->search . '%')
+                        ->orWhere('keterangan', 'like', '%' . $this->search . '%');
+                });
             });
 
         $this->totalShifts = $query->count();
 
-        $this->shifts = $query->orderBy('created_at')
-            ->skip(($this->currentPage - 1) * $this->perPage)
-            ->take($this->perPage)
-            ->get()
-            ->toArray();
+        return $query->orderBy('created_at', 'desc')->paginate(10);
     }
 
     public function destroy($id)
@@ -87,6 +67,8 @@ class DataShift extends Component
 
     public function render()
     {
-        return view('livewire.data-shift');
+        return view('livewire.data-shift', [
+            'shifts' => $this->loadData(),
+        ]);
     }
 }
