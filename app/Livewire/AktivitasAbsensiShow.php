@@ -34,10 +34,20 @@ class AktivitasAbsensiShow extends Component
             ? Carbon::parse($absen->created_at)->locale('id')->timezone('Asia/Jakarta')->translatedFormat('l, d F Y')
             : '-';
 
+        // ✅ Cek apakah ada absen regular (shift kerja) untuk menentukan tampilan jam masuk/keluar
+        $absenRegular = Absen::where('user_id', $absen->user_id)
+            ->whereDate('created_at', Carbon::parse($absen->created_at)->toDateString())
+            ->where(function ($q) {
+                $q->where('is_lembur', false)
+                    ->orWhereNull('is_lembur');
+            })
+            ->first();
+
         $timeIn = $absen->time_in ? Carbon::parse($absen->time_in)->timezone('Asia/Jakarta') : null;
         $timeOut = $absen->time_out ? Carbon::parse($absen->time_out)->timezone('Asia/Jakarta') : null;
 
-        if ($timeIn && $timeOut) {
+        // ✅ Jika hanya ada lembur mandiri (tidak ada shift regular), tampilkan '-' untuk real time
+        if ($timeIn && $timeOut && $absenRegular) {
             $diffInSeconds = $timeIn->diffInSeconds($timeOut);
             $this->jamKerjaFormatted = gmdate('H:i:s', $diffInSeconds);
 
