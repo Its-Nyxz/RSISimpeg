@@ -62,7 +62,7 @@
                         <div class="mb-4"><strong>Status Lembur</strong> : {{ $isLembur ? 'Ya' : 'Tidak' }}</div>
                         @if ($isLembur)
                             <div class="mb-4"><strong>Real Time Jam Masuk Lembur</strong> : {{ $lemburMasukFormatted }}</div>
-                            <div class="mb-4"><strong>Real Time Jam Keluar Lembur</strong> : {{ $lembutKeluarFormatted }}</div>
+                            <div class="mb-4"><strong>Real Time Jam Keluar Lembur</strong> : {{ $lemburKeluarFormatted }}</div>
                             <div class="mb-4"><strong>Durasi Lembur</strong> : {{ $lemburFormatted }}</div>
                         @endif
                         <div class="mb-4"><strong>Feedback</strong> :
