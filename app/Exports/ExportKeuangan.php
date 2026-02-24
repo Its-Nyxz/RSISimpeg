@@ -93,10 +93,11 @@ class ExportKeuanganSheet implements FromView, WithTitle, ShouldAutoSize, WithEv
             'gajiBruto.potongan.masterPotongan'
         ])
             ->where('id', '>', 1)
+            ->where('status_karyawan', '1')
             ->when($this->unitId, fn($q) => $q->where('unit_id', $this->unitId))
             ->when($this->jenisId, fn($q) => $q->where('jenis_id', $this->jenisId))
             ->when($this->keyword, fn($q) => $q->where('name', 'like', "%{$this->keyword}%"))
-             ->orderBy(
+            ->orderBy(
                 DB::table('urutan_keuangan_user')
                     ->select('urutan')
                     ->whereColumn('user_id', 'users.id')
