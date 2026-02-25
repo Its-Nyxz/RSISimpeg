@@ -19,7 +19,7 @@ class AktivitasAbsensiShow extends Component
 
     public $lemburMasukFormatted;
 
-    public $lembutKeluarFormatted;
+    public $lemburKeluarFormatted;
     public $keteranganDinas = null;
 
     public function mount($absen)
@@ -34,10 +34,20 @@ class AktivitasAbsensiShow extends Component
             ? Carbon::parse($absen->created_at)->locale('id')->timezone('Asia/Jakarta')->translatedFormat('l, d F Y')
             : '-';
 
+        // ✅ Cek apakah ada absen regular (shift kerja) untuk menentukan tampilan jam masuk/keluar
+        $absenRegular = Absen::where('user_id', $absen->user_id)
+            ->whereDate('created_at', Carbon::parse($absen->created_at)->toDateString())
+            ->where(function ($q) {
+                $q->where('is_lembur', false)
+                    ->orWhereNull('is_lembur');
+            })
+            ->first();
+
         $timeIn = $absen->time_in ? Carbon::parse($absen->time_in)->timezone('Asia/Jakarta') : null;
         $timeOut = $absen->time_out ? Carbon::parse($absen->time_out)->timezone('Asia/Jakarta') : null;
 
-        if ($timeIn && $timeOut) {
+        // ✅ Jika hanya ada lembur mandiri (tidak ada shift regular), tampilkan '-' untuk real time
+        if ($timeIn && $timeOut && $absenRegular) {
             $diffInSeconds = $timeIn->diffInSeconds($timeOut);
             $this->jamKerjaFormatted = gmdate('H:i:s', $diffInSeconds);
 
@@ -62,8 +72,8 @@ class AktivitasAbsensiShow extends Component
             $lastLemburOut = null;
 
             foreach ($absensiSemua as $rowLembur) {
-                $lemburIn = Carbon::parse($rowLembur->time_in);
-                $lemburOut = Carbon::parse($rowLembur->time_out);
+                $lemburIn = Carbon::parse($rowLembur->time_in)->timezone('Asia/Jakarta');
+                $lemburOut = Carbon::parse($rowLembur->time_out)->timezone('Asia/Jakarta');
 
                 if ($lemburIn && $lemburOut) {
                     $totalLemburDetik += $lemburIn->diffInSeconds($lemburOut);
@@ -80,7 +90,7 @@ class AktivitasAbsensiShow extends Component
 
             $this->lemburFormatted = gmdate('H:i:s', $totalLemburDetik);
             $this->lemburMasukFormatted = $firstLemburIn ? $firstLemburIn->format('H:i:s') : '-';
-            $this->lembutKeluarFormatted = $lastLemburOut ? $lastLemburOut->format('H:i:s') : '-';
+            $this->lemburKeluarFormatted = $lastLemburOut ? $lastLemburOut->format('H:i:s') : '-';
         }
 
         $dinasLuar = Absen::where('user_id', $absen->user_id)

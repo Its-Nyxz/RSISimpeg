@@ -599,8 +599,8 @@ class Timer extends Component
                     'keterangan' => 'Overtime'
                 ],
                 [
-                    'jam_masuk' => '00:00:00',
-                    'jam_keluar' => '23:59:59',
+                    'jam_masuk' => null,
+                    'jam_keluar' => null,
                 ]
             );
 
@@ -623,7 +623,8 @@ class Timer extends Component
             'jadwal_id' => $actualJadwalId,
             'user_id' => Auth::id(),
             'time_in' => $this->timeInLembur,
-            'deskripsi_in' => 'Mulai lembur: ' . $now->format('H:i:s'),
+            'deskripsi_in' => '-',
+            'deskripsi_out' => '-',
             'deskripsi_lembur' => $this->deskripsi_lembur ?: '-',
             'status_absen_id' => StatusAbsen::where('nama', 'Lembur')->value('id') ?? null,
             'present' => 1,
