@@ -28,16 +28,21 @@
                 </select>
 
                 @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->nama == 'KEUANGAN')
-                    <button wire:click="downloadTemplate"
-                        class="flex items-center px-5 py-2.5 text-sm font-medium rounded-lg bg-yellow-100 text-yellow-900 hover:bg-yellow-600 hover:text-white transition">
-                        <i class="fas fa-download mr-2"></i> Template
+                    <button wire:click="downloadTemplate" wire:loading.attr="disabled"
+                        class="flex items-center px-5 py-2.5 text-sm font-medium rounded-lg bg-yellow-100 text-yellow-900 hover:bg-yellow-600 hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed">
+
+                        <i wire:loading.remove wire:target="downloadTemplate" class="fas fa-download mr-2"></i>
+
+                        <i wire:loading wire:target="downloadTemplate" class="fas fa-spinner fa-spin mr-2"></i>
+
+                        <span>Template</span>
                     </button>
 
                     <div class="flex items-center gap-2">
                         <input type="file" wire:model="file" class="hidden" id="uploadFile">
                         <button type="button" onclick="document.getElementById('uploadFile').click();"
                             class="flex items-center px-5 py-2.5 text-sm font-medium rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition">
-                            <i class="fas fa-file-excel mr-2"></i> Import
+                            <i class="fas fa-file-import mr-2"></i>Import
                         </button>
                     </div>
                 @endif
@@ -89,8 +94,8 @@
 
                         {{-- Tombol Export --}}
                         <a href="{{ route('keuangan.export', ['bulan' => $bulan, 'tahun' => $tahun, 'unit' => $selectedUnit, 'jenis' => $selectedJenisKaryawan, 'keyword' => $search]) }}"
-                            class="px-4 h-10 flex items-center gap-2 rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition border border-success-200">
-                            <i class="fas fa-file-excel"></i>
+                            class="px-4 h-10 flex items-center gap-2 rounded-lg bg-indigo-100 text-indigo-900 hover:bg-indigo-600 hover:text-white transition border border-indigo-200">
+                            <i class="fas fa-file-export"></i>
                             <span class="font-medium text-sm">Export</span>
                         </a>
                     </div>
