@@ -61,16 +61,16 @@
                 <td style="border: 1px solid #000000; text-align: right;">{{ number_format($user->nom_fungsi, 0, ',', '.') }}</td>
                 
                 <td style="border: 1px solid #000000; text-align: right;">{{ number_format($user->nom_jabatan, 0, ',', '.') }}</td>
-                <td style="border: 1px solid #000000; text-align: right;">{{ number_format($user->nom_fungsi_tambahan ?? 0, 0, ',', '.') }}</td>
+                <td style="border: 1px solid #000000; text-align: right;">{{ number_format($user->nom_umum ?? 0, 0, ',', '.') }}</td>
                 <td style="border: 1px solid #000000; text-align: right;">{{ number_format($user->nom_poskes ?? 0, 0, ',', '.') }}</td>
                 <td style="border: 1px solid #000000; text-align: right;">{{ number_format($user->nom_lainnya, 0, ',', '.') }}</td>
                 <td style="border: 1px solid #000000; text-align: right;">{{ number_format($user->nom_lembur ?? 0, 0, ',', '.') }}</td>
                 
                 <td style="border: 1px solid #000000; text-align: center;">{{ $user->level_jabatan ?? '-' }}</td>
-                <td style="border: 1px solid #000000; text-align: right;">{{ number_format($pendapatan_rs_total ?? 0, 0, ',', '.') }}</td>
+                <td style="border: 1px solid #000000; text-align: right;">{{ number_format($user->nom_pendapatan_rs ?? 0, 0, ',', '.') }}</td>
                 <td style="border: 1px solid #000000; text-align: center;">{{ $user->prosentase_tukin ?? 0 }}%</td>
-                <td style="border: 1px solid #000000; text-align: center;">{{ $user->kpi ?? 0 }}%</td>
-                <td style="border: 1px solid #000000; text-align: right; background-color: #e2efda; font-weight: bold;">{{ number_format($user->tukin_diterima ?? 0, 0, ',', '.') }}</td>
+                <td style="border: 1px solid #000000; text-align: center;">{{ $user->KPI ?? 0 }}%</td>
+                <td style="border: 1px solid #000000; text-align: right; background-color: #e2efda; font-weight: bold;">{{ number_format($user->nom_tukin_diterima ?? 0, 0, ',', '.') }}</td>
 
                 <td style="border: 1px solid #000000; text-align: right; background-color: #fff2cc; font-weight: bold;">
                     {{ number_format($user->total_bruto, 0, ',', '.') }}

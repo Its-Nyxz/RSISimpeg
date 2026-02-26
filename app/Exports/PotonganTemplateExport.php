@@ -147,13 +147,17 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents
             // Jika data sudah ada di DB (History), ambil dari DB
             if ($gajiBruto && $existingPotongan->count() > 0) {
                 $user->setAttribute('nom_gapok', $gajiBruto->nom_gapok);
-                $user->setAttribute('nom_jabatan', $gajiBruto->nom_jabatan);
                 $user->setAttribute('nom_fungsi', $gajiBruto->nom_fungsi);
+                $user->setAttribute('nom_jabatan', $gajiBruto->nom_jabatan);
                 $user->setAttribute('nom_umum', $gajiBruto->nom_umum);
-                $user->setAttribute('nom_khusus', $gajiBruto->nom_khusus);
-                $user->setAttribute('nom_makan', $gajiBruto->nom_makan);
-                $user->setAttribute('nom_transport', $gajiBruto->nom_transport);
+                $user->setAttribute('nom_poskes', $gajiBruto->nom_poskes);
                 $user->setAttribute('nom_lainnya', $gajiBruto->nom_lainnya);
+                $user->setAttribute('nom_lembur', $gajiBruto->nom_lembur);
+                $user->setAttribute('level_jabatan', $gajiBruto->level_jabatan);
+                $user->setAttribute('nom_pendapatan_rs', $gajiBruto->nom_pendapatan_rs);
+                $user->setAttribute('prosentase_tukin', $gajiBruto->prosentase_tukin);
+                $user->setAttribute('KPI', $gajiBruto->KPI);
+                $user->setAttribute('nom_tukin_diterima', $gajiBruto->nom_tukin_diterima);
                 $user->setAttribute('total_bruto', $gajiBruto->total_bruto);
 
                 $potonganData = $existingPotongan->mapWithKeys(fn($p) => [
