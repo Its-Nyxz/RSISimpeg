@@ -1,18 +1,20 @@
 <table>
     <thead>
         <tr>
-            <th colspan="{{ 18 + $masterPotongans->count() }}" style="text-align: center; font-weight: bold; font-size: 14pt;">
+            <th colspan="{{ 19 + $masterPotongans->count() }}" style="text-align: center; font-weight: bold; font-size: 14pt;">
                 DAFTAR URUTAN GAJI KARYAWAN
             </th>
         </tr>
         <tr>
-            <th colspan="{{ 18 + $masterPotongans->count() }}" style="text-align: center; font-weight: bold; font-size: 11pt;">
+            <th colspan="{{ 19 + $masterPotongans->count() }}" style="text-align: center; font-weight: bold; font-size: 11pt;">
                 Periode: {{ $bulan }} / {{ $tahun }}
             </th>
         </tr>
         <tr></tr>
         <tr>
             <th rowspan="2" style="background-color: #333333; color: #ffffff; font-weight: bold; border: 2px solid #000000; text-align: center; vertical-align: center;" width="5">No</th>
+            <th rowspan="2" style="background-color: #333333; color: #ffffff; font-weight: bold; border: 2px solid #000000; text-align: center; vertical-align: center;" width="15">Slug</th>
+            
             <th rowspan="2" style="background-color: #333333; color: #ffffff; font-weight: bold; border: 2px solid #000000; text-align: center; vertical-align: center;" width="35">Nama Lengkap</th>
             <th rowspan="2" style="background-color: #333333; color: #ffffff; font-weight: bold; border: 2px solid #000000; text-align: center; vertical-align: center;" width="25">Unit Kerja</th>
             
@@ -50,6 +52,8 @@
         @foreach ($users as $index => $user)
             <tr>
                 <td style="border: 1px solid #000000; text-align: center;">{{ $index + 1 }}</td>
+                <td style="border: 1px solid #000000;">{{ $user->slug }}</td>
+
                 <td style="border: 1px solid #000000; font-weight: bold;">{{ $user->nama_bersih }}</td>
                 <td style="border: 1px solid #000000;">{{ $user->unitKerja->nama ?? '-' }}</td>
                 

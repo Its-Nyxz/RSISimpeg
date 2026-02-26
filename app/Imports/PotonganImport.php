@@ -27,7 +27,6 @@ class PotonganImport implements ToCollection
             return (is_null($value) || $value === '') ? ($headerAtas[$index] ?? null) : $value;
         })->toArray();
 
-        // dd($header);
 
         // 2. Persiapan Master Data
         $masterPotongans = MasterPotongan::orderBy('id')->get();
@@ -39,30 +38,30 @@ class PotonganImport implements ToCollection
             ->map(fn($h) => $h ? Str::slug(trim($h)) : null)
             ->values();
 
+        // dd($header);
         logger()->info("SLUGS dari HEADER:", $headerSlugs->toArray());
 
         foreach ($rows->slice(5) as $row) {
             // 4. Identifikasi User (Slug ada di indeks 1)
             $slug = trim($row[1] ?? '');
             $user = User::where('slug', $slug)->with(['jenis', 'kategorijabatan', 'kategorifungsional'])->first();
-
             if (!$user) {
                 Log::warning("PotonganImport: User dengan slug '{$slug}' tidak ditemukan.");
                 continue;
             }
 
+            // dd($row[4]);
             // 5. Ekstraksi Komponen Gaji (Indeks bergeser +1 karena kolom 'No')
-            $gapok              = (int) $this->cleanRupiah($row[5] ?? 0);
+            $gapok              = (int) $this->cleanRupiah($row[4] ?? 0);
             $nom_jabatan        = (int) $this->cleanRupiah($row[6] ?? 0);
-            $nom_fungsi         = (int) $this->cleanRupiah($row[7] ?? 0);
-            $nom_umum           = (int) $this->cleanRupiah($row[8] ?? 0);
-            $nom_lembur         = (int) $this->cleanRupiah($row[9] ?? 0);
-            $level_jabatan      = (int) $this->cleanRupiah($row[10] ?? 0);
-            $nom_pendapatan_rs  = (int) ($row[11] ?? 0);
-            $prosentase_tukin   = (float) str_replace(',', '.', $row[12] ?? 0);
-            $KPI                = (float) str_replace(',', '.', $row[13] ?? 0);
-            $nom_lainnya        = (int) $this->cleanRupiah($row[14] ?? 0);
-            $brutoValue         = (int) $this->cleanRupiah($row[15] ?? 0); // Kolom TOTAL
+            $nom_fungsi         = (int) $this->cleanRupiah($row[5] ?? 0);
+            $nom_umum           = (int) $this->cleanRupiah(0);
+            $nom_lembur         = (int) $this->cleanRupiah($row[10] ?? 0);
+            $level_jabatan      = (int) $this->cleanRupiah($row[11] ?? 0);
+            $nom_pendapatan_rs  = (int) ($row[12] ?? 0);
+            $prosentase_tukin   = (float) str_replace(',', '.', $row[13] ?? 0);
+            $KPI                = (float) str_replace(',', '.', $row[14] ?? 0);
+            $nom_lainnya        = (int) $this->cleanRupiah($row[9] ?? 0);
 
             // $nom_makan     = (int) $this->cleanRupiah($row[9] ?? 0);
             // $nom_transport = (int) $this->cleanRupiah($row[10] ?? 0);
