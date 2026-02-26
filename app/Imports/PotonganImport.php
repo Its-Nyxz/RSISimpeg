@@ -127,7 +127,7 @@ class PotonganImport implements ToCollection
 
             // 8. Hitung Potongan Otomatis (Jika tidak ada di Excel)
             $tunjangan = $nom_jabatan + $nom_fungsi + $nom_umum;
-            $makanTransport = $nom_makan + $nom_transport;
+            // $makanTransport = $nom_makan + $nom_transport;
 
             foreach ($masterPotongans as $master) {
                 $key = $master->slug;
@@ -160,11 +160,13 @@ class PotonganImport implements ToCollection
                 }
                 // Logika BPJS Kesehatan Ortu (1%)
                 elseif (Str::contains($key, 'bpjs-kesehatan-ortu')) {
-                    $nom = $user->bpjs_ortu ? round(0.01 * ($gapok + $tunjangan + $makanTransport)) : 0;
+                    // $nom = $user->bpjs_ortu ? round(0.01 * ($gapok + $tunjangan + $makanTransport)) : 0;
+                    $nom = $user->bpjs_ortu ? round(0.01 * ($gapok + $tunjangan)) : 0;
                 }
                 // Logika BPJS Kesehatan Standar (1%)
                 elseif (Str::contains($key, 'bpjs-kesehatan') && !Str::contains($key, ['ortu', 'rekonsiliasi'])) {
-                    $nom = round(0.01 * ($gapok + $tunjangan + $makanTransport));
+                    // $nom = round(0.01 * ($gapok + $tunjangan + $makanTransport));
+                    $nom = round(0.01 * ($gapok + $tunjangan));
                 }
 
                 // Logika Organisasi Profesi (IDI / PPNI)
