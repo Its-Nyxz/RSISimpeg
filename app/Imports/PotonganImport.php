@@ -53,15 +53,16 @@ class PotonganImport implements ToCollection
             // dd($row[4]);
             // 5. Ekstraksi Komponen Gaji (Indeks bergeser +1 karena kolom 'No')
             $gapok              = (int) $this->cleanRupiah($row[4] ?? 0);
-            $nom_jabatan        = (int) $this->cleanRupiah($row[6] ?? 0);
             $nom_fungsi         = (int) $this->cleanRupiah($row[5] ?? 0);
-            $nom_umum           = (int) $this->cleanRupiah(0);
+            $nom_jabatan        = (int) $this->cleanRupiah($row[6] ?? 0);
+            $nom_umum           = (int) $this->cleanRupiah($row[7] ?? 0);
+            $nom_poskes           = (int) $this->cleanRupiah($row[8] ?? 0);
+            $nom_lainnya        = (int) $this->cleanRupiah($row[9] ?? 0);
             $nom_lembur         = (int) $this->cleanRupiah($row[10] ?? 0);
             $level_jabatan      = (int) $this->cleanRupiah($row[11] ?? 0);
             $nom_pendapatan_rs  = (int) ($row[12] ?? 0);
             $prosentase_tukin   = (float) str_replace(',', '.', $row[13] ?? 0);
             $KPI                = (float) str_replace(',', '.', $row[14] ?? 0);
-            $nom_lainnya        = (int) $this->cleanRupiah($row[9] ?? 0);
 
             // $nom_makan     = (int) $this->cleanRupiah($row[9] ?? 0);
             // $nom_transport = (int) $this->cleanRupiah($row[10] ?? 0);
@@ -71,7 +72,7 @@ class PotonganImport implements ToCollection
             // $total_bruto = $gapok + $nom_jabatan + $nom_fungsi + $nom_umum + $nom_khusus + $nom_makan + $nom_transport + $nom_lainnya;
 
             // Perhitungan Bruto Baru dengan Menambahkan Lembur
-            $total_bruto = $gapok + $nom_jabatan + $nom_fungsi + $nom_umum + $nom_lembur + $nom_lainnya;
+            $total_bruto = $gapok + $nom_jabatan + $nom_fungsi + $nom_umum + $nom_lembur + $nom_lainnya + $nom_poskes;
 
             // 6. Simpan/Update Gaji Bruto
             $bruto = GajiBruto::updateOrCreate(
@@ -85,6 +86,7 @@ class PotonganImport implements ToCollection
                     'nom_jabatan'       => $nom_jabatan,
                     'nom_fungsi'        => $nom_fungsi,
                     'nom_umum'          => $nom_umum,
+                    'nom_poskes'          => $nom_poskes,
                     'nom_lembur'        => $nom_lembur,
                     'level_jabatan'     => $level_jabatan,
                     'nom_pendapatan_rs' => $nom_pendapatan_rs,

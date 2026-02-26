@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('gaji_bruto', function (Blueprint $table) {
+            $table->integer('nom_poskes')->nullable();
             $table->integer('nom_lembur')->nullable();
             $table->integer('level_jabatan')->nullable();
             $table->integer('nom_pendapatan_rs')->nullable();
@@ -26,7 +27,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('gaji_bruto', function (Blueprint $table) {
-            $table->dropColumn(['nom_lembur', 'level_jabatan', 'nom_pendapatan_rs', 'prosentase_tukin', 'KPI']);
+            $table->dropColumn(['nom_poskes','nom_lembur', 'level_jabatan', 'nom_pendapatan_rs', 'prosentase_tukin', 'KPI']);
         });
     }
 };
