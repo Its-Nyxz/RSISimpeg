@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('nom_pendapatan_rs')->nullable();
             $table->decimal('prosentase_tukin')->nullable();
             $table->decimal('KPI')->nullable();
+            $table->integer('nom_tukin_diterima')->nullable();
         });
     }
 
@@ -27,7 +28,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('gaji_bruto', function (Blueprint $table) {
-            $table->dropColumn(['nom_poskes','nom_lembur', 'level_jabatan', 'nom_pendapatan_rs', 'prosentase_tukin', 'KPI']);
+            $table->dropColumn(['nom_poskes','nom_lembur', 'level_jabatan', 'nom_pendapatan_rs', 'prosentase_tukin', 'KPI', 'nom_tukin_diterima']);
         });
     }
 };

@@ -101,7 +101,7 @@
         <tr>
             <td class="label indent">10 Tukin Diterima</td>
             <td class="rp">Rp</td>
-            <td class="val">{{ number_format($slip->bruto?->nom_lainnya ?? 0, 0, ',', '.') }}</td>
+            <td class="val">{{ number_format($slip->bruto?->nom_tukin_diterima ?? 0, 0, ',', '.') }}</td>
         </tr>
 
         <tr>
