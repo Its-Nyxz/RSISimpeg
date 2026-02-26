@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('gaji_bruto', function (Blueprint $table) {
-            $table->integer('nom_lembur');
-            $table->integer('level_jabatan');
-            $table->integer('nom_pendapatan_rs');
-            $table->decimal('prosentase_tukin');
-            $table->decimal('KPI');
+            $table->integer('nom_lembur')->nullable();
+            $table->integer('level_jabatan')->nullable();
+            $table->integer('nom_pendapatan_rs')->nullable();
+            $table->decimal('prosentase_tukin')->nullable();
+            $table->decimal('KPI')->nullable();
         });
     }
 
