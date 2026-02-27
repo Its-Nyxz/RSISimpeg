@@ -63,7 +63,6 @@ class PotonganImport implements ToCollection
             $nom_pendapatan_rs  = (int) ($row[12] ?? 0);
             $prosentase_tukin   = (float) str_replace(',', '.', $row[13] ?? 0);
             $KPI                = (float) str_replace(',', '.', $row[14] ?? 0);
-            $nom_tukin_diterima                = (float) str_replace(',', '.', $row[15] ?? 0);
 
             // $nom_makan     = (int) $this->cleanRupiah($row[9] ?? 0);
             // $nom_transport = (int) $this->cleanRupiah($row[10] ?? 0);
@@ -84,17 +83,16 @@ class PotonganImport implements ToCollection
                 ],
                 [
                     'nom_gapok'         => $gapok,
-                    'nom_fungsi'        => $nom_fungsi,
                     'nom_jabatan'       => $nom_jabatan,
+                    'nom_fungsi'        => $nom_fungsi,
                     'nom_umum'          => $nom_umum,
-                    'nom_poskes'          => $nom_poskes,
-                    'nom_lainnya'       => $nom_lainnya,
+                    'nom_poskes'        => $nom_poskes,
                     'nom_lembur'        => $nom_lembur,
                     'level_jabatan'     => $level_jabatan,
                     'nom_pendapatan_rs' => $nom_pendapatan_rs,
                     'prosentase_tukin'  => $prosentase_tukin,
                     'KPI'               => $KPI,
-                    'nom_tukin_diterima'      => $nom_tukin_diterima,
+                    'nom_lainnya'       => $nom_lainnya,
                     'total_bruto'       => $total_bruto,
                     'created_at'        => now(),
                 ]
