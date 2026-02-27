@@ -15,10 +15,12 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 /**
  * CLASS UTAMA: Mengatur pembagian Sheet
@@ -47,7 +49,7 @@ class PotonganTemplateExport implements WithMultipleSheets
 /**
  * CLASS CHILD: Menangani Logika Data per Sheet
  */
-class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents
+class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents, WithColumnFormatting
 {
     public function __construct(
         protected int $bulan,
@@ -57,6 +59,50 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents
         protected $keyword,
         protected string $title
     ) {}
+
+    public function columnFormats(): array
+    {
+        $idrFormat = '_-Rp* #,##0_-;-Rp* #,##0_-;_-Rp* "-"_-;_-@_-';
+
+        $formats = [
+            // TUNJANGAN TETAP & TIDAK TETAP (E sampai L)
+            'E' => $idrFormat,
+            'F' => $idrFormat,
+            'G' => $idrFormat,
+            'H' => $idrFormat,
+            'I' => $idrFormat,
+            'J' => $idrFormat,
+            'K' => $idrFormat,
+
+            // Pendapatan RS
+            'M' => $idrFormat,
+            // Persentase dengan titik desimal (6 digit)
+            'N' => '0.0000"%"',
+            // KPI dengan titik desimal (1 digit)
+            'O' => '0.0"%"',
+
+            'P' => $idrFormat,
+            'Q' => $idrFormat,
+
+
+        ];
+        $jumlahPotongan = MasterPotongan::orderBy('id')->count();
+        if ($jumlahPotongan > 0) {
+            // Kolom R adalah kolom ke-18
+            $startColumnIndex = 18;
+            $endColumnIndex = $startColumnIndex + $jumlahPotongan - 1;
+
+            $startLetter = Coordinate::stringFromColumnIndex($startColumnIndex);
+            $endLetter = Coordinate::stringFromColumnIndex($endColumnIndex);
+
+            // Tambahkan range format ke array (Contoh: 'R:T' => IDR)
+            $formats[$startLetter . ':' . $endLetter] = $idrFormat;
+        }
+
+        // dd($formats);
+        return $formats;
+    }
+
 
     public function registerEvents(): array
     {
@@ -95,6 +141,7 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents
 
     public function view(): View
     {
+
         // Ambil data user berdasarkan jenis_id yang dikirim dari parent
 
         $users = User::where('id', '!=', 1)
@@ -147,19 +194,24 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents
             // Jika data sudah ada di DB (History), ambil dari DB
             if ($gajiBruto && $existingPotongan->count() > 0) {
                 $user->setAttribute('nom_gapok', $gajiBruto->nom_gapok);
-                $user->setAttribute('nom_jabatan', $gajiBruto->nom_jabatan);
                 $user->setAttribute('nom_fungsi', $gajiBruto->nom_fungsi);
+                $user->setAttribute('nom_jabatan', $gajiBruto->nom_jabatan);
                 $user->setAttribute('nom_umum', $gajiBruto->nom_umum);
-                $user->setAttribute('nom_khusus', $gajiBruto->nom_khusus);
-                $user->setAttribute('nom_makan', $gajiBruto->nom_makan);
-                $user->setAttribute('nom_transport', $gajiBruto->nom_transport);
+                $user->setAttribute('nom_poskes', $gajiBruto->nom_poskes);
                 $user->setAttribute('nom_lainnya', $gajiBruto->nom_lainnya);
+                $user->setAttribute('nom_lembur', $gajiBruto->nom_lembur);
+                $user->setAttribute('level_jabatan', $gajiBruto->level_jabatan);
+                $user->setAttribute('nom_pendapatan_rs', $gajiBruto->nom_pendapatan_rs);
+                $user->setAttribute('prosentase_tukin', $gajiBruto->prosentase_tukin);
+                $user->setAttribute('KPI', $gajiBruto->KPI);
+                $user->setAttribute('nom_tukin_diterima', $gajiBruto->nom_tukin_diterima);
                 $user->setAttribute('total_bruto', $gajiBruto->total_bruto);
 
                 $potonganData = $existingPotongan->mapWithKeys(fn($p) => [
                     $p->masterPotongan->nama => $p->nominal,
                 ]);
                 $user->setAttribute('potonganOtomasis', $potonganData->toArray());
+                // dd($user->toArray());
                 continue;
             }
 

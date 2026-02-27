@@ -130,16 +130,15 @@ class DataKeuangan extends Component
 
             // Reset input file setelah sukses
             // $this->reset('file');
-            
+
             // Kirim notifikasi sukses ke Livewire
-            
+
             // return redirect()->route('keuangan.index')->with('success', 'Data Potongan berhasil dimasukan');
             $impor = new PotonganImport($this->bulan, $this->tahun);
             Excel::import($impor, $this->file->getRealPath());
             $this->reset('file');
-            
-            return redirect()->route('keuangan.index')->with('success', 'Data Potongan berhasil dimasukan');
 
+            return redirect()->route('keuangan.index')->with('success', 'Data Potongan berhasil dimasukan');
         } catch (\Exception $e) {
             return redirect()->route('keuangan.index')->with('error', 'Terjadi Kesalahan');
         }
@@ -148,14 +147,52 @@ class DataKeuangan extends Component
     public function confirmGenerateNetto()
     {
         // Ambil semua user berdasarkan filter (misal unit tertentu, bulan, tahun)
-        $users = $this->loadData();
+        $users = User::with([
+            'gajiBruto' => function ($query) {
+                $query->where('bulan_penggajian', $this->bulan)
+                    ->where('tahun_penggajian', $this->tahun);
+            }
+        ])
+            ->where('id', '>', 1)
+            ->where('status_karyawan', '1')
+
+            // Gunakan Subquery untuk mengambil kolom 'urutan' tanpa JOIN eksplisit
+            ->orderBy(
+                DB::table('urutan_keuangan_user')
+                    ->select('urutan')
+                    ->whereColumn('user_id', 'users.id')
+                    ->limit(1),
+                'asc'
+            )
+
+            ->orderBy('name', 'asc')
+
+            // Sisa filter Anda tetap sama
+            ->when($this->search, function ($query) {
+                $query->where(function ($q) {
+                    $q->where('name', 'like', '%' . $this->search . '%')
+                        ->orWhere('no_ktp', 'like', '%' . $this->search . '%')
+                        ->orWhere('alamat', 'like', '%' . $this->search . '%');
+                });
+            })
+            ->when($this->selectedUnit, function ($query) {
+                $unitIds = UnitKerja::where('id', $this->selectedUnit)
+                    ->orWhere('parent_id', $this->selectedUnit)
+                    ->pluck('id')->toArray();
+                $query->whereIn('unit_id', $unitIds);
+            })
+            ->when($this->selectedJenisKaryawan, function ($query) {
+                $query->where('jenis_id', $this->selectedJenisKaryawan);
+            })->get();
+       
         $notifiedUsers = collect(); // kumpulkan user yang sukses digenerate
 
         foreach ($users as $user) {
-            $bruto = $user->gajiBruto()
-                ->where('bulan_penggajian', $this->bulan)
-                ->where('tahun_penggajian', $this->tahun)
-                ->first();
+            $bruto = $user->gajiBruto->first();
+
+            // if($user->name == ''){
+            //     dd($bruto);
+            // };
 
             if (!$bruto)
                 continue; // skip kalau belum ada data bruto
@@ -163,6 +200,8 @@ class DataKeuangan extends Component
             $totalPotongan = $bruto->potongan->sum('nominal');
             $netto = $bruto->total_bruto - $totalPotongan;
 
+
+            // dd($netto);
             // skip kalau gaji netto tidak valid
             if ($netto <= 0)
                 continue;

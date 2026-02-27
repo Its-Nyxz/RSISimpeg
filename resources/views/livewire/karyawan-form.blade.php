@@ -561,7 +561,7 @@
                             </td>
                         </tr>
                         @push('scripts')
-  
+                        
                             <script>
                                 document.addEventListener('DOMContentLoaded', function() {
                                     const tmtInput = document.querySelector("#tmt");
@@ -743,9 +743,16 @@
                 </button>
             @else
                 <button type="button" id="confimAlertJabatan" wire:click="updateKaryawan()"
-                    class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200"
-                    @if ($disableButton) disabled class="opacity-50 cursor-not-allowed" title="Jabatan tidak valid atau fungsional ganda tidak diizinkan" @endif>
-                    <i class="fa-solid fa-pen mr-2"></i> Edit
+                    wire:loading.attr="disabled" wire:target="updateKaryawan"
+                    class="text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    @if ($disableButton) disabled title="Jabatan tidak valid atau fungsional ganda tidak diizinkan" @endif>
+
+                    <i class="fa-solid fa-pen mr-2" wire:loading.remove wire:target="updateKaryawan"></i>
+
+                    <i class="fa-solid fa-spinner fa-spin mr-2" wire:loading wire:target="updateKaryawan"></i>
+
+                    <span wire:loading.remove wire:target="updateKaryawan">Edit</span>
+                    <span wire:loading wire:target="updateKaryawan">Menyimpan...</span>
                 </button>
             @endif
         </div>

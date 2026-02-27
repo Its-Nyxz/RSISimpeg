@@ -1,186 +1,112 @@
     <div>
-        <div class="flex justify-between py-2 mb-3">
-            <div class="mb-4">
-                <!-- Tulisan Keuangan -->
-                <div class="py-2 mb-3">
-                    <h1 class="text-2xl font-bold text-success-900">Keuangan</h1>
-                </div>
-                <div class="flex items-center gap-4">
+        <div class="mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <h1 class="text-2xl font-bold text-success-900">Keuangan</h1>
 
-                    <!-- Filter Bulan & Tahun -->
-                    <div class="flex flex-wrap gap-2">
-                        <select wire:model.live="bulan"
-                            class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
-                            @foreach (range(1, 12) as $m)
-                                <option value="{{ $m }}">
-                                    {{ DateTime::createFromFormat('!m', $m)->format('F') }}
-                                </option>
-                            @endforeach
-                        </select>
+                <a href="{{ route('keuangan.urutan.user', $selectedJenisKaryawan) }}"
+                    class="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-600 hover:text-white transition shadow-sm group">
+                    <i class="fas fa-sort-numeric-down text-gray-500 group-hover:text-white"></i>
+                    <span class="font-medium">Edit No Urut</span>
+                </a>
+            </div>
 
-                        <select wire:model.live="tahun"
-                            class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
-                            @foreach (range(now()->year - 5, now()->year) as $y)
-                                <option value="{{ $y }}">{{ $y }}</option>
-                            @endforeach
-                        </select>
-                        @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->nama == 'KEUANGAN')
-                            <!-- Download Template -->
-                            <div class="relative group">
-                                <!-- Desktop -->
-                                <button wire:click="downloadTemplate"
-                                    class="hidden sm:flex items-center px-5 py-2.5 text-sm font-medium rounded-lg bg-yellow-100 text-yellow-900 hover:bg-yellow-600 hover:text-white transition">
-                                    <i class="fas fa-download mr-1"></i> Download Template
-                                </button>
-                                <!-- Mobile -->
-                                <button wire:click="downloadTemplate"
-                                    class="sm:hidden flex items-center justify-center w-10 h-10 rounded-md bg-yellow-100 text-yellow-900 hover:bg-yellow-600 hover:text-white transition"
-                                    data-tooltip-target="tooltip-download-template">
-                                    <i class="fas fa-download"></i>
-                                </button>
-                                <!-- Tooltip -->
-                                <div id="tooltip-download-template"
-                                    class="absolute z-10 invisible group-hover:visible px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded shadow opacity-0 group-hover:opacity-100 transition mt-2 left-1/2 -translate-x-1/2">
-                                    Download Template
-                                </div>
-                            </div>
+            <div class="flex flex-wrap items-center gap-3 mb-4">
+                <select wire:model.live="bulan"
+                    class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600 w-full sm:w-auto">
+                    @foreach (range(1, 12) as $m)
+                        <option value="{{ $m }}">
+                            {{ DateTime::createFromFormat('!m', $m)->format('F') }}
+                        </option>
+                    @endforeach
+                </select>
 
-                            {{-- @can('import-jadwal') --}}
-                            <!-- Input untuk Import -->
-                            <!-- Import Excel -->
-                            <div class="relative group">
-                                <input type="file" wire:model="file" class="hidden" id="uploadFile">
-                                <!-- Desktop -->
-                                <button type="button" onclick="document.getElementById('uploadFile').click();"
-                                    class="hidden sm:flex items-center px-5 py-2.5 text-sm font-medium rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition">
-                                    <i class="fas fa-file-excel mr-1"></i> Import Excel
-                                </button>
-                                <!-- Mobile -->
-                                <button type="button" onclick="document.getElementById('uploadFile').click();"
-                                    class="sm:hidden flex items-center justify-center w-10 h-10 rounded-md bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition"
-                                    data-tooltip-target="tooltip-import-excel">
-                                    <i class="fas fa-file-excel"></i>
-                                </button>
-                                <!-- Tooltip -->
-                                <div id="tooltip-import-excel"
-                                    class="absolute z-10 invisible group-hover:visible px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded shadow opacity-0 group-hover:opacity-100 transition mt-2 left-1/2 -translate-x-1/2">
-                                    Import Excel
-                                </div>
-                            </div>
+                <select wire:model.live="tahun"
+                    class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600 w-full sm:w-auto">
+                    @foreach (range(now()->year - 5, now()->year) as $y)
+                        <option value="{{ $y }}">{{ $y }}</option>
+                    @endforeach
+                </select>
 
-                            <!-- Menampilkan Nama File -->
-                            @if ($file)
-                                <div class="mt-2 flex items-center space-x-2">
-                                    <span
-                                        class="text-sm text-success-700 font-medium">{{ $file->getClientOriginalName() }}</span>
+                @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->nama == 'KEUANGAN')
+                    <button wire:click="downloadTemplate" wire:loading.attr="disabled"
+                        class="flex items-center px-5 py-2.5 text-sm font-medium rounded-lg bg-yellow-100 text-yellow-900 hover:bg-yellow-600 hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed">
 
-                                    <!-- Tombol Hapus File -->
-                                    <button type="button" wire:click="$set('file', null)"
-                                        class="text-red-500 hover:text-red-700 font-medium text-sm">
-                                        <i class="fas fa-times-circle"></i>
-                                    </button>
-                                </div>
-                            @endif
+                        <i wire:loading.remove wire:target="downloadTemplate" class="fas fa-download mr-2"></i>
 
-                            <!-- Menampilkan Progress Upload -->
-                            <div wire:loading wire:target="file" class="mt-2">
-                                <div class="w-full bg-gray-200 rounded-full">
-                                    <div class="bg-success-500 text-xs leading-none py-1 text-center text-white"
-                                        style="width: 0%;" x-data="{ progress: 0 }" x-init="$watch('progress', value => {
-                                            setInterval(() => {
-                                                if (progress < 100) progress += 10;
-                                            }, 200);
-                                        })">
-                                        Loading...
-                                    </div>
-                                </div>
-                            </div>
+                        <i wire:loading wire:target="downloadTemplate" class="fas fa-spinner fa-spin mr-2"></i>
 
-                            <!-- Tombol Submit Import -->
-                            @if ($file)
-                                <button type="button" wire:click="import"
-                                    class="mt-2 text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-5 py-2.5 transition duration-200">
-                                    Submit Import
-                                </button>
-                            @endif
-                            {{-- @endcan --}}
-                        @endif
+                        <span>Template</span>
+                    </button>
 
-                        <div class="flex items-center">
-                            <a href="{{ route('keuangan.urutan.user', $selectedJenisKaryawan) }}"
-                                class="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-600 hover:text-white transition shadow-sm group">
-                                <i class="fas fa-sort-numeric-down text-gray-500 group-hover:text-white"></i>
-                                <span class="font-medium">Edit No Urut</span>
-                            </a>
-                        </div>
-
+                    <div class="flex items-center gap-2">
+                        <input type="file" wire:model="file" class="hidden" id="uploadFile">
+                        <button type="button" onclick="document.getElementById('uploadFile').click();"
+                            class="flex items-center px-5 py-2.5 text-sm font-medium rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition">
+                            <i class="fas fa-file-import mr-2"></i>Import
+                        </button>
                     </div>
-                </div>
+                @endif
+            </div>
 
-                <!-- Kotak Pencarian -->
-                <div class="flex flex-wrap items-center gap-2 mt-4">
-                    {{-- Input Pencarian --}}
+            @if ($file)
+                <div class="flex items-center gap-2 mb-4 p-2 bg-success-50 rounded-lg border border-success-200 w-fit">
+                    <span class="text-sm text-success-700 font-medium">{{ $file->getClientOriginalName() }}</span>
+
+                    <button type="button" wire:click="import" wire:loading.attr="disabled"
+                        class="text-xs bg-success-600 text-white px-3 py-1 rounded hover:bg-success-700 disabled:opacity-50">
+                        <span wire:loading.remove wire:target="import">Submit</span>
+                        <span wire:loading wire:target="import">Memproses...</span>
+                    </button>
+
+                    <button type="button" wire:click="$set('file', null)" wire:loading.remove wire:target="import"
+                        class="text-red-500">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                </div>
+            @endif
+
+            <div class="flex flex-wrap items-center gap-3">
+                {{-- Input Pencarian --}}
+                <div class="relative w-full sm:w-64">
                     <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Karyawan..."
-                        class="rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
-
-                    {{-- Pilih Unit --}}
-                    <select wire:model.live="selectedUnit"
-                        class="rounded-lg px-3 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
-                        <option value="">-- Pilih Unit --</option>
-                        @foreach ($units as $item)
-                            <option value="{{ $item->id }}">{{ $item->nama }}</option>
-                        @endforeach
-                    </select>
-
-                    {{-- Pilih Jenis Karyawan --}}
-                    <select wire:model.live="selectedJenisKaryawan"
-                        class="rounded-lg px-3 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
-                        <option value="">-- Semua Jenis Karyawan --</option>
-                        @foreach ($jenisKaryawans as $item)
-                            <option value="{{ $item->id }}">{{ $item->nama }}</option>
-                        @endforeach
-                    </select>
-
-                    @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->nama == 'KEUANGAN')
-                        {{-- Tombol Generate Slip Gaji --}}
-                        <div class="flex items-center gap-2">
-                            {{-- Tombol Slip Gaji --}}
-                            <div class="relative">
-                                <button type="button" onclick="Livewire.dispatch('openGenerateModal')"
-                                    class="w-10 h-10 flex items-center justify-center rounded-md bg-blue-100 hover:bg-blue-600 transition"
-                                    data-tooltip-target="tooltip-generate">
-                                    <i class="fas fa-file-invoice-dollar text-blue-900 text-lg"></i>
-                                </button>
-                                <div id="tooltip-generate" role="tooltip"
-                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip mt-2 left-1/2 -translate-x-1/2">
-                                    Generate Slip Gaji
-                                    <div class="tooltip-arrow" data-popper-arrow></div>
-                                </div>
-                            </div>
-
-                            {{-- Tombol Export Excel --}}
-                            <div class="relative">
-                                <a href="{{ route('keuangan.export', [
-                                    'bulan' => $bulan,
-                                    'tahun' => $tahun,
-                                    'unit' => $selectedUnit,
-                                    'jenis' => $selectedJenisKaryawan,
-                                    'keyword' => $search,
-                                ]) }}"
-                                    class="w-10 h-10 flex items-center justify-center rounded-md bg-success-100 hover:bg-success-600 transition"
-                                    data-tooltip-target="tooltip-export-excel">
-                                    <i class="fas fa-file-excel text-success-900 text-lg"></i>
-                                </a>
-                                <div id="tooltip-export-excel" role="tooltip"
-                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip mt-2 left-1/2 -translate-x-1/2">
-                                    Export Excel Data
-                                    <div class="tooltip-arrow" data-popper-arrow></div>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
+                        class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
                 </div>
 
+                {{-- Pilih Unit --}}
+                <select wire:model.live="selectedUnit"
+                    class="rounded-lg px-3 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600 w-full sm:w-auto">
+                    <option value="">-- Pilih Unit --</option>
+                    @foreach ($units as $item)
+                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
+                    @endforeach
+                </select>
+
+                {{-- Pilih Jenis Karyawan --}}
+                <select wire:model.live="selectedJenisKaryawan"
+                    class="rounded-lg px-3 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600 w-full sm:w-auto">
+                    <option value="">-- Semua Jenis Karyawan --</option>
+                    @foreach ($jenisKaryawans as $item)
+                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
+                    @endforeach
+                </select>
+
+                @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->nama == 'KEUANGAN')
+                    <div class="flex items-center gap-2 ml-auto">
+                        {{-- Tombol Generate --}}
+                        <button type="button" onclick="Livewire.dispatch('openGenerateModal')"
+                            class="px-4 h-10 flex items-center gap-2 rounded-lg bg-blue-100 text-blue-900 hover:bg-blue-600 hover:text-white transition border border-blue-200">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            <span class="font-medium text-sm">Generate</span>
+                        </button>
+
+                        {{-- Tombol Export --}}
+                        <a href="{{ route('keuangan.export', ['bulan' => $bulan, 'tahun' => $tahun, 'unit' => $selectedUnit, 'jenis' => $selectedJenisKaryawan, 'keyword' => $search]) }}"
+                            class="px-4 h-10 flex items-center gap-2 rounded-lg bg-indigo-100 text-indigo-900 hover:bg-indigo-600 hover:text-white transition border border-indigo-200">
+                            <i class="fas fa-file-export"></i>
+                            <span class="font-medium text-sm">Export</span>
+                        </a>
+                    </div>
+                @endif
             </div>
         </div>
 
