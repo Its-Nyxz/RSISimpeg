@@ -51,10 +51,17 @@
             @if ($file)
                 <div class="flex items-center gap-2 mb-4 p-2 bg-success-50 rounded-lg border border-success-200 w-fit">
                     <span class="text-sm text-success-700 font-medium">{{ $file->getClientOriginalName() }}</span>
-                    <button type="button" wire:click="import"
-                        class="text-xs bg-success-600 text-white px-3 py-1 rounded hover:bg-success-700">Submit</button>
-                    <button type="button" wire:click="$set('file', null)" class="text-red-500"><i
-                            class="fas fa-times-circle"></i></button>
+
+                    <button type="button" wire:click="import" wire:loading.attr="disabled"
+                        class="text-xs bg-success-600 text-white px-3 py-1 rounded hover:bg-success-700 disabled:opacity-50">
+                        <span wire:loading.remove wire:target="import">Submit</span>
+                        <span wire:loading wire:target="import">Memproses...</span>
+                    </button>
+
+                    <button type="button" wire:click="$set('file', null)" wire:loading.remove wire:target="import"
+                        class="text-red-500">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
                 </div>
             @endif
 

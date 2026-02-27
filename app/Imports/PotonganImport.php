@@ -52,18 +52,21 @@ class PotonganImport implements ToCollection
 
             // dd($row[4]);
             // 5. Ekstraksi Komponen Gaji (Indeks bergeser +1 karena kolom 'No')
-            $gapok              = (int) $this->cleanRupiah($row[4] ?? 0);
-            $nom_fungsi         = (int) $this->cleanRupiah($row[5] ?? 0);
-            $nom_jabatan        = (int) $this->cleanRupiah($row[6] ?? 0);
-            $nom_umum           = (int) $this->cleanRupiah($row[7] ?? 0);
-            $nom_poskes           = (int) $this->cleanRupiah($row[8] ?? 0);
-            $nom_lainnya        = (int) $this->cleanRupiah($row[9] ?? 0);
-            $nom_lembur         = (int) $this->cleanRupiah($row[10] ?? 0);
-            $level_jabatan      = (int) $this->cleanRupiah($row[11] ?? 0);
-            $nom_pendapatan_rs  = (int) ($row[12] ?? 0);
-            $prosentase_tukin   = (float) str_replace(',', '.', $row[13] ?? 0);
-            $KPI                = (float) str_replace(',', '.', $row[14] ?? 0);
-            $nom_tukin_diterima                = (float) str_replace(',', '.', $row[15] ?? 0);
+            $gapok            = (int) ($row[4]  ?? 0);
+            $nom_fungsi       = (int) ($row[5]  ?? 0);
+            $nom_jabatan      = (int) ($row[6]  ?? 0);
+            $nom_umum         = (int) ($row[7]  ?? 0);
+            $nom_poskes       = (int) ($row[8]  ?? 0);
+            $nom_lainnya      = (int) ($row[9]  ?? 0);
+            $nom_lembur       = (int) ($row[10] ?? 0);
+            $level_jabatan    = (int) ($row[11] ?? 0);
+            $nom_pendapatan_rs = (int) ($row[12] ?? 0);
+
+            // Untuk yang ada desimalnya, gunakan float
+            $prosentase_tukin = (float) ($row[13] ?? 0);
+            $KPI              = (float) ($row[14] ?? 0);
+
+            $nom_tukin_diterima = (int) ($row[15] ?? 0);
 
             // $nom_makan     = (int) $this->cleanRupiah($row[9] ?? 0);
             // $nom_transport = (int) $this->cleanRupiah($row[10] ?? 0);

@@ -15,10 +15,12 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 /**
  * CLASS UTAMA: Mengatur pembagian Sheet
@@ -47,7 +49,7 @@ class PotonganTemplateExport implements WithMultipleSheets
 /**
  * CLASS CHILD: Menangani Logika Data per Sheet
  */
-class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents
+class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents, WithColumnFormatting
 {
     public function __construct(
         protected int $bulan,
@@ -57,6 +59,50 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents
         protected $keyword,
         protected string $title
     ) {}
+
+    public function columnFormats(): array
+    {
+        $idrFormat = '_-Rp* #,##0_-;-Rp* #,##0_-;_-Rp* "-"_-;_-@_-';
+
+        $formats = [
+            // TUNJANGAN TETAP & TIDAK TETAP (E sampai L)
+            'E' => $idrFormat,
+            'F' => $idrFormat,
+            'G' => $idrFormat,
+            'H' => $idrFormat,
+            'I' => $idrFormat,
+            'J' => $idrFormat,
+            'K' => $idrFormat,
+
+            // Pendapatan RS
+            'M' => $idrFormat,
+            // Persentase dengan titik desimal (6 digit)
+            'N' => '0.0000"%"',
+            // KPI dengan titik desimal (1 digit)
+            'O' => '0.0"%"',
+
+            'P' => $idrFormat,
+            'Q' => $idrFormat,
+
+
+        ];
+        $jumlahPotongan = MasterPotongan::orderBy('id')->count();
+        if ($jumlahPotongan > 0) {
+            // Kolom R adalah kolom ke-18
+            $startColumnIndex = 18;
+            $endColumnIndex = $startColumnIndex + $jumlahPotongan - 1;
+
+            $startLetter = Coordinate::stringFromColumnIndex($startColumnIndex);
+            $endLetter = Coordinate::stringFromColumnIndex($endColumnIndex);
+
+            // Tambahkan range format ke array (Contoh: 'R:T' => IDR)
+            $formats[$startLetter . ':' . $endLetter] = $idrFormat;
+        }
+
+        // dd($formats);
+        return $formats;
+    }
+
 
     public function registerEvents(): array
     {
@@ -95,6 +141,7 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents
 
     public function view(): View
     {
+
         // Ambil data user berdasarkan jenis_id yang dikirim dari parent
 
         $users = User::where('id', '!=', 1)
@@ -164,6 +211,7 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents
                     $p->masterPotongan->nama => $p->nominal,
                 ]);
                 $user->setAttribute('potonganOtomasis', $potonganData->toArray());
+                // dd($user->toArray());
                 continue;
             }
 

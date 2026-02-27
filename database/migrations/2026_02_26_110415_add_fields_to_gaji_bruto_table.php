@@ -16,8 +16,12 @@ return new class extends Migration
             $table->integer('nom_lembur')->nullable();
             $table->integer('level_jabatan')->nullable();
             $table->integer('nom_pendapatan_rs')->nullable();
-            $table->decimal('prosentase_tukin')->nullable();
-            $table->decimal('KPI')->nullable();
+            // Precision 8, Scale 4 berarti total 8 digit, dengan 4 digit di belakang koma (contoh: 1234.5678)
+            $table->decimal('prosentase_tukin', 8, 4)->nullable();
+
+            // KPI: 95,3 (biasanya 1 atau 2 angka di belakang koma)
+            // Precision 5, Scale 2 (contoh: 100.00 atau 95.30)
+            $table->decimal('KPI', 5, 1)->nullable();
             $table->integer('nom_tukin_diterima')->nullable();
         });
     }
@@ -28,7 +32,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('gaji_bruto', function (Blueprint $table) {
-            $table->dropColumn(['nom_poskes','nom_lembur', 'level_jabatan', 'nom_pendapatan_rs', 'prosentase_tukin', 'KPI', 'nom_tukin_diterima']);
+            $table->dropColumn(['nom_poskes', 'nom_lembur', 'level_jabatan', 'nom_pendapatan_rs', 'prosentase_tukin', 'KPI', 'nom_tukin_diterima']);
         });
     }
 };
