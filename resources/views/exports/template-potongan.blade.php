@@ -135,7 +135,7 @@
                 </td>
 
                 <td style="border: 1px solid #000000; text-align: right; background-color: #e2efda; font-weight: bold;">
-                    {{ $user->nom_tukin_diterima ?? 0 }}
+                    =(M{{ $currentRow }}*N{{ $currentRow }}/100*O{{ $currentRow }}/100)
                 </td>
 
                 <td style="border: 1px solid #000000; text-align: right; background-color: #fff2cc; font-weight: bold;">
