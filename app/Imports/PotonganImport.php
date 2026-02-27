@@ -52,17 +52,21 @@ class PotonganImport implements ToCollection
 
             // dd($row[4]);
             // 5. Ekstraksi Komponen Gaji (Indeks bergeser +1 karena kolom 'No')
-            $gapok              = (int) $this->cleanRupiah($row[4] ?? 0);
-            $nom_fungsi         = (int) $this->cleanRupiah($row[5] ?? 0);
-            $nom_jabatan        = (int) $this->cleanRupiah($row[6] ?? 0);
-            $nom_umum           = (int) $this->cleanRupiah($row[7] ?? 0);
-            $nom_poskes           = (int) $this->cleanRupiah($row[8] ?? 0);
-            $nom_lainnya        = (int) $this->cleanRupiah($row[9] ?? 0);
-            $nom_lembur         = (int) $this->cleanRupiah($row[10] ?? 0);
-            $level_jabatan      = (int) $this->cleanRupiah($row[11] ?? 0);
-            $nom_pendapatan_rs  = (int) ($row[12] ?? 0);
-            $prosentase_tukin   = (float) str_replace(',', '.', $row[13] ?? 0);
-            $KPI                = (float) str_replace(',', '.', $row[14] ?? 0);
+            $gapok            = (int) ($row[4]  ?? 0);
+            $nom_fungsi       = (int) ($row[5]  ?? 0);
+            $nom_jabatan      = (int) ($row[6]  ?? 0);
+            $nom_umum         = (int) ($row[7]  ?? 0);
+            $nom_poskes       = (int) ($row[8]  ?? 0);
+            $nom_lainnya      = (int) ($row[9]  ?? 0);
+            $nom_lembur       = (int) ($row[10] ?? 0);
+            $level_jabatan    = (int) ($row[11] ?? 0);
+            $nom_pendapatan_rs = (int) ($row[12] ?? 0);
+
+            // Untuk yang ada desimalnya, gunakan float
+            $prosentase_tukin = (float) ($row[13] ?? 0);
+            $KPI              = (float) ($row[14] ?? 0);
+
+            $nom_tukin_diterima = (int) ($row[15] ?? 0);
 
             // $nom_makan     = (int) $this->cleanRupiah($row[9] ?? 0);
             // $nom_transport = (int) $this->cleanRupiah($row[10] ?? 0);
@@ -72,7 +76,12 @@ class PotonganImport implements ToCollection
             // $total_bruto = $gapok + $nom_jabatan + $nom_fungsi + $nom_umum + $nom_khusus + $nom_makan + $nom_transport + $nom_lainnya;
 
             // Perhitungan Bruto Baru dengan Menambahkan Lembur
-            $total_bruto = $gapok + $nom_jabatan + $nom_fungsi + $nom_umum + $nom_lembur + $nom_lainnya + $nom_poskes;
+            // $total_bruto = $gapok + $nom_jabatan + $nom_fungsi + $nom_umum + $nom_lembur + $nom_lainnya + $nom_poskes;
+            // --- RUMUS SUM ---
+            $total_bruto = $gapok + $nom_fungsi + $nom_jabatan + $nom_umum + $nom_poskes + $nom_lainnya + $nom_lembur;
+
+            // Jika Anda ingin TOTAL AKHIR (termasuk Tukin Diterima)
+            $total_akhir_bruto = $total_bruto + $nom_tukin_diterima;
 
             // 6. Simpan/Update Gaji Bruto
             $bruto = GajiBruto::updateOrCreate(
@@ -92,8 +101,8 @@ class PotonganImport implements ToCollection
                     'nom_pendapatan_rs' => $nom_pendapatan_rs,
                     'prosentase_tukin'  => $prosentase_tukin,
                     'KPI'               => $KPI,
-                    'nom_lainnya'       => $nom_lainnya,
-                    'total_bruto'       => $total_bruto,
+                    'nom_tukin_diterima'      => $nom_tukin_diterima,
+                    'total_bruto'       => $total_akhir_bruto,
                     'created_at'        => now(),
                 ]
             );

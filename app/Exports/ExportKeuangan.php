@@ -10,10 +10,12 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 class ExportKeuangan implements WithMultipleSheets
 {
@@ -39,7 +41,7 @@ class ExportKeuangan implements WithMultipleSheets
 /**
  * CLASS CHILD: Menangani Logika Data per Sheet
  */
-class ExportKeuanganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents
+class ExportKeuanganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents, WithColumnFormatting
 {
     public function __construct(
         protected int $bulan,
@@ -49,6 +51,48 @@ class ExportKeuanganSheet implements FromView, WithTitle, ShouldAutoSize, WithEv
         protected $keyword,
         protected string $title
     ) {}
+    public function columnFormats(): array
+    {
+        $idrFormat = '_-Rp* #,##0_-;-Rp* #,##0_-;_-Rp* "-"_-;_-@_-';
+
+        $formats = [
+            // TUNJANGAN TETAP & TIDAK TETAP (E sampai L)
+            'E' => $idrFormat,
+            'F' => $idrFormat,
+            'G' => $idrFormat,
+            'H' => $idrFormat,
+            'I' => $idrFormat,
+            'J' => $idrFormat,
+            'K' => $idrFormat,
+
+            // Pendapatan RS
+            'M' => $idrFormat,
+            // Persentase dengan titik desimal (6 digit)
+            'N' => '0.0000"%"',
+            // KPI dengan titik desimal (1 digit)
+            'O' => '0.0"%"',
+
+            'P' => $idrFormat,
+            'Q' => $idrFormat,
+
+
+        ];
+        $jumlahPotongan = MasterPotongan::orderBy('id')->count();
+        if ($jumlahPotongan > 0) {
+            // Kolom R adalah kolom ke-18
+            $startColumnIndex = 18;
+            $endColumnIndex = $startColumnIndex + $jumlahPotongan - 1 + 2;
+
+            $startLetter = Coordinate::stringFromColumnIndex($startColumnIndex);
+            $endLetter = Coordinate::stringFromColumnIndex($endColumnIndex);
+
+            // Tambahkan range format ke array (Contoh: 'R:T' => IDR)
+            $formats[$startLetter . ':' . $endLetter] = $idrFormat;
+        }
+
+        // dd($formats);
+        return $formats;
+    }
 
     public function registerEvents(): array
     {
@@ -122,6 +166,16 @@ class ExportKeuanganSheet implements FromView, WithTitle, ShouldAutoSize, WithEv
             $user->nom_makan = $bruto?->nom_makan ?? 0;
             $user->nom_transport = $bruto?->nom_transport ?? 0;
             $user->nom_lainnya = $bruto?->nom_lainnya ?? 0;
+
+            // Menambahkan field tambahan dari struktur sebelumnya jika masih dibutuhkan
+            $user->nom_poskes = $bruto?->nom_poskes ?? 0;
+            $user->nom_lembur = $bruto?->nom_lembur ?? 0;
+            $user->level_jabatan = $bruto?->level_jabatan ?? '-';
+            $user->nom_pendapatan_rs = $bruto?->nom_pendapatan_rs ?? 0;
+            $user->prosentase_tukin = $bruto?->prosentase_tukin ?? 0;
+            $user->KPI = $bruto?->KPI ?? 0;
+            $user->nom_tukin_diterima = $bruto?->nom_tukin_diterima ?? 0;
+
             $user->total_bruto = $bruto?->total_bruto ?? 0;
 
             // Kompilasi potongan berdasarkan masterPotongan
