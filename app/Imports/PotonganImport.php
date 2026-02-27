@@ -76,7 +76,12 @@ class PotonganImport implements ToCollection
             // $total_bruto = $gapok + $nom_jabatan + $nom_fungsi + $nom_umum + $nom_khusus + $nom_makan + $nom_transport + $nom_lainnya;
 
             // Perhitungan Bruto Baru dengan Menambahkan Lembur
-            $total_bruto = $gapok + $nom_jabatan + $nom_fungsi + $nom_umum + $nom_lembur + $nom_lainnya + $nom_poskes;
+            // $total_bruto = $gapok + $nom_jabatan + $nom_fungsi + $nom_umum + $nom_lembur + $nom_lainnya + $nom_poskes;
+            // --- RUMUS SUM ---
+            $total_bruto = $gapok + $nom_fungsi + $nom_jabatan + $nom_umum + $nom_poskes + $nom_lainnya + $nom_lembur;
+
+            // Jika Anda ingin TOTAL AKHIR (termasuk Tukin Diterima)
+            $total_akhir_bruto = $total_bruto + $nom_tukin_diterima;
 
             // 6. Simpan/Update Gaji Bruto
             $bruto = GajiBruto::updateOrCreate(
@@ -98,7 +103,7 @@ class PotonganImport implements ToCollection
                     'prosentase_tukin'  => $prosentase_tukin,
                     'KPI'               => $KPI,
                     'nom_tukin_diterima'      => $nom_tukin_diterima,
-                    'total_bruto'       => $total_bruto,
+                    'total_bruto'       => $total_akhir_bruto,
                     'created_at'        => now(),
                 ]
             );
