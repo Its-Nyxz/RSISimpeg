@@ -66,7 +66,8 @@ class PotonganImport implements ToCollection
             $prosentase_tukin = (float) ($row[13] ?? 0);
             $KPI              = (float) ($row[14] ?? 0);
 
-            $nom_tukin_diterima = (int) ($row[15] ?? 0);
+            $nom_tukin_diterima = (int) round($nom_pendapatan_rs * ($prosentase_tukin / 100) * ($KPI / 100));
+            // dd($nom_tukin_diterima);
 
             // $nom_makan     = (int) $this->cleanRupiah($row[9] ?? 0);
             // $nom_transport = (int) $this->cleanRupiah($row[10] ?? 0);
