@@ -135,16 +135,25 @@
                 </td>
 
                 <td style="border: 1px solid #000000; text-align: right; background-color: #e2efda; font-weight: bold;">
-                    {{ $user->nom_tukin_diterima ?? 0 }}
+                    =(M{{ $currentRow }}*N{{ $currentRow }}/100*O{{ $currentRow }}/100)
                 </td>
 
                 <td style="border: 1px solid #000000; text-align: right; background-color: #fff2cc; font-weight: bold;">
-                   =SUM(E{{ $currentRow }}:K{{ $currentRow }},P{{ $currentRow }})
+                    =SUM(E{{ $currentRow }}:K{{ $currentRow }},P{{ $currentRow }})
                 </td>
 
                 @foreach ($masterPotongans as $potongan)
                     <td style="border: 1px solid #000000; text-align: right;">
-                        {{ $user->potonganOtomasis[$potongan->nama] ?? 0 }}
+                        @php
+                            // 1. Ambil nilai dari potongan otomatis user jika ada
+                            $nilaiPotongan = $user->potonganOtomasis[$potongan->nama] ?? 0;
+
+                            // 2. Jika nilainya 0 atau tidak ada, cek apakah ini potongan wajib
+                            if ($nilaiPotongan == 0 && $potongan->is_wajib) {
+                                $nilaiPotongan = $potongan->nominal;
+                            }
+                        @endphp
+                        {{ $nilaiPotongan }}
                     </td>
                 @endforeach
             </tr>
