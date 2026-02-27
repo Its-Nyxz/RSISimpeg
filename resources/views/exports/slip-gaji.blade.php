@@ -29,7 +29,7 @@
     </style>
 </head>
 <body>
-    <div class="header">SLIP PENERIMAAN GAJI {{ strtoupper($slip->bruto?->user->jenis?->nama ?? 'KARYAWAN TETAP') }}</div>
+    <div class="header">SLIP PENERIMAAN GAJI KARYAWAN {{ strtoupper($slip->bruto?->user->jenis?->nama ?? 'TETAP') }}</div>
     <div class="subheader">BULAN {{ strtoupper(\Carbon\Carbon::createFromFormat('m', $slip->bruto?->bulan_penggajian ?? now()->month)->translatedFormat('F')) }} {{ $slip->bruto?->tahun_penggajian }}</div>
 
     <table class="info-table">
