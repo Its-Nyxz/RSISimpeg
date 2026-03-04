@@ -33,7 +33,7 @@
     <div class="subheader">BULAN {{ strtoupper(\Carbon\Carbon::createFromFormat('m', $slip->bruto?->bulan_penggajian ?? now()->month)->translatedFormat('F')) }} {{ $slip->bruto?->tahun_penggajian }}</div>
 
     <table class="info-table">
-        <tr><td style="width: 70px;">NO URUT</td><td>: {{ $slip->id ?? '-' }}</td></tr>
+        <tr><td style="width: 70px;">NO URUT</td><td>: {{ $slip->bruto?->user->urutanKeuangan->urutan ?? '-' }}</td></tr>
         <tr><td>N A M A</td><td>: {{ $slip->bruto?->user->name ?? '-' }}</td></tr>
     </table>
 
