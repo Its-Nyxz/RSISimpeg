@@ -54,81 +54,72 @@
             </div>
             <!-- Detail Gaji Bruto (hidden by default) -->
             <div x-show="showDetail" x-transition
-                class="w-full max-w-md mx-auto space-y-2 text-sm bg-gray-50 p-4 rounded shadow">
-
+                class="w-full max-w-md mx-auto space-y-2 text-sm bg-gray-50 p-4 rounded shadow mt-2">
                 <div class="flex justify-between">
                     <strong>Bulan Penggajian</strong>
-                    <span>{{ $this->gajiBruto->bulan_penggajian ?? '-' }}</span>
+                    <span>{{ $gajiBruto->bulan_penggajian ?? '-' }}</span>
                 </div>
                 <div class="flex justify-between">
                     <strong>Tahun Penggajian</strong>
-                    <span>{{ $this->gajiBruto->tahun_penggajian ?? '-' }}</span>
+                    <span>{{ $gajiBruto->tahun_penggajian ?? '-' }}</span>
                 </div>
-                <!-- Gaji Pokok (Gapok) -->
-                <div class="flex justify-between items-center">
-                    <strong>Gaji Pokok (Gapok)</strong>
-                    <span class="text-right">
-                        @if (!$isKaryawanTetap)
-                            @if ($jenisKaryawan === 'kontrak')
-                                Rp {{ number_format($gapok, 0, ',', '.') }}
-                            @else
-                                <input type="number" wire:model.live="gapok"
-                                    class="border border-gray-300 px-2 py-1 rounded text-sm w-32 text-right"
-                                    placeholder="Gapok" />
-                            @endif
-                        @else
-                            Rp {{ number_format($gapok, 0, ',', '.') }}
-                        @endif
-                    </span>
-                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between font-bold border-b pb-1 mb-2">
+                        <span>TUNJANGAN TETAP</span>
+                    </div>
 
+                    <div class="flex justify-between">
+                        <strong>Gaji Pokok</strong>
+                        <span>Rp {{ number_format($gajiBruto->nom_gapok ?? 0, 0, ',', '.') }}</span>
+                    </div>
 
-                <div class="flex justify-between">
-                    <strong>Masa Kerja</strong>
-                    <span>
-                        @if (!is_null($user->masa_kerja))
-                            @if (strtolower($user->jenis?->nama) === 'kontrak')
-                                {{ $masaKerjaTahun }} bulan
-                            @else
-                                {{ floor($masaKerjaTahun) }} tahun
-                            @endif
-                        @else
-                            <em class="text-gray-500">-</em>
-                        @endif
-                    </span>
-                </div>
-                @if ($isKaryawanTetap || $jenisKaryawan === 'part time')
                     <div class="flex justify-between">
-                        <strong>Tunjangan Jabatan Struktural</strong>
-                        <span>Rp {{ number_format($this->gajiBruto->nom_jabatan ?? 0, 0, ',', '.') }}</span>
+                        <strong>Tunjangan Fungsional</strong>
+                        <span>Rp {{ number_format($gajiBruto->nom_fungsi ?? 0, 0, ',', '.') }}</span>
                     </div>
+
+                    <hr class="my-2">
+
+                    <div class="flex justify-between font-bold border-b pb-1 mb-2">
+                        <span>TUNJANGAN TIDAK TETAP</span>
+                    </div>
+
                     <div class="flex justify-between">
-                        <strong>Tunjangan Jabatan Fungsional</strong>
-                        <span>Rp {{ number_format($this->gajiBruto->nom_fungsi ?? 0, 0, ',', '.') }}</span>
+                        <strong>Tunjangan Jabatan</strong>
+                        <span>Rp {{ number_format($gajiBruto->nom_jabatan ?? 0, 0, ',', '.') }}</span>
                     </div>
+
                     <div class="flex justify-between">
-                        <strong>Tunjangan Jabatan Umum</strong>
-                        <span>Rp {{ number_format($this->gajiBruto->nom_umum ?? 0, 0, ',', '.') }}</span>
+                        <strong>Tunjangan Fungsional Tambahan</strong>
+                        <span>Rp {{ number_format($gajiBruto->nom_umum ?? 0, 0, ',', '.') }}</span>
                     </div>
-                @endif
-                <div class="flex justify-between">
-                    <strong>Tunjangan Transport</strong>
-                    <span>Rp {{ number_format($nom_transport ?? 0, 0, ',', '.') }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <strong>Tunjangan Makan</strong>
-                    <span>Rp {{ number_format($nom_makan ?? 0, 0, ',', '.') }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <strong>Tunjangan Khusus</strong>
-                    <span>Rp {{ number_format($this->nom_khusus ?? 0, 0, ',', '.') }}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <strong>Tunjangan Kinerja</strong>
-                    <div class="flex items-center space-x-1">
-                        <span class="text-gray-600">Rp</span>
-                        <input type="number" wire:model.live="tunjanganTukin"
-                            class="border border-gray-300 rounded px-2 py-1 w-32 text-right" />
+
+                    <div class="flex justify-between">
+                        <strong>Tunjangan Poskes</strong>
+                        <span>Rp {{ number_format($gajiBruto->nom_poskes ?? 0, 0, ',', '.') }}</span>
+                    </div>
+
+                    <div class="flex justify-between">
+                        <strong>Tunjangan Lainnya</strong>
+                        <span>Rp {{ number_format($gajiBruto->nom_lainnya ?? 0, 0, ',', '.') }}</span>
+                    </div>
+
+                    <div class="flex justify-between">
+                        <strong>Lembur</strong>
+                        <span>Rp {{ number_format($gajiBruto->nom_lembur ?? 0, 0, ',', '.') }}</span>
+                    </div>
+
+                    <div class="flex justify-between bg-gray-50 p-2 rounded mt-2">
+                        <div>
+                            <strong>Tunjangan Kinerja Diterima</strong>
+                            <div class="text-xs text-gray-500">
+                                Level: {{ $gajiBruto->level_jabatan ?? '-' }} |
+                                Tukin: {{ number_format($gajiBruto->prosentase_tukin ?? 0, 2, ',', '.') }}% |
+                                KPI: {{ number_format($gajiBruto->KPI ?? 0, 1, ',', '.') }}%
+                            </div>
+                        </div>
+                        <span class="font-bold">Rp
+                            {{ number_format($gajiBruto->nom_tukin_diterima ?? 0, 0, ',', '.') }}</span>
                     </div>
                 </div>
             </div>
@@ -136,7 +127,7 @@
             <!-- Total Bruto -->
             <div class="flex justify-between w-full max-w-md mx-auto">
                 <strong>Total Bruto</strong>
-                <span>Rp {{ number_format($total_bruto, 0, ',', '.') }}</span>
+                <span>Rp {{ number_format($this->gajiBruto->total_bruto, 0, ',', '.') }}</span>
             </div>
         </div>
 
@@ -147,6 +138,7 @@
         <div class="text-center space-y-3">
             <h2 class="text-lg font-semibold mb-4">Potongan-Potongan</h2>
 
+            {{-- @dd($masterPotongans) --}}
             @foreach ($masterPotongans as $potongan)
                 <div class="flex justify-between items-center w-full max-w-md mx-auto">
                     <label class="font-semibold w-1/2 text-left">
