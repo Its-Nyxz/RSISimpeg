@@ -53,7 +53,7 @@ class ExportKeuanganSheet implements FromView, WithTitle, ShouldAutoSize, WithEv
     ) {}
     public function columnFormats(): array
     {
-        $idrFormat = '_-Rp* #,##0_-;-Rp* #,##0_-;_-Rp* "-"_-;_-@_-';
+        $idrFormat = '_-\R\p* #,##0_-;-\R\p* #,##0_-;_-\R\p* "-"_-;_-@_-';
 
         $formats = [
             // TUNJANGAN TETAP & TIDAK TETAP (E sampai L)
@@ -68,9 +68,9 @@ class ExportKeuanganSheet implements FromView, WithTitle, ShouldAutoSize, WithEv
             // Pendapatan RS
             'M' => $idrFormat,
             // Persentase dengan titik desimal (6 digit)
-            'N' => '0.0000"%"',
+            'N' => '0.0000%',
             // KPI dengan titik desimal (1 digit)
-            'O' => '0.0"%"',
+            'O' => '0.0%',
 
             'P' => $idrFormat,
             'Q' => $idrFormat,
