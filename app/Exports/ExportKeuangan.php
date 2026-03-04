@@ -53,7 +53,7 @@ class ExportKeuanganSheet implements FromView, WithTitle, ShouldAutoSize, WithEv
     ) {}
     public function columnFormats(): array
     {
-        $idrFormat = '_-Rp* #,##0_-;-Rp* #,##0_-;_-Rp* "-"_-;_-@_-';
+        $idrFormat = '_-\R\p* #,##0_-;-\R\p* #,##0_-;_-\R\p* "-"_-;_-@_-';
 
         $formats = [
             // TUNJANGAN TETAP & TIDAK TETAP (E sampai L)
@@ -68,9 +68,9 @@ class ExportKeuanganSheet implements FromView, WithTitle, ShouldAutoSize, WithEv
             // Pendapatan RS
             'M' => $idrFormat,
             // Persentase dengan titik desimal (6 digit)
-            'N' => '0.0000"%"',
+            'N' => '0.0000%',
             // KPI dengan titik desimal (1 digit)
-            'O' => '0.0"%"',
+            'O' => '0.0%',
 
             'P' => $idrFormat,
             'Q' => $idrFormat,
@@ -152,7 +152,39 @@ class ExportKeuanganSheet implements FromView, WithTitle, ShouldAutoSize, WithEv
             ->orderBy('name', 'asc')
             ->get();
 
-        $masterPotongans = MasterPotongan::all();
+         $urutanManual = [
+            'simpanan-wajib',
+            'simpanan-pokok',
+            'ibi',
+            'idi',
+            'ppni',
+            'pinjaman-koperasi',
+            'obat',
+            'angsuran-bank',
+            'angsuran-perum',
+            'dansos-karyawan',
+            'dplk',
+            'bpjs-tenaga-kerja',
+            'bpjs-kesehatan',
+            'rekonsiliasi-bpjs-kesehatan',
+            'bpjs-kesehatan-ortutambahan',
+            'pph21',
+            'kurangan-pph-21-tahun-2024',
+            'amaliah-romadhon',
+            'rawat-inap',
+            'potongan-selisih',
+            'iuran-pekarsi',
+            'lain-lain'
+        ];
+
+        // Ambil data dan urutkan berdasarkan posisi index di array di atas
+        $masterPotongans = MasterPotongan::all()->sortBy(function ($item) use ($urutanManual) {
+            $posisi = array_search($item->slug, $urutanManual);
+
+            // Jika tidak ketemu, lempar ke urutan 999
+            // Jika ketemu, gunakan index aslinya (0, 1, 2, dst)
+            return ($posisi === false) ? 999 : $posisi;
+        })->values();
 
         $users->each(function ($user) use ($masterPotongans) {
             $bruto = $user->gajiBruto->first();

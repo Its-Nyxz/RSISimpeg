@@ -63,8 +63,8 @@ class PotonganImport implements ToCollection
             $nom_pendapatan_rs = (int) ($row[12] ?? 0);
 
             // Untuk yang ada desimalnya, gunakan float
-            $prosentase_tukin = (float) ($row[13] ?? 0);
-            $KPI              = (float) ($row[14] ?? 0);
+            $prosentase_tukin = (float) ($row[13] * 100 ?? 0);
+            $KPI              = (float) ($row[14] * 100 ?? 0);
 
             $nom_tukin_diterima = (int) round($nom_pendapatan_rs * ($prosentase_tukin / 100) * ($KPI / 100));
             // dd($nom_tukin_diterima);

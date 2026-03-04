@@ -135,7 +135,7 @@
                 </td>
 
                 <td style="border: 1px solid #000000; text-align: right; background-color: #e2efda; font-weight: bold;">
-                    =(M{{ $currentRow }}*N{{ $currentRow }}/100*O{{ $currentRow }}/100)
+                    =(M{{ $currentRow }}*N{{ $currentRow }}*O{{ $currentRow }})
                 </td>
 
                 <td style="border: 1px solid #000000; text-align: right; background-color: #fff2cc; font-weight: bold;">

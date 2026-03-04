@@ -167,7 +167,7 @@ class AddPotongan extends Component
 
             $this->masterPotongans = MasterPotongan::orderBy('id')->get();
 
-            $this->gajiBruto = GajiBruto::updateOrCreate(
+            $this->gajiBruto = GajiBruto::firstOrCreate(
                 [
                     'user_id' => $this->user->id,
                     'bulan_penggajian' => $this->bulan,

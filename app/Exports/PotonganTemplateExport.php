@@ -62,7 +62,7 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents, 
 
     public function columnFormats(): array
     {
-        $idrFormat = '_-Rp* #,##0_-;-Rp* #,##0_-;_-Rp* "-"_-;_-@_-';
+        $idrFormat = '_-\R\p* #,##0_-;-\R\p* #,##0_-;_-\R\p* "-"_-;_-@_-';
 
         $formats = [
             // TUNJANGAN TETAP & TIDAK TETAP (E sampai L)
@@ -77,9 +77,9 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents, 
             // Pendapatan RS
             'M' => $idrFormat,
             // Persentase dengan titik desimal (6 digit)
-            'N' => '0.0000"%"',
+            'N' => '0.0000%',
             // KPI dengan titik desimal (1 digit)
-            'O' => '0.0"%"',
+            'O' => '0.0%',
 
             'P' => $idrFormat,
             'Q' => $idrFormat,
@@ -237,8 +237,8 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents, 
                 $user->setAttribute('nom_lembur', $gajiBruto->nom_lembur);
                 $user->setAttribute('level_jabatan', $gajiBruto->level_jabatan);
                 $user->setAttribute('nom_pendapatan_rs', $gajiBruto->nom_pendapatan_rs);
-                $user->setAttribute('prosentase_tukin', $gajiBruto->prosentase_tukin);
-                $user->setAttribute('KPI', $gajiBruto->KPI);
+                $user->setAttribute('prosentase_tukin', ($gajiBruto->prosentase_tukin/100));
+                $user->setAttribute('KPI', ($gajiBruto->KPI/100));
                 $user->setAttribute('nom_tukin_diterima', $gajiBruto->nom_tukin_diterima);
                 $user->setAttribute('total_bruto', $gajiBruto->total_bruto);
 

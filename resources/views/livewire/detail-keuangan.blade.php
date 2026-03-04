@@ -158,7 +158,7 @@
                                     <strong>Tunjangan Kinerja Diterima</strong>
                                     <div class="text-xs text-gray-500">
                                         Level: {{ $gajiBruto->level_jabatan ?? '-' }} |
-                                        Tukin: {{ number_format($gajiBruto->prosentase_tukin ?? 0, 2, ',', '.') }}% |
+                                        Tukin: {{ number_format($gajiBruto->prosentase_tukin ?? 0, 4, ',', '.') }}% |
                                         KPI: {{ number_format($gajiBruto->KPI ?? 0, 1, ',', '.') }}%
                                     </div>
                                 </div>
