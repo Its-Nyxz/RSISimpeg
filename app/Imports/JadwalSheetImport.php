@@ -83,7 +83,7 @@ class JadwalSheetImport implements ToCollection
                                     ->first();
 
                                 if (!$shift) {
-                                    Log::warning("Shift tidak ditemukan: $namaShift ($jamMasuk - $jamKeluar) untuk user {$user->name}");
+                                    // Log::warning("Shift tidak ditemukan: $namaShift ($jamMasuk - $jamKeluar) untuk user {$user->name}");
                                 }
                             } else {
                                 $shift = Shift::where('unit_id', $user->unit_id)

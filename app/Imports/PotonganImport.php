@@ -46,7 +46,7 @@ class PotonganImport implements ToCollection
             $slug = trim($row[1] ?? '');
             $user = User::where('slug', $slug)->with(['jenis', 'kategorijabatan', 'kategorifungsional'])->first();
             if (!$user) {
-                Log::warning("PotonganImport: User dengan slug '{$slug}' tidak ditemukan.");
+                // Log::warning("PotonganImport: User dengan slug '{$slug}' tidak ditemukan.");
                 continue;
             }
 
@@ -119,7 +119,7 @@ class PotonganImport implements ToCollection
 
                 $master = $mapPotongans[$slugKey] ?? null;
                 if (!$master) {
-                    Log::warning("PotonganImport: Master untuk '{$originalHeader}' tidak ditemukan.");
+                    // Log::warning("PotonganImport: Master untuk '{$originalHeader}' tidak ditemukan.");
                     continue;
                 }
 
