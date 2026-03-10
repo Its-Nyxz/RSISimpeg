@@ -78,6 +78,7 @@ class KaryawanForm extends Component
     public string $selectedGolonganNama; // Nama golongan yang ditampilkan di input
     public $jabatan;
     public $bpjsOrtu;
+    public $sisa_cuti; // nilai sisa cuti tahunan yang bisa diubah
     public $fungsional;
     public $jabatanAwal;
     public $fungsionalAwal;
@@ -305,6 +306,13 @@ class KaryawanForm extends Component
             $this->typeShift = $user->type_shift;
             $this->bpjsOrtu = (bool) $user->bpjs_ortu;
             $this->jenisKaryawanNama = JenisKaryawan::find($this->selectedJenisKaryawan)?->nama;
+            // Muat sisa cuti tahunan untuk tahun berjalan jika ada
+            $currentYear = Carbon::now('Asia/Jakarta')->year;
+            $sisa = SisaCutiTahunan::where('user_id', $this->user_id)
+                ->where('tahun', $currentYear)
+                ->value('sisa_cuti');
+
+            $this->sisa_cuti = $sisa;
         }
 
         $this->units = UnitKerja::all();
@@ -356,6 +364,7 @@ class KaryawanForm extends Component
             'selectedPph' => 'nullable',
             'selectedRoles' => 'nullable',
             'typeShift' => 'nullable',
+            'sisa_cuti' => 'nullable|numeric|min:0',
         ]);
 
         $unit = UnitKerja::where('nama', $this->unit)->first(); // Cari ID berdasarkan nama unit
@@ -440,11 +449,14 @@ class KaryawanForm extends Component
                 $jatahCuti = MasterJatahCuti::where('tahun', $currentYear)
                     ->value('jumlah_cuti') ?? 12;
 
-                SisaCutiTahunan::create([
-                    'user_id' => $user->id,
-                    'tahun' => $currentYear,
-                    'sisa_cuti' => $jatahCuti,
-                ]);
+                    // Jika user memasukkan nilai sisa_cuti manual, gunakan itu, jika tidak gunakan jatah default
+                    $initialSisa = is_numeric($this->sisa_cuti) ? $this->sisa_cuti : $jatahCuti;
+
+                    SisaCutiTahunan::create([
+                        'user_id' => $user->id,
+                        'tahun' => $currentYear,
+                        'sisa_cuti' => $initialSisa,
+                    ]);
             }
         }
 
@@ -511,6 +523,7 @@ class KaryawanForm extends Component
             'selectedPph' => 'nullable',
             'selectedRoles' => 'nullable',
             'typeShift' => 'nullable',
+            'sisa_cuti' => 'nullable|numeric|min:0',
         ]);
         $unit = UnitKerja::where('nama', $this->unit)->first(); // Cari ID berdasarkan nama unit
         $kategoriJabatan = KategoriJabatan::where('nama', $this->jabatan)->first();
@@ -719,6 +732,15 @@ class KaryawanForm extends Component
             'type_shift' => $this->typeShift ?? null,
             'bpjs_ortu' =>  $this->bpjsOrtu ?? null,
         ]);
+
+        // Update atau buat record SisaCutiTahunan untuk tahun berjalan jika ada input sisa_cuti
+        $currentYear = Carbon::now('Asia/Jakarta')->year;
+        if ($this->sisa_cuti !== null) {
+            SisaCutiTahunan::updateOrCreate(
+                ['user_id' => $user->id, 'tahun' => $currentYear],
+                ['sisa_cuti' => $this->sisa_cuti]
+            );
+        }
 
         if ($jenisIdLama != $jenisIdBaru) {
             // 1. RAPIKAN KATEGORI LAMA (Tutup Lubang)
