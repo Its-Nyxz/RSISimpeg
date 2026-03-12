@@ -596,11 +596,11 @@ class Timer extends Component
                 [
                     'unit_id' => $unitId,
                     'nama_shift' => 'O',
+                    'jam_masuk'  => '23:59',
                     'keterangan' => 'Overtime'
                 ],
                 [
-                    'jam_masuk' => null,
-                    'jam_keluar' => null,
+                    'jam_keluar' => '00:01',
                 ]
             );
 
