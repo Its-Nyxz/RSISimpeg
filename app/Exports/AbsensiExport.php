@@ -5,13 +5,10 @@ namespace App\Exports;
 use App\Models\Absen;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class AbsensiExport implements FromView
+class AbsensiExport implements FromView, ShouldAutoSize
 {
-    /**
-     * @return \Illuminate\Support\Collection
-     */
     public $items;
     public $user;
     public $title;
