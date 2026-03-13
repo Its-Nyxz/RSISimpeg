@@ -7,8 +7,9 @@ use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use App\Livewire\AktivitasAbsensi;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class AbsensiUserSheet implements FromView, WithTitle
+class AbsensiUserSheet implements FromView, WithTitle, ShouldAutoSize
 {
     protected $user;
     protected $month;
