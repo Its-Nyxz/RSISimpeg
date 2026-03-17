@@ -53,17 +53,33 @@
 
         <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-start sm:justify-end">
             <button wire:click="exportPdfHistory"
-                class="flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg font-medium bg-blue-100 text-blue-900 hover:bg-blue-600 hover:text-white transition shadow-sm"
+                wire:loading.attr="disabled" 
+                class="flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg font-medium bg-blue-100 text-blue-900 hover:bg-blue-600 hover:text-white transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Export PDF">
-                <i class="fas fa-file-pdf"></i>
-                <span class="hidden sm:inline">PDF</span>
+                
+                <i class="fas fa-file-pdf" wire:loading.remove wire:target="exportPdfHistory"></i>
+                
+                <i class="fas fa-spinner fa-spin" wire:loading wire:target="exportPdfHistory"></i>
+                
+                <span class="hidden sm:inline">
+                    <span wire:loading.remove wire:target="exportPdfHistory">PDF</span>
+                    <span wire:loading wire:target="exportPdfHistory">Exporting...</span>
+                </span>
             </button>
 
             <button wire:click="exportExcelHistory"
-                class="flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg font-medium bg-yellow-100 text-yellow-900 hover:bg-yellow-600 hover:text-white transition shadow-sm"
+                wire:loading.attr="disabled"
+                class="flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg font-medium bg-yellow-100 text-yellow-900 hover:bg-yellow-600 hover:text-white transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Export Excel">
-                <i class="fas fa-file-excel"></i>
-                <span class="hidden sm:inline">Excel</span>
+                
+                <i class="fas fa-file-excel" wire:loading.remove wire:target="exportExcelHistory"></i>
+                
+                <i class="fas fa-spinner fa-spin" wire:loading wire:target="exportExcelHistory"></i>
+                
+                <span class="hidden sm:inline">
+                    <span wire:loading.remove wire:target="exportExcelHistory">Excel</span>
+                    <span wire:loading wire:target="exportExcelHistory">Exporting...</span>
+                </span>
             </button>
 
             @if ($canExportAll)
