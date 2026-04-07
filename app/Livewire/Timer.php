@@ -222,6 +222,12 @@ class Timer extends Component
         // Ambil data jadwal
         $jadwal = JadwalAbsensi::find($this->jadwal_id);
         if (!$jadwal) {
+            logger()->warning('Jadwal tidak ditemukan', [
+                'jadwal_id' => $this->jadwal_id,
+                'user_id' => Auth::id(),
+                'route' => request()->path(),
+            ]);
+
             return $this->sendError('Jadwal tidak ditemukan.');
         }
 
@@ -489,7 +495,15 @@ class Timer extends Component
     {
         $user = auth()->user();
         $jadwal = JadwalAbsensi::find($this->jadwal_id);
-        if (!$jadwal) return $this->dispatch('alert-error', 'Jadwal tidak ditemukan.');
+        if (!$jadwal) {
+            logger()->warning('Jadwal tidak ditemukan saat dinasKeluar', [
+                'jadwal_id' => $this->jadwal_id,
+                'user_id' => auth()->id(),
+                'route' => request()->path(),
+            ]);
+
+            return $this->dispatch('alert-error', 'Jadwal tidak ditemukan.');
+        }
 
         $shift = Shift::find($jadwal->shift_id);
         if (!$shift) return $this->dispatch('alert-error', 'Shift tidak ditemukan.');
