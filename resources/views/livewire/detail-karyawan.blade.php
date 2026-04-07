@@ -78,6 +78,14 @@
                                 <td>: {{ $user->name ?? '-' }}</td>
                             </tr>
                             <tr>
+                                <td class="font-semibold w-1/3">Email</td>
+                                <td>: {{ $user->email ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold w-1/3">No Hp</td>
+                                <td>: {{ $user->no_hp ?? '-' }}</td>
+                            </tr>
+                            <tr>
                                 <td class="font-semibold">Jabatan Struktural</td>
                                 <td>: {{ $user->kategorijabatan->nama ?? '-' }}</td>
                             </tr>
@@ -130,20 +138,33 @@
                                 </td>
                             </tr>
                             @php
-                                $isKepegawaian = Auth::user()
-                                    ?->getRoleNames()
-                                    ?->contains(
-                                        fn($role) => str_contains(strtolower($role), 'kepegawaian') ||
-                                            str_contains(strtolower($role), 'super admin'),
-                                    );
+                                $canSeeSisaCuti =
+                                    auth()->check() &&
+                                    auth()
+                                        ->user()
+                                        ->getRoleNames()
+                                        ->contains(function ($role) {
+                                            $role = strtolower($role);
+
+                                            return str_contains($role, 'kepegawaian') ||
+                                                str_contains($role, 'super admin');
+                                        });
                             @endphp
 
-                            @if ($isKepegawaian)
+                            <tr>
+                                <td class="font-semibold">Hak Akses</td>
+                                <td>:
+                                    {{ $user->getRoleNames()->isNotEmpty() ? $user->getRoleNames()->join(', ') : '-' }}
+                                </td>
+                            </tr>
+
+                            @if ($canSeeSisaCuti)
                                 <tr>
                                     <td class="font-semibold">Sisa Cuti Tahunan</td>
-
-                                    {{-- @dd($user->sisaCutiTahunan()?->where('tahun', now('Asia/Jakarta')->year)->first()->sisa_cuti) --}}
-                                    <td>: {{ $user->sisaCutiTahunan()?->where('tahun', now('Asia/Jakarta')->year)->first()->sisa_cuti ?? '0' }} kali</td>
+                                    <td>:
+                                        {{ $user->sisaCutiTahunan()?->where('tahun', now('Asia/Jakarta')->year)->first()->sisa_cuti ?? '0' }}
+                                        kali
+                                    </td>
                                 </tr>
                             @endif
                         </tbody>

@@ -155,12 +155,12 @@
                                     ? ['title' => 'Approval Tukar Jadwal', 'href' => '/approvaltukar']
                                     : null,
                                 // auth()->user()->can('view-import-gaji') ? ['title' => 'Import Gaji', 'href' => '#'] : null,
-                                auth()->user()->can('view-poin-peran')
-                                    ? ['title' => 'Poin Peran Fungsional', 'href' => '/peranfungsional']
-                                    : null,
-                                auth()->user()->can('view-poin-penilaian')
-                                    ? ['title' => 'Poin Penilaian Pekerja', 'href' => '/penilaian']
-                                    : null,
+                                // auth()->user()->can('view-poin-peran')
+                                //     ? ['title' => 'Poin Peran Fungsional', 'href' => '/peranfungsional']
+                                //     : null,
+                                // auth()->user()->can('view-poin-penilaian')
+                                //     ? ['title' => 'Poin Penilaian Pekerja', 'href' => '/penilaian']
+                                //     : null,
                             ])" />
                         @endcan
                         @can('view-keuangan')

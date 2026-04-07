@@ -1,3 +1,3 @@
 <x-body>
-    <livewire:penilaian-pekerja/>
+    <livewire:penilaian-pekerja />
 </x-body>
