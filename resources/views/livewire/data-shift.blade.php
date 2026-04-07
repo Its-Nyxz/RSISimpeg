@@ -20,14 +20,23 @@
                     <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari Shift..."
                         class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600 text-sm" />
                 </div>
-
+                @php
+                    $isStaf = auth()
+                        ->user()
+                        ->roles->contains(function ($role) {
+                            return str_contains(strtolower($role->name), 'staf');
+                        });
+                @endphp
                 <div class="relative group shrink-0">
-                    <a href="{{ route('shift.create') }}"
-                        class="inline-flex items-center justify-center h-10 px-4 rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition shadow-sm border border-success-200"
-                        aria-label="Tambah Shift">
-                        <i class="fa fa-plus"></i>
-                        <span class="hidden sm:inline ml-2 text-sm font-medium whitespace-nowrap">Tambah Shift</span>
-                    </a>
+                    @if (!$isStaf)
+                        <a href="{{ route('shift.create') }}"
+                            class="inline-flex items-center justify-center h-10 px-4 rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition shadow-sm border border-success-200"
+                            aria-label="Tambah Shift">
+                            <i class="fa fa-plus"></i>
+                            <span class="hidden sm:inline ml-2 text-sm font-medium whitespace-nowrap">Tambah
+                                Shift</span>
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>
@@ -45,12 +54,15 @@
                     <th scope="col" class="px-6 py-3 text-center">Jam Masuk</th>
                     <th scope="col" class="px-6 py-3 text-center">Jam Keluar</th>
                     <th scope="col" class="px-6 py-3">Keterangan</th>
-                    <th scope="col" class="px-6 py-3 text-center">Action</th>
+                    @if (!$isStaf)
+                        <th scope="col" class="px-6 py-3 text-center">Action</th>
+                    @endif
                 </tr>
             </thead>
             <tbody>
                 @forelse ($shifts as $shift)
-                    <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300 transition-colors">
+                    <tr
+                        class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300 transition-colors">
                         <td class="px-6 py-4 text-center w-10">
                             {{ $loop->iteration + ($shifts->currentPage() - 1) * $shifts->perPage() }}
                         </td>
@@ -63,41 +75,43 @@
                             {{ $shift['nama_shift'] }}
                         </td>
                         <td class="px-6 py-4 text-center tabular-nums">
-                            {{ $shift['jam_masuk'] ?? "--:--" }}
+                            {{ $shift['jam_masuk'] ?? '--:--' }}
                         </td>
                         <td class="px-6 py-4 text-center tabular-nums">
-                            {{ $shift['jam_keluar'] ?? "--:--" }}
+                            {{ $shift['jam_keluar'] ?? '--:--' }}
                         </td>
                         <td class="px-6 py-4 max-w-xs truncate">
                             {{ $shift['keterangan'] ?? '-' }}
                         </td>
-                        <td class="px-6 py-4">
-                            <div class="flex items-center justify-center gap-2">
-                                {{-- Tombol Edit: Style disamakan dengan tabel pendidikan --}}
-                                <a href="{{ route('shift.edit', $shift['id']) }}"
-                                    class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300 transition"
-                                    data-tooltip-target="tooltip-shift-edit-{{ $shift['id'] }}">
-                                    <i class="fa-solid fa-pen"></i>
-                                </a>
-                                <div id="tooltip-shift-edit-{{ $shift['id'] }}" role="tooltip"
-                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
-                                    Ubah Shift
-                                    <div class="tooltip-arrow" data-popper-arrow></div>
-                                </div>
-
-                                {{-- Tombol Delete: Style disamakan dengan tabel pendidikan --}}
-                                <button type="button"
-                                    onclick="confirmAlert('Yakin ingin menghapus shift ini?', 'Ya, hapus!', () => @this.call('destroy', {{ $shift['id'] }}))"
-                                    class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300 relative group transition">
-                                    <i class="fa-solid fa-trash"></i>
-                                    <div id="tooltip-destroy-{{ $shift['id'] }}"
-                                        class="absolute z-10 hidden group-hover:block bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-md whitespace-nowrap">
-                                        Hapus
+                        @if (!$isStaf)
+                            <td class="px-6 py-4">
+                                <div class="flex items-center justify-center gap-2">
+                                    {{-- Tombol Edit: Style disamakan dengan tabel pendidikan --}}
+                                    <a href="{{ route('shift.edit', $shift['id']) }}"
+                                        class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300 transition"
+                                        data-tooltip-target="tooltip-shift-edit-{{ $shift['id'] }}">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </a>
+                                    <div id="tooltip-shift-edit-{{ $shift['id'] }}" role="tooltip"
+                                        class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
+                                        Ubah Shift
                                         <div class="tooltip-arrow" data-popper-arrow></div>
                                     </div>
-                                </button>
-                            </div>
-                        </td>
+
+                                    {{-- Tombol Delete: Style disamakan dengan tabel pendidikan --}}
+                                    <button type="button"
+                                        onclick="confirmAlert('Yakin ingin menghapus shift ini?', 'Ya, hapus!', () => @this.call('destroy', {{ $shift['id'] }}))"
+                                        class="text-success-900 px-3 py-2 rounded-md border hover:bg-slate-300 relative group transition">
+                                        <i class="fa-solid fa-trash"></i>
+                                        <div id="tooltip-destroy-{{ $shift['id'] }}"
+                                            class="absolute z-10 hidden group-hover:block bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-md whitespace-nowrap">
+                                            Hapus
+                                            <div class="tooltip-arrow" data-popper-arrow></div>
+                                        </div>
+                                    </button>
+                                </div>
+                            </td>
+                        @endif
                     </tr>
                 @empty
                     <tr>
