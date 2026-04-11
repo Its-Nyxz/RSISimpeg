@@ -88,7 +88,8 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents, 
 
 
         ];
-        $jumlahPotongan = MasterPotongan::orderBy('id')->count();
+        // $jumlahPotongan = MasterPotongan::orderBy('id')->count();
+        $jumlahPotongan = MasterPotongan::aktifTerurut()->count();
         if ($jumlahPotongan > 0) {
             // Kolom T adalah kolom ke-20
             $startColumnIndex = 20;
@@ -176,39 +177,40 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents, 
             ->get();
 
         // Daftar slug sesuai urutan gambar (pastikan slug sesuai dengan isi DB Anda)
-        $urutanManual = [
-            'simpanan-wajib',
-            'simpanan-pokok',
-            'ibi',
-            'idi',
-            'ppni',
-            'pinjaman-koperasi',
-            'obat',
-            'angsuran-bank',
-            'angsuran-perum',
-            'dansos-karyawan',
-            'dplk',
-            'bpjs-tenaga-kerja',
-            'bpjs-kesehatan',
-            'rekonsiliasi-bpjs-kesehatan',
-            'bpjs-kesehatan-ortutambahan',
-            'pph21',
-            'kurangan-pph-21-tahun-2024',
-            'amaliah-romadhon',
-            'rawat-inap',
-            'potongan-selisih',
-            'iuran-pekarsi',
-            'lain-lain'
-        ];
+        // $urutanManual = [
+        //     'simpanan-wajib',
+        //     'simpanan-pokok',
+        //     'ibi',
+        //     'idi',
+        //     'ppni',
+        //     'pinjaman-koperasi',
+        //     'obat',
+        //     'angsuran-bank',
+        //     'angsuran-perum',
+        //     'dansos-karyawan',
+        //     'dplk',
+        //     'bpjs-tenaga-kerja',
+        //     'bpjs-kesehatan',
+        //     'rekonsiliasi-bpjs-kesehatan',
+        //     'bpjs-kesehatan-ortutambahan',
+        //     'pph21',
+        //     'kurangan-pph-21-tahun-2024',
+        //     'amaliah-romadhon',
+        //     'rawat-inap',
+        //     'potongan-selisih',
+        //     'iuran-pekarsi',
+        //     'lain-lain'
+        // ];
 
-        // Ambil data dan urutkan berdasarkan posisi index di array di atas
-        $masterPotongans = MasterPotongan::all()->sortBy(function ($item) use ($urutanManual) {
-            $posisi = array_search($item->slug, $urutanManual);
+        // // Ambil data dan urutkan berdasarkan posisi index di array di atas
+        // $masterPotongans = MasterPotongan::all()->sortBy(function ($item) use ($urutanManual) {
+        //     $posisi = array_search($item->slug, $urutanManual);
 
-            // Jika tidak ketemu, lempar ke urutan 999
-            // Jika ketemu, gunakan index aslinya (0, 1, 2, dst)
-            return ($posisi === false) ? 999 : $posisi;
-        })->values();
+        //     // Jika tidak ketemu, lempar ke urutan 999
+        //     // Jika ketemu, gunakan index aslinya (0, 1, 2, dst)
+        //     return ($posisi === false) ? 999 : $posisi;
+        // })->values();
+        $masterPotongans = MasterPotongan::aktifTerurut()->get();
 
         // dd($masterPotongans->toArray());
         $masterTrans = MasterTrans::first();

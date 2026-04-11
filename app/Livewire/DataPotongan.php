@@ -18,11 +18,22 @@ class DataPotongan extends Component
 
     public function loadData()
     {
-        $this->potongans = MasterPotongan::when($this->search, function ($query) {
-            $query->where('nama', 'like', '%' . $this->search . '%');
-        })
-            ->get()
-            ->toArray();
+        $query = MasterPotongan::query()
+            ->when($this->search, function ($q) {
+                $q->where(function ($sub) {
+                    $sub->where('nama', 'like', '%' . $this->search . '%')
+                        ->orWhere('slug', 'like', '%' . $this->search . '%');
+
+                    if (is_numeric($this->search)) {
+                        $sub->orWhere('no_urut', (int) $this->search);
+                    }
+                });
+            })
+            ->orderByRaw('CASE WHEN no_urut IS NULL THEN 1 ELSE 0 END')
+            ->orderBy('no_urut', 'asc')
+            ->orderBy('id', 'asc');
+
+        $this->potongans = $query->get()->toArray();
     }
 
 

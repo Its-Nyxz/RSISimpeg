@@ -53,36 +53,37 @@ class DetailKeuangan extends Component
 
         // Buat urutan tetap sesuai master
         // 1. Definisikan urutan manual berdasarkan SLUG (atau field pengidentifikasi unik lainnya)
-        $urutanManual = [
-            'simpanan-wajib',
-            'simpanan-pokok',
-            'ibi',
-            'idi',
-            'ppni',
-            'pinjaman-koperasi',
-            'obat',
-            'angsuran-bank',
-            'angsuran-perum',
-            'dansos-karyawan',
-            'dplk',
-            'bpjs-tenaga-kerja',
-            'bpjs-kesehatan',
-            'rekonsiliasi-bpjs-kesehatan',
-            'bpjs-kesehatan-ortutambahan',
-            'pph21',
-            'kurangan-pph-21-tahun-2024',
-            'amaliah-romadhon',
-            'rawat-inap',
-            'potongan-selisih',
-            'iuran-pekarsi',
-            'lain-lain'
-        ];
+        // $urutanManual = [
+        //     'simpanan-wajib',
+        //     'simpanan-pokok',
+        //     'ibi',
+        //     'idi',
+        //     'ppni',
+        //     'pinjaman-koperasi',
+        //     'obat',
+        //     'angsuran-bank',
+        //     'angsuran-perum',
+        //     'dansos-karyawan',
+        //     'dplk',
+        //     'bpjs-tenaga-kerja',
+        //     'bpjs-kesehatan',
+        //     'rekonsiliasi-bpjs-kesehatan',
+        //     'bpjs-kesehatan-ortutambahan',
+        //     'pph21',
+        //     'kurangan-pph-21-tahun-2024',
+        //     'amaliah-romadhon',
+        //     'rawat-inap',
+        //     'potongan-selisih',
+        //     'iuran-pekarsi',
+        //     'lain-lain'
+        // ];
 
         // 2. Ambil master potongan dan urutkan terlebih dahulu
-        $masterPotongans = MasterPotongan::all()->sortBy(function ($mp) use ($urutanManual) {
-            $posisi = array_search($mp->slug, $urutanManual); // Pastikan ada kolom 'slug' di table master_potongans
-            return ($posisi === false) ? 999 : $posisi;
-        });
+        // $masterPotongans = MasterPotongan::all()->sortBy(function ($mp) use ($urutanManual) {
+        //     $posisi = array_search($mp->slug, $urutanManual); // Pastikan ada kolom 'slug' di table master_potongans
+        //     return ($posisi === false) ? 999 : $posisi;
+        // });
+        $masterPotongans = MasterPotongan::aktifTerurut()->get();
 
         // 3. Mapping ke dynamicPotongans (urutan akan terjaga dari $masterPotongans)
         $this->dynamicPotongans = $masterPotongans->mapWithKeys(function ($mp) use ($potonganList) {

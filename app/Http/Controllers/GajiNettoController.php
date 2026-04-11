@@ -34,7 +34,7 @@ class GajiNettoController extends Controller
             ->orderBy('name')
             ->first();
 
-        $pdf = Pdf::loadView('exports.slip-gaji', compact('slip'));
+        $pdf = Pdf::loadView('exports.slip-gaji', compact('slip', 'bendahara'));
 
         $bulan = str_pad($slip->bruto->bulan_penggajian, 2, '0', STR_PAD_LEFT);
         $tahun = $slip->bruto->tahun_penggajian;

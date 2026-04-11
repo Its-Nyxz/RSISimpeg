@@ -29,12 +29,12 @@ class PotonganImport implements ToCollection
 
 
         // 2. Persiapan Master Data
-        $masterPotongans = MasterPotongan::orderBy('id')->get();
+        $masterPotongans = MasterPotongan::aktifTerurut()->get();
         $mapPotongans = $masterPotongans->keyBy('slug');
 
-        // 3. Mapping Header Potongan (Dimulai dari Indeks 14: Pinjaman Koperasi)
+        // 3. Mapping Header Potongan (Dimulai dari Indeks 19: Pinjaman Koperasi)
         $headerSlugs = collect($header)
-            ->slice(14)
+            ->slice(offset: 19)
             ->map(fn($h) => $h ? Str::slug(trim($h)) : null)
             ->values();
 
@@ -116,9 +116,9 @@ class PotonganImport implements ToCollection
             // Gunakan total bruto hasil hitung sistem
             $brutoNominal = $bruto->total_bruto;
 
-            // 7. Proses Potongan yang ada di Kolom Excel (Indeks 20 ke atas)
+            // 7. Proses Potongan yang ada di Kolom Excel (Indeks 19 ke atas)
             foreach ($headerSlugs as $i => $slugKey) {
-                $colIndex = $i + 20;
+                $colIndex = $i + 19;
                 $val = $row[$colIndex] ?? null;
                 $originalHeader = $header[$colIndex] ?? 'UNKNOWN';
 

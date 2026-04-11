@@ -224,7 +224,7 @@
     <div class="section-title">POTONGAN-POTONGAN :</div>
     <table class="main-table">
         @php $no = 1; @endphp
-        @php
+        {{-- @php
             $urutanManual = [
                 'simpanan-wajib',
                 'simpanan-pokok',
@@ -258,6 +258,17 @@
                     $posisi = array_search($slug, $urutanManual);
 
                     return $posisi === false ? 999 : $posisi;
+                })
+                ->values();
+        @endphp --}}
+
+        @php
+            $slip->bruto->potongan = collect($slip->bruto?->potongan ?? [])
+                ->sortBy(function ($p) {
+                    $noUrut = $p->masterPotongan->no_urut ?? null;
+                    $masterId = $p->masterPotongan->id ?? 999999;
+
+                    return sprintf('%06d-%06d', is_null($noUrut) ? 999999 : (int) $noUrut, $masterId);
                 })
                 ->values();
         @endphp

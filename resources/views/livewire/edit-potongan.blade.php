@@ -15,7 +15,7 @@
             <!-- Nama Potongan -->
             <div>
                 <label for="nama" class="block mb-1 text-sm font-semibold text-success-900">Nama Potongan</label>
-                <input type="text" id="nama" wire:model.defer="nama"
+                <input type="text" id="nama" wire:model="nama"
                     class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-success-200"
                     placeholder="Contoh: bpjs_tk" />
                 @error('nama')
@@ -28,7 +28,7 @@
                 <label for="nominal" class="block mb-1 text-sm font-semibold text-success-900">
                     Nominal Potongan (Opsional)
                 </label>
-                <input type="number" id="nominal" wire:model.defer="nominal" min="0"
+                <input type="number" id="nominal" wire:model="nominal" min="0"
                     class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-success-200"
                     placeholder="Masukkan nominal default" />
                 @error('nominal')
@@ -36,12 +36,36 @@
                 @enderror
             </div>
 
+            <div>
+                <label for="no_urut" class="block mb-1 text-sm font-semibold text-success-900">No Urut</label>
+                <input type="number" id="no_urut" wire:model="no_urut" min="1"
+                    class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-success-200"
+                    placeholder="Contoh: 1" />
+                @error('no_urut')
+                    <span class="text-sm text-red-600">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div>
+                <label for="is_active" class="block mb-1 text-sm font-semibold text-success-900">Status Aktif</label>
+                <select id="is_active" wire:model="is_active"
+                    class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-success-200">
+                    <option value="">-- Pilih Status --</option>
+                    <option value="1">Aktif</option>
+                    <option value="0">Nonaktif</option>
+                </select>
+                @error('is_active')
+                    <span class="text-sm text-red-600">{{ $message }}</span>
+                @enderror
+            </div>
+
             <!-- Wajib? -->
             <div class="md:col-span-2 flex items-center space-x-2 mt-2">
-                <input type="checkbox" wire:model.defer="is_wajib" id="is_wajib"
-                    class="form-checkbox text-success-600">
+                <input type="checkbox" wire:model="is_wajib" id="is_wajib" class="form-checkbox text-success-600">
                 <label for="is_wajib" class="text-sm font-semibold text-success-900">Wajib? (BPJS, dll)</label>
             </div>
+
+
 
             <!-- Tombol -->
             <div class="md:col-span-2 flex justify-end mt-4">

@@ -60,7 +60,7 @@ class AddPotongan extends Component
                 : 0);
 
         $this->isKaryawanTetap = strtolower($this->user->jenis?->nama ?? '') === 'tetap';
-        $this->masterPotongans = MasterPotongan::orderBy('id')->get();
+        $this->masterPotongans = MasterPotongan::aktifTerurut()->get();
 
         $this->gajiBruto = GajiBruto::where('user_id', $this->user->id)
             ->where('bulan_penggajian', $this->bulan)
@@ -204,7 +204,7 @@ class AddPotongan extends Component
                 $this->total_bruto = $this->gapok;
             }
 
-            $this->masterPotongans = MasterPotongan::orderBy('id')->get();
+            $this->masterPotongans = MasterPotongan::aktifTerurut()->get();
 
             $this->gajiBruto = GajiBruto::firstOrCreate(
                 [
@@ -336,7 +336,7 @@ class AddPotongan extends Component
                 ->where('tahun_penggajian', $this->tahun)
                 ->first();
 
-            $this->masterPotongans = MasterPotongan::orderBy('id')->get(); // pastikan urut
+            $this->masterPotongans = MasterPotongan::aktifTerurut()->get(); // pastikan urut
             $this->tunjanganTukin = $this->gajiBruto->nom_lainnya ?? 0;
 
             if ($this->gajiBruto  && $this->gajiBruto->nom_gapok > 0) {

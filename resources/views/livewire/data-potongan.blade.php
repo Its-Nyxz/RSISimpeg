@@ -30,16 +30,21 @@
         <table class="w-full text-sm text-left text-gray-700">
             <thead class="text-sm uppercase bg-success-400 text-success-900">
                 <tr>
+                    <th scope="col" class="px-6 py-3">No Urut</th>
                     <th scope="col" class="px-6 py-3">Nama Potongan</th>
                     <th scope="col" class="px-6 py-3">Nominal Potongan</th>
                     {{-- <th scope="col" class="px-6 py-3">Jenis Potongan</th> --}}
                     <th scope="col" class="px-6 py-3">Wajib</th>
+                    <th scope="col" class="px-6 py-3">Status</th>
                     <th scope="col" class="px-6 py-3">Action</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($potongans as $potongan)
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
+                        <td class="px-6 py-4">
+                            {{ $potongan['no_urut'] ?? '-' }}
+                        </td>
                         <td scope="row" class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
                             {{ $potongan['nama'] ?? '-' }}
                         </td>
@@ -47,6 +52,21 @@
                         {{-- <td class="px-6 py-4">{{ $potongan['jenis'] ?? '-' }}</td> --}}
                         <td class="px-6 py-4">
                             {{ $potongan['is_wajib'] ? 'iya' : 'tidak' }}
+                        </td>
+                        <td class="px-6 py-4">
+                            @if (!is_null($potongan['is_active']) && (int) $potongan['is_active'] === 1)
+                                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-700 font-medium">
+                                    Aktif
+                                </span>
+                            @elseif (!is_null($potongan['is_active']) && (int) $potongan['is_active'] === 0)
+                                <span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-700 font-medium">
+                                    Nonaktif
+                                </span>
+                            @else
+                                <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700 font-medium">
+                                    Belum diset
+                                </span>
+                            @endif
                         </td>
                         <td class="px-6 py-4 flex gap-2">
                             <a href="{{ route('potongan.edit', $potongan['id']) }}"

@@ -22,4 +22,15 @@ class MasterPotongan extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function scopeAktifTerurut($query)
+    {
+        return $query
+            ->where(function ($q) {
+                $q->where('is_active', 1)->orWhereNull('is_active');
+            })
+            ->orderByRaw('CASE WHEN no_urut IS NULL THEN 1 ELSE 0 END')
+            ->orderBy('no_urut', 'asc')
+            ->orderBy('id', 'asc');
+    }
 }
