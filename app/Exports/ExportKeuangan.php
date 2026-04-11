@@ -64,23 +64,25 @@ class ExportKeuanganSheet implements FromView, WithTitle, ShouldAutoSize, WithEv
             'I' => $idrFormat,
             'J' => $idrFormat,
             'K' => $idrFormat,
-
-            // Pendapatan RS
             'M' => $idrFormat,
-            // Persentase dengan titik desimal (6 digit)
-            'N' => '0.0000%',
-            // KPI dengan titik desimal (1 digit)
-            'O' => '0.0%',
 
-            'P' => $idrFormat,
-            'Q' => $idrFormat,
+            // Persentase dengan titik desimal (6 digit)
+            'P' => '0.0000%',
+            // Pendapatan RS
+            'O' => $idrFormat,
+            // KPI dengan titik desimal (1 digit)
+            'Q' => '0.0%',
+
+            'R' => $idrFormat,
+            'S' => $idrFormat,
+
 
 
         ];
         $jumlahPotongan = MasterPotongan::orderBy('id')->count();
         if ($jumlahPotongan > 0) {
-            // Kolom R adalah kolom ke-18
-            $startColumnIndex = 18;
+            // Kolom T adalah kolom ke-20
+            $startColumnIndex = 20;
             $endColumnIndex = $startColumnIndex + $jumlahPotongan - 1 + 2;
 
             $startLetter = Coordinate::stringFromColumnIndex($startColumnIndex);
@@ -152,7 +154,7 @@ class ExportKeuanganSheet implements FromView, WithTitle, ShouldAutoSize, WithEv
             ->orderBy('name', 'asc')
             ->get();
 
-         $urutanManual = [
+        $urutanManual = [
             'simpanan-wajib',
             'simpanan-pokok',
             'ibi',
@@ -225,11 +227,19 @@ class ExportKeuanganSheet implements FromView, WithTitle, ShouldAutoSize, WithEv
             $user->netto = $user->total_bruto - $user->total_potongan;
         });
 
+        $bendahara = User::where('status_karyawan', '1')
+            ->whereHas('roles', function ($q) {
+                $q->where('id', 3);
+            })
+            ->orderBy('name')
+            ->first();
+
         return view('exports.export-keuangan', [
             'users' => $users,
             'bulan' => $this->bulan,
             'tahun' => $this->tahun,
             'masterPotongans' => $masterPotongans,
+            'bendahara' => $bendahara,
         ]);
     }
 }

@@ -139,6 +139,16 @@
                             </div>
 
                             <div class="flex justify-between">
+                                <strong>Tunjangan Makan</strong>
+                                <span>Rp {{ number_format($gajiBruto->nom_makan ?? 0, 0, ',', '.') }}</span>
+                            </div>
+
+                            <div class="flex justify-between">
+                                <strong>Tunjangan Transport</strong>
+                                <span>Rp {{ number_format($gajiBruto->nom_transport ?? 0, 0, ',', '.') }}</span>
+                            </div>
+
+                            <div class="flex justify-between">
                                 <strong>Tunjangan Poskes</strong>
                                 <span>Rp {{ number_format($gajiBruto->nom_poskes ?? 0, 0, ',', '.') }}</span>
                             </div>

@@ -32,7 +32,7 @@
                 style="background-color: #1f4e78; color: #ffffff; font-weight: bold; border: 2px solid #000000; text-align: center;">
                 TUNJANGAN TETAP</th>
 
-            <th colspan="10"
+            <th colspan="12"
                 style="background-color: #375623; color: #ffffff; font-weight: bold; border: 2px solid #000000; text-align: center;">
                 TUNJANGAN TIDAK TETAP</th>
 
@@ -58,6 +58,12 @@
             <th
                 style="background-color: #548235; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">
                 Tj. Fung Tambahan</th>
+            <th
+                style="background-color: #548235; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">
+                Tj. Makan</th>
+            <th
+                style="background-color: #548235; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">
+                Tj. Transport</th>
             <th
                 style="background-color: #548235; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">
                 Tj. Poskes</th>
@@ -118,6 +124,8 @@
 
                 <td style="border: 1px solid #000000; text-align: right;">{{ $user->nom_jabatan }}</td>
                 <td style="border: 1px solid #000000; text-align: right;">{{ $user->nom_umum ?? 0 }}</td>
+                <td style="border: 1px solid #000000; text-align: right;">{{ $user->nom_makan ?? 0 }}</td>
+                <td style="border: 1px solid #000000; text-align: right;">{{ $user->nom_transport ?? 0 }}</td>
                 <td style="border: 1px solid #000000; text-align: right;">{{ $user->nom_poskes ?? 0 }}</td>
                 <td style="border: 1px solid #000000; text-align: right;">{{ $user->nom_lainnya }}</td>
                 <td style="border: 1px solid #000000; text-align: right;">{{ $user->nom_lembur ?? 0 }}</td>
@@ -135,11 +143,11 @@
                 </td>
 
                 <td style="border: 1px solid #000000; text-align: right; background-color: #e2efda; font-weight: bold;">
-                    {{$user->nom_tukin_diterima}}
+                    {{ $user->nom_tukin_diterima }}
                 </td>
 
                 <td style="border: 1px solid #000000; text-align: right; background-color: #fff2cc; font-weight: bold;">
-                    =SUM(E{{ $currentRow }}:K{{ $currentRow }},P{{ $currentRow }})
+                    =SUM(E{{ $currentRow }}:M{{ $currentRow }},R{{ $currentRow }})
                 </td>
 
                 @foreach ($masterPotongans as $potongan)

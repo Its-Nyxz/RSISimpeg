@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\GajiNetto;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -25,6 +26,13 @@ class GajiNettoController extends Controller
         if ($slip->bruto?->potongan) {
             $slip->bruto->potongan = $slip->bruto->potongan->sortBy('master_potongan_id')->values();
         }
+
+        $bendahara = User::where('status_karyawan', '1')
+            ->whereHas('roles', function ($q) {
+                $q->where('id', 3);
+            })
+            ->orderBy('name')
+            ->first();
 
         $pdf = Pdf::loadView('exports.slip-gaji', compact('slip'));
 

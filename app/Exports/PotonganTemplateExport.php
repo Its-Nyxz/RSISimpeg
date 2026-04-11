@@ -74,22 +74,24 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents, 
             'J' => $idrFormat,
             'K' => $idrFormat,
 
-            // Pendapatan RS
             'M' => $idrFormat,
-            // Persentase dengan titik desimal (6 digit)
-            'N' => '0.0000%',
-            // KPI dengan titik desimal (1 digit)
-            'O' => '0.0%',
 
-            'P' => $idrFormat,
-            'Q' => $idrFormat,
+            // Persentase dengan titik desimal (6 digit)
+            'P' => '0.0000%',
+            // Pendapatan RS
+            'O' => $idrFormat,
+            // KPI dengan titik desimal (1 digit)
+            'Q' => '0.0%',
+
+            'R' => $idrFormat,
+            'S' => $idrFormat,
 
 
         ];
         $jumlahPotongan = MasterPotongan::orderBy('id')->count();
         if ($jumlahPotongan > 0) {
-            // Kolom R adalah kolom ke-18
-            $startColumnIndex = 18;
+            // Kolom T adalah kolom ke-20
+            $startColumnIndex = 20;
             $endColumnIndex = $startColumnIndex + $jumlahPotongan - 1;
 
             $startLetter = Coordinate::stringFromColumnIndex($startColumnIndex);
@@ -233,12 +235,14 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents, 
                 $user->setAttribute('nom_jabatan', $gajiBruto->nom_jabatan);
                 $user->setAttribute('nom_umum', $gajiBruto->nom_umum);
                 $user->setAttribute('nom_poskes', $gajiBruto->nom_poskes);
+                $user->setAttribute('nom_makan', $gajiBruto->nom_makan ?? 0);
+                $user->setAttribute('nom_transport', $gajiBruto->nom_transport ?? 0);
                 $user->setAttribute('nom_lainnya', $gajiBruto->nom_lainnya);
                 $user->setAttribute('nom_lembur', $gajiBruto->nom_lembur);
                 $user->setAttribute('level_jabatan', $gajiBruto->level_jabatan);
                 $user->setAttribute('nom_pendapatan_rs', $gajiBruto->nom_pendapatan_rs);
-                $user->setAttribute('prosentase_tukin', ($gajiBruto->prosentase_tukin/100));
-                $user->setAttribute('KPI', ($gajiBruto->KPI/100));
+                $user->setAttribute('prosentase_tukin', ($gajiBruto->prosentase_tukin / 100));
+                $user->setAttribute('KPI', ($gajiBruto->KPI / 100));
                 $user->setAttribute('nom_tukin_diterima', $gajiBruto->nom_tukin_diterima);
                 $user->setAttribute('total_bruto', $gajiBruto->total_bruto);
 
@@ -259,6 +263,10 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents, 
             $nom_fungsi = 0;
             $nom_umum = 0;
             $nom_khusus = $user->khusus?->nominal ?? 0;
+
+            // manual input saat export
+            $nom_makan = 0;
+            $nom_transport = 0;
 
             $jadwalUser = $user->jadwalabsensi()
                 ->whereBetween('tanggal_jadwal', [$periodeMulai->toDateString(), $periodeSelesai->toDateString()])
@@ -314,8 +322,8 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents, 
                     elseif ($riwayat->tunjangan === 'umum') $nom_umum += $nominal * $proporsi;
                 }
 
-                $nom_makan = $masterTrans?->nom_makan ?? 0;
-                $nom_transport = $masterTrans?->nom_transport ?? 0;
+                // $nom_makan = $masterTrans?->nom_makan ?? 0;
+                // $nom_transport = $masterTrans?->nom_transport ?? 0;
                 $total_bruto = $gapok + $nom_jabatan + $nom_fungsi + $nom_umum + $nom_khusus + $nom_makan + $nom_transport;
             }
 

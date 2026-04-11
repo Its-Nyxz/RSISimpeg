@@ -34,6 +34,7 @@ class AddPotongan extends Component
     public $potonganInputs = []; // [master_potongan_id => nominal]
     public $masterPotongans = [];
     public $total_bruto = 0;
+    public bool $isInitializing = true;
 
     public function mount(User $user, $bulan = null, $tahun = null)
     {
@@ -51,14 +52,30 @@ class AddPotongan extends Component
             'golongan.gapoks',
         ])->findOrFail($user->id);
 
-        $masterTrans = MasterTrans::first(); // atau where('nama', 'Tetap')->first() jika ada kondisi
+        // $masterTrans = MasterTrans::first(); // atau where('nama', 'Tetap')->first() jika ada kondisi
         $this->masaKerjaTahun = !is_null($this->user->masa_kerja)
             ? $this->user->masa_kerja
             : ($this->user->tmt
                 ? floor(Carbon::parse($this->user->tmt)->floatDiffInYears(Carbon::now()))
                 : 0);
-        $base_makan = $masterTrans->nom_makan ?? 0;
-        $base_transport = $masterTrans->nom_transport ?? 0;
+
+        $this->isKaryawanTetap = strtolower($this->user->jenis?->nama ?? '') === 'tetap';
+        $this->masterPotongans = MasterPotongan::orderBy('id')->get();
+
+        $this->gajiBruto = GajiBruto::where('user_id', $this->user->id)
+            ->where('bulan_penggajian', $this->bulan)
+            ->where('tahun_penggajian', $this->tahun)
+            ->first();
+
+        if ($this->gajiBruto) {
+            $this->fillFromGajiBruto();
+            $this->loadPotonganFromDb();
+            $this->isInitializing = false;
+            return;
+        }
+
+        // $base_makan = $masterTrans->nom_makan ?? 0;
+        // $base_transport = $masterTrans->nom_transport ?? 0;
         $this->nom_khusus = $this->user->khusus?->nominal ?? 0;
 
         // Reset nilai awal
@@ -116,6 +133,28 @@ class AddPotongan extends Component
 
             $total_bruto = 0;
             $this->total_bruto = $total_bruto;
+
+            $this->gajiBruto = GajiBruto::firstOrCreate(
+                [
+                    'user_id' => $this->user->id,
+                    'bulan_penggajian' => $this->bulan,
+                    'tahun_penggajian' => $this->tahun,
+                ],
+                [
+                    'nom_gapok' => 0,
+                    'nom_jabatan' => 0,
+                    'nom_fungsi' => 0,
+                    'nom_umum' => 0,
+                    'nom_khusus' => 0,
+                    'nom_makan' => 0,
+                    'nom_transport' => 0,
+                    'nom_lainnya' => 0,
+                    'total_bruto' => 0,
+                    'created_at' => now(),
+                ]
+            );
+
+            $this->loadPotonganFromDb();
         } elseif ($semuaC) {
             // ✅ Semua shift C → hanya dapat gapok, tidak dapat tunjangan apa pun
             $this->nom_jabatan   = 0;
@@ -195,8 +234,8 @@ class AddPotongan extends Component
             // Terapkan hanya ke makan dan transport
             // $this->nom_makan = $base_makan * $proporsiHybrid;
             // $this->nom_transport = $base_transport * $proporsiHybrid;
-            $this->nom_makan = $base_makan;
-            $this->nom_transport = $base_transport;
+            $this->nom_makan = 0;
+            $this->nom_transport = 0;
 
             // Ambil semua riwayat jabatan yang aktif selama bulan ini
             $riwayatJabatanAktif = $this->user->riwayatJabatan()
@@ -360,17 +399,69 @@ class AddPotongan extends Component
                 $this->updatePotonganInputs();
             }
         }
+
+        $this->isInitializing = false;
     }
 
     public function updatedGapok()
     {
+        if ($this->isInitializing || !$this->gajiBruto) return;
+
         $this->updateGajiBruto();
         $this->updatePotonganInputs();
     }
 
     public function updatedTunjanganTukin()
     {
+        if ($this->isInitializing || !$this->gajiBruto) return;
+
         $this->updateGajiBruto();
+    }
+
+    public function updatedNomMakan()
+    {
+        if ($this->isInitializing || !$this->gajiBruto) return;
+
+        $this->updateGajiBruto();
+        $this->updatePotonganInputs();
+    }
+
+    public function updatedNomTransport()
+    {
+        if ($this->isInitializing || !$this->gajiBruto) return;
+
+        $this->updateGajiBruto();
+        $this->updatePotonganInputs();
+    }
+
+    protected function loadPotonganFromDb(): void
+    {
+        if (!$this->gajiBruto) return;
+
+        $potonganTersimpan = Potongan::where('bruto_id', $this->gajiBruto->id)->get();
+
+        if ($potonganTersimpan->isNotEmpty()) {
+            $this->potonganInputs = $potonganTersimpan->mapWithKeys(function ($p) {
+                return [$p->master_potongan_id => (int) $p->nominal];
+            })->toArray();
+        } else {
+            $this->updatePotonganInputs();
+        }
+    }
+
+    protected function fillFromGajiBruto(): void
+    {
+        if (!$this->gajiBruto) return;
+
+        $this->gapok          = $this->gajiBruto->nom_gapok ?? 0;
+        $this->nom_jabatan    = $this->gajiBruto->nom_jabatan ?? 0;
+        $this->nom_fungsi     = $this->gajiBruto->nom_fungsi ?? 0;
+        $this->nom_umum       = $this->gajiBruto->nom_umum ?? 0;
+        $this->nom_khusus     = $this->gajiBruto->nom_khusus ?? 0;
+        $this->nom_makan      = $this->gajiBruto->nom_makan ?? 0;
+        $this->nom_transport  = $this->gajiBruto->nom_transport ?? 0;
+        $this->tunjanganTukin = $this->gajiBruto->nom_lainnya ?? 0;
+        $this->total_bruto    = $this->gajiBruto->total_bruto ?? 0;
     }
 
     protected function updateGajiBruto()
@@ -392,15 +483,18 @@ class AddPotongan extends Component
                 + $this->nom_transport;
 
             if ($jenisKaryawan === 'part time') {
-                $total_bruto += $this->nom_jabatan + $this->nom_fungsi;
+                $total_bruto += $this->nom_jabatan + $this->nom_fungsi + $this->nom_umum;
             }
         }
         $this->total_bruto = $total_bruto;
 
         $this->gajiBruto->update([
-            'total_bruto' => $this->total_bruto,
-            'nom_gapok'   => $this->gapok,
-            'nom_lainnya' => $this->tunjanganTukin,
+            'total_bruto'    => $this->total_bruto,
+            'nom_gapok'      => $this->gapok,
+            'nom_khusus'     => $this->nom_khusus,
+            'nom_makan'      => $this->nom_makan,
+            'nom_transport'  => $this->nom_transport,
+            'nom_lainnya'    => $this->tunjanganTukin,
         ]);
     }
 

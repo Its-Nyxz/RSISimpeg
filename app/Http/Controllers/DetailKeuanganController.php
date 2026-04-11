@@ -48,16 +48,23 @@ class DetailKeuanganController extends Controller
                 'nominal' => $potongan?->nominal ?? 0,
             ];
         });
+        $bendahara = User::where('status_karyawan', '1')
+            ->whereHas('roles', function ($q) {
+                $q->where('id', 3);
+            })
+            ->orderBy('name')
+            ->first();
 
         $totalPotongan = $potonganList->sum('nominal');
         $netto = ($gajiBruto->total_bruto ?? 0) - $totalPotongan;
 
-        $pdf = Pdf::loadView('exports.detail-keuangan', compact('user', 'gajiBruto', 'potonganList', 'totalPotongan', 'netto', 'bulan', 'tahun'))
+        $pdf = Pdf::loadView('exports.detail-keuangan', compact('user', 'gajiBruto', 'potonganList', 'totalPotongan', 'netto', 'bulan', 'tahun', 'bendahara'))
             ->setPaper('A4');
 
         $nama = str_replace(' ', '_', strtolower($user->name));
         $bulanNama = Carbon::createFromDate(null, (int) $bulan, 1)->locale('id')->isoFormat('MMMM');
         $filename = "slip_detail_{$nama}_{$bulanNama}_{$tahun}.pdf";
+
 
         return $pdf->download($filename);
     }

@@ -155,46 +155,60 @@
             </td>
         </tr>
         <tr>
-            <td class="label indent">3 Tunjangan Poskes</td>
+            <td class="label indent">3 Tunjangan Makan</td>
+            <td class="rp">Rp</td>
+            <td class="val">
+                {{ $slip->bruto?->nom_makan ? number_format($slip->bruto->nom_makan, 0, ',', '.') : '-' }}
+            </td>
+        </tr>
+        <tr>
+            <td class="label indent">4 Tunjangan Transport</td>
+            <td class="rp">Rp</td>
+            <td class="val">
+                {{ $slip->bruto?->nom_transport ? number_format($slip->bruto->nom_transport, 0, ',', '.') : '-' }}
+            </td>
+        </tr>
+        <tr>
+            <td class="label indent">5 Tunjangan Poskes</td>
             <td class="rp">Rp</td>
             <td class="val">
                 {{ $slip->bruto?->nom_poskes ? number_format($slip->bruto->nom_poskes, 0, ',', '.') : '-' }}</td>
         </tr>
         <tr>
-            <td class="label indent">4 Tunjangan Lainnya</td>
+            <td class="label indent">6 Tunjangan Lainnya</td>
             <td class="rp">Rp</td>
             <td class="val">
                 {{ $slip->bruto?->nom_lainnya ? number_format($slip->bruto->nom_lainnya, 0, ',', '.') : '-' }}</td>
         </tr>
         <tr>
-            <td class="label indent">5 Lembur</td>
+            <td class="label indent">7 Lembur</td>
             <td class="rp">Rp</td>
             <td class="val">
                 {{ $slip->bruto?->nom_lembur ? number_format($slip->bruto->nom_lembur, 0, ',', '.') : '-' }}</td>
         </tr>
 
         <tr>
-            <td class="label indent">6 Level Jabatan</td>
+            <td class="label indent">8 Level Jabatan</td>
             <td class="rp"></td>
             <td class="val center-val">{{ $slip->bruto?->level_jabatan ?? '-' }}</td>
         </tr>
         <tr>
-            <td class="label indent">7 Pendapatan RS</td>
+            <td class="label indent">9 Pendapatan RS</td>
             <td class="rp">Rp</td>
             <td class="val">{{ number_format($slip->bruto?->nom_pendapatan_rs ?? 0, 0, ',', '.') }}</td>
         </tr>
         <tr>
-            <td class="label indent">8 Prosentase Tukin</td>
+            <td class="label indent">10 Prosentase Tukin</td>
             <td class="rp"></td>
             <td class="val center-val">{{ number_format($slip->bruto?->prosentase_tukin ?? 0, 4, ',', '.') }}%</td>
         </tr>
         <tr>
-            <td class="label indent">9 KPI</td>
+            <td class="label indent">11 KPI</td>
             <td class="rp"></td>
             <td class="val center-val">{{ number_format($slip->bruto?->KPI ?? 0, 1, ',', '.') }}%</td>
         </tr>
         <tr>
-            <td class="label indent">10 Tukin Diterima</td>
+            <td class="label indent">12 Tukin Diterima</td>
             <td class="rp">Rp</td>
             <td class="val">{{ number_format($slip->bruto?->nom_tukin_diterima ?? 0, 0, ',', '.') }}</td>
         </tr>
@@ -279,7 +293,8 @@
         <p>Banjarnegara, {{ \Carbon\Carbon::parse($slip->tanggal_transfer)->translatedFormat('d F Y') }}</p>
         <p>Bendahara,</p>
         <br><br><br>
-        <p><strong>Nur Chalifah</strong></p>
+        <p><strong>{{ $bendahara?->nama_bersih ?? ($bendahara?->name ?? '( .................................... )') }}</strong>
+        </p>
     </div>
     <div class="clear"></div>
 </body>

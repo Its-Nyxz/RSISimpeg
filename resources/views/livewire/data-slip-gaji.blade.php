@@ -43,7 +43,7 @@
                 </button>
                 <h2 class="text-lg font-semibold text-gray-700 mb-4 text-center">Detail Slip Gaji</h2>
 
-                <div class="space-y-2 text-sm">
+                <div class="space-y-2 text-sm" x-data="{ showTukinDetail: false }">
                     <div class="flex justify-between">
                         <strong>Bulan/Tahun</strong>
                         <span>{{ $selectedSlip->bruto?->bulan_penggajian }}/{{ $selectedSlip->bruto?->tahun_penggajian }}</span>
@@ -73,13 +73,50 @@
                         <span>Rp {{ number_format($selectedSlip->bruto?->nom_transport ?? 0, 0, ',', '.') }}</span>
                     </div>
                     <div class="flex justify-between">
-                        <strong>Tunjangan Khusus</strong>
-                        <span>Rp {{ number_format($selectedSlip->bruto?->nom_khusus ?? 0, 0, ',', '.') }}</span>
+                        <strong>Tunjangan Poskes</strong>
+                        <span>Rp {{ number_format($selectedSlip->bruto?->nom_poskes ?? 0, 0, ',', '.') }}</span>
                     </div>
                     <div class="flex justify-between">
                         <strong>Lainnya</strong>
                         <span>Rp {{ number_format($selectedSlip->bruto?->nom_lainnya ?? 0, 0, ',', '.') }}</span>
                     </div>
+                    <div class="flex justify-between">
+                        <strong>Lembur</strong>
+                        <span>Rp {{ number_format($selectedSlip->bruto?->nom_lembur ?? 0, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="text-right w-full mb-2">
+                        <button @click="showTukinDetail = !showTukinDetail"
+                            class="text-sm text-blue-600 hover:underline">
+                            <span x-show="!showTukinDetail">Lihat detail Tukin ⬇</span>
+                            <span x-show="showTukinDetail">Sembunyikan detail Tukin ⬆</span>
+                        </button>
+                    </div>
+
+                    <div x-show="showTukinDetail" x-transition class="space-y-2 bg-gray-50 p-3 rounded border">
+                        <div class="flex justify-between">
+                            <strong>Level Jabatan</strong>
+                            <span>{{ $selectedSlip->bruto?->level_jabatan ?? '-' }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <strong>Pendapatan RS</strong>
+                            <span>Rp
+                                {{ number_format($selectedSlip->bruto?->nom_pendapatan_rs ?? 0, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <strong>Prosentase Tukin</strong>
+                            <span>{{ number_format($selectedSlip->bruto?->prosentase_tukin ?? 0, 4, ',', '.') }}%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <strong>KPI</strong>
+                            <span>{{ number_format($selectedSlip->bruto?->KPI ?? 0, 1, ',', '.') }}%</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between">
+                        <strong>Tukin Diterima</strong>
+                        <span>Rp
+                            {{ number_format($selectedSlip->bruto?->nom_tukin_diterima ?? 0, 0, ',', '.') }}</span>
+                    </div>
+
                     <hr>
                     <div class="flex justify-between">
                         <strong>Total Bruto</strong>

@@ -34,7 +34,7 @@
                 style="background-color: #1f4e78; color: #ffffff; font-weight: bold; border: 2px solid #000000; text-align: center;">
                 TUNJANGAN TETAP</th>
 
-            <th colspan="10"
+            <th colspan="12"
                 style="background-color: #375623; color: #ffffff; font-weight: bold; border: 2px solid #000000; text-align: center;">
                 TUNJANGAN TIDAK TETAP</th>
 
@@ -54,36 +54,69 @@
         {{-- Header Detail Kolom --}}
         <tr>
             {{-- Tetap --}}
-            <th style="background-color: #2e75b6; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">Gapok</th>
-            <th style="background-color: #2e75b6; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">Fungsi</th>
+            <th
+                style="background-color: #2e75b6; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">
+                Gapok</th>
+            <th
+                style="background-color: #2e75b6; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">
+                Fungsi</th>
 
             {{-- Tidak Tetap --}}
-            <th style="background-color: #548235; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">Jabatan</th>
-            <th style="background-color: #548235; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">Fung Tambahan</th>
-            <th style="background-color: #548235; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">Poskes</th>
-            <th style="background-color: #548235; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">Lainnya</th>
-            <th style="background-color: #548235; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">Lembur</th>
-            <th style="background-color: #76933c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">Level</th>
-            <th style="background-color: #76933c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">Pendapatan RS</th>
-            <th style="background-color: #76933c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">% Tukin</th>
-            <th style="background-color: #76933c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">KPI</th>
-            <th style="background-color: #e2efda; color: #000000; font-weight: bold; border: 1px solid #000000; text-align: center;">Tukin Diterima</th>
+            <th
+                style="background-color: #548235; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">
+                Jabatan</th>
+            <th
+                style="background-color: #548235; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">
+                Fung Tambahan</th>
+            <th
+                style="background-color: #548235; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">
+                Makan</th>
+            <th
+                style="background-color: #548235; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">
+                Transport</th>
+            <th
+                style="background-color: #548235; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">
+                Poskes</th>
+            <th
+                style="background-color: #548235; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">
+                Lainnya</th>
+            <th
+                style="background-color: #548235; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">
+                Lembur</th>
+            <th
+                style="background-color: #76933c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">
+                Level</th>
+            <th
+                style="background-color: #76933c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">
+                Pendapatan RS</th>
+            <th
+                style="background-color: #76933c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">
+                % Tukin</th>
+            <th
+                style="background-color: #76933c; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">
+                KPI</th>
+            <th
+                style="background-color: #e2efda; color: #000000; font-weight: bold; border: 1px solid #000000; text-align: center;">
+                Tukin Diterima</th>
 
             {{-- Potongan --}}
             @foreach ($masterPotongans as $pot)
-                <th style="background-color: #c00000; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">
+                <th
+                    style="background-color: #c00000; color: #ffffff; font-weight: bold; border: 1px solid #000000; text-align: center;">
                     {{ str_replace('Bpjs', 'BPJS', ucwords(str_replace('-', ' ', $pot->nama))) }}
                 </th>
             @endforeach
-            <th style="background-color: #f2f2f2; color: #000000; font-weight: bold; border: 1px solid #000000; text-align: center;">TOTAL POT</th>
+            <th
+                style="background-color: #f2f2f2; color: #000000; font-weight: bold; border: 1px solid #000000; text-align: center;">
+                TOTAL POT</th>
         </tr>
     </thead>
     <tbody>
         @foreach ($users as $index => $user)
-            @php 
-                $p = $user->potongan_rinci ?? []; 
+            @php
+                $p = $user->potongan_rinci ?? [];
                 // Hitung baris untuk formula excel jika diekspor (Header 5 baris, data mulai baris 6)
-                $currentRow = $index + 6; 
+                $currentRow = $index + 6;
             @endphp
             <tr>
                 <td style="border: 1px solid #000000; text-align: center;">{{ $index + 1 }}</td>
@@ -98,6 +131,8 @@
                 {{-- Tunjangan Tidak Tetap --}}
                 <td style="border: 1px solid #000000; text-align: right;">{{ $user->nom_jabatan }}</td>
                 <td style="border: 1px solid #000000; text-align: right;">{{ $user->nom_umum ?? 0 }}</td>
+                <td style="border: 1px solid #000000; text-align: right;">{{ $user->nom_makan ?? 0 }}</td>
+                <td style="border: 1px solid #000000; text-align: right;">{{ $user->nom_transport ?? 0 }}</td>
                 <td style="border: 1px solid #000000; text-align: right;">{{ $user->nom_poskes ?? 0 }}</td>
                 <td style="border: 1px solid #000000; text-align: right;">{{ $user->nom_lainnya }}</td>
                 <td style="border: 1px solid #000000; text-align: right;">{{ $user->nom_lembur ?? 0 }}</td>
@@ -105,7 +140,8 @@
                 <td style="border: 1px solid #000000; text-align: right;">{{ $user->nom_pendapatan_rs ?? 0 }}</td>
                 <td style="border: 1px solid #000000; text-align: center;">{{ $user->prosentase_tukin }}</td>
                 <td style="border: 1px solid #000000; text-align: center;">{{ $user->KPI }}</td>
-                <td style="border: 1px solid #000000; text-align: right; background-color: #e2efda;">{{ $user->nom_tukin_diterima ?? 0 }}</td>
+                <td style="border: 1px solid #000000; text-align: right; background-color: #e2efda;">
+                    {{ $user->nom_tukin_diterima ?? 0 }}</td>
 
                 {{-- Total Bruto --}}
                 <td style="border: 1px solid #000000; text-align: right; font-weight: bold; background-color: #fff2cc;">
@@ -138,7 +174,8 @@
         <td></td>
         <td colspan="3" style="text-align: center;">Mengetahui,</td>
         <td colspan="{{ 6 + $masterPotongans->count() }}"></td>
-        <td colspan="4" style="text-align: center;">Banjarnegara, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</td>
+        <td colspan="4" style="text-align: center;">Banjarnegara,
+            {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</td>
     </tr>
     <tr>
         <td></td>
@@ -146,8 +183,12 @@
         <td colspan="{{ 6 + $masterPotongans->count() }}"></td>
         <td colspan="4" style="text-align: center; font-weight: bold;">Bendahara,</td>
     </tr>
-    <tr><td colspan="{{ 18 + $masterPotongans->count() }}"></td></tr>
-    <tr><td colspan="{{ 18 + $masterPotongans->count() }}"></td></tr>
+    <tr>
+        <td colspan="{{ 18 + $masterPotongans->count() }}"></td>
+    </tr>
+    <tr>
+        <td colspan="{{ 18 + $masterPotongans->count() }}"></td>
+    </tr>
     <tr>
         <td></td>
         <td colspan="3" style="text-align: center; font-weight: bold; text-decoration: underline;">
@@ -155,7 +196,7 @@
         </td>
         <td colspan="{{ 6 + $masterPotongans->count() }}"></td>
         <td colspan="4" style="text-align: center; font-weight: bold; text-decoration: underline;">
-            Nur Chalifah
+            {{ $bendahara?->nama_bersih ?? ($bendahara?->name ?? '( .................................... )') }}
         </td>
     </tr>
 </table>

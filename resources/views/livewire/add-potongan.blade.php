@@ -123,6 +123,26 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="w-full max-w-md mx-auto mt-4 bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                <div class="font-semibold text-success-900 mb-3 border-b pb-2">
+                    Input Manual Tunjangan
+                </div>
+
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center gap-4">
+                        <label class="font-medium text-gray-700">Tunjangan Makan</label>
+                        <input type="number" wire:model.live="nom_makan"
+                            class="border border-gray-300 rounded px-3 py-2 w-48 text-right focus:ring-success-500 focus:border-success-500" />
+                    </div>
+
+                    <div class="flex justify-between items-center gap-4">
+                        <label class="font-medium text-gray-700">Tunjangan Transport</label>
+                        <input type="number" wire:model.live="nom_transport"
+                            class="border border-gray-300 rounded px-3 py-2 w-48 text-right focus:ring-success-500 focus:border-success-500" />
+                    </div>
+                </div>
+            </div>
 
             <!-- Total Bruto -->
             <div class="flex justify-between w-full max-w-md mx-auto">

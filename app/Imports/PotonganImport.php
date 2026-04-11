@@ -56,17 +56,19 @@ class PotonganImport implements ToCollection
             $nom_fungsi       = (int) ($row[5]  ?? 0);
             $nom_jabatan      = (int) ($row[6]  ?? 0);
             $nom_umum         = (int) ($row[7]  ?? 0);
-            $nom_poskes       = (int) ($row[8]  ?? 0);
-            $nom_lainnya      = (int) ($row[9]  ?? 0);
-            $nom_lembur       = (int) ($row[10] ?? 0);
-            $level_jabatan    = (int) ($row[11] ?? 0);
-            $nom_pendapatan_rs = (int) ($row[12] ?? 0);
+            $nom_makan         = (int) ($row[8]  ?? 0);
+            $nom_transport     = (int) ($row[9]  ?? 0);
+            $nom_poskes        = (int) ($row[10] ?? 0);
+            $nom_lainnya       = (int) ($row[11] ?? 0);
+            $nom_lembur        = (int) ($row[12] ?? 0);
+            $level_jabatan     = (int) ($row[13] ?? 0);
+            $nom_pendapatan_rs = (int) ($row[14] ?? 0);
 
-            // Untuk yang ada desimalnya, gunakan float
-            $prosentase_tukin = (float) ($row[13] * 100 ?? 0);
-            $KPI              = (float) ($row[14] * 100 ?? 0);
+            $prosentase_tukin   = (float) (($row[15] ?? 0) * 100);
+            $KPI                = (float) (($row[16] ?? 0) * 100);
+            $nom_tukin_diterima = (int) ($row[17] ?? 0);
 
-            $nom_tukin_diterima = (int) ($row[15] ?? 0);
+            // index 18 = TOTAL BRUTO dari file Excel, tidak perlu dipakai karena dihitung ulang
             // dd($nom_tukin_diterima);
 
             // $nom_makan     = (int) $this->cleanRupiah($row[9] ?? 0);
@@ -79,7 +81,7 @@ class PotonganImport implements ToCollection
             // Perhitungan Bruto Baru dengan Menambahkan Lembur
             // $total_bruto = $gapok + $nom_jabatan + $nom_fungsi + $nom_umum + $nom_lembur + $nom_lainnya + $nom_poskes;
             // --- RUMUS SUM ---
-            $total_bruto = $gapok + $nom_fungsi + $nom_jabatan + $nom_umum + $nom_poskes + $nom_lainnya + $nom_lembur;
+            $total_bruto = $gapok + $nom_fungsi + $nom_jabatan + $nom_umum + $nom_poskes + $nom_lainnya + $nom_lembur + $nom_makan + $nom_transport;
 
             // Jika Anda ingin TOTAL AKHIR (termasuk Tukin Diterima)
             $total_akhir_bruto = $total_bruto + $nom_tukin_diterima;
@@ -96,13 +98,16 @@ class PotonganImport implements ToCollection
                     'nom_jabatan'       => $nom_jabatan,
                     'nom_fungsi'        => $nom_fungsi,
                     'nom_umum'          => $nom_umum,
+                    'nom_makan'         => $nom_makan,
+                    'nom_transport'     => $nom_transport,
+                    'nom_lainnya'           => $nom_lainnya,
                     'nom_poskes'        => $nom_poskes,
                     'nom_lembur'        => $nom_lembur,
                     'level_jabatan'     => $level_jabatan,
                     'nom_pendapatan_rs' => $nom_pendapatan_rs,
                     'prosentase_tukin'  => $prosentase_tukin,
                     'KPI'               => $KPI,
-                    'nom_tukin_diterima'      => $nom_tukin_diterima,
+                    'nom_tukin_diterima' => $nom_tukin_diterima,
                     'total_bruto'       => $total_akhir_bruto,
                     'created_at'        => now(),
                 ]
@@ -111,9 +116,9 @@ class PotonganImport implements ToCollection
             // Gunakan total bruto hasil hitung sistem
             $brutoNominal = $bruto->total_bruto;
 
-            // 7. Proses Potongan yang ada di Kolom Excel (Indeks 14 ke atas)
+            // 7. Proses Potongan yang ada di Kolom Excel (Indeks 20 ke atas)
             foreach ($headerSlugs as $i => $slugKey) {
-                $colIndex = $i + 14;
+                $colIndex = $i + 20;
                 $val = $row[$colIndex] ?? null;
                 $originalHeader = $header[$colIndex] ?? 'UNKNOWN';
 
@@ -138,7 +143,7 @@ class PotonganImport implements ToCollection
 
             // 8. Hitung Potongan Otomatis (Jika tidak ada di Excel)
             $tunjangan = $nom_jabatan + $nom_fungsi + $nom_umum;
-            // $makanTransport = $nom_makan + $nom_transport;
+            $makanTransport = $nom_makan + $nom_transport;
 
             foreach ($masterPotongans as $master) {
                 $key = $master->slug;
@@ -171,13 +176,13 @@ class PotonganImport implements ToCollection
                 }
                 // Logika BPJS Kesehatan Ortu (1%)
                 elseif (Str::contains($key, 'bpjs-kesehatan-ortu')) {
-                    // $nom = $user->bpjs_ortu ? round(0.01 * ($gapok + $tunjangan + $makanTransport)) : 0;
-                    $nom = $user->bpjs_ortu ? round(0.01 * ($gapok + $tunjangan)) : 0;
+                    $nom = $user->bpjs_ortu ? round(0.01 * ($gapok + $tunjangan + $makanTransport)) : 0;
+                    // $nom = $user->bpjs_ortu ? round(0.01 * ($gapok + $tunjangan)) : 0;
                 }
                 // Logika BPJS Kesehatan Standar (1%)
                 elseif (Str::contains($key, 'bpjs-kesehatan') && !Str::contains($key, ['ortu', 'rekonsiliasi'])) {
-                    // $nom = round(0.01 * ($gapok + $tunjangan + $makanTransport));
-                    $nom = round(0.01 * ($gapok + $tunjangan));
+                    $nom = round(0.01 * ($gapok + $tunjangan + $makanTransport));
+                    // $nom = round(0.01 * ($gapok + $tunjangan));
                 }
 
                 // Logika Organisasi Profesi (IDI / PPNI)
