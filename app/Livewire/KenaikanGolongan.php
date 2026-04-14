@@ -288,6 +288,9 @@ class KenaikanGolongan extends Component
             })->values();
         }
 
+        // SORT NAME ASC
+        $users = $users->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)->values();
+        
         // PAGINATION
         $perPage = 15;
         $currentPage = $this->paginators['page'] ?? 1; // Livewire melacak halaman di sini

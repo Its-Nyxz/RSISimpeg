@@ -181,6 +181,9 @@ class KenaikanKontrak extends Component
             })->values();
         }
 
+        // SORT NAME ASC
+        $users = $users->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)->values();
+
         // Manual pagination (karena sudah pakai ->get())
         $perPage = 15;
         $currentPage = $this->paginators['page'] ?? 1; // Livewire melacak halaman di sini
