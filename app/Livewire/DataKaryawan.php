@@ -47,7 +47,7 @@ class DataKaryawan extends Component
 
     public function loadData()
     {
-      
+
         // $roles = Role::whereIn('name', ['Super Admin', 'Administrator'])
         //     ->orWhere('name', 'like', '%Kepegawaian%')
         //     ->pluck('id')
@@ -102,6 +102,7 @@ class DataKaryawan extends Component
             ->when($this->selectedJenisKaryawan, function ($query) {
                 $query->where('jenis_id', $this->selectedJenisKaryawan);
             })
+            ->orderBy('name', 'asc')
             ->paginate(15);
     }
 

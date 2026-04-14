@@ -54,6 +54,7 @@
         <table class="w-full text-sm text-center text-gray-700">
             <thead class="text-sm uppercase bg-success-400 text-success-900">
                 <tr>
+                    <th rowspan="2" class="px-6 py-3">No</th>
                     <th rowspan="2" class="px-6 py-3">Nama</th>
                     <th rowspan="2" class="px-6 py-3">Pendidikan</th>
                     <th rowspan="2" class="px-6 py-3">TMT</th>
@@ -70,6 +71,9 @@
             <tbody>
                 @forelse ($users as $user)
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
+                        <td class="px-6 py-4">
+                            {{ $users->firstItem() + $loop->index }}
+                        </td>
                         <td class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
                             {{ $user->name }}
                         </td>
