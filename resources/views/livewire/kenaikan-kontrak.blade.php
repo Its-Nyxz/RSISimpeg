@@ -54,8 +54,14 @@
         <table class="w-full text-sm text-center text-gray-700">
             <thead class="text-sm uppercase bg-success-400 text-success-900">
                 <tr>
-                    <th rowspan="2" class="px-6 py-3">No</th>
-                    <th rowspan="2" class="px-6 py-3">Nama</th>
+                    <th rowspan="2" class="px-6 py-3 sticky left-0 z-40 bg-success-400 min-w-[70px]">
+                        No
+                    </th>
+
+                    <th rowspan="2"
+                        class="px-6 py-3 sticky left-[70px] z-40 bg-success-400 min-w-[200px] border-r border-success-500 text-left">
+                        Nama
+                    </th>
                     <th rowspan="2" class="px-6 py-3">Pendidikan</th>
                     <th rowspan="2" class="px-6 py-3">TMT</th>
                     <th rowspan="2" class="px-6 py-3">Masa Kerja<br>(Bulan)</th>
@@ -71,12 +77,15 @@
             <tbody>
                 @forelse ($users as $user)
                     <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 sticky left-0 z-30 bg-inherit min-w-[70px]">
                             {{ $users->firstItem() + $loop->index }}
                         </td>
-                        <td class="px-6 py-4 font-medium text-success-900 whitespace-nowrap">
+
+                        <td
+                            class="px-6 py-4 sticky left-[70px] z-30 bg-inherit min-w-[200px] border-r border-success-300 text-left font-medium text-success-900 whitespace-nowrap">
                             {{ $user->name }}
                         </td>
+
                         <td class="px-6 py-4">
                             {{ $user->pendidikanUser->nama ?? '-' }}
                         </td>

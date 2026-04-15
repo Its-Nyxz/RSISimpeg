@@ -142,8 +142,12 @@
                     {{ $user->KPI }}
                 </td>
 
-                <td style="border: 1px solid #000000; text-align: right; background-color: #e2efda; font-weight: bold;">
+                {{-- <td style="border: 1px solid #000000; text-align: right; background-color: #e2efda; font-weight: bold;">
                     {{ $user->nom_tukin_diterima }}
+                </td> --}}
+
+                <td style="border: 1px solid #000000; text-align: right; background-color: #e2efda; font-weight: bold;">
+                    =(O{{ $currentRow }}*P{{ $currentRow }}*Q{{ $currentRow }})
                 </td>
 
                 <td style="border: 1px solid #000000; text-align: right; background-color: #fff2cc; font-weight: bold;">
