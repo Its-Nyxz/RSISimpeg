@@ -1,7 +1,7 @@
 <div>
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4">
         <div class="w-full lg:w-auto flex flex-col md:flex-row gap-2">
-            @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->id == 87)
+            @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja?->id == 87)
                 <!-- Input Pencarian -->
                 <select wire:model.live="selectedUnit"
                     class="w-full md:w-auto rounded-lg px-3 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600 text-sm shadow-sm">
