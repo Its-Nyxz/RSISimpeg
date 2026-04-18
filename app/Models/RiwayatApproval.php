@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class RiwayatApproval extends Model
 {
+    protected $table = "riwayat_approvals";
     protected $guarded = ['id'];
     protected $dates = ['approve_at'];
 
