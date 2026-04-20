@@ -21,6 +21,7 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use Ramsey\Uuid\Type\Integer;
 
 /**
  * CLASS UTAMA: Mengatur pembagian Sheet
@@ -63,28 +64,30 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents, 
     public function columnFormats(): array
     {
         $idrFormat = '_-\R\p* #,##0_-;-\R\p* #,##0_-;_-\R\p* "-"_-;_-@_-';
+        $angka = '##';
 
         $formats = [
             // TUNJANGAN TETAP & TIDAK TETAP (E sampai L)
+            'D' => $idrFormat,
             'E' => $idrFormat,
             'F' => $idrFormat,
             'G' => $idrFormat,
             'H' => $idrFormat,
             'I' => $idrFormat,
             'J' => $idrFormat,
+
             'K' => $idrFormat,
-
-            'M' => $idrFormat,
-
-            // Persentase dengan titik desimal (6 digit)
-            'P' => '0.0000%',
+            'L' => $idrFormat,
+            'M' => $angka,
             // Pendapatan RS
-            'O' => $idrFormat,
+            'N' => $idrFormat,
+            // Persentase dengan titik desimal (6 digit)
+            'O' => '0.0000%',
             // KPI dengan titik desimal (1 digit)
-            'Q' => '0.0%',
+            'P' => '0.0%',
 
+            'Q' => $idrFormat,
             'R' => $idrFormat,
-            'S' => $idrFormat,
 
 
         ];
