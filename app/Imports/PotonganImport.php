@@ -32,9 +32,9 @@ class PotonganImport implements ToCollection
         $masterPotongans = MasterPotongan::aktifTerurut()->get();
         $mapPotongans = $masterPotongans->keyBy('slug');
 
-        // 3. Mapping Header Potongan (Dimulai dari Indeks 19: Pinjaman Koperasi)
+        // 3. Mapping Header Potongan (Dimulai dari Indeks 19: Pinjaman Koperasi) -> ganti ke 18 krn 'slug' dihapus
         $headerSlugs = collect($header)
-            ->slice(offset: 19)
+            ->slice(offset: 18)
             ->map(fn($h) => $h ? Str::slug(trim($h)) : null)
             ->values();
 
@@ -42,8 +42,9 @@ class PotonganImport implements ToCollection
         logger()->info("SLUGS dari HEADER:", $headerSlugs->toArray());
 
         foreach ($rows->slice(5) as $row) {
-            // 4. Identifikasi User (Slug ada di indeks 1)
-            $slug = trim($row[1] ?? '');
+            // 4. Identifikasi User (Slug ada di indeks 1) -> 'slug' dihapus, index 1 = nama
+            // $slug = trim($row[1] ?? '');
+            $slug = Str::slug(trim($row[1] ?? '')); // <- slug dri tabel nama lengkap = nama
             $user = User::where('slug', $slug)->with(['jenis', 'kategorijabatan', 'kategorifungsional'])->first();
             if (!$user) {
                 // Log::warning("PotonganImport: User dengan slug '{$slug}' tidak ditemukan.");
@@ -52,21 +53,21 @@ class PotonganImport implements ToCollection
 
             // dd($row[4]);
             // 5. Ekstraksi Komponen Gaji (Indeks bergeser +1 karena kolom 'No')
-            $gapok            = (int) ($row[4]  ?? 0);
-            $nom_fungsi       = (int) ($row[5]  ?? 0);
-            $nom_jabatan      = (int) ($row[6]  ?? 0);
-            $nom_umum         = (int) ($row[7]  ?? 0);
-            $nom_makan         = (int) ($row[8]  ?? 0);
-            $nom_transport     = (int) ($row[9]  ?? 0);
-            $nom_poskes        = (int) ($row[10] ?? 0);
-            $nom_lainnya       = (int) ($row[11] ?? 0);
-            $nom_lembur        = (int) ($row[12] ?? 0);
-            $level_jabatan     = (int) ($row[13] ?? 0);
-            $nom_pendapatan_rs = (int) ($row[14] ?? 0);
+            $gapok            = (int) ($row[3]  ?? 0);
+            $nom_fungsi       = (int) ($row[4]  ?? 0);
+            $nom_jabatan      = (int) ($row[5]  ?? 0);
+            $nom_umum         = (int) ($row[6]  ?? 0);
+            $nom_makan         = (int) ($row[7]  ?? 0);
+            $nom_transport     = (int) ($row[8]  ?? 0);
+            $nom_poskes        = (int) ($row[9] ?? 0);
+            $nom_lainnya       = (int) ($row[10] ?? 0);
+            $nom_lembur        = (int) ($row[11] ?? 0);
+            $level_jabatan     = (int) ($row[12] ?? 0);
+            $nom_pendapatan_rs = (int) ($row[13] ?? 0);
 
-            $prosentase_tukin   = (float) (($row[15] ?? 0) * 100);
-            $KPI                = (float) (($row[16] ?? 0) * 100);
-            // $nom_tukin_diterima = (int) ($row[17] ?? 0);
+            $prosentase_tukin   = (float) ($row[14] ?? 0) * 100;
+            $KPI                = (float) ($row[15] ?? 0) * 100;
+            // $nom_tukin_diterima = (int) ($row[16] ?? 0);
             $nom_tukin_diterima = (int) round($nom_pendapatan_rs * ($prosentase_tukin / 100) * ($KPI / 100));
             // index 18 = TOTAL BRUTO dari file Excel, tidak perlu dipakai karena dihitung ulang
             // dd($nom_tukin_diterima);

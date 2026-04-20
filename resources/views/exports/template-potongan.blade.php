@@ -1,13 +1,13 @@
 <table>
     <thead>
         <tr>
-            <th colspan="{{ 19 + $masterPotongans->count() }}"
+            <th colspan="{{ 18 + $masterPotongans->count() }}"
                 style="text-align: center; font-weight: bold; font-size: 14pt;">
                 DAFTAR URUTAN GAJI KARYAWAN
             </th>
         </tr>
         <tr>
-            <th colspan="{{ 19 + $masterPotongans->count() }}"
+            <th colspan="{{ 18 + $masterPotongans->count() }}"
                 style="text-align: center; font-weight: bold; font-size: 11pt;">
                 Periode: {{ $bulan }} / {{ $tahun }}
             </th>
@@ -17,9 +17,9 @@
             <th rowspan="2"
                 style="background-color: #333333; color: #ffffff; font-weight: bold; border: 2px solid #000000; text-align: center; vertical-align: center;"
                 width="5">No</th>
-            <th rowspan="2"
+            {{-- <th rowspan="2"
                 style="background-color: #333333; color: #ffffff; font-weight: bold; border: 2px solid #000000; text-align: center; vertical-align: center;"
-                width="15">Slug</th>
+                width="15">Slug</th> --}}
 
             <th rowspan="2"
                 style="background-color: #333333; color: #ffffff; font-weight: bold; border: 2px solid #000000; text-align: center; vertical-align: center;"
@@ -113,7 +113,7 @@
             @endphp
             <tr>
                 <td style="border: 1px solid #000000; text-align: center;">{{ $index + 1 }}</td>
-                <td style="border: 1px solid #000000;">{{ $user->slug }}</td>
+                {{-- <td style="border: 1px solid #000000;">{{ $user->slug }}</td> --}}
 
                 <td style="border: 1px solid #000000; font-weight: bold;">{{ $user->nama_bersih }}</td>
                 <td style="border: 1px solid #000000;">{{ $user->unitKerja->nama ?? '-' }}</td>
@@ -147,11 +147,13 @@
                 </td> --}}
 
                 <td style="border: 1px solid #000000; text-align: right; background-color: #e2efda; font-weight: bold;">
-                    =(O{{ $currentRow }}*P{{ $currentRow }}*Q{{ $currentRow }})
+                    {{-- =(N{{ $currentRow }}*O{{ $currentRow }}*P{{ $currentRow }}) --}}
+                    =SUM(N{{ $currentRow }}*O{{ $currentRow }}*P{{ $currentRow }})
                 </td>
 
                 <td style="border: 1px solid #000000; text-align: right; background-color: #fff2cc; font-weight: bold;">
-                    =SUM(E{{ $currentRow }}:M{{ $currentRow }},R{{ $currentRow }})
+                    {{-- =SUM(E{{ $currentRow }}:M{{ $currentRow }},R{{ $currentRow }}) --}}
+                    =SUM(D{{ $currentRow }}:L{{ $currentRow }},Q{{ $currentRow }})
                 </td>
 
                 @foreach ($masterPotongans as $potongan)
