@@ -41,13 +41,45 @@ class PotonganImport implements ToCollection
         // dd($header);
         logger()->info("SLUGS dari HEADER:", $headerSlugs->toArray());
 
+        $users = User::with(['jenis', 'kategorijabatan', 'kategorifungsional'])->get();
+        $usersBySlug = $users->keyBy(function ($user) {
+            return Str::slug((string) $user->slug);
+        });
+
+        $usersByExportedName = $users->groupBy(function ($user) {
+            $namaExport = filled($user->nama_bersih) ? $user->nama_bersih : $user->name;
+            return Str::slug(trim((string) $namaExport));
+        });
+
+        $usersByName = $users->groupBy(function ($user) {
+            return Str::slug(trim((string) $user->name));
+        });
+
         foreach ($rows->slice(5) as $row) {
-            // 4. Identifikasi User (Slug ada di indeks 1) -> 'slug' dihapus, index 1 = nama
-            // $slug = trim($row[1] ?? '');
-            $slug = Str::slug(trim($row[1] ?? '')); // <- slug dri tabel nama lengkap = nama
-            $user = User::where('slug', $slug)->with(['jenis', 'kategorijabatan', 'kategorifungsional'])->first();
+            // $namaMentah = trim($row[1] ?? '');
+            // $namaBersih = new User(['name' => $namaMentah]);
+            // $slug = Str::slug($namaBersih->nama_bersih);
+            // $user = User::where('slug', $slug)->with(['jenis', 'kategorijabatan', 'kategorifungsional'])->first();
+            // if (!$user) {
+                //     // Log::warning("PotonganImport: User dengan slug '{$slug}' tidak ditemukan.");
+                //     continue;
+                // }
+                
+            // 4. Identifikasi User (Slug ada di indeks 1) -> 'slug' dihapus, row[1] = nama lengkap di excel
+            $namaExcel = trim((string) ($row[1] ?? ''));
+
+            $user = $this->resolveUserFromExcelName(
+                $namaExcel,
+                $usersBySlug,
+                $usersByExportedName,
+                $usersByName
+            );
+
             if (!$user) {
-                // Log::warning("PotonganImport: User dengan slug '{$slug}' tidak ditemukan.");
+                logger()->warning('User tidak ditemukan saat import potongan', [
+                    'nama_excel' => $namaExcel,
+                    'slug_excel' => Str::slug($namaExcel),
+                ]);
                 continue;
             }
 
@@ -210,6 +242,55 @@ class PotonganImport implements ToCollection
                 }
             }
         }
+    }
+
+    protected function resolveUserFromExcelName(
+        string $namaExcel,
+        Collection $usersBySlug,
+        Collection $usersByExportedName,
+        Collection $usersByName
+    ): ?User {
+        $namaExcel = trim($namaExcel);
+
+        if ($namaExcel === '') {
+            return null;
+        }
+
+        $key = Str::slug($namaExcel);
+
+        // 1. Cocok langsung ke slug user
+        if ($usersBySlug->has($key)) {
+            return $usersBySlug->get($key);
+        }
+
+        // 2. Cocok ke nama yang memang diexport:
+        //    nama_bersih jika ada, kalau kosong pakai name
+        $candidates = $usersByExportedName->get($key, collect());
+
+        if ($candidates->count() === 1) {
+            return $candidates->first();
+        }
+
+        // 3. Fallback ke name asli
+        $candidatesByName = $usersByName->get($key, collect());
+
+        if ($candidatesByName->count() === 1) {
+            return $candidatesByName->first();
+        }
+
+        // 4. Kalau kandidat lebih dari satu, coba exact match
+        $exact = $candidates->first(function ($user) use ($namaExcel) {
+            $namaExport = filled($user->nama_bersih) ? $user->nama_bersih : $user->name;
+
+            return trim((string) $namaExport) === $namaExcel
+                || trim((string) $user->name) === $namaExcel;
+        });
+
+        if ($exact) {
+            return $exact;
+        }
+
+        return null;
     }
 
     protected function cleanRupiah($value): string
