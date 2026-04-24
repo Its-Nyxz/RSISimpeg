@@ -12,7 +12,7 @@ class DataShift extends Component
     use WithPagination;
     public $search = '';
     public $units;
-    public $selectedUnit = null;
+    public $selectedUnit = [];
 
     public $perPage = 10;
     public $currentPage = 1;

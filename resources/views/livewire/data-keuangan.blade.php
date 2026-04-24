@@ -72,14 +72,20 @@
                         class="w-full rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
                 </div>
 
-                {{-- Pilih Unit --}}
-                <select wire:model.live="selectedUnit"
+                {{-- Cari Unit --}}
+                <livewire:searchable-pillbox 
+                    wire:model.live="selectedUnit" 
+                    :options="$units" 
+                    label-key="nama" 
+                    placeholder="Cari Unit" 
+                />
+                {{-- <select wire:model.live="selectedUnit"
                     class="rounded-lg px-3 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600 w-full sm:w-auto">
                     <option value="">-- Pilih Unit --</option>
                     @foreach ($units as $item)
                         <option value="{{ $item->id }}">{{ $item->nama }}</option>
                     @endforeach
-                </select>
+                </select> --}}
 
                 {{-- Pilih Jenis Karyawan --}}
                 <select wire:model.live="selectedJenisKaryawan"
