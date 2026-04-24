@@ -24,7 +24,7 @@ class DataKeuangan extends Component
 
     public $search = '';
     public $units;
-    public $selectedUnit = null;
+    public $selectedUnit = [];
     public $selectedJenisKaryawan = null;
     public $jenisKaryawans = [];
     public $bulan;
