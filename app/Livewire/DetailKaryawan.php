@@ -19,6 +19,7 @@ use App\Models\RiwayatJabatan;
 use App\Models\MasterPendidikan;
 use App\Models\MasterPenyesuaian;
 use App\Models\PeringatanKaryawan;
+use App\Models\UrutanKeuanganUser;
 use App\Models\RiwayatApproval;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
@@ -132,25 +133,55 @@ class DetailKaryawan extends Component
                 ->get();
         }
     }
-
-    public function resignKerja()
+public function resignKerja()
     {
         $this->validate(['alasanResign' => 'required|string|max:255']);
-        $user = User::findOrFail($this->user_id);
+        $user = User::with('urutanKeuangan', 'jenis')->findOrFail($this->user_id);
         $user->update([
             'status_karyawan' => 0,
             'alasan_resign' => $this->alasanResign
         ]);
+        $urutanUserExist = $user->urutanKeuangan;
+        if ($user->jenis) {
+            $jenisSama = UrutanKeuanganUser::whereHas('user', function ($query) use ($user) {
+                $query->where('jenis_id', $user->jenis_id);
+            });
+            if ($jenisSama->exists()) {
+                if ($urutanUserExist) {
+                    $deletedUrutan = $urutanUserExist->urutan;
+                    $urutanUserExist->delete();
+                    UrutanKeuanganUser::whereHas('user', function ($query) use ($user) {
+                        $query->where('jenis_id', $user->jenis_id);
+                    })
+                    ->where('urutan', '>', $deletedUrutan)
+                    ->decrement('urutan');
+                }
+            }
+        }
         return redirect()->route('detailkaryawan.show', $this->user_id)->with('success', 'Karyawan berhasil dinonaktifkan.');
     }
 
-    public function kembaliKerja()
+  public function kembaliKerja()
     {
-        $user = User::findOrFail($this->user_id);
+        $user = User::with('urutanKeuangan', 'jenis')->findOrFail($this->user_id);
         $user->update([
             'status_karyawan' => 1,
             'alasan_resign' => $this->alasanResign
         ]);
+        $urutanUserExist = $user->urutanKeuangan;
+        if ($urutanUserExist) {
+            $urutanUserExist->delete();
+        }
+        if ($user->jenis) {
+            $maxUrutan = UrutanKeuanganUser::whereHas('user', function ($query) use ($user) {
+                $query->where('jenis_id', $user->jenis_id);
+            })->max('urutan');
+            $newUrutan = $maxUrutan ? $maxUrutan + 1 : 1;
+            UrutanKeuanganUser::create([
+                'user_id' => $this->user_id,
+                'urutan' => $newUrutan
+            ]);
+        }
         return redirect()->route('detailkaryawan.show', $this->user_id)->with('success', 'Karyawan berhasil diaktifkan.');
     }
 
