@@ -33,7 +33,7 @@
                type="text" 
                x-model="search" 
                placeholder="Ketik nama unit..." 
-               class="w-full rounded-lg px-4 py-2 border border-blue-500 bg-white outline-none ring-2 ring-blue-500 text-gray-900"
+               class="w-full rounded-lg px-4 py-2 border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-success-600 focus:border-success-600 text-gray-900"
                style="padding-right: 25px;"
                autocomplete="off">
 
