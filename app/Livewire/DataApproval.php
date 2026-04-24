@@ -20,7 +20,7 @@ class DataApproval extends Component
     public $search = '';
     public $units;
     public $isKepegawaian = false;
-    public $selectedUnit = null;
+    public $selectedUnit = [];
     public $showModalDetailCuti = false;
     public $detailCuti;
 
@@ -45,7 +45,7 @@ class DataApproval extends Component
         $user = auth()->user();
 
         $this->isKepegawaian = $user->unit_id == $unitKepegawaianId;
-        $this->selectedUnit = $this->isKepegawaian ? null : $user->unitkerja?->id;
+        // $this->selectedUnit = $this->isKepegawaian ? null : $user->unitkerja?->id;
         // dd($this->selectedUnit);
     }
 
