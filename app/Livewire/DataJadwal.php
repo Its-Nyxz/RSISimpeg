@@ -30,7 +30,7 @@ class DataJadwal extends Component
     public $units;
     public $users;
     public $routeIsDashboard;
-    public $selectedUnit = null;
+    public $selectedUnit = [];
     public $selectedUser = null;
     public $showModalShift = false;
     public $dataShifts = [];
