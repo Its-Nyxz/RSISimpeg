@@ -73,13 +73,7 @@
                 </div>
 
                 {{-- Pilih Unit --}}
-                <select wire:model.live="selectedUnit"
-                    class="rounded-lg px-3 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600 w-full sm:w-auto">
-                    <option value="">-- Pilih Unit --</option>
-                    @foreach ($units as $item)
-                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
-                    @endforeach
-                </select>
+                <x-dropdown-unit :units="$units" />
 
                 {{-- Pilih Jenis Karyawan --}}
                 <select wire:model.live="selectedJenisKaryawan"
