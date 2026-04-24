@@ -17,13 +17,7 @@
             @if (auth()->user()->hasRole(['Super Admin', 'Administrator']) ||
                     auth()->user()->unitKerja->id == 87 ||
                     auth()->user()->can('create-data-karyawan'))
-                <select wire:model.live="selectedUnit"
-                    class="rounded-lg px-2 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
-                    <option value="">-- Pilih Unit --</option>
-                    @foreach ($units as $item)
-                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
-                    @endforeach
-                </select>
+                <x-dropdown-unit :units="$units" />
             @endif
 
             <select wire:model.live="selectedJenisKaryawan"

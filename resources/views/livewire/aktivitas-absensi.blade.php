@@ -9,12 +9,7 @@
             @can('list-history-user')
                 <div class="col-span-2 md:col-span-1">
                     @if ($canAccessAllUnits)
-                        <select wire:model.live="selectedUnitId"
-                            class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-success-500 w-full transition duration-150">
-                            @foreach ($units as $id => $name)
-                                <option value="{{ $id }}">{{ $name }}</option>
-                            @endforeach
-                        </select>
+                        <x-dropdown-unit :units="$units" model="selectedUnitId" />
                     @else
                         <div class="border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-50 text-gray-600 w-full truncate">
                             <i class="fa-solid fa-building mr-1 text-xs"></i> {{ auth()->user()->unitKerja->nama ?? 'Unit Unknown' }}
@@ -24,7 +19,7 @@
 
                 <div class="col-span-2 md:col-span-1">
                     <select wire:model.live="selectedUserId"
-                        class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-success-500 w-full transition duration-150">
+                        class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-success-500 h-full w-full transition duration-150">
                         @forelse ($subordinates as $id => $name)
                             <option value="{{ $id }}">{{ $name }}</option>
                         @empty

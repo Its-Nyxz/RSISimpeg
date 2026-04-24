@@ -3,13 +3,7 @@
         <div class="w-full lg:w-auto flex flex-col md:flex-row gap-2">
             @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->id == 87)
                 <!-- Input Pencarian -->
-                <select wire:model.live="selectedUnit"
-                    class="w-full md:w-auto rounded-lg px-3 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600 text-sm shadow-sm">
-                    <option value="">Pilih Unit</option>
-                    @foreach ($units as $item)
-                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
-                    @endforeach
-                </select>
+               <x-dropdown-unit :units="$units" />
             @endif
             @if (collect(auth()->user()->roles()->pluck('name'))->filter(function ($name) {
                         return str_starts_with($name, 'Kepala');
