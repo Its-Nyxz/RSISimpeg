@@ -10,12 +10,8 @@
                         <option value="{{ $item->id }}">{{ $item->nama }}</option>
                     @endforeach
                 </select> --}}
-                <livewire:searchable-pillbox 
-                    wire:model.live="selectedUnit" 
-                    :options="$units" 
-                    label-key="nama" 
-                    placeholder="Cari Unit" 
-                />
+                <livewire:searchable-pillbox wire:model.live="selectedUnit" :options="$units" value-key="id"
+                    label-key="nama" placeholder="Cari Unit" :single="true" />
             @endif
             @if (collect(auth()->user()->roles()->pluck('name'))->filter(function ($name) {
                         return str_starts_with($name, 'Kepala');

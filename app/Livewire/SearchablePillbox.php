@@ -8,51 +8,116 @@ use Livewire\Component;
 class SearchablePillbox extends Component
 {
     #[Modelable]
-    public $selectedItems = []; 
+    public $selectedItems = [];
 
-    public $options = []; // The list of all available options to pick from
+    public $options = [];
     public $search = '';
     public $placeholder = 'Search...';
-    
-    // Configurable keys just in case your database columns differ (e.g., 'nama' vs 'name')
+
     public $valueKey = 'id';
     public $labelKey = 'name';
 
-    public function selectItem($id, $label)
+    public bool $single = false;
+
+    private function getValue($option)
     {
-        // Prevent duplicates
+        return data_get($option, $this->valueKey);
+    }
+
+    private function getLabel($option)
+    {
+        return data_get($option, $this->labelKey);
+    }
+
+    public function selectItem($id, $label = null)
+    {
+        if ($this->single) {
+            $this->selectedItems = $id;
+            $this->search = '';
+            return;
+        }
+
+        if (!is_array($this->selectedItems)) {
+            $this->selectedItems = [];
+        }
+
         if (!collect($this->selectedItems)->contains($this->valueKey, $id)) {
             $this->selectedItems[] = [
-                $this->valueKey => $id, 
-                $this->labelKey => $label
+                $this->valueKey => $id,
+                $this->labelKey => $label,
             ];
         }
-        $this->search = ''; // Reset search
+
+        $this->search = '';
     }
 
     public function removeItem($id)
     {
-        // Filter out the clicked item
+        if ($this->single) {
+            $this->selectedItems = null;
+            $this->search = '';
+            return;
+        }
+
+        if (!is_array($this->selectedItems)) {
+            $this->selectedItems = [];
+            return;
+        }
+
         $this->selectedItems = array_values(array_filter($this->selectedItems, function ($item) use ($id) {
-            return $item[$this->valueKey] !== $id;
+            return (string) data_get($item, $this->valueKey) !== (string) $id;
         }));
+    }
+
+    public function clearSelection()
+    {
+        $this->selectedItems = $this->single ? null : [];
+        $this->search = '';
     }
 
     public function render()
     {
-        $selectedIds = array_column($this->selectedItems, $this->valueKey);
-        // Filter options based on search and exclude already selected items
-        $filteredOptions = collect($this->options)
-            ->filter(function($option) use ($selectedIds) {
-                // Support both arrays and objects
-                $id = is_array($option) ? $option[$this->valueKey] : $option->{$this->valueKey};
-                $label = is_array($option) ? $option[$this->labelKey] : $option->{$this->labelKey};
+        $selectedLabel = null;
 
-                return stripos($label, $this->search) !== false && !in_array($id, $selectedIds);
+        if ($this->single) {
+            $selectedIds = filled($this->selectedItems)
+                ? [(string) $this->selectedItems]
+                : [];
+
+            $selectedOption = collect($this->options)->first(function ($option) {
+                return (string) $this->getValue($option) === (string) $this->selectedItems;
             });
 
+            $selectedLabel = $selectedOption
+                ? $this->getLabel($selectedOption)
+                : null;
+        } else {
+            if (!is_array($this->selectedItems)) {
+                $this->selectedItems = [];
+            }
+
+            $selectedIds = collect($this->selectedItems)
+                ->map(fn($item) => (string) data_get($item, $this->valueKey))
+                ->filter()
+                ->values()
+                ->all();
+        }
+
+        $filteredOptions = collect($this->options)
+            ->filter(function ($option) use ($selectedIds) {
+                $id = (string) $this->getValue($option);
+                $label = (string) $this->getLabel($option);
+
+                $matchSearch = $this->search === ''
+                    || stripos($label, $this->search) !== false;
+
+                return $matchSearch && !in_array($id, $selectedIds, true);
+            })
+            ->values();
+
         return view('livewire.searchable-pillbox', [
-            'filteredOptions' => $filteredOptions
+            'filteredOptions' => $filteredOptions,
+            'selectedLabel' => $selectedLabel,
         ]);
     }
 }
