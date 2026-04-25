@@ -10,7 +10,7 @@
                 @if ($selectedLabel)
                     <div class="flex items-center w-full gap-1">
                         <span class="w-full px-2 text-md truncate" title="{{ $selectedLabel }}">
-                            <span class="text-gray-500">Unit - </span>
+                            <span class="text-gray-500">{{ $pillPrefix }}</span>
                             <span class="font-bold">{{ $selectedLabel }}</span>
                         </span>
 
@@ -21,17 +21,21 @@
                     </div>
                 @endif
             @else
-                @if (!empty($selectedItems))
+                @if (!empty($selectedItems) && is_array($selectedItems))
                     <div class="w-full">
                         @foreach ($selectedItems as $item)
-                            <div class="flex items-center w-full gap-1">
-                                <span wire:key="pill-{{ data_get($item, $valueKey) }}"
-                                    class="w-full px-2 text-md truncate" title="{{ data_get($item, $labelKey) }}">
-                                    <span class="text-gray-500">Unit - </span>
-                                    <span class="font-bold">{{ data_get($item, $labelKey) }}</span>
+                            @php
+                                $itemId = is_array($item) ? data_get($item, $valueKey) : $item;
+                                $itemLabel = is_array($item) ? data_get($item, $labelKey) : null;
+                            @endphp
+                            <div class="flex items-center w-full gap-1" wire:key="pill-container-{{ $itemId }}">
+                                <span wire:key="pill-{{ $itemId }}"
+                                    class="w-full px-2 text-md truncate" title="{{ $itemLabel }}">
+                                    <span class="text-gray-500">{{ $pillPrefix }}</span>
+                                    <span class="font-bold">{{ $itemLabel ?? 'Unknown' }}</span>
                                 </span>
 
-                                <button type="button" wire:click.stop="removeItem(@js(data_get($item, $valueKey)))"
+                                <button type="button" wire:click.stop="removeItem(@js($itemId))"
                                     class="px-2 text-red-500 hover:text-red-700">
                                     &times;
                                 </button>
