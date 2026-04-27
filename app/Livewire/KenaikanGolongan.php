@@ -28,7 +28,7 @@ class KenaikanGolongan extends Component
     public $roles;
     public $units;
     public $selectedUserAktif = 1; // Default aktif
-    public $selectedUnit = null;
+    public $selectedUnit = [];
     public $isKepegawaian = false;
 
     public $jenisKaryawans = [];

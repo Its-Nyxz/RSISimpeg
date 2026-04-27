@@ -21,6 +21,7 @@ use App\Models\MasterPenyesuaian;
 use App\Models\PeringatanKaryawan;
 use App\Models\UrutanKeuanganUser;
 use App\Models\RiwayatApproval;
+use App\Models\UrutanKeuanganUser;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
 

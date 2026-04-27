@@ -31,7 +31,19 @@
             </select>
 
             @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->id == 87)
-                <x-dropdown-unit :units="$units" />
+                <livewire:searchable-pillbox 
+                    wire:model.live="selectedUnit" 
+                    :options="$units" 
+                    label-key="nama" 
+                    placeholder="Cari Unit" 
+                />
+                {{-- <select wire:model.live="selectedUnit"
+                    class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
+                    <option value="">-- Pilih Unit --</option>
+                    @foreach ($units as $item)
+                        <option value="{{ $item->id }}">{{ $item->nama }}</option>
+                    @endforeach
+                </select> --}}
             @endif
         </div>
 

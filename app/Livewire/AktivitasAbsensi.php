@@ -30,7 +30,7 @@ class AktivitasAbsensi extends Component
     public $selectedUserId;
     public $subordinates;
 
-    public $selectedUnitId;
+    public $selectedUnitId = [];
 
     public $showExportModal = false;
     public $exportSelectedUsers = [];
@@ -55,7 +55,13 @@ class AktivitasAbsensi extends Component
         $this->checkExportAllPermission();
 
         // Set default unit
-        $this->selectedUnitId = auth()->user()->unit_id;
+        // $this->selectedUnitId = auth()->user()->unit_id;
+        $unit = auth()->user()->unitKerja;
+        if ($unit) {
+            $this->selectedUnitId = [['id' => $unit->id, 'nama' => $unit->nama]];
+        } else {
+            $this->selectedUnitId = [];
+        }
 
         $this->loadSubordinates();
 
@@ -74,7 +80,9 @@ class AktivitasAbsensi extends Component
         })->count();
 
         if ($isKepala) {
-            $this->subordinates = User::where('unit_id', $this->selectedUnitId)
+            // $this->subordinates = User::where('unit_id', $this->selectedUnitId)
+            $unitIds = $this->getSelectedUnitIds();
+            $this->subordinates = User::whereIn('unit_id', $unitIds)
                 ->pluck('name', 'id')
                 ->toArray();
             $this->selectedUserId = !empty($this->subordinates) ? array_key_first($this->subordinates) : auth()->id();
@@ -82,6 +90,17 @@ class AktivitasAbsensi extends Component
             $this->selectedUserId = auth()->id();
         }
         $this->loadData();
+    }
+
+    public function getSelectedUnitIds()
+    {
+        if (is_array($this->selectedUnitId)) {
+            if (isset($this->selectedUnitId[0]) && is_array($this->selectedUnitId[0])) {
+                return array_column($this->selectedUnitId, 'id');
+            }
+            return $this->selectedUnitId;
+        }
+        return [$this->selectedUnitId];
     }
 
     // public function loadData()
@@ -450,12 +469,14 @@ class AktivitasAbsensi extends Component
     {
         if ($this->canAccessAllUnits) {
             // Jika bisa akses semua unit, load semua
-            $this->units = UnitKerja::pluck('nama', 'id')->toArray();
+            // $this->units = UnitKerja::pluck('nama', 'id')->toArray();
+            $this->units = UnitKerja::all();
         } else {
             // Jika tidak, hanya unit sendiri
-            $this->units = UnitKerja::where('id', auth()->user()->unit_id)
-                ->pluck('nama', 'id')
-                ->toArray();
+            // $this->units = UnitKerja::where('id', auth()->user()->unit_id);
+            //     ->pluck('nama', 'id')
+            //     ->toArray();
+            $this->units = UnitKerja::where('id', auth()->user()->unit_id)->get();
         }
     }
 
@@ -468,7 +489,12 @@ class AktivitasAbsensi extends Component
 
         // Update list user di modal export jika modal terbuka
         if ($this->showExportModal) {
-            $this->allUsers = User::where('unit_id', $this->selectedUnitId)
+            // $this->allUsers = User::where('unit_id', $this->selectedUnitId);
+            //     ->orderBy('name')
+            //     ->pluck('name', 'id')
+            //     ->toArray();
+            $unitIds = $this->getSelectedUnitIds();
+            $this->allUsers = User::whereIn('unit_id', $unitIds)
                 ->orderBy('name')
                 ->pluck('name', 'id')
                 ->toArray();
@@ -485,13 +511,20 @@ class AktivitasAbsensi extends Component
 
     public function loadSubordinates()
     {
+        $unitIds = $this->getSelectedUnitIds();
         if ($this->canAccessAllUnits) {
             // Jika bisa akses semua unit, ambil user dari unit yang dipilih
-            $this->subordinates = User::where('unit_id', $this->selectedUnitId)
+            // $this->subordinates = User::where('unit_id', $this->selectedUnitId);
+            //     ->pluck('name', 'id')
+            //     ->toArray();
+            $this->subordinates = User::whereIn('unit_id', $unitIds)
                 ->pluck('name', 'id')
                 ->toArray();
         } else {
             // Jika tidak, hanya dari unit sendiri
+            // $this->subordinates = User::where('unit_id', auth()->user()->unit_id);
+            //     ->pluck('name', 'id')
+            //     ->toArray();
             $this->subordinates = User::where('unit_id', auth()->user()->unit_id)
                 ->pluck('name', 'id')
                 ->toArray();
@@ -512,7 +545,12 @@ class AktivitasAbsensi extends Component
     public function openExportAllModal()
     {
         // Ambil user sesuai unit yang sedang dipilih
-        $this->allUsers = User::where('unit_id', $this->selectedUnitId)
+        // $this->allUsers = User::where('unit_id', $this->selectedUnitId);
+        //     ->orderBy('name')
+        //     ->pluck('name', 'id')
+        //     ->toArray();
+        $unitIds = $this->getSelectedUnitIds();
+        $this->allUsers = User::whereIn('unit_id', $unitIds)
             ->orderBy('name')
             ->pluck('name', 'id')
             ->toArray();
@@ -528,7 +566,9 @@ class AktivitasAbsensi extends Component
             return;
         }
         
-        $unitName = UnitKerja::find($this->selectedUnitId)?->nama ?? 'Unit';
+        // $unitName = UnitKerja::find($this->selectedUnitId)?->nama ?? 'Unit';
+        $unitIds = $this->getSelectedUnitIds();
+        $unitName = UnitKerja::whereIn('id', $unitIds)->pluck('nama')->join(', ') ?: 'Unit';
         $monthName = Carbon::create()->month((int)$this->month)->locale('id')->translatedFormat('F');
         $year = $this->year;
 
