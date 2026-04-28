@@ -162,6 +162,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('poinperan', PointPeranController::class)->middleware('permission:view-poin-peran');
     Route::resource('tukinjabatan', TukinJabatanController::class);
     Route::resource('timer', TimerController::class)->middleware('permission:timer');
+    Route::resource('riwayatcuti', CutiController::class)->middleware('permission:approval-cuti');
     // Route::resource('cuti', CutiController::class);
     Route::resource('importgaji', ImportGajiController::class)->middleware('permission:view-import-gaji');
     Route::resource('approvalcuti', CutiController::class)->middleware('permission:approval-cuti');
