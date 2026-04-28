@@ -10,6 +10,7 @@ use Livewire\Component;
 use App\Models\UnitKerja;
 use App\Models\StatusAbsen;
 use App\Models\CutiKaryawan;
+use App\Models\JenisKaryawan;
 use Livewire\WithPagination;
 use App\Models\JadwalAbsensi;
 use App\Models\MasterJatahCuti;
@@ -24,74 +25,196 @@ class DataCuti extends Component
 
     public $isKepegawaian = false;
     public $unitKepegawaianId;
+    public $isRiwayatCuti = false;
 
-    /** ----------------------------------------------------------------
-     *  Initialization
-     *  ---------------------------------------------------------------- */
+    // State for Riwayat Cuti detail view
+    public $selectedRiwayatUserId = null;
+    public $selectedRiwayatUserName = '';
+
+    // Filter properties
+    public $selectedUserAktif = 1;
+    public $selectedUnit = '';
+    public $selectedJenisKaryawan = 1;
+    public $search = '';
+
+    // Options for dropdowns
+    public $units = [];
+    public $jenisKaryawans = [];
+
     public function mount()
     {
         $user = auth()->user();
-
-        // dd(UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id'));
-
-        // Ambil ID unit KEPEGAWAIAN sekali saja
         $this->unitKepegawaianId = 87;
+        $this->isKepegawaian = $user->unit_id == $this->unitKepegawaianId || $user->roles->pluck('id')->first() == 2 || $user->roles->pluck('id')->first() == 14 || $user->hasRole('Super Admin');
+        $this->isRiwayatCuti = request()->routeIs('riwayatcuti.*') || request()->is('riwayatcuti');
 
-        // Tandai apakah user berasal dari unit KEPEGAWAIAN
-        $this->isKepegawaian = $user->unit_id == $this->unitKepegawaianId || $user->roles->pluck('id')->first() == 2;
+        $this->units = UnitKerja::orderBy('id')->get();
+        $this->jenisKaryawans = JenisKaryawan::orderBy('id')->get();
     }
 
-    /** Rekursif ambil semua child unit */
+    public function updateSearch($value)
+    {
+        $this->search = $value;
+        $this->resetPage('usersPage');
+    }
+
+    public function updatedSelectedUserAktif() { $this->resetPage('usersPage'); }
+    public function updatedSelectedUnit() { $this->resetPage('usersPage'); }
+    public function updatedSelectedJenisKaryawan() { $this->resetPage('usersPage'); }
+
     private function getAllChildUnitIds($unitId)
     {
         $unitIds = [$unitId];
-
         $childs = UnitKerja::where('parent_id', $unitId)->pluck('id')->toArray();
         foreach ($childs as $childId) {
             $unitIds = array_merge($unitIds, $this->getAllChildUnitIds($childId));
         }
-
         return $unitIds;
     }
 
     /** ----------------------------------------------------------------
-     *  Load Data
-     *  ---------------------------------------------------------------- */
+     * Load Data (for approval cuti - status 3,4)
+     * ---------------------------------------------------------------- */
     public function loadData()
     {
         $user = auth()->user();
 
-        // ✅ Pastikan user punya izin approval cuti
         if (!$user->can('approval-cuti')) {
-            logger("User {$user->name} tidak punya izin approval-cuti");
             return CutiKaryawan::whereNull('id')->paginate(10);
         }
 
         $query = CutiKaryawan::with(['user.unitkerja', 'jenisCuti', 'statusCuti'])
-            ->whereIn('status_cuti_id', [3, 4]) // 3 = Menunggu, 4 = Disetujui sementara
+            ->whereIn('status_cuti_id', [3, 4])
             ->where('user_id', '!=', $user->id);
 
-        // 🔹 Jika dari KEPEGAWAIAN → lihat semua data
+        $query = $this->applyFiltersCuti($query);
+
         if ($this->isKepegawaian) {
-            logger("User {$user->name} dari KEPEGAWAIAN, lihat semua data");
             return $query->orderByDesc('id')->paginate(10);
         }
 
-        // 🔹 Cek apakah unit user punya child (berarti dia atasan)
         $hasChild = UnitKerja::where('parent_id', $user->unit_id)->exists();
-        $unitIds = $hasChild
-            ? $this->getAllChildUnitIds($user->unit_id)
-            : [$user->unit_id];
+        $unitIds = $hasChild ? $this->getAllChildUnitIds($user->unit_id) : [$user->unit_id];
 
-        logger("User {$user->name} melihat cuti untuk unit: " . json_encode($unitIds));
-
-        $result = $query->whereHas('user', function ($q) use ($unitIds) {
+        return $query->whereHas('user', function ($q) use ($unitIds) {
             $q->whereIn('unit_id', $unitIds);
         })->orderByDesc('id')->paginate(10);
+    }
 
-        logger("Total data cuti tampil untuk {$user->name}: " . $result->total());
+    /** ----------------------------------------------------------------
+     * Load Users (for riwayat cuti list)
+     * ---------------------------------------------------------------- */
+    public function loadUsers()
+    {
+        $user = auth()->user();
+        $query = User::with(['kategorijabatan', 'unitKerja'])->where('id', '!=', $user->id);
 
-        return $result;
+        if ($this->search) {
+            $query->where('name', 'like', '%' . $this->search . '%');
+        }
+        if ($this->selectedUnit) {
+            $query->where('unit_id', $this->selectedUnit);
+        }
+        if ($this->selectedJenisKaryawan) {
+            $query->where('jenis_id', $this->selectedJenisKaryawan);
+        }
+        if (isset($this->selectedUserAktif)) {
+            $query->where('status_karyawan', $this->selectedUserAktif);
+        }
+
+        if (!$this->isKepegawaian) {
+            $hasChild = UnitKerja::where('parent_id', $user->unit_id)->exists();
+            $unitIds = $hasChild ? $this->getAllChildUnitIds($user->unit_id) : [$user->unit_id];
+            $query->whereIn('unit_id', $unitIds);
+        }
+
+        // Only load 5 users at a time to leave vertical room for the detail table
+        return $query->orderBy('name', 'asc')->paginate(5, ['*'], 'usersPage');
+    }
+
+    /** ----------------------------------------------------------------
+     * Load Detailed Cuti for a Selected User
+     * ---------------------------------------------------------------- */
+    public function loadUserCutiHistory()
+    {
+        if (!$this->selectedRiwayatUserId) return null;
+
+        return CutiKaryawan::with(['jenisCuti', 'statusCuti'])
+            ->where('user_id', $this->selectedRiwayatUserId)
+            ->orderBy('id')
+            ->paginate(10, ['*'], 'detailsPage');
+    }
+
+    private function applyFiltersCuti($query)
+    {
+        if ($this->search) {
+            $query->whereHas('user', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'));
+        }
+        if ($this->selectedUnit) {
+            $query->whereHas('user', fn($q) => $q->where('unit_id', $this->selectedUnit));
+        }
+        if ($this->selectedJenisKaryawan) {
+            $query->whereHas('user', fn($q) => $q->where('jenis_id', $this->selectedJenisKaryawan));
+        }
+        if (isset($this->selectedUserAktif)) {
+            $query->whereHas('user', fn($q) => $q->where('status_karyawan', $this->selectedUserAktif));
+        }
+        return $query;
+    }
+
+    /** Select a user to view their history */
+    public function selectRiwayatUser($userId, $userName)
+    {
+        $this->selectedRiwayatUserId = $userId;
+        $this->selectedRiwayatUserName = $userName;
+        $this->resetPage('detailsPage'); // Reset only the details table to page 1
+    }
+
+    /** Close specific user history */
+    public function closeRiwayatUser()
+    {
+        $this->selectedRiwayatUserId = null;
+        $this->selectedRiwayatUserName = '';
+    }
+
+    /** ----------------------------------------------------------------
+     *  Apply Filters (shared between loadData and loadAllData)
+     *  ---------------------------------------------------------------- */
+    private function applyFilters($query)
+    {
+        // Apply search filter
+        if ($this->search) {
+            $query->whereHas('user', function ($q) {
+                $q->where('name', 'like', '%' . $this->search . '%');
+            });
+        }
+
+        // Apply unit filter
+        if ($this->selectedUnit) {
+            $query->whereHas('user', function ($q) {
+                $q->where('unit_id', $this->selectedUnit);
+            });
+        }
+
+        // Apply jenis karyawan filter
+        if ($this->selectedJenisKaryawan) {
+            $query->whereHas('user', function ($q) {
+                $q->where('jenis_id', $this->selectedJenisKaryawan);
+            });
+        }
+
+        // Apply aktif/non-aktif filter
+        if ($this->selectedUserAktif == 1) {
+            $query->whereHas('user', function ($q) {
+                $q->where('status_karyawan', 1);
+            });
+        } else {
+            $query->whereHas('user', function ($q) {
+                $q->where('status_karyawan', 0);
+            });
+        }
+
+        return $query;
     }
 
     /** ----------------------------------------------------------------
@@ -372,13 +495,24 @@ class DataCuti extends Component
      *  ---------------------------------------------------------------- */
     public function render()
     {
-        // $user = auth()->user();
-        // dd(UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id'));
-        $cutiData = $this->loadData();
+        $cutiData = null;
+        $riwayatUsers = null;
+        $riwayatCutiDetail = null;
+
+        if (!$this->isRiwayatCuti) {
+            $cutiData = $this->loadData();
+        } else {
+            $riwayatUsers = $this->loadUsers();
+            $riwayatCutiDetail = $this->loadUserCutiHistory();
+        }
 
         return view('livewire.data-cuti', [
             'users' => $cutiData,
-            'isKepegawaian' => $this->isKepegawaian,
+            'riwayatUsers' => $riwayatUsers,
+            'riwayatCutiDetail' => $riwayatCutiDetail,
+            'units' => $this->units,
+            'jenisKaryawans' => $this->jenisKaryawans,
+            'isRiwayatCuti' => $this->isRiwayatCuti,
         ]);
     }
 }
