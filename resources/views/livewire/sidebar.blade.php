@@ -48,7 +48,7 @@
                                         ['title' => 'Peringatan', 'href' => '/peringatan'],
                                         auth()->user()->can('approval-cuti')
                                             ? ['title' => 'Approval', 'href' => '/riwayatapproval']
-                                            : null,
+                                            : null
                                         // auth()->user()->can('override-lokasi')
                                         //     ? ['title' => 'Kendala Lokasi', 'href' => '/overridelokasi']
                                         //     : null,
@@ -153,6 +153,9 @@
                                     : null,
                                 auth()->user()->can('approval-tukar-jadwal')
                                     ? ['title' => 'Approval Tukar Jadwal', 'href' => '/approvaltukar']
+                                    : null,
+                                auth()->user()->can('approval-cuti')
+                                    ? ['title' => 'Riwayat Cuti Karyawan', 'href' => '/riwayatcuti']
                                     : null,
                                 // auth()->user()->can('view-import-gaji') ? ['title' => 'Import Gaji', 'href' => '#'] : null,
                                 // auth()->user()->can('view-poin-peran')
