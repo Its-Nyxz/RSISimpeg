@@ -203,18 +203,20 @@ class PotonganImport implements ToCollection
                         : null;
                     $nom = round($brutoNominal * ($tax?->persentase ?? 0));
                 }
-                // Logika BPJS Tenaga Kerja (3%)
+               // Logika BPJS Tenaga Kerja (3%)
                 elseif (Str::contains($key, 'tenaga-kerja')) {
-                    $nom = round(0.03 * ($gapok + $tunjangan));
+                    $nom = $this->betterRound(0.03 * ($gapok + $tunjangan));
                 }
                 // Logika BPJS Kesehatan Ortu (1%)
                 elseif (Str::contains($key, 'bpjs-kesehatan-ortu')) {
-                    $nom = $user->bpjs_ortu ? round(0.01 * ($gapok + $tunjangan + $makanTransport)) : 0;
+                    $nom = $user->bpjs_ortu ? $this->betterRound(0.01 * ($gapok + $tunjangan + $makanTransport)) : 0;
+                    // $nom = $user->bpjs_ortu ? round(0.01 * ($gapok + $tunjangan + $makanTransport)) : 0;
                     // $nom = $user->bpjs_ortu ? round(0.01 * ($gapok + $tunjangan)) : 0;
                 }
                 // Logika BPJS Kesehatan Standar (1%)
                 elseif (Str::contains($key, 'bpjs-kesehatan') && !Str::contains($key, ['ortu', 'rekonsiliasi'])) {
-                    $nom = round(0.01 * ($gapok + $tunjangan + $makanTransport));
+                    $nom = $this->betterRound(0.01 * ($gapok + $tunjangan + $makanTransport));
+                    // $nom = round(0.01 * ($gapok + $tunjangan + $makanTransport));
                     // $nom = round(0.01 * ($gapok + $tunjangan));
                 }
 
@@ -292,7 +294,16 @@ class PotonganImport implements ToCollection
 
         return null;
     }
-
+    public function betterRound($value): int
+    {
+        $decimal_part = $value - floor($value);
+        if ($decimal_part >= 0.5) {
+            $result = ceil($value);
+        } else {
+            $result = floor($value);
+        }
+        return $result;
+    }
     protected function cleanRupiah($value): string
     {
         if (is_numeric($value)) return (string) $value;

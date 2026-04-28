@@ -498,6 +498,17 @@ class AddPotongan extends Component
         ]);
     }
 
+    public function betterRound($value): int
+    {
+        $decimal_part = $value - floor($value);
+        if ($decimal_part >= 0.5) {
+            $result = ceil($value);
+        } else {
+            $result = floor($value);
+        }
+        return $result;
+    }
+
     protected function updatePotonganInputs()
     {
         $this->potonganInputs = [];
@@ -522,18 +533,20 @@ class AddPotongan extends Component
                     $persen = $tax?->persentase ?? 0;
                     $nominal = round($bruto * $persen);
                 }
-            } elseif (Str::contains($slug, 'bpjs-tenaga-kerja')) {
-                $nominal = round(0.03 * ($gapok + $tunjangan));
+            } elseif (Str::contains($slug, 'tenaga-kerja')) {
+                // $nominal = round((0.03 * ($gapok + $tunjangan)) + 0.01);
+                $nominal = $this->betterRound(0.03 * ($gapok + $tunjangan));
             } elseif (Str::contains($slug, 'bpjs-kesehatan-ortu')) {
+                // $nominal = $this->user->bpjs_ortu ? round(0.01 * ($gapok + $tunjangan + $makanTransport)) : 0;
                 $nominal = $this->user->bpjs_ortu
-                    ? round(0.01 * ($gapok + $tunjangan + $makanTransport))
+                    ? $this->betterRound(0.01 * ($gapok + $tunjangan + $makanTransport))
                     : 0;
             } elseif (
                 Str::contains($slug, 'bpjs-kesehatan') &&
-                !Str::contains($slug, 'ortu') &&
-                !Str::contains($slug, 'rekonsiliasi')
+                !Str::contains($slug, ['ortu', 'rekonsiliasi'])
             ) {
-                $nominal = round(0.01 * ($gapok + $tunjangan + $makanTransport));
+                // $nominal = round(0.01 * ($gapok + $tunjangan + $makanTransport));
+                $nominal = $this->betterRound(0.01 * ($gapok + $tunjangan + $makanTransport));
             }
 
             $jabatanKategori = strtolower($this->user->kategorijabatan?->nama ?? '');
