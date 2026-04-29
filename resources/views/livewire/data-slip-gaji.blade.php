@@ -57,7 +57,7 @@
                         <span>Rp {{ number_format($selectedSlip->bruto?->nom_jabatan ?? 0, 0, ',', '.') }}</span>
                     </div>
                     <div class="flex justify-between">
-                        <strong>Tunjangan Fungsipnal</strong>
+                        <strong>Tunjangan Fungsional</strong>
                         <span>Rp {{ number_format($selectedSlip->bruto?->nom_fungsi ?? 0, 0, ',', '.') }}</span>
                     </div>
                     <div class="flex justify-between">
