@@ -145,6 +145,17 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents, 
         return $this->title;
     }
 
+    public function betterRound($value): int
+    {
+        $decimal_part = $value - floor($value);
+        if ($decimal_part >= 0.5) {
+            $result = ceil($value);
+        } else {
+            $result = floor($value);
+        }
+        return $result;
+    }
+
     public function view(): View
     {
 
@@ -358,10 +369,14 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents, 
                         $tax = TaxBracket::where('kategoripph_id', $kategoriInduk->id)->where('upper_limit', '>=', $bruto)->orderBy('upper_limit')->first();
                         $nominalPotongan = round($bruto * ($tax?->persentase ?? 0));
                     }
-                } elseif (Str::contains($slug, 'bpjs-tenaga-kerja')) {
-                    $nominalPotongan = round(0.03 * ($gapok + $tunjanganTotal));
-                } elseif (Str::contains($slug, 'bpjs-kesehatan')) {
-                    $nominalPotongan = round(0.01 * ($gapok + $tunjanganTotal + $makanTransport));
+                } elseif (Str::contains($slug, 'tenaga-kerja')) {
+                    // $nominalPotongan = round(0.03 * ($gapok + $tunjanganTotal));
+                    $nominalPotongan = $this->betterRound(0.03 * ($gapok + $tunjanganTotal));
+                } elseif (Str::contains($slug, 'bpjs-kesehatan-ortu')) {
+                    $nominalPotongan = $user->bpjs_ortu ? $this->betterRound(0.01 * ($gapok + $tunjanganTotal + $makanTransport)) : 0;
+                } elseif (Str::contains($slug, 'bpjs-kesehatan') && !Str::contains($slug, ['ortu', 'rekonsiliasi'])) {
+                    // $nominalPotongan = round(0.01 * ($gapok + $tunjanganTotal + $makanTransport));
+                    $nominalPotongan = $this->betterRound(0.01 * ($gapok + $tunjanganTotal + $makanTransport));
                 }
 
                 $potonganOtomasis[$item->nama] = $nominalPotongan;

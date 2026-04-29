@@ -19,6 +19,7 @@ use App\Models\RiwayatJabatan;
 use App\Models\MasterPendidikan;
 use App\Models\MasterPenyesuaian;
 use App\Models\PeringatanKaryawan;
+use App\Models\UrutanKeuanganUser;
 use App\Models\RiwayatApproval;
 use App\Models\UrutanKeuanganUser;
 use App\Notifications\UserNotification;
@@ -133,8 +134,7 @@ class DetailKaryawan extends Component
                 ->get();
         }
     }
-
-    public function resignKerja()
+public function resignKerja()
     {
         $this->validate(['alasanResign' => 'required|string|max:255']);
         $user = User::with('urutanKeuangan', 'jenis')->findOrFail($this->user_id);
@@ -162,7 +162,7 @@ class DetailKaryawan extends Component
         return redirect()->route('detailkaryawan.show', $this->user_id)->with('success', 'Karyawan berhasil dinonaktifkan.');
     }
 
-    public function kembaliKerja()
+  public function kembaliKerja()
     {
         $user = User::with('urutanKeuangan', 'jenis')->findOrFail($this->user_id);
         $user->update([
