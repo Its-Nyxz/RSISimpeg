@@ -10,7 +10,23 @@
 
     {{-- filter --}}
     <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-3">
-        <div class="flex flex-wrap gap-3 justify-center md:justify-start w-full md:w-auto">
+        <div class="flex flex-wrap gap-3 justify-center md:justify-start w-full">
+            @if ($isRiwayatCuti)
+                <select wire:model.live="bulan"
+                    class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600 w-full sm:w-auto">
+                    @foreach (range(1, 12) as $m)
+                        <option value="{{ $m }}">
+                            {{ \Carbon\Carbon::createFromDate(null, $m, 1)->locale('id')->translatedFormat('F') }}
+                        </option>
+                    @endforeach
+                </select>
+                <select wire:model.live="tahun"
+                    class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600 w-full sm:w-auto">
+                    @foreach (range(now()->year - 5, now()->year) as $y)
+                        <option value="{{ $y }}">{{ $y }}</option>
+                    @endforeach
+                </select>
+            @endif
             <select wire:model.live="selectedUserAktif" class="rounded-lg px-2 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600">
                 <option value="1">Aktif</option>
                 <option value="0">Non Aktif</option>
@@ -26,7 +42,38 @@
             </select>
             
             <input type="text" wire:keyup="updateSearch($event.target.value)" placeholder="Cari..."
-                class="flex-1 md:w-auto rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
+                class="w-full md:w-64 rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-success-600" />
+            
+            @if($isRiwayatCuti)
+                <button wire:click="export({
+                        bulan: {{ $bulan ?: now()->month }},
+                        tahun: {{ $tahun ?: now()->year }},
+                        @php
+                            if ($selectedUnit) {
+                                $unit = implode(', ', array_column($selectedUnit, 'nama'));
+                                $unitId = $selectedUnit[0]['id'];
+                            }
+                        @endphp
+                        unitId: '{{ $unitId ?? '' }}',
+                        unit: '{{ $unit ?? '' }}',
+                        jenis: '{{ $selectedJenisKaryawan }}',
+                        keyword: '{{ $search }}',
+                        mode: 'all',
+                        selected: 'none'
+                    })"
+                    wire:loading.attr="disabled"
+                    style="margin-left: auto;"
+                    class="bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition font-bold py-2 px-4 rounded-lg flex items-center gap-2">
+                    <i wire:loading.remove wire:target="export" class="fas fa-file-excel"></i>
+                    <i wire:loading wire:target="export" class="fas fa-spinner fa-spin"></i>
+                    
+                    @if ($selectedUnit)
+                        Export {{ $selectedUnit[0]['nama'] }}
+                    @else
+                        Export {{ \Carbon\Carbon::createFromDate($tahun ?: now()->year, $bulan ?: now()->month, 1)->locale('id')->translatedFormat('F Y') }}
+                    @endif
+                </button>
+            @endif
         </div>
     </div>
     {{-- tampilan selain route /riwayatcuti --}}
@@ -134,7 +181,21 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="6" class="text-center px-6 py-4">Tidak ada data Karyawan.</td></tr>
+                            @php
+                                $display = '';
+                                if ($selectedJenisKaryawan) {
+                                    $jenis = collect($jenisKaryawans)->firstWhere('id', $selectedJenisKaryawan);
+                                    $display .= "Jenis Karyawan {$jenis->nama}";
+                                }
+                                if ($selectedUnit) {
+                                    $unitNames = implode(', ', array_column($selectedUnit, 'nama'));
+                                    $display .= ($display ? ' dengan ' : '') . "Unit {$unitNames}";
+                                }
+                                if ($search) {
+                                    $display .= ($display ? ' dan ' : '') . "kata kunci '{$search}'";
+                                }
+                            @endphp
+                            <tr><td colspan="6" class="text-center px-6 py-4">Tidak ada data cuti Karyawan {{ $display }}.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -170,13 +231,37 @@
         {{-- riwayat cuti user selected --}}
         @if ($selectedRiwayatUserId)
             <div class="pt-6 rounded-lg px-2">
-                <div class="flex justify-between items-center mb-1">
+                <div class="flex justify-between items-center mb-1 gap-2">
                     <h2 class="text-xl font-bold text-success-900 bg-transparent px-4 py-2">
                         Riwayat Cuti: <span class="text-blue-700">{{ $selectedRiwayatUserName }}</span>
                     </h2>
+                    @if ($selectedRiwayatUserId)
+                        <button wire:click="export({
+                                bulan: {{ $bulan ?: now()->month }},
+                                tahun: {{ $tahun ?: now()->year }},
+                                @php
+                                    if ($selectedUnit) {
+                                        $unit = implode(', ', array_column($selectedUnit, 'nama'));
+                                        $unitId = $selectedUnit[0]['id'];
+                                    }
+                                @endphp
+                                unitId: '{{ $unitId ?? '' }}',
+                                unit: '{{ $unit ?? '' }}',
+                                jenis: '{{ $selectedJenisKaryawan }}',
+                                keyword: '{{ $search }}',
+                                mode: 'user',
+                                selected: '{{ $selectedRiwayatUserName }}'
+                            })"
+                            wire:loading.attr="disabled"
+                            style="margin-left: auto;"
+                            class="bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition font-bold py-2 px-4 rounded-lg flex items-center gap-2">
+                            <i wire:loading.remove wire:target="export" class="fas fa-file-excel"></i>
+                            <i wire:loading wire:target="export" class="fas fa-spinner fa-spin"></i>
+                            Export {{ $selectedRiwayatUserName }}
+                        </button>
+                    @endif
                     <button wire:click="closeRiwayatUser" class="flex flex-row items-center bg-gray-50 xt-sm text-red-600 hover:text-gray-50 font-semibold px-3 py-1 border border-red-200 hover:bg-red-600 rounded-lg gap-4">
                         <i class="fa-solid fa-xmark text-xl"></i>
-                        {{-- <span class="text-xl font-bold">Tutup</span> --}}
                     </button>
                 </div>
                 <div class="relative overflow-x-auto shadow-md sm:rounded-lg border border-gray-200">
@@ -224,7 +309,7 @@
                                     </td>
                                 </tr>
                             @empty
-                                <tr><td colspan="7" class="text-center bg-gray-50 px-6 py-6 text-gray-500">Tidak ada riwayat cuti untuk karyawan ini.</td></tr>
+                                <tr><td colspan="7" class="text-center bg-gray-50 px-6 py-6 text-gray-500">Tidak ada riwayat cuti untuk <span class="font-bold text-blue-700">{{ $selectedRiwayatUserName }}</span>.</td></tr>
                             @endforelse
                         </tbody>
                     </table>
