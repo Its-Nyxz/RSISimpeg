@@ -83,7 +83,7 @@ class ExportRiwayatCuti implements FromView, WithTitle, ShouldAutoSize, WithEven
 
                 // Mengatur tinggi baris untuk semua baris (Header + Data)
                 for ($i = 1; $i <= $highestRow; $i++) {
-                    $sheet->getRowDimension($i)->setRowHeight(30);
+                    $sheet->getRowDimension($i)->setRowHeight(25);
                 }
 
                 // Freeze pane to keep headers (row 1-3) visible
@@ -117,7 +117,7 @@ class ExportRiwayatCuti implements FromView, WithTitle, ShouldAutoSize, WithEven
     public function view(): View
     {
         // Build query for leave history (cuti) data
-        $query = CutiKaryawan::with(['user.unitKerja', 'jenisCuti', 'statusCuti', 'sisaCuti']);
+        $query = CutiKaryawan::with(['user.unitKerja', 'jenisCuti', 'statusCuti']);
 
         // Filter by month and year biar sesuai periode bulan / tahun
         if ($this->bulan && $this->tahun) {
