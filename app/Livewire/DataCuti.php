@@ -18,6 +18,9 @@ use App\Models\SisaCutiTahunan;
 use App\Models\RiwayatApproval;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ExportRiwayat;
+use Illuminate\Support\Str;
 
 class DataCuti extends Component
 {
@@ -40,6 +43,8 @@ class DataCuti extends Component
     // Options for dropdowns
     public $units = [];
     public $jenisKaryawans = [];
+    public $bulan;
+    public $tahun;
 
     public function mount()
     {
@@ -47,7 +52,8 @@ class DataCuti extends Component
         $this->unitKepegawaianId = 87;
         $this->isKepegawaian = $user->unit_id == $this->unitKepegawaianId || $user->roles->pluck('id')->first() == 2 || $user->roles->pluck('id')->first() == 14 || $user->hasRole('Super Admin');
         $this->isRiwayatCuti = request()->routeIs('riwayatcuti.*') || request()->is('riwayatcuti');
-
+        $this->bulan = now()->month;
+        $this->tahun = now()->year;
         $this->units = UnitKerja::orderBy('id')->get();
         $this->jenisKaryawans = JenisKaryawan::orderBy('id')->get();
     }
@@ -61,7 +67,8 @@ class DataCuti extends Component
     public function updatedSelectedUserAktif() { $this->resetPage('usersPage'); }
     public function updatedSelectedUnit() { $this->resetPage('usersPage'); }
     public function updatedSelectedJenisKaryawan() { $this->resetPage('usersPage'); }
-
+    public function updatedBulan() { $this->resetPage('usersPage'); }
+    public function updatedTahun() { $this->resetPage('usersPage'); }
     private function getAllChildUnitIds($unitId)
     {
         $unitIds = [$unitId];
@@ -121,6 +128,12 @@ class DataCuti extends Component
         if (isset($this->selectedUserAktif)) {
             $query->where('status_karyawan', $this->selectedUserAktif);
         }
+        if ($this->bulan) {
+            $query->whereHas('cutiKaryawan', fn($q) => $q->whereMonth('created_at', $this->bulan));
+        }
+        if ($this->tahun) {
+            $query->whereHas('cutiKaryawan', fn($q) => $q->whereYear('created_at', $this->tahun));
+        }
 
         if (!$this->isKepegawaian) {
             $hasChild = UnitKerja::where('parent_id', $user->unit_id)->exists();
@@ -141,7 +154,7 @@ class DataCuti extends Component
 
         return CutiKaryawan::with(['jenisCuti', 'statusCuti'])
             ->where('user_id', $this->selectedRiwayatUserId)
-            ->orderBy('id')
+            ->orderBy('created_at', 'asc')
             ->paginate(10, ['*'], 'detailsPage');
     }
 
@@ -488,6 +501,37 @@ class DataCuti extends Component
 
             return redirect()->route('approvalcuti.index')->with('success', 'Pengajuan cuti ditolak!');
         }
+    }
+
+    /** ----------------------------------------------------------------
+     *  download
+     *  ---------------------------------------------------------------- */
+    public function export($param)
+    {
+        $bulan = $param['bulan'];
+        $tahun = $param['tahun'];
+        $unitId = $param['unitId'];
+        $unit = $param['unit'];
+        $jenisId = (int) $param['jenis'];
+        $keyword = $param['keyword'];
+        $mode = $param['mode'];
+        $selected = Str::slug($param['selected']);
+
+        $monthName = Carbon::createFromDate($tahun, $bulan, 1)->locale('id')->isoFormat('MMMM');
+        if ($mode === 'user') {
+            $filename = "riwayat_cuti_{$selected}_{$monthName}_{$tahun}.xlsx";
+        } elseif ($unitId && $mode !== 'user') {
+            $filename = "riwayat_cuti_{$unit}_{$monthName}_{$tahun}.xlsx";
+        } elseif ($jenisId && $mode !== 'user') {
+            $filename = "riwayat_cuti_{$monthName}_{$tahun}.xlsx";
+        }
+
+        // dd($param, $filename);
+
+        return Excel::download(
+            new ExportRiwayat($bulan, $tahun, $unit, $unitId, $jenisId, $keyword, $mode, $selected),
+            $filename
+        );
     }
 
     /** ----------------------------------------------------------------
