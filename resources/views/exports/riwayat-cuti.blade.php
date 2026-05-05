@@ -92,13 +92,13 @@
                             {{ \Carbon\Carbon::parse($approvals[1]->approve_at)->locale('id')->translatedFormat('d M Y H:i') }}
                         </td>
                     @elseif ($approvals->count() === 1)
-                        <td style="font-weight: bold; border: 1px solid #000000; text-align: left; vertical-align: center;">
+                        <td style="font-weight: bold; border: 1px solid #000000; text-align: center; vertical-align: center;">
                             -
                         </td>
                         <td rowspan="2" style="border: 1px solid #000000; text-align: center;">
                             -
                         </td>
-                        <td style="color: #1e40af; border: 1px solid #000000; text-align: center; vertical-align: center;">
+                        <td style="color: #1e40af; border: 1px solid #000000; text-align: left; vertical-align: center;">
                             <span>{{ $approvals[0]->approver->name ?? 'Unknown' }}</span> ({{ $approvals[0]->approver->roles->pluck('name')->first() ?? '-' }})
                         </td>
                         <td rowspan="2" style="border: 1px solid #000000; text-align: center;">
@@ -122,10 +122,10 @@
                         @if($approvals[1]->catatan)<br><span style="color: #000000; font-weight: normal;">Catatan: {{ $approvals[1]->catatan }}</span>@endif
                     </td>
                 @elseif($approvals->count() === 1)
-                    <td style="border: 1px solid #000000; text-align: left; vertical-align: center;">
+                    <td style="border: 1px solid #000000; text-align: center; vertical-align: center;">
                         -
                     </td>
-                    <td style="color: {{ str_contains($approvals[0]->status_approval, 'ditolak') ? '#dc2626' : '#16a34a' }}; border: 1px solid #000000; text-align: center; vertical-align: center;">
+                    <td style="color: {{ str_contains($approvals[0]->status_approval, 'ditolak') ? '#dc2626' : '#16a34a' }}; border: 1px solid #000000; text-align: left; vertical-align: center;">
                         <span>{{ strtoupper(str_replace('_', ' ', $approvals[0]->status_approval)) }}</span>
                         @if($approvals[0]->catatan)<br><span style="color: #000000; font-weight: normal;">Catatan: {{ $approvals[0]->catatan }}</span>@endif
                     </td>
