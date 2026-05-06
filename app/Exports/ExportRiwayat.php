@@ -83,11 +83,11 @@ class ExportRiwayatCuti implements FromView, WithTitle, ShouldAutoSize, WithEven
 
                 // Mengatur tinggi baris untuk semua baris (Header + Data)
                 for ($i = 1; $i <= $highestRow; $i++) {
-                    $sheet->getRowDimension($i)->setRowHeight(25);
+                    $sheet->getRowDimension($i)->setRowHeight(30);
                 }
 
-                // Freeze pane to keep headers (row 1-3) visible
-                $sheet->freezePane('A4');
+                // Freeze pane
+                $sheet->freezePane('A6');
 
                 // --- EFEK PERATAAN TENGAH ---
                 // Memastikan teks berada di tengah secara vertikal agar padding terlihat seimbang
@@ -121,8 +121,8 @@ class ExportRiwayatCuti implements FromView, WithTitle, ShouldAutoSize, WithEven
 
         // Filter by month and year biar sesuai periode bulan / tahun
         if ($this->bulan && $this->tahun) {
-            $query->whereMonth('created_at', $this->bulan)
-                    ->whereYear('created_at', $this->tahun);
+            $query->whereYear('created_at',$this->tahun)
+                    ->whereMonth('created_at',$this->bulan);
         }
 
         if ($this->mode === 'all') {
