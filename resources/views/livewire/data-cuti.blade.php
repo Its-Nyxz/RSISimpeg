@@ -269,6 +269,7 @@
                         <thead class="text-sm uppercase bg-success-400 text-success-900">
                             <tr>
                                 <th class="px-6 py-3">No.</th>
+                                <th class="px-6 py-3">Tgl Pengajuan</th>
                                 <th class="px-6 py-3">Tgl Mulai</th>
                                 <th class="px-6 py-3">Tgl Selesai</th>
                                 <th class="px-6 py-3">Hari</th>
@@ -281,6 +282,7 @@
                             @forelse ($riwayatCutiDetail as $cuti)
                                 <tr class="{{ $cuti->status_cuti_id == 2 ? 'bg-red-50' : 'bg-white' }} border-b hover:bg-gray-50">
                                     <td class="px-6 py-4 font-medium">{{ $riwayatCutiDetail->firstItem() + $loop->index }}</td>
+                                    <td class="px-6 py-4 font-medium">{{ formatDate($cuti->created_at) }}</td>
                                     <td class="px-6 py-4">{{ formatDate($cuti->tanggal_mulai) ?? '-' }}</td>
                                     <td class="px-6 py-4">{{ formatDate($cuti->tanggal_selesai) ?? '-' }}</td>
                                     <td class="px-6 py-4">{{ $cuti->jumlah_hari ?? '-' }} Hari</td>
