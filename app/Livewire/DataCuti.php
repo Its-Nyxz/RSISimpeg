@@ -129,7 +129,7 @@ class DataCuti extends Component
             $query->where('status_karyawan', $this->selectedUserAktif);
         }
         if ($this->bulan && $this->tahun) {
-            $query->whereHas('cutiKaryawan', fn($q) => $q->whereYear('created_at', $this->tahun)->whereMonth('created_at', $this->bulan));
+            $query->whereHas('cutiKaryawan', fn($q) => $q->whereYear('tanggal_mulai', $this->tahun)->whereMonth('tanggal_mulai', $this->bulan));
         }
 
         if (!$this->isKepegawaian) {
@@ -151,11 +151,11 @@ class DataCuti extends Component
 
         return CutiKaryawan::with(['jenisCuti', 'statusCuti'])
             ->where('user_id', $this->selectedRiwayatUserId)
-            ->whereYear('created_at', $this->tahun)
+            ->whereYear('tanggal_mulai', $this->tahun)
             ->when($this->bulan !== now()->month, function ($q) {
-                $q->whereMonth('created_at', $this->bulan);
+                $q->whereMonth('tanggal_mulai', $this->bulan);
             })
-            ->orderBy('created_at', 'desc')
+            ->orderBy('tanggal_mulai', 'desc')
             ->paginate(10, ['*'], 'detailsPage');
     }
 
