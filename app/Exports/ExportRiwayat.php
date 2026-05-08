@@ -121,8 +121,8 @@ class ExportRiwayatCuti implements FromView, WithTitle, ShouldAutoSize, WithEven
 
         // Filter by month and year biar sesuai periode bulan / tahun
         if ($this->bulan && $this->tahun) {
-            $query->whereYear('created_at',$this->tahun)
-                    ->whereMonth('created_at',$this->bulan);
+            $query->whereYear('tanggal_mulai',$this->tahun)
+                    ->whereMonth('tanggal_mulai',$this->bulan);
         }
 
         if ($this->mode === 'all') {
@@ -143,18 +143,18 @@ class ExportRiwayatCuti implements FromView, WithTitle, ShouldAutoSize, WithEven
             // filter bulan selain now
             if ($this->bulan !== now()->month) {
                 $query->whereHas('user', function ($q) {
-                    $q->whereMonth('created_at', $this->bulan);
+                    $q->whereMonth('tanggal_mulai', $this->bulan);
                 });
             }
 
             // filter tahun selain now
             if ($this->tahun !== now()->year) {
                 $query->whereHas('user', function ($q) {
-                    $q->whereYear('created_at', $this->tahun);
+                    $q->whereYear('tanggal_mulai', $this->tahun);
                 });
             }
 
-            $cutiKaryawans = $query->orderBy('created_at', 'asc')->get();
+            $cutiKaryawans = $query->orderBy('tanggal_mulai', 'asc')->get();
         }
 
         if ($this->mode === 'user') {
@@ -162,7 +162,7 @@ class ExportRiwayatCuti implements FromView, WithTitle, ShouldAutoSize, WithEven
             // We find the user first to ensure we have the correct user_id
             $user = User::where('name', str_replace('-', ' ', $this->selected))->first();
             $query->where('user_id', $user?->id);
-            $cutiKaryawans = $query->orderBy('created_at', 'asc')->get();
+            $cutiKaryawans = $query->orderBy('tanggal_mulai', 'asc')->get();
         }
 
         // dd($cutiKaryawans);
