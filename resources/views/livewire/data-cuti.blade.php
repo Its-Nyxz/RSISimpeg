@@ -268,42 +268,50 @@
                     <table class="w-full text-sm text-center text-gray-700">
                         <thead class="text-sm uppercase bg-success-400 text-success-900">
                             <tr>
-                                <th class="px-6 py-3">No.</th>
-                                <th class="px-6 py-3">Tgl Pengajuan</th>
-                                <th class="px-6 py-3">Tgl Mulai</th>
-                                <th class="px-6 py-3">Tgl Selesai</th>
-                                <th class="px-6 py-3">Hari</th>
-                                <th class="px-6 py-3">Jenis</th>
-                                <th class="px-6 py-3">Status</th>
-                                <th class="px-6 py-3">Riwayat Approval</th>
+                                <th class="px-2 py-3">No.</th>
+                                <th class="px-2 py-3">Tgl Mulai</th>
+                                <th class="px-2 py-3">Tgl Selesai</th>
+                                <th class="px-2 py-3">Hari</th>
+                                <th class="px-2 py-3">Jenis</th>
+                                <th class="px-2 py-3">Status</th>
+                                <th class="px-2 py-3">Lain2</th>
+                                <th class="px-2 py-3">Riwayat Approval</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse ($riwayatCutiDetail as $cuti)
-                                <tr class="{{ $cuti->status_cuti_id == 2 ? 'bg-red-50' : 'bg-white' }} border-b hover:bg-gray-50">
-                                    <td class="px-6 py-4 font-medium">{{ $riwayatCutiDetail->firstItem() + $loop->index }}</td>
-                                    <td class="px-6 py-4 font-medium">{{ \Carbon\Carbon::parse($cuti->created_at)->locale('id')->translatedFormat('l, d M Y') ?? '-' }}</td>
-                                    <td class="px-6 py-4">{{ \Carbon\Carbon::parse($cuti->tanggal_mulai)->locale('id')->translatedFormat('l, d M Y') ?? '-' }}</td>
-                                    <td class="px-6 py-4">{{ \Carbon\Carbon::parse($cuti->tanggal_selesai)->locale('id')->translatedFormat('l, d M Y') ?? '-' }}</td>
-                                    <td class="px-6 py-4">{{ $cuti->jumlah_hari ?? '-' }} Hari</td>
-                                    <td class="px-6 py-4">{{ $cuti->jeniscuti->nama_cuti ?? '-' }}</td>
-                                    <td class="px-6 py-4 font-bold {{ $cuti->status_cuti_id == 1 ? 'text-success-600' : ($cuti->status_cuti_id == 2 ? 'text-red-600' : 'text-yellow-600') }}">
+                                <tr class="{{ $cuti->status_cuti_id == 2 ? 'bg-red-50' : 'bg-white' }} border-b hover:bg-gray-50 text-md">
+                                    <td class="px-2 py-4 font-medium">{{ $riwayatCutiDetail->firstItem() + $loop->index }}</td>
+                                    <td class="px-2 py-4">{{ \Carbon\Carbon::parse($cuti->tanggal_mulai)->locale('id')->translatedFormat('l, d F') ?? '-' }}</td>
+                                    <td class="px-2 py-4">{{ \Carbon\Carbon::parse($cuti->tanggal_selesai)->locale('id')->translatedFormat('l, d F') ?? '-' }}</td>
+                                    <td class="px-2 py-4">{{ $cuti->jumlah_hari ?? '-' }} Hari</td>
+                                    <td class="px-2 py-4">{{ $cuti->jeniscuti->nama_cuti ?? '-' }}</td>
+                                    <td class="px-2 py-4 font-bold {{ $cuti->status_cuti_id == 1 ? 'text-success-600' : ($cuti->status_cuti_id == 2 ? 'text-red-600' : 'text-yellow-600') }}">
                                         {{ $cuti->statusCuti->nama_status ?? '-' }}
                                     </td>
-                                    <td class="px-6 py-4 text-left text-xs bg-gray-50">
-                                        @php
-                                            $approvals = \App\Models\RiwayatApproval::with('approver')->where('cuti_id', $cuti->id)->orderBy('approve_at', 'asc')->get();
-                                        @endphp
+                                    @php
+                                        $approvals = \App\Models\RiwayatApproval::with('approver')->where('cuti_id', $cuti->id)->orderBy('approve_at', 'asc')->get();
+                                    @endphp
+                                    <td class="px-2 py-4 text-left">
+                                        <div class="mb-1 last:mb-0 pb-1 last:border-0 ">
+                                            <span class="font-semibold">Tgl Pengajuan:</span><br>
+                                            <span>{{ \Carbon\Carbon::parse($cuti->created_at)->locale('id')->translatedFormat('l, d F') ?? '-' }}</span><br>
+                                        </div>
+                                        <div>
+                                            <span class="font-semibold">Keterangan:</span><br>
+                                            <span>{{ $cuti->keterangan ?? '-' }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-2 py-4 text-left text-xs bg-gray-50">
                                         @forelse($approvals as $approval)
-                                            <div class="mb-2 last:mb-0 pb-2 border-b border-gray-200 last:border-0">
-                                                <span class="font-semibold text-gray-900">{{ $approval->approver->name ?? 'Unknown' }}</span><br>
-                                                <span class="px-2 py-0.5 rounded text-[10px] uppercase font-bold {{ str_contains($approval->status_approval, 'ditolak') ? 'bg-red-700 text-red-200' : 'bg-success-700 text-success-200' }}">
+                                            <div class="mb-1 last:mb-0 border-b border-gray-500 pb-1 last:border-0">
+                                                <span class="font-bold text-gray-900">{{ $approval->approver->name ?? 'Unknown' }}</span>
+                                                <span class="text-blue-700">( {{ $approval->approver->roles->pluck('name')->first() }} )</span><br>
+                                                <span class="px-2 py-0.5 rounded text-[10px] uppercase font-bold {{ str_contains($approval->status_approval, 'ditolak') ? 'bg-red-700 text-red-200' : (str_contains($approval->status_approval, 'disetujui_intermediate') ? 'bg-yellow-400 text-yellow-800' : 'bg-success-700 text-success-200') }} ">
                                                     {{ str_replace('_', ' ', $approval->status_approval) }}
-                                                </span><br>
-                                                <span class="text-gray-500">{{ \Carbon\Carbon::parse($approval->approve_at)->locale('id')->translatedFormat('l, d M Y H:i') }}</span>
-                                                @if($approval->catatan)
-                                                    <br><span class="text-red-600 mt-1 block">Catatan: {{ $approval->catatan }}</span>
-                                                @endif
+                                                </span>
+                                                <span class="text-red-600 block">{{ ($approval->catatan) ? 'Catatan: '.$approval->catatan : ''}}</span>
+                                                <span class="text-gray-500">{{ \Carbon\Carbon::parse($approval->approve_at)->locale('id')->translatedFormat('l, d F H:i') }}</span>
                                             </div>
                                         @empty
                                             <span class="text-gray-500 italic">Belum ada riwayat approval.</span>
@@ -311,7 +319,7 @@
                                     </td>
                                 </tr>
                             @empty
-                                <tr><td colspan="8" class="text-center bg-gray-50 px-6 py-6 text-gray-500">Tidak ada riwayat cuti untuk <span class="font-bold text-blue-700">{{ $selectedRiwayatUserName }}</span>.</td></tr>
+                                <tr><td colspan="8" class="text-center bg-gray-50 px-2 py-6 text-gray-500">Tidak ada riwayat cuti untuk <span class="font-bold text-blue-700">{{ $selectedRiwayatUserName }}</span>.</td></tr>
                             @endforelse
                         </tbody>
                     </table>
