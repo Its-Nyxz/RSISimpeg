@@ -52,9 +52,9 @@
                 <td rowspan="2" style="border: 1px solid #000000; text-align: center;">{{ $cuti->user->name ?? '-' }}</td>
                 <td rowspan="2" style="border: 1px solid #000000; text-align: center;">{{ $cuti->user->unitKerja->nama ?? '-' }}</td>
                 <td rowspan="2" style="border: 1px solid #000000; text-align: center;">{{ $cuti->jenisCuti->nama_cuti ?? '-' }}</td>
-                <td rowspan="2" style="border: 1px solid #000000; text-align: center;">{{ $cuti->created_at ? \Carbon\Carbon::parse($cuti->created_at)->locale('id')->translatedFormat('d M Y H:i') : '-' }}</td>
-                <td rowspan="2" style="border: 1px solid #000000; text-align: center;">{{ $cuti->tanggal_mulai ? \Carbon\Carbon::parse($cuti->tanggal_mulai)->locale('id')->translatedFormat('d M Y H:i') : '-' }}</td>
-                <td rowspan="2" style="border: 1px solid #000000; text-align: center;">{{ $cuti->tanggal_selesai ? \Carbon\Carbon::parse($cuti->tanggal_selesai)->locale('id')->translatedFormat('d M Y H:i') : '-' }}</td>
+                <td rowspan="2" style="border: 1px solid #000000; text-align: center;">{{ $cuti->created_at ? \Carbon\Carbon::parse($cuti->created_at)->locale('id')->translatedFormat('l, d M Y H:i') : '-' }}</td>
+                <td rowspan="2" style="border: 1px solid #000000; text-align: center;">{{ $cuti->tanggal_mulai ? \Carbon\Carbon::parse($cuti->tanggal_mulai)->locale('id')->translatedFormat('l, d M Y') : '-' }}</td>
+                <td rowspan="2" style="border: 1px solid #000000; text-align: center;">{{ $cuti->tanggal_selesai ? \Carbon\Carbon::parse($cuti->tanggal_selesai)->locale('id')->translatedFormat('l, d M Y') : '-' }}</td>
                 <td rowspan="2" style="border: 1px solid #000000; text-align: center;">{{ $cuti->jumlah_hari . ' hari' }}</td>
                 <td rowspan="2" style="border: 1px solid #000000; text-align: center;">{{ $cuti->keterangan ?? '-' }}</td>
                 @php
@@ -98,7 +98,7 @@
                         <td rowspan="2" style="border: 1px solid #000000; text-align: center;">
                             -
                         </td>
-                        <td style="color: #1e40af; border: 1px solid #000000; text-align: left; vertical-align: center;">
+                        <td style="color: #1e40af; font-weight: bold; border: 1px solid #000000; text-align: left; vertical-align: center;">
                             <span>{{ $approvals[0]->approver->name ?? 'Unknown' }}</span> ({{ $approvals[0]->approver->roles->pluck('name')->first() ?? '-' }})
                         </td>
                         <td rowspan="2" style="border: 1px solid #000000; text-align: center;">
