@@ -715,6 +715,22 @@
                             </td>
                         </tr>
 
+                        <tr>
+                            <td style="width: 40%">
+                                <label for="cuti_tambahan" class="block mb-2 text-sm font-medium text-gray-900">
+                                    Cuti Tambahan
+                                </label>
+                            </td>
+                            <td>
+                                <input type="number" id="cuti_tambahan" wire:model.live="cuti_tambahan"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-success-500 focus:border-success-500 block w-full p-2.5"
+                                    placeholder="Masukkan jatah cuti tambahan" min="0" step="1">
+                                @error('cuti_tambahan')
+                                    <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
+                                @enderror
+                            </td>
+                        </tr>
+
                     </table>
                 </x-card>
             </div>
