@@ -135,6 +135,10 @@
                         <div class="font-bold text-success-700 text-lg">{{ $sisaCutiTahunan }} <span class="text-xs font-normal">Hari</span></div>
                     </div>
                     <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                        <div class="font-medium text-gray-600">Sisa Cuti Tambahan</div>
+                        <div class="font-bold text-blue-600 text-lg">{{ $cutiTambahan }} <span class="text-xs font-normal">Hari</span></div>
+                    </div>
+                    <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
                         <div class="font-medium text-gray-600">Terlambat (Bulan Ini)</div>
                         <div class="font-bold text-red-600 text-lg">{{ $jumlahKeterlambatan }} <span class="text-xs font-normal">Kali</span></div>
                     </div>

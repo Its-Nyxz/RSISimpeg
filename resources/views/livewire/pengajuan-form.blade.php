@@ -24,6 +24,19 @@
                 @enderror
             </div>
 
+            <!-- ✅ Kategori Cuti (Tahunan / Tambahan) -->
+            <div class="mb-4">
+                <label for="kategori_cuti" class="block text-sm font-medium text-gray-700">Kategori Cuti</label>
+                <select wire:model.live="kategori_cuti" id="kategori_cuti"
+                    class="mt-1 py-2 px-2 block w-full border-gray-300 rounded-md shadow-md focus:ring focus:ring-success-200 focus:border-success-400">
+                    <option value="tahunan">Cuti Tahunan (Utama)</option>
+                    <option value="tambahan">Cuti Tambahan</option>
+                </select>
+                @error('kategori_cuti')
+                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+
             <!-- ✅ Tanggal Mulai -->
             <div class="mb-4">
                 <label for="tanggal_mulai" class="block text-sm font-medium text-gray-700">Tanggal Mulai</label>

@@ -257,27 +257,30 @@ class DataCuti extends Component
         if (in_array($user->jabatan_id, [1, 2]) && $cuti->user->jabatan_id == 3) {
             $cutiStatus = 1; // Disetujui final
 
-            // 🔥 Validasi sisa cuti tahunan
+            // 🔥 Validasi sisa jatah cuti (Tahunan atau Tambahan)
             if ($cuti->jenisCuti && strtolower($cuti->jenisCuti->nama_cuti) == 'cuti tahunan') {
                 $userCuti = SisaCutiTahunan::where('user_id', $cuti->user_id)
                     ->where('tahun', now('Asia/Jakarta')->year)
                     ->first();
 
                 if ($userCuti) {
-                    if ($userCuti->sisa_cuti >= $cuti->jumlah_hari) {
-                        $userCuti->decrement('sisa_cuti', $cuti->jumlah_hari);
+                    $kolomCuti = ($cuti->kategori_cuti == 'tambahan') ? 'cuti_tambahan' : 'sisa_cuti';
+                    $namaKategori = ($cuti->kategori_cuti == 'tambahan') ? 'Tambahan' : 'Tahunan';
+
+                    if ($userCuti->$kolomCuti >= $cuti->jumlah_hari) {
+                        $userCuti->decrement($kolomCuti, $cuti->jumlah_hari);
                     } else {
                         $cuti->update(['status_cuti_id' => 2]);
                         Notification::send($targetUser, new UserNotification(
-                            'Pengajuan cuti anda ditolak karena sisa cuti tahunan tidak cukup.',
+                            "Pengajuan cuti ditolak karena jatah Cuti {$namaKategori} tidak cukup.",
                             "/pengajuan/cuti"
                         ));
                         return redirect()->route('approvalcuti.index')
-                            ->with('error', 'Sisa cuti tahunan tidak cukup, pengajuan otomatis ditolak.');
+                            ->with('error', "Jatah Cuti {$namaKategori} tidak cukup, pengajuan otomatis ditolak.");
                     }
                 } else {
                     return redirect()->route('approvalcuti.index')
-                        ->with('error', 'Data sisa cuti tidak ditemukan.');
+                        ->with('error', 'Data jatah cuti tidak ditemukan.');
                 }
             }
 
@@ -309,91 +312,77 @@ class DataCuti extends Component
 
         $cutiStatus = $isFinalApprover ? 1 : 4; // 1 = Final, 4 = Menunggu Final
 
-        // 🔥 Validasi sisa cuti tahunan jika final
-        if (
-            $cutiStatus == 1 &&
-            $cuti->jenisCuti &&
-            strtolower($cuti->jenisCuti->nama_cuti) == 'cuti tahunan'
-        ) {
+            // 🔥 Validasi jatah cuti (Tahunan atau Tambahan) jika final
+            if (
+                $cutiStatus == 1 &&
+                $cuti->jenisCuti &&
+                strtolower($cuti->jenisCuti->nama_cuti) == 'cuti tahunan'
+            ) {
 
-            // dd($targetUser->jenis_id != 1);
-            if ($targetUser->jenis_id != 1 || empty($targetUser->jenis_id)) {
-                //chek user apakah data jenis dan tmt masuk terisi
-                // 1. Cek jika KEDUANYA kosong
-                if (empty($targetUser->jenis_id) && empty($targetUser->tmt_masuk) && empty($targetUser->tmt)) {
-                    return redirect()->route('approvalcuti.index')
-                        ->with('error', 'Data jenis Karyawan & TMT belum terisi');
-                }
-
-                // 2. Cek jika salah satu saja yang kosong
-                if (empty($targetUser->jenis_id)) {
-                    return redirect()->route('approvalcuti.index')
-                        ->with('error', 'Data jenis Karyawan belum terisi');
-                }
-
-                if (empty($targetUser->tmt_masuk)) {
-                    return redirect()->route('approvalcuti.index')
-                        ->with('error', 'Data TMT masuk belum terisi');
-                }
-                if (empty($targetUser->tmt)) {
-                    return redirect()->route('approvalcuti.index')
-                        ->with('error', 'Data TMT belum terisi');
-                }
-
-                //chek user apakah data jenis = kontrak dan tmt masuk  sudah bekrja selama 12 bulan >
-                $now = now('Asia/Jakarta');
-                $tmt = Carbon::parse($targetUser->tmt, 'Asia/Jakarta');
-                $targetTanggal = $tmt->copy()->addMonths(12);
-
-                // 3. Cek Kondisi
-                if ($targetUser->jenis_id === 3) {
-                    // jika masa kerja belum 12 bulan
-                    if (!$now->greaterThanOrEqualTo($targetTanggal)) {
-                        // targetUser kontrak belum boleh cuti
-                        $sisaBulan = ceil($now->floatDiffInMonths($targetTanggal));
+                // dd($targetUser->jenis_id != 1);
+                if ($targetUser->jenis_id != 1 || empty($targetUser->jenis_id)) {
+                    // (Logika pengecekan TMT karyawan kontrak tetap sama seperti sebelumnya)
+                    if (empty($targetUser->jenis_id) && empty($targetUser->tmt_masuk) && empty($targetUser->tmt)) {
                         return redirect()->route('approvalcuti.index')
-                            ->with('error', "Maaf, karyawan kontrak baru bisa cuti setelah 12 bulan. Sisa masa tunggu: $sisaBulan bulan lagi.");
-                    } else {
-                        $currentYear = now('Asia/Jakarta')->year;
-                        // 1. Ambil jatah cuti dari master, default ke 12 jika tidak ada
-                        $jatahCuti = MasterJatahCuti::where('tahun', $currentYear)->value('jumlah_cuti') ?? 12;
-
-                        // 2. Cek apakah sisa cuti tahun ini sudah dibuat untuk targetUser ini
-                        // Jika belum ada, maka buat baru. Jika sudah ada, ambil datanya.
-                        SisaCutiTahunan::firstOrCreate(
-                            [
-                                'user_id' => $targetUser->id,
-                                'tahun'   => $currentYear
-                            ],
-                            [
-                                'sisa_cuti' => $jatahCuti // Ini hanya diisi jika record baru dibuat
-                            ]
-                        );
+                            ->with('error', 'Data jenis Karyawan & TMT belum terisi');
                     }
-                }
-            };
-            // dd('1');
-            $userCuti = SisaCutiTahunan::where('user_id', $userId)
-                ->where('tahun', now('Asia/Jakarta')->year)
-                ->first();
+                    if (empty($targetUser->jenis_id)) {
+                        return redirect()->route('approvalcuti.index')
+                            ->with('error', 'Data jenis Karyawan belum terisi');
+                    }
+                    if (empty($targetUser->tmt_masuk)) {
+                        return redirect()->route('approvalcuti.index')
+                            ->with('error', 'Data TMT masuk belum terisi');
+                    }
+                    if (empty($targetUser->tmt)) {
+                        return redirect()->route('approvalcuti.index')
+                            ->with('error', 'Data TMT belum terisi');
+                    }
 
-            if ($userCuti) {
-                if ($userCuti->sisa_cuti >= $cuti->jumlah_hari) {
-                    $userCuti->decrement('sisa_cuti', $cuti->jumlah_hari);
+                    $now = now('Asia/Jakarta');
+                    $tmt = Carbon::parse($targetUser->tmt, 'Asia/Jakarta');
+                    $targetTanggal = $tmt->copy()->addMonths(12);
+
+                    if ($targetUser->jenis_id === 3) {
+                        if (!$now->greaterThanOrEqualTo($targetTanggal)) {
+                            $sisaBulan = ceil($now->floatDiffInMonths($targetTanggal));
+                            return redirect()->route('approvalcuti.index')
+                                ->with('error', "Maaf, karyawan kontrak baru bisa cuti setelah 12 bulan. Sisa masa tunggu: $sisaBulan bulan lagi.");
+                        } else {
+                            $currentYear = now('Asia/Jakarta')->year;
+                            $jatahCuti = MasterJatahCuti::where('tahun', $currentYear)->value('jumlah_cuti') ?? 12;
+                            SisaCutiTahunan::firstOrCreate(
+                                ['user_id' => $targetUser->id, 'tahun' => $currentYear],
+                                ['sisa_cuti' => $jatahCuti]
+                            );
+                        }
+                    }
+                };
+
+                $userCuti = SisaCutiTahunan::where('user_id', $userId)
+                    ->where('tahun', now('Asia/Jakarta')->year)
+                    ->first();
+
+                if ($userCuti) {
+                    $kolomCuti = ($cuti->kategori_cuti == 'tambahan') ? 'cuti_tambahan' : 'sisa_cuti';
+                    $namaKategori = ($cuti->kategori_cuti == 'tambahan') ? 'Tambahan' : 'Tahunan';
+
+                    if ($userCuti->$kolomCuti >= $cuti->jumlah_hari) {
+                        $userCuti->decrement($kolomCuti, $cuti->jumlah_hari);
+                    } else {
+                        $cuti->update(['status_cuti_id' => 2]);
+                        Notification::send($targetUser, new UserNotification(
+                            "Pengajuan cuti ditolak karena jatah Cuti {$namaKategori} tidak cukup.",
+                            "/pengajuan/cuti"
+                        ));
+                        return redirect()->route('approvalcuti.index')
+                            ->with('error', "Jatah Cuti {$namaKategori} tidak cukup, pengajuan otomatis ditolak.");
+                    }
                 } else {
-                    $cuti->update(['status_cuti_id' => 2]);
-                    Notification::send($targetUser, new UserNotification(
-                        'Pengajuan cuti anda ditolak karena sisa cuti tahunan tidak cukup.',
-                        "/pengajuan/cuti"
-                    ));
                     return redirect()->route('approvalcuti.index')
-                        ->with('error', 'Sisa cuti tahunan tidak cukup, pengajuan otomatis ditolak.');
+                        ->with('error', 'Data jatah cuti tidak ditemukan.');
                 }
-            } else {
-                return redirect()->route('approvalcuti.index')
-                    ->with('error', 'Data sisa cuti tidak ditemukan.');
             }
-        }
 
         // 🔹 Update status cuti
         $cuti->update(['status_cuti_id' => $cutiStatus]);

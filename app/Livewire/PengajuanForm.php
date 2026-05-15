@@ -40,6 +40,8 @@ class PengajuanForm extends Component
     public $shift_id;
     public $shifts;
 
+    public $kategori_cuti = 'tahunan';
+
 
     // Untuk menerima tipe dari controller
     public function mount($tipe)
@@ -359,6 +361,7 @@ class PengajuanForm extends Component
                 'user_id' => $user->id,
                 'jenis_cuti_id' => $this->jenis_cuti_id,
                 'status_cuti_id' => $statusCuti,
+                'kategori_cuti' => $this->kategori_cuti,
                 'tanggal_mulai' => $this->tanggal_mulai,
                 'tanggal_selesai' => $this->tanggal_selesai,
                 'jumlah_hari' => $jumlah_hari,
