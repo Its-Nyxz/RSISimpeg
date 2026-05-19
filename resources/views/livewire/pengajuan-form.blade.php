@@ -9,6 +9,15 @@
         @endif
 
         @if ($tipe === 'cuti')
+            @if ($userid !== null)
+                <div class="mb-4">
+                    <label for="userid" class="block text-sm font-medium text-gray-700">Karyawan</label>
+                    <span>{{ $karyawans ? $karyawans->name : 'Karyawan tidak ditemukan' }}</span>
+                    @error('userid')
+                        <span class="text-red-500 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+            @endif
             <!-- Jenis Cuti -->
             <div class="mb-4">
                 <label for="jenis_cuti" class="block text-sm font-medium text-gray-700">Jenis Cuti</label>
