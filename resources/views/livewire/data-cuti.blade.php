@@ -12,7 +12,33 @@
     <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-3">
         <div class="flex flex-wrap gap-3 justify-center md:justify-start w-full">
             @if ($isRiwayatCuti)
-                <select wire:model.live="bulan"
+                @php
+                    $minDate = \Carbon\Carbon::createFromDate($tahun ?: now()->year, $bulan ?: now()->month, 1)->startOfMonth()->format('Y-m-d');
+                    $maxDate = \Carbon\Carbon::createFromDate($tahun ?: now()->year, $bulan ?: now()->month, 1)->endOfMonth()->format('Y-m-d');
+                @endphp
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <div class="relative flex items-center" onclick="this.querySelector('input').showPicker()">
+                        <input type="date" wire:model.live="tanggalMulaiFilter" min="{{ $minDate }}" max="{{ $tanggalSelesaiFilter ?: $maxDate }}" class="rounded-lg px-2 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600 w-full sm:w-auto cursor-pointer" title="Dari Tanggal">
+                        @if($tanggalMulaiFilter)
+                            <button wire:click.stop="$set('tanggalMulaiFilter', '')" class="ml-1 text-gray-400 hover:text-red-500" title="Clear"><i class="fa-solid fa-circle-xmark"></i></button>
+                        @endif
+                    </div>
+                    <span class="text-gray-500 font-medium">S/D</span>
+                    <div class="relative flex items-center" onclick="this.querySelector('input').showPicker()">
+                        <input type="date" wire:model.live="tanggalSelesaiFilter" min="{{ $tanggalMulaiFilter ?: $minDate }}" max="{{ $maxDate }}" class="rounded-lg px-2 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600 w-full sm:w-auto cursor-pointer" title="Sampai Dengan Tanggal">
+                        @if($tanggalSelesaiFilter)
+                            <button wire:click.stop="$set('tanggalSelesaiFilter', '')" class="ml-1 text-gray-400 hover:text-red-500" title="Clear"><i class="fa-solid fa-circle-xmark"></i></button>
+                        @endif
+                    </div>
+                </div>
+                <select wire:model.live="bulan" x-on:change="
+                    let y = $wire.tahun || new Date().getFullYear();
+                    let m = $event.target.value;
+                    let max = new Date(y, m, 0).getDate();
+                    let d1 = $wire.tanggalMulaiFilter ? Math.min(parseInt($wire.tanggalMulaiFilter.split('-')[2]), max) : 1;
+                    let d2 = $wire.tanggalSelesaiFilter ? Math.min(parseInt($wire.tanggalSelesaiFilter.split('-')[2]), max) : max;
+                    $wire.set('tanggalMulaiFilter', `${y}-${String(m).padStart(2, '0')}-${String(d1).padStart(2, '0')}`);
+                    $wire.set('tanggalSelesaiFilter', `${y}-${String(m).padStart(2, '0')}-${String(d2).padStart(2, '0')}`);"
                     class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600 w-full sm:w-auto">
                     @foreach (range(1, 12) as $m)
                         <option value="{{ $m }}">
@@ -20,7 +46,14 @@
                         </option>
                     @endforeach
                 </select>
-                <select wire:model.live="tahun"
+                <select wire:model.live="tahun" x-on:change="
+                    let y = $event.target.value;
+                    let m = $wire.bulan || new Date().getMonth() + 1;
+                    let max = new Date(y, m, 0).getDate();
+                    let d1 = $wire.tanggalMulaiFilter ? Math.min(parseInt($wire.tanggalMulaiFilter.split('-')[2]), max) : 1;
+                    let d2 = $wire.tanggalSelesaiFilter ? Math.min(parseInt($wire.tanggalSelesaiFilter.split('-')[2]), max) : max;
+                    $wire.set('tanggalMulaiFilter', `${y}-${String(m).padStart(2, '0')}-${String(d1).padStart(2, '0')}`);
+                    $wire.set('tanggalSelesaiFilter', `${y}-${String(m).padStart(2, '0')}-${String(d2).padStart(2, '0')}`);"
                     class="rounded-lg px-4 py-2 border border-gray-300 focus:ring-2 focus:ring-success-600 w-full sm:w-auto">
                     @foreach (range(now()->year - 5, now()->year) as $y)
                         <option value="{{ $y }}">{{ $y }}</option>
