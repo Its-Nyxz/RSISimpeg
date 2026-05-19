@@ -37,7 +37,7 @@ class DataCuti extends Component
     // Filter properties
     public $selectedUserAktif = 1;
     public $selectedUnit = '';
-    public $selectedJenisKaryawan = 1;
+    public $selectedJenisKaryawan = '';
     public $search = '';
 
     // Options for dropdowns
@@ -45,6 +45,8 @@ class DataCuti extends Component
     public $jenisKaryawans = [];
     public $bulan;
     public $tahun;
+    public $tanggalMulaiFilter = '';
+    public $tanggalSelesaiFilter = '';
 
     public function mount()
     {
@@ -54,6 +56,7 @@ class DataCuti extends Component
         $this->isRiwayatCuti = request()->routeIs('riwayatcuti.*') || request()->is('riwayatcuti');
         $this->bulan = now()->month;
         $this->tahun = now()->year;
+        $this->tanggalMulaiFilter = now()->format('Y-m-d');
         $this->units = UnitKerja::orderBy('id')->get();
         $this->jenisKaryawans = JenisKaryawan::orderBy('id')->get();
     }
@@ -67,8 +70,27 @@ class DataCuti extends Component
     public function updatedSelectedUserAktif() { $this->resetPage('usersPage'); }
     public function updatedSelectedUnit() { $this->resetPage('usersPage'); }
     public function updatedSelectedJenisKaryawan() { $this->resetPage('usersPage'); }
-    public function updatedBulan() { $this->resetPage('usersPage'); }
-    public function updatedTahun() { $this->resetPage('usersPage'); }
+    
+    public function updatedBulan() { 
+        $this->tanggalMulaiFilter = '';
+        $this->tanggalSelesaiFilter = '';
+        $this->resetPage('usersPage'); 
+    }
+    public function updatedTahun() { 
+        $this->tanggalMulaiFilter = '';
+        $this->tanggalSelesaiFilter = '';
+        $this->resetPage('usersPage'); 
+    }
+    public function updatedTanggalMulai() { 
+        $this->resetPage();
+        $this->resetPage('usersPage'); 
+        $this->resetPage('detailsPage'); 
+    }
+    public function updatedTanggalSelesaiFilter() { 
+        $this->resetPage();
+        $this->resetPage('usersPage'); 
+        $this->resetPage('detailsPage'); 
+    }
     private function getAllChildUnitIds($unitId)
     {
         $unitIds = [$unitId];
@@ -128,7 +150,25 @@ class DataCuti extends Component
         if (isset($this->selectedUserAktif)) {
             $query->where('status_karyawan', $this->selectedUserAktif);
         }
-        if ($this->bulan && $this->tahun) {
+        
+        if ($this->tanggalMulaiFilter || $this->tanggalSelesaiFilter) {
+            $query->whereHas('cutiKaryawan', function($q) {
+                if ($this->tanggalMulaiFilter) {
+                    $q->where('tanggal_mulai', '>=', $this->tanggalMulaiFilter)
+                        ->whereMonth('tanggal_mulai', '=', $this->bulan)
+                        ->whereYear('tanggal_mulai', '=', $this->tahun);
+                }
+                if ($this->tanggalSelesaiFilter) {
+                    $q->where('tanggal_selesai', '<=', $this->tanggalSelesaiFilter)
+                        ->whereMonth('tanggal_selesai', '=', $this->bulan)
+                        ->whereYear('tanggal_selesai', '=', $this->tahun);
+                }
+                if ($this->tanggalMulaiFilter && $this->tanggalSelesaiFilter) {
+                    $q->where('tanggal_mulai', '>=', $this->tanggalMulaiFilter)
+                        ->where('tanggal_selesai', '<=', $this->tanggalSelesaiFilter);
+                }
+            });
+        } elseif ($this->bulan && $this->tahun) {
             $query->whereHas('cutiKaryawan', fn($q) => $q->whereYear('tanggal_mulai', $this->tahun)->whereMonth('tanggal_mulai', $this->bulan));
         }
 
@@ -149,13 +189,35 @@ class DataCuti extends Component
     {
         if (!$this->selectedRiwayatUserId) return null;
 
-        return CutiKaryawan::with(['jenisCuti', 'statusCuti'])
-            ->where('user_id', $this->selectedRiwayatUserId)
-            ->whereYear('tanggal_mulai', $this->tahun)
-            ->when($this->bulan !== now()->month, function ($q) {
-                $q->whereMonth('tanggal_mulai', $this->bulan);
-            })
-            ->orderBy('tanggal_mulai', 'desc')
+        $query = CutiKaryawan::with(['jenisCuti', 'statusCuti'])
+            ->where('user_id', $this->selectedRiwayatUserId);
+
+        if ($this->tanggalMulaiFilter) {
+            $query->where('tanggal_mulai', '>=', $this->tanggalMulaiFilter)
+                ->whereMonth('tanggal_mulai', '=', $this->bulan)
+                ->whereYear('tanggal_mulai', '=', $this->tahun);
+        }
+
+        if ($this->tanggalSelesaiFilter) {
+            $query->where('tanggal_selesai', '<=', $this->tanggalSelesaiFilter)
+                ->whereMonth('tanggal_selesai', '=', $this->bulan)
+                ->whereYear('tanggal_selesai', '=', $this->tahun);
+        }
+
+        if ($this->tanggalMulaiFilter && $this->tanggalSelesaiFilter) {
+            $query->where('tanggal_mulai', '>=', $this->tanggalMulaiFilter)
+                ->where('tanggal_selesai', '<=', $this->tanggalSelesaiFilter);
+        }
+        
+        if (empty($this->tanggalMulaiFilter) && empty($this->tanggalSelesaiFilter)) {
+            $query->whereYear('tanggal_mulai', '=', $this->tahun)
+                ->whereMonth('tanggal_mulai', '=', $this->bulan)
+                ->when($this->bulan !== now()->month, function ($q) {
+                    $q->whereMonth('tanggal_mulai', '=', $this->bulan);
+                });
+        }
+
+        return $query->orderBy('tanggal_mulai', 'desc')
             ->paginate(10, ['*'], 'detailsPage');
     }
 
