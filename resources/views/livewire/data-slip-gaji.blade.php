@@ -94,14 +94,14 @@
 
                     <div x-show="showTukinDetail" x-transition class="space-y-2 bg-gray-50 p-3 rounded border">
                         <div class="flex justify-between">
-                            <strong>Level Jabatan</strong>
-                            <span>{{ $selectedSlip->bruto?->level_jabatan ?? '-' }}</span>
-                        </div>
-                        {{-- <div class="flex justify-between">
                             <strong>Pendapatan RS</strong>
                             <span>Rp
                                 {{ number_format($selectedSlip->bruto?->nom_pendapatan_rs ?? 0, 0, ',', '.') }}</span>
-                        </div> --}}
+                        </div>
+                        <div class="flex justify-between">
+                            <strong>Level Jabatan</strong>
+                            <span>{{ $selectedSlip->bruto?->level_jabatan ?? '-' }}</span>
+                        </div>
                         <div class="flex justify-between">
                             <strong>Prosentase Tukin</strong>
                             <span>{{ number_format($selectedSlip->bruto?->prosentase_tukin ?? 0, 4, ',', '.') }}%</span>
