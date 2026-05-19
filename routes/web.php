@@ -191,6 +191,7 @@ Route::middleware('auth')->group(function () {
     Route::get('gapokkontrak/{tipe}/{gapokkontrak}', [GapokKontrakController::class, 'create']);
     Route::resource('gapokkontrak', GapokKontrakController::class);
     Route::get('pengajuan/create/{tipe}', [PengajuanController::class, 'create'])->name('pengajuan.create');
+    Route::get('pengajuan/create/{tipe}/{userid}', [PengajuanController::class, 'create'])->name('pengajuan.createbyid');
     Route::get('pengajuan/{tipe}', [PengajuanController::class, 'index'])->name('pengajuan.index');
     Route::get('pph/{tipe}/{pph}', [KategoripphController::class, 'create'])->middleware('permission:kategori-pph');
     Route::resource('pph', KategoripphController::class)->middleware('permission:kategori-pph');
