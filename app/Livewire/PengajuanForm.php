@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Notification;
 class PengajuanForm extends Component
 {
     use WithFileUploads;
+    public $id;
     public $tipe;
     public $judul;
     public $deskripsi;
@@ -40,18 +41,25 @@ class PengajuanForm extends Component
     public $shift_id;
     public $shifts;
 
-    public $kategori_cuti = 'tahunan';
-
+    public $userid;
+    public $karyawans = [];
 
     // Untuk menerima tipe dari controller
-    public function mount($tipe)
+    public function mount($tipe, $userid = null)
     {
         $this->tipe = $tipe;
+        $this->userid = $userid;
 
         if ($tipe === 'cuti') {
             $this->judul = 'Pengajuan Cuti';
             $this->deskripsi = 'Silakan isi form untuk mengajukan cuti.';
             $this->jenis_cutis = JenisCuti::all();
+            
+            if ($this->userid !== null) {
+                $this->karyawans = User::find($this->userid);
+            } else {
+                $this->userid = auth()->id();
+            }
         } elseif ($tipe === 'ijin') {
             $this->judul = 'Pengajuan Izin';
             $this->deskripsi = 'Silakan isi form untuk mengajukan izin.';
@@ -60,6 +68,8 @@ class PengajuanForm extends Component
             $this->judul = 'Pengajuan Tukar Jadwal';
             $this->deskripsi = 'Silakan isi form untuk menukar jadwal.';
         }
+
+        // dd($tipe, $userid);
     }
 
     private function cekMasaKerjaBolehCuti($user)
@@ -229,20 +239,20 @@ class PengajuanForm extends Component
 
     public function save()
     {
-        $user = auth()->user();
+        $user = $this->userid ? User::find($this->userid) : auth()->user();
         $unitKepegawaianId = UnitKerja::where('nama', 'KEPEGAWAIAN')->value('id');
         $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)->get();
 
         if ($this->tipe === 'cuti') {
             $this->validate([
                 'jenis_cuti_id' => 'required|exists:jenis_cutis,id',
-                'tanggal_mulai' => 'required|date|after_or_equal:today',
+                'tanggal_mulai' => $this->userid ? 'required|date' : 'required|date|after_or_equal:today',
                 'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
                 'keterangan' => 'nullable|string|max:255',
             ]);
-            // dd(auth()->user());
-            $user = auth()->user();
+            $user = $this->userid ? User::find($this->userid) : auth()->user();
             $unitKepegawaianId = 87;
+            // dd($user);
 
             // 🔹 Validasi cuti ganda
             $cekCutiSama = CutiKaryawan::where('user_id', $user->id)

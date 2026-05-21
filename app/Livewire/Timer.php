@@ -39,6 +39,7 @@ class Timer extends Component
     public $isLemburRunning = false;
     public $routeIsDashboard;
     public $isLokasiDanIpTidakValid = false;
+    public $isIpWhitelisted = false;
 
     public $latitude;
     public $longitude;
@@ -60,6 +61,8 @@ class Timer extends Component
     public function mount($jadwal_id)
     {
         $this->jadwal_id = $jadwal_id;
+
+        $this->isIpWhitelisted = $this->cekIpWhitelisted();
 
         $this->routeIsDashboard = Request::routeIs('dashboard');
 
@@ -741,15 +744,8 @@ class Timer extends Component
         return false;
     }
 
-    private function validasiLokasiAtauIp(): bool
+    private function cekIpWhitelisted(): bool
     {
-        // 0) Bypass untuk testing/dev
-        if (app()->environment(['local', 'testing'])) {
-            logger('Bypass lokasi (env dev/testing).');
-            return true;
-        }
-
-        // 1) CEK IP KANTOR DULU (PRIORITAS)
         $ipUser = request()->ip();
 
         $ipWhitelist = [
@@ -763,7 +759,20 @@ class Timer extends Component
             '180.245.'
         ];
 
-        if ($this->ipDiWhitelist($ipUser, $ipWhitelist)) {
+        return $this->ipDiWhitelist($ipUser, $ipWhitelist);
+    }
+
+    private function validasiLokasiAtauIp(): bool
+    {
+        // 0) Bypass untuk testing/dev
+        if (app()->environment(['local', 'testing'])) {
+            logger('Bypass lokasi (env dev/testing).');
+            return true;
+        }
+
+        // 1) CEK IP KANTOR DULU (PRIORITAS)
+        if ($this->cekIpWhitelisted()) {
+            $ipUser = request()->ip();
             logger('Valid via IP kantor', ['ip' => $ipUser]);
             return true; // ⬅ langsung lolos tanpa mobile & GPS
         }

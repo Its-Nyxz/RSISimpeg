@@ -22,13 +22,17 @@ class PengajuanController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create($tipe)
+    public function create($tipe, $userid)
     {
         if (!in_array($tipe, ['cuti', 'ijin', 'tukar_jadwal'])) {
             abort(404);
         }
-
-        return view('pengajuan.create', compact('tipe'));
+        // dd($tipe, $userid);
+        if ($userid) {
+            return view('pengajuan.create', compact('tipe', 'userid'));
+        } else {
+            return view('pengajuan.create', compact('tipe'));
+        }
     }
     /**
      * Store a newly created resource in storage.
