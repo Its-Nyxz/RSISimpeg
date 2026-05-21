@@ -186,7 +186,8 @@
                 window.addEventListener('alert-error', event => {
 
                     // Ambil langsung dari event.detail.message
-                    const message = event.detail.message;
+                    // const message = event.detail.message;
+                    const message = event.detail[0]?.message || event.detail?.message || event.detail || 'Terjadi kesalahan';
 
                     Swal.fire({
                         icon: 'error',
@@ -200,7 +201,8 @@
                 window.addEventListener('alert-success', event => {
 
                     // Ambil langsung dari event.detail.message
-                    const message = event.detail.message;
+                    // const message = event.detail.message;
+                    const message = event.detail[0]?.message || event.detail?.message || event.detail || 'Berhasil';
 
                     Swal.fire({
                         icon: 'success',
@@ -224,6 +226,15 @@
             let timerLembur;
             let timeElapsedLembur = 0;
             let isLemburRunning = false;
+
+            // Offset untuk mengatasi jam komputer user yang tidak akurat
+            const serverTime = @json(now()->timestamp);
+            const clientTime = Math.floor(Date.now() / 1000);
+            const timeOffset = serverTime - clientTime;
+
+            function getRealTime() {
+                return Math.floor(Date.now() / 1000) + timeOffset;
+            }
 
             function updateTimerDisplay() {
                 const days = Math.floor(timeElapsed / 86400); // 1 hari = 86400 detik
@@ -256,7 +267,8 @@
                     isStopped = false;
                     // Jika startTimestamp kosong → mulai dari 0
                     timeElapsed = startTimestamp ?
-                        Math.floor(Date.now() / 1000) - startTimestamp :
+                        // Math.floor(Date.now() / 1000) - startTimestamp :
+                        getRealTime() - startTimestamp :
                         0;
 
                     updateTimerDisplay();
@@ -270,11 +282,12 @@
 
             // Jika timer utama sudah berhenti → Hitung selisih langsung di frontend
             if (!@json($isRunning) && @json($timeOut)) {
-                const startTime = new Date(@json($timeIn) * 1000); // Konversi ke milidetik
-                const endTime = new Date(@json($timeOut) * 1000); // Konversi ke milidetik
+                // const startTime = new Date(@json($timeIn) * 1000); // Konversi ke milidetik
+                // const endTime = new Date(@json($timeOut) * 1000); // Konversi ke milidetik
 
                 // ✅ Hitung selisih kerja utama dalam detik
-                timeElapsed = Math.floor((endTime - startTime) / 1000);
+                // timeElapsed = Math.floor((endTime - startTime) / 1000);
+                timeElapsed = @json($timeOut) - @json($timeIn);
 
                 // ✅ Jika ada lembur → Tambahkan ke hasil akhir
                 if (@json($timeInLembur) && @json($timeOutLembur)) {
@@ -316,7 +329,8 @@
 
                     // ✅ Hitung selisih waktu lembur dari `startTimestamp`
                     timeElapsedLembur = startTimestamp ?
-                        Math.floor(Date.now() / 1000) - startTimestamp :
+                        // Math.floor(Date.now() / 1000) - startTimestamp :
+                        getRealTime() - startTimestamp :
                         0;
 
                     updateLemburDisplay();
@@ -346,10 +360,13 @@
 
             // Tangkap event dari Livewire untuk memulai timer
             window.addEventListener('timer-started', (event) => {
-                const startTimestamp = event.detail;
+                // const startTimestamp = event.detail;
+                const startTimestamp = Array.isArray(event.detail) ? event.detail[0] : event.detail;
 
                 if (!isRunning) {
-                    timeElapsed = Math.floor(Date.now() / 1000) - startTimestamp;
+                    // timeElapsed = Math.floor(Date.now() / 1000) - startTimestamp;
+                    timeElapsed = getRealTime() - startTimestamp;
+                    updateTimerDisplay();
                     timer = setInterval(() => {
                         timeElapsed++;
                         updateTimerDisplay();
@@ -423,8 +440,11 @@
             // Fungsi kirim lokasi ke Livewire
             window.kirimLokasiKeLivewire = function(aksi = 'start') {
 
-                // Jika desktop → kirim langsung tanpa GPS
-                if (!/android|iphone|ipad|mobile/i.test(navigator.userAgent)) {
+                let isDesktop = !/android|iphone|ipad|mobile/i.test(navigator.userAgent);
+                let isWhitelisted = @json($isIpWhitelisted);
+
+                // Jika desktop ATAU terhubung ke IP Kantor → kirim langsung tanpa GPS
+                if (isDesktop || isWhitelisted) {
                     if (aksi === 'start') {
                         @this.call('startTimer');
                     } else {
@@ -455,10 +475,15 @@
 
 
             document.addEventListener('DOMContentLoaded', () => {
-                ambilLokasiTerbaru();
-
-                // Refresh lokasi tiap 20 detik
-                setInterval(ambilLokasiTerbaru, 15000);
+                // ambilLokasiTerbaru();
+                let isMobile = /android|iphone|ipad|mobile/i.test(navigator.userAgent);
+                let isWhitelisted = @json($isIpWhitelisted);
+                // Hanya minta izin & ambil GPS jika perangkat adalah mobile DAN bukan di jaringan kantor
+                if (isMobile && !isWhitelisted) {
+                    ambilLokasiTerbaru();
+                    // Refresh lokasi tiap 20 detik
+                    setInterval(ambilLokasiTerbaru, 15000);
+                }
             });
         </script>
     @endpush
