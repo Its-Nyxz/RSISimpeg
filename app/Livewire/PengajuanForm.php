@@ -371,6 +371,7 @@ class PengajuanForm extends Component
                 'user_id' => $user->id,
                 'jenis_cuti_id' => $this->jenis_cuti_id,
                 'status_cuti_id' => $statusCuti,
+                'kategori_cuti' => $this->kategori_cuti,
                 'tanggal_mulai' => $this->tanggal_mulai,
                 'tanggal_selesai' => $this->tanggal_selesai,
                 'jumlah_hari' => $jumlah_hari,
