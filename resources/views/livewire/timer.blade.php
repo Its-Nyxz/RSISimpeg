@@ -419,13 +419,19 @@
 
                 navigator.geolocation.getCurrentPosition(
                     function(pos) {
+                        // tambah altitude & accuracy
+                        // altitude ra mungkin null, nek null keno dispatch error neng Livewire
+                        // accuracy soko Fake GPS default 1meter margin tekan 5meter, normal gps +-20meter
+                        // dadi akurasi iso ngge cek Fake GPS, kecuali user e mudeng trus ganti akurasi setting Fake GPS e
                         lokasiTerakhir = {
                             lat: pos.coords.latitude,
                             lng: pos.coords.longitude,
-                            accuracy: pos.coords.accuracy
+                            alt: pos.coords.altitude,
+                            acc: pos.coords.accuracy
                         };
 
                         console.log("📍 Lokasi:", lokasiTerakhir.lat, lokasiTerakhir.lng);
+                        // @this.call('logLocation', lokasiTerakhir.lat, lokasiTerakhir.lng, lokasiTerakhir.alt, lokasiTerakhir.acc);
                     },
                     function() {
                         Swal.fire('Gagal', 'Izin lokasi dibutuhkan.', 'error');
@@ -454,22 +460,30 @@
                 }
 
                 // Mobile tetap pakai GPS
-                if (!lokasiTerakhir) {
+                if (!isDesktop) {
+                    ambilLokasiTerbaru();
+                    @this.set('latitude', lokasiTerakhir.lat);
+                    @this.set('longitude', lokasiTerakhir.lng);
+                    @this.set('altitude', lokasiTerakhir.alt);
+                    @this.set('accuracy', lokasiTerakhir.acc);
+
+                    // gor gae2 wedi tok iki, ono loading segala macam kyo ngecek2 ngono
                     Swal.fire({
-                        icon: 'info',
-                        title: 'Menunggu Lokasi',
-                        text: 'GPS belum terbaca, mohon tunggu beberapa detik.',
+                        title: 'Mencari Lokasi...',
+                        text: 'Mohon tunggu sebentar, sedang mengunci koordinat GPS.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        },
+                        timer: 3500
+                    }).then(() => {
+                        if (aksi === 'start' && lokasiTerakhir) {
+                            @this.call('startTimer');
+                        } else {
+                            @this.call('openWorkReportModal');
+                        }
                     });
                     return;
-                }
-
-                @this.set('latitude', lokasiTerakhir.lat);
-                @this.set('longitude', lokasiTerakhir.lng);
-
-                if (aksi === 'start') {
-                    @this.call('startTimer');
-                } else {
-                    @this.call('openWorkReportModal');
                 }
             };
 
