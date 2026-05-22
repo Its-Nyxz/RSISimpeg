@@ -25,6 +25,7 @@ class PengajuanForm extends Component
     public $tipe;
     public $judul;
     public $deskripsi;
+    public $kategori_cuti = 'tahunan';
 
     public $tanggal_mulai;
     public $tanggal_selesai;
@@ -59,6 +60,7 @@ class PengajuanForm extends Component
                 $this->karyawans = User::find($this->userid);
             } else {
                 $this->userid = auth()->id();
+                $this->karyawans = auth()->user();
             }
         } elseif ($tipe === 'ijin') {
             $this->judul = 'Pengajuan Izin';
@@ -246,6 +248,7 @@ class PengajuanForm extends Component
         if ($this->tipe === 'cuti') {
             $this->validate([
                 'jenis_cuti_id' => 'required|exists:jenis_cutis,id',
+                'kategori_cuti' => 'required|in:tahunan,tambahan',
                 'tanggal_mulai' => $this->userid ? 'required|date' : 'required|date|after_or_equal:today',
                 'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
                 'keterangan' => 'nullable|string|max:255',
@@ -451,7 +454,7 @@ class PengajuanForm extends Component
 
             $user = auth()->user();
             // Ambil nama shift berdasarkan shift_id
-            $jenis_izin = JenisIzin::find($this->jenis_izins_id)->first();
+            $jenis_izin = JenisIzin::find($this->jenis_izins_id);
             $nextUser = User::where('unit_id', $user->unit_id)->whereHas('roles', fn($q) => $q->where('name', 'LIKE', '%Kepala%'))->first();
             $message = 'Pengajuan Izin ' . auth()->user()->name .
                 ' mulai <span class="font-bold">' . $this->tanggal_mulai . ' sampai ' . $this->tanggal_selesai .
@@ -500,7 +503,7 @@ class PengajuanForm extends Component
                 ($nama_shift ? $nama_shift->nama_shift : 'Tidak Diketahui') .
                 ' dengan keterangan ' . $this->keterangan . ' membutuhkan persetujuan Anda.';
             $messageKepegawaian = 'Pengajuan Tukar Jadwal atau Shift ' . auth()->user()->name .
-                ' mulai <span class="font-bold">' . $this->tanggal_mulai . ' sampai ' . $this->tanggal_selesai .
+                ' pada tanggal <span class="font-bold">' . $this->tanggal .
                 '</span> ' .
                 ($nama_shift ? $nama_shift->nama_shift : 'Tidak Diketahui') .
                 ' dengan keterangan ' . $this->keterangan . ' memerlukan perhatian Anda.';
