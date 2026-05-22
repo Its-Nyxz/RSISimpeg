@@ -79,6 +79,7 @@ class KaryawanForm extends Component
     public $jabatan;
     public $bpjsOrtu;
     public $sisa_cuti; // nilai sisa cuti tahunan yang bisa diubah
+    public $cuti_tambahan; // nilai jatah cuti tambahan
     public $fungsional;
     public $jabatanAwal;
     public $fungsionalAwal;
@@ -308,11 +309,14 @@ class KaryawanForm extends Component
             $this->jenisKaryawanNama = JenisKaryawan::find($this->selectedJenisKaryawan)?->nama;
             // Muat sisa cuti tahunan untuk tahun berjalan jika ada
             $currentYear = Carbon::now('Asia/Jakarta')->year;
-            $sisa = SisaCutiTahunan::where('user_id', $this->user_id)
+            $sisaData = SisaCutiTahunan::where('user_id', $this->user_id)
                 ->where('tahun', $currentYear)
-                ->value('sisa_cuti');
+                ->first();
 
-            $this->sisa_cuti = $sisa;
+            if ($sisaData) {
+                $this->sisa_cuti = $sisaData->sisa_cuti;
+                $this->cuti_tambahan = $sisaData->cuti_tambahan;
+            }
         }
 
         $this->units = UnitKerja::all();
@@ -365,6 +369,7 @@ class KaryawanForm extends Component
             'selectedRoles' => 'nullable',
             'typeShift' => 'nullable',
             'sisa_cuti' => 'nullable|numeric|min:0',
+            'cuti_tambahan' => 'nullable|numeric|min:0',
         ]);
 
         $unit = UnitKerja::where('nama', $this->unit)->first(); // Cari ID berdasarkan nama unit
@@ -456,6 +461,7 @@ class KaryawanForm extends Component
                         'user_id' => $user->id,
                         'tahun' => $currentYear,
                         'sisa_cuti' => $initialSisa,
+                        'cuti_tambahan' => $this->cuti_tambahan ?? 0,
                     ]);
             }
         }
@@ -524,6 +530,7 @@ class KaryawanForm extends Component
             'selectedRoles' => 'nullable',
             'typeShift' => 'nullable',
             'sisa_cuti' => 'nullable|numeric|min:0',
+            'cuti_tambahan' => 'nullable|numeric|min:0',
         ]);
         $unit = UnitKerja::where('nama', $this->unit)->first(); // Cari ID berdasarkan nama unit
         $kategoriJabatan = KategoriJabatan::where('nama', $this->jabatan)->first();
@@ -733,12 +740,15 @@ class KaryawanForm extends Component
             'bpjs_ortu' =>  $this->bpjsOrtu ?? null,
         ]);
 
-        // Update atau buat record SisaCutiTahunan untuk tahun berjalan jika ada input sisa_cuti
+        // Update atau buat record SisaCutiTahunan untuk tahun berjalan jika ada input
         $currentYear = Carbon::now('Asia/Jakarta')->year;
-        if ($this->sisa_cuti !== null) {
+        if ($this->sisa_cuti !== null || $this->cuti_tambahan !== null) {
             SisaCutiTahunan::updateOrCreate(
                 ['user_id' => $user->id, 'tahun' => $currentYear],
-                ['sisa_cuti' => $this->sisa_cuti]
+                [
+                    'sisa_cuti' => $this->sisa_cuti ?? 0,
+                    'cuti_tambahan' => $this->cuti_tambahan ?? 0
+                ]
             );
         }
 

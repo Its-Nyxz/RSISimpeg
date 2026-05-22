@@ -191,13 +191,14 @@ class DashboardController extends Controller
                 ->sum('jumlah_jam'); // Menghitung total jumlah jam pelatihan
         }
 
-        // Ambil sisa cuti tahunan user berdasarkan tahun sekarang
-        $sisaCutiTahunan = $user->sisaCutiTahunan()
+        // Ambil data sisa cuti tahunan user berdasarkan tahun sekarang
+        $cutiData = $user->sisaCutiTahunan()
             ->where('tahun', now()->year)
             ->first();
 
-        // Jika ketemu, ambil jumlah cutinya, kalau tidak ketemu set 0
-        $sisaCutiTahunan = $sisaCutiTahunan ? $sisaCutiTahunan->sisa_cuti : 0;
+        // Ambil masing-masing jumlah cutinya
+        $sisaCutiTahunan = $cutiData ? $cutiData->sisa_cuti : 0;
+        $cutiTambahan = $cutiData ? $cutiData->cuti_tambahan : 0;
 
         $jumlahKeterlambatan = $user->absen()
             ->whereMonth('created_at', $bulanIni)
@@ -221,6 +222,7 @@ class DashboardController extends Controller
             'masaBerlakuPelatihan',
             'totalJumlahJamPelatihan',
             'sisaCutiTahunan',
+            'cutiTambahan',
             'jumlahKeterlambatan',
             'jumlahIzin',
             'jumlahTanpaKeterangan'
