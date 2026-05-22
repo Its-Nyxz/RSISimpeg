@@ -12,6 +12,7 @@ use App\Models\OverrideLokasi;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
+use Log;
 
 class Timer extends Component
 {
@@ -43,6 +44,8 @@ class Timer extends Component
 
     public $latitude;
     public $longitude;
+    public $altitude;
+    public $accuracy;
 
     public $akanKembali = false;
 
@@ -761,6 +764,18 @@ class Timer extends Component
 
         return $this->ipDiWhitelist($ipUser, $ipWhitelist);
     }
+    /* 
+        artisan log, dev
+    */
+    // public function logLocation($lat, $lng, $alt, $acc)
+    // {
+    //     Log::info("📍 Lokasi dari Client:", [
+    //         'lat' => $lat, 
+    //         'lng' => $lng, 
+    //         'alt' => $alt,
+    //         'acc' => $acc,
+    //     ]);
+    // }
 
     private function validasiLokasiAtauIp(): bool
     {
@@ -786,9 +801,16 @@ class Timer extends Component
         // 3) GPS wajib aktif jika bukan IP kantor
         $lat = isset($this->latitude) ? floatval($this->latitude) : null;
         $lng = isset($this->longitude) ? floatval($this->longitude) : null;
+        $alt = isset($this->altitude) ? floatval($this->altitude) : null;
+        $acc = isset($this->accuracy) ? floatval($this->accuracy) : null;
 
         if ($lat === null || $lng === null) {
             $this->dispatch('alert-error', message: 'GPS wajib aktif jika tidak menggunakan WiFi kantor.');
+            return false;
+        }
+
+        if ($alt === null || $acc >= 1000) {
+            $this->dispatch('alert-error', message: "Ganti izin lokasi ke \"Akurat\" atau \"Precise\".");
             return false;
         }
 
@@ -831,7 +853,15 @@ class Timer extends Component
 
         // 6) Coba point-in-polygon (boundary-inclusive)
         foreach ($allowedAreas as $area) {
-            if ($this->isPointInPolygonInclusive($lat, $lng, $polygons[$area])) {
+            $accSus = false;
+            // iso di ubah2, tpi normal e GPS indo acc >20 meter dadi nek <20 meter curiga Fake GPS
+            // kecuali setting Fake GPS e di ubah
+            if ($acc !== null && $acc <= 10) { 
+                $this->dispatch('alert-error', message: 'Matikan aplikasi Fake GPS atau sejenisnya.');
+                $accSus = true;
+                return false;
+            }
+            if ($this->isPointInPolygonInclusive($lat, $lng, $polygons[$area]) && !$accSus) {
                 logger('Lokasi valid via polygon', ['area' => $area, 'lat' => $lat, 'lng' => $lng]);
                 return true;
             }
