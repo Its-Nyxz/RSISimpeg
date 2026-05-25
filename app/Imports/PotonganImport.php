@@ -100,7 +100,7 @@ class PotonganImport implements ToCollection
             $prosentase_tukin   = (float) ($row[14] ?? 0) * 100;
             $KPI                = (float) ($row[15] ?? 0) * 100;
             // $nom_tukin_diterima = (int) ($row[16] ?? 0);
-            $nom_tukin_diterima = (int) round($nom_pendapatan_rs * ($prosentase_tukin / 100) * ($KPI / 100));
+            $nom_tukin_diterima = (int) ($row[16] ?? (int) round($nom_pendapatan_rs * ($prosentase_tukin / 100) * ($KPI / 100)));
             // index 18 = TOTAL BRUTO dari file Excel, tidak perlu dipakai karena dihitung ulang
             // dd($nom_tukin_diterima);
 
@@ -175,6 +175,7 @@ class PotonganImport implements ToCollection
             }
 
             // 8. Hitung Potongan Otomatis (Jika tidak ada di Excel)
+            /*
             $tunjangan = $nom_jabatan + $nom_fungsi + $nom_umum;
             $makanTransport = $nom_makan + $nom_transport;
 
@@ -242,7 +243,7 @@ class PotonganImport implements ToCollection
                         'nominal' => $nom,
                     ]);
                 }
-            }
+            } */
         }
     }
 

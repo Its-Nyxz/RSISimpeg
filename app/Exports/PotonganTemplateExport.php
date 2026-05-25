@@ -354,6 +354,7 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents, 
             $user->setAttribute('total_bruto', round($total_bruto));
 
             // Logika Potongan Otomatis
+            /*
             $potonganOtomasis = [];
             $bruto = $user->total_bruto;
             $tunjanganTotal = $nom_jabatan + $nom_fungsi + $nom_umum;
@@ -382,6 +383,7 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents, 
                 $potonganOtomasis[$item->nama] = $nominalPotongan;
             }
             $user->setAttribute('potonganOtomasis', $potonganOtomasis);
+            */
         }
 
         return view('exports.template-potongan', [

@@ -186,14 +186,14 @@
         </tr>
 
         <tr>
-            <td class="label indent">8 Level Jabatan</td>
-            <td class="rp"></td>
-            <td class="val center-val">{{ $gajiBruto->level_jabatan ?? '-' }}</td>
-        </tr>
-        <tr>
-            <td class="label indent">9 Pendapatan RS</td>
+            <td class="label indent">8 Pendapatan RS</td>
             <td class="rp">Rp</td>
             <td class="val">{{ number_format($gajiBruto->nom_pendapatan_rs ?? 0, 0, ',', '.') }}</td>
+        </tr>
+        <tr>
+            <td class="label indent">9 Level Jabatan</td>
+            <td class="rp"></td>
+            <td class="val center-val">{{ $gajiBruto->level_jabatan ?? '-' }}</td>
         </tr>
         <tr>
             <td class="label indent">10 Prosentase Tukin</td>

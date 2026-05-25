@@ -24,6 +24,25 @@
         @endcan
 
         @if (auth()->user()->can('tambah-history') && $user->jenis?->nama === 'Tetap')
+            <div class="flex gap-2">
+                <!-- Mobile -->
+                <a href="{{ route('pengajuan.createbyid', ['tipe' => 'cuti', 'userid' => $user->id]) }}"
+                    class="sm:hidden w-11 h-11 flex items-center justify-center rounded-lg bg-blue-100 text-blue-900 hover:bg-blue-600 hover:text-white transition"
+                    aria-label="Tambah Cuti">
+                    <i class="fa-solid fa-calendar-plus text-lg"></i>
+                </a>
+                <div
+                    class="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded shadow opacity-0 group-hover:opacity-100 transition">
+                    Tambah Cuti
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+
+                <!-- Desktop -->
+                <a href="{{ route('pengajuan.createbyid', ['tipe' => 'cuti', 'userid' => $user->id]) }}"
+                    class="hidden sm:flex items-center px-5 py-2.5 text-sm font-medium rounded-lg bg-blue-100 text-blue-900 hover:bg-blue-600 hover:text-white transition">
+                    + Tambah Cuti
+                </a>
+
             <div class="relative group">
                 <!-- Mobile -->
                 <button x-on:click="$dispatch('open-modal', 'modal-History')"
@@ -42,6 +61,7 @@
                     class="hidden sm:flex items-center px-5 py-2.5 text-sm font-medium rounded-lg bg-success-100 text-success-900 hover:bg-success-600 hover:text-white transition">
                     + Tambah History
                 </button>
+            </div>
             </div>
         @endif
 
