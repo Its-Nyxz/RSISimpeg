@@ -519,6 +519,7 @@ class AddPotongan extends Component
         $makanTransport = $this->nom_makan + $this->nom_transport;
         $jenisKaryawan = strtolower($this->user->jenis->nama ?? '');
 
+        /*
         foreach ($this->masterPotongans as $item) {
             $slug = $item->slug;
             $nominal = 0;
@@ -580,7 +581,7 @@ class AddPotongan extends Component
             if ($nominal > 0) {
                 $this->potonganInputs[$item->id] = $nominal;
             }
-        }
+        }*/
     }
 
 

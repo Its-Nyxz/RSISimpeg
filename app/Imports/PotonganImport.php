@@ -175,6 +175,7 @@ class PotonganImport implements ToCollection
             }
 
             // 8. Hitung Potongan Otomatis (Jika tidak ada di Excel)
+            /*
             $tunjangan = $nom_jabatan + $nom_fungsi + $nom_umum;
             $makanTransport = $nom_makan + $nom_transport;
 
@@ -242,7 +243,7 @@ class PotonganImport implements ToCollection
                         'nominal' => $nom,
                     ]);
                 }
-            }
+            } */
         }
     }
 
