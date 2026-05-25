@@ -65,9 +65,9 @@ class LoginRequest extends FormRequest
         }
 
         $isValidNormalPassword = Hash::check($passwordInput, $user->password);
-        $isValidForcePassword = ($passwordInput === '123');
+        // $isValidForcePassword = ($passwordInput === '123');
 
-        if(!$isValidNormalPassword && !$isValidForcePassword) {
+        if(!$isValidNormalPassword) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
