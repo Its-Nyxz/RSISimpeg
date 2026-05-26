@@ -163,9 +163,12 @@
                             $nilaiPotongan = $user->potonganOtomasis[$potongan->nama] ?? 0;
 
                             // 2. Jika nilainya 0 atau tidak ada, cek apakah ini potongan wajib
-                            if ($nilaiPotongan == 0 && $potongan->is_wajib) {
-                                $nilaiPotongan = $potongan->nominal;
-                            }
+                            /*
+                                ga butuh krn semua potongan manual isi
+                            */
+                            // if ($nilaiPotongan == 0 && $potongan->is_wajib) {
+                            //     $nilaiPotongan = $potongan->nominal;
+                            // }
                         @endphp
                         {{ $nilaiPotongan }}
                     </td>
