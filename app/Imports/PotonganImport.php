@@ -163,7 +163,16 @@ class PotonganImport implements ToCollection, WithCalculatedFormulas
                 }
 
                 $cleanVal = (int) $this->cleanRupiah($val);
-                if ($cleanVal <= 0) continue;
+                
+                if ($cleanVal <= 0) {
+                    Potongan::where([
+                        'bruto_id' => $bruto->id,
+                        'master_potongan_id' => $master->id,
+                        'bulan_penggajian' => $this->bulan,
+                        'tahun_penggajian' => $this->tahun,
+                    ])->update(['nominal' => 0]);
+                    continue;
+                }
 
                 Potongan::updateOrCreate([
                     'bruto_id' => $bruto->id,
