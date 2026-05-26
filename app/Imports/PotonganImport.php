@@ -33,9 +33,9 @@ class PotonganImport implements ToCollection, WithCalculatedFormulas
         $masterPotongans = MasterPotongan::aktifTerurut()->get();
         $mapPotongans = $masterPotongans->keyBy('slug');
 
-        // 3. Mapping Header Potongan (Dimulai dari Indeks 19)
+        // 3. Mapping Header Potongan (Dimulai dari Indeks 19: Pinjaman Koperasi) -> ganti ke 18 krn 'slug' dihapus
         $headerSlugs = collect($header)
-            ->slice(offset: 19)
+            ->slice(offset: 18)
             ->map(fn($h) => $h ? Str::slug(trim($h)) : null)
             ->values();
 
@@ -150,9 +150,9 @@ class PotonganImport implements ToCollection, WithCalculatedFormulas
             // Gunakan total bruto hasil hitung sistem
             $brutoNominal = $bruto->total_bruto;
 
-            // 7. Proses Potongan yang ada di Kolom Excel (Indeks 19 ke atas)
+            // 7. Proses Potongan yang ada di Kolom Excel (Indeks 19 ke atas) -> ganti ke 18
             foreach ($headerSlugs as $i => $slugKey) {
-                $colIndex = $i + 19;
+                $colIndex = $i + 18; // <- geser index ke 18
                 $val = $row[$colIndex] ?? null;
                 $originalHeader = $header[$colIndex] ?? 'UNKNOWN';
 
