@@ -11,8 +11,9 @@ use App\Models\MasterPotongan;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithCalculatedFormulas;
 
-class PotonganImport implements ToCollection
+class PotonganImport implements ToCollection, WithCalculatedFormulas
 {
     public function __construct(protected int $bulan, protected int $tahun) {}
 
