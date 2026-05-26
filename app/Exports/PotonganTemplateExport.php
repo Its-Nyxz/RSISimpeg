@@ -94,8 +94,8 @@ class PotonganSheet implements FromView, WithTitle, ShouldAutoSize, WithEvents, 
         // $jumlahPotongan = MasterPotongan::orderBy('id')->count();
         $jumlahPotongan = MasterPotongan::aktifTerurut()->count();
         if ($jumlahPotongan > 0) {
-            // Kolom T adalah kolom ke-20
-            $startColumnIndex = 20;
+            // Kolom S adalah kolom ke-19
+            $startColumnIndex = 19;
             $endColumnIndex = $startColumnIndex + $jumlahPotongan - 1;
 
             $startLetter = Coordinate::stringFromColumnIndex($startColumnIndex);
