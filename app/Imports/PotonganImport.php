@@ -165,23 +165,24 @@ class PotonganImport implements ToCollection, WithCalculatedFormulas
                 $cleanVal = (int) $this->cleanRupiah($val);
                 
                 if ($cleanVal <= 0) {
-                    Potongan::where([
+                    Potongan::updateOrCreate([
                         'bruto_id' => $bruto->id,
                         'master_potongan_id' => $master->id,
                         'bulan_penggajian' => $this->bulan,
                         'tahun_penggajian' => $this->tahun,
-                    ])->update(['nominal' => 0]);
-                    continue;
+                    ], [
+                        'nominal' => 0
+                    ]);
+                } else {
+                    Potongan::updateOrCreate([
+                        'bruto_id' => $bruto->id,
+                        'master_potongan_id' => $master->id,
+                        'bulan_penggajian' => $this->bulan,
+                        'tahun_penggajian' => $this->tahun,
+                    ], [
+                        'nominal' => $cleanVal
+                    ]);
                 }
-
-                Potongan::updateOrCreate([
-                    'bruto_id' => $bruto->id,
-                    'master_potongan_id' => $master->id,
-                    'bulan_penggajian' => $this->bulan,
-                    'tahun_penggajian' => $this->tahun,
-                ], [
-                    'nominal' => $cleanVal
-                ]);
             }
 
             // 8. Hitung Potongan Otomatis (Jika tidak ada di Excel)
@@ -269,7 +270,17 @@ class PotonganImport implements ToCollection, WithCalculatedFormulas
             return null;
         }
 
-        $key = Str::slug($namaExcel);
+        // Bersihkan gelar dari nama Excel sebelum di-slug agar konsisten dengan getNamaBersihAttribute
+        $cleanName = preg_replace('/^(drg\.?|dr\.?|drs\.?|drh\.?)\s+/i', '', $namaExcel);
+        $cleanName = preg_replace('/\s+(Sp\.\w+|M\.\w+|S\.\w+|MKes|M\.Kes|SKp)$/i', '', $cleanName);
+        $cleanName = preg_replace('/,\s*(A(\.?)(Md)?\.?\s*Kep\.?|Amd\.?Kep\.?|SE|S\.Sos|Sp\.An|Sp\.Rad|Sp\s*U|Sp\s*PK|S\.KM|S\.Farm\s*Apt)\.?/i', '', $cleanName);
+        // singkatan nama dengan titik
+        $cleanName = preg_replace('/\.\s*/', ' ', $cleanName);
+        $cleanName = trim($cleanName);
+        
+        $key = Str::slug($cleanName);
+
+        logger()->info("Mencari user untuk nama Excel '{$namaExcel}' dengan key '{$key}'");
 
         // 1. Cocok langsung ke slug user
         if ($usersBySlug->has($key)) {
@@ -303,6 +314,76 @@ class PotonganImport implements ToCollection, WithCalculatedFormulas
             return $exact;
         }
 
+        // 5. Fallback pencarian parsial (menangani nama belakang hilang atau disingkat)
+        $partialMatches = collect();
+        $keyWords = explode('-', $key);
+
+        // Gabungkan target pencarian dari Exported Name dan Name asli
+        $allSlugGroups = $usersByExportedName->toBase()->merge($usersByName->toBase());
+
+        foreach ($allSlugGroups as $exportedSlug => $group) {
+            $exportedWords = explode('-', $exportedSlug);
+            $minCount = min(count($keyWords), count($exportedWords));
+
+            // Jika hanya 1 kata, pastikan cukup panjang (menghindari match terlalu umum misal hanya huruf 'A')
+            if ($minCount === 1 && strlen($keyWords[0]) < 4) {
+                continue;
+            }
+
+            $isMatch = true;
+            for ($i = 0; $i < $minCount; $i++) {
+                if ($i === $minCount - 1) {
+                    // Kata terakhir boleh berupa awalan (prefix) dari kedua sisi
+                    if (!Str::startsWith($keyWords[$i], $exportedWords[$i]) && !Str::startsWith($exportedWords[$i], $keyWords[$i])) {
+                        $isMatch = false;
+                        break;
+                    }
+                } else {
+                    // Kata-kata sebelumnya harus persis sama
+                    if ($keyWords[$i] !== $exportedWords[$i]) {
+                        $isMatch = false;
+                        break;
+                    }
+                }
+            }
+
+            if ($isMatch) {
+                $partialMatches->push($group->first());
+            }
+        }
+
+        $uniqueMatches = $partialMatches->unique('id');
+        if ($uniqueMatches->count() === 1) {
+            logger()->info("Ditemukan match parsial untuk '{$key}'. User: {$uniqueMatches->first()->name}");
+            return $uniqueMatches->first();
+        }
+
+        // 6. Fallback pencarian terdekat menggunakan Levenshtein distance (untuk mengatasi typo)
+        $closestUser = null;
+        $shortestDistance = -1;
+        
+        // Threshold dinamis: toleransi 1 typo untuk setiap 5 karakter, maksimal 3
+        $threshold = min(3, max(1, floor(strlen($key) / 5)));
+
+        if (strlen($key) < 255) { // levenshtein in PHP has a 255 char limit
+            foreach ($usersByExportedName as $exportedSlug => $group) {
+                if (strlen($exportedSlug) < 255) {
+                    $distance = levenshtein($key, $exportedSlug);
+                    if ($distance <= $threshold) {
+                        if ($shortestDistance === -1 || $distance < $shortestDistance) {
+                            $closestUser = $group->first();
+                            $shortestDistance = $distance;
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($closestUser) {
+            logger()->info("Ditemukan match terdekat untuk '{$key}' dengan jarak {$shortestDistance}. User: {$closestUser->name}");
+            return $closestUser;
+        }
+
         return null;
     }
     public function betterRound($value): int
@@ -318,6 +399,6 @@ class PotonganImport implements ToCollection, WithCalculatedFormulas
     protected function cleanRupiah($value): string
     {
         if (is_numeric($value)) return (string) $value;
-        return preg_replace('/[^\d]/', '', $value ?? '');
+        return preg_replace('/[^\d]/', '', $value ?? 0);
     }
 }
