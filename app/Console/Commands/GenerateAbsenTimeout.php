@@ -84,7 +84,7 @@ class GenerateAbsenTimeout extends Command
                     }
 
                     // --- parse jam masuk/keluar ---
-                    $tanggal = Carbon::parse($jadwal->tanggal_jadwal, $zone)->startOfDay();
+                    // $tanggal = Carbon::parse($jadwal->tanggal_jadwal, $zone)->startOfDay();
                     $jmRaw   = trim((string) $shift->jam_masuk);
                     $jkRaw   = trim((string) $shift->jam_keluar);
 
@@ -96,8 +96,10 @@ class GenerateAbsenTimeout extends Command
                         continue;
                     }
 
-                    $jmStr = $tanggal->toDateString() . ' ' . $jmRaw;
-                    $jkStr = $tanggal->toDateString() . ' ' . $jkRaw;
+                    $actualCheckIn = Carbon::createFromTimestamp($absen->time_in, $zone);
+                    $shiftDate = $actualCheckIn->copy()->startOfDay();
+                    $jmStr = $shiftDate->toDateString() . ' ' . $jmRaw;
+                    $jkStr = $shiftDate->toDateString() . ' ' . $jkRaw;
 
                     try {
                         [$jm, $jk, $isShiftMalam] = $this->parseShiftTimes($jmStr, $jkStr, $zone);
@@ -153,7 +155,8 @@ class GenerateAbsenTimeout extends Command
 
                     // simpan epoch
                     try {
-                        $absen->time_out      = $finalTime->timestamp;
+                        $finalTimeInZone = $finalTime->setTimezone($zone);
+                        $absen->time_out      = $finalTimeInZone->timestamp;
                         $absen->keterangan    = trim(($absen->keterangan ? $absen->keterangan . ', ' : '')
                             . "Timer otomatis ditutup oleh sistem (shift melebihi {$toleranceHrs} jam)");
                         $absen->deskripsi_out = 'Timer otomatis ditutup oleh sistem';
