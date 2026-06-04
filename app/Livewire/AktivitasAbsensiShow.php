@@ -43,8 +43,13 @@ class AktivitasAbsensiShow extends Component
             })
             ->first();
         // absen -> abasenRegular
-        $timeIn = $absenRegular->time_in ? Carbon::parse($absenRegular->time_in)->timezone('Asia/Jakarta') : null;
-        $timeOut = $absenRegular->time_out ? Carbon::parse($absenRegular->time_out)->timezone('Asia/Jakarta') : null;
+        try {
+            $timeIn = $absenRegular->time_in ? Carbon::parse($absenRegular->time_in)->timezone('Asia/Jakarta') : null;
+            $timeOut = $absenRegular->time_out ? Carbon::parse($absenRegular->time_out)->timezone('Asia/Jakarta') : null;
+        } catch (\Exception $e) {
+            $timeIn = $absen->time_in ? Carbon::parse($absen->time_in)->timezone('Asia/Jakarta') : null;
+            $timeOut = $absen->time_out ? Carbon::parse($absen->time_out)->timezone('Asia/Jakarta') : null;
+        }
 
         // ✅ Jika hanya ada lembur mandiri (tidak ada shift regular), tampilkan '-' untuk real time
         if ($timeIn && $timeOut && $absenRegular) {
