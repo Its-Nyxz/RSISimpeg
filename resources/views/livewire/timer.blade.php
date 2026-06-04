@@ -12,6 +12,16 @@
                 {{-- Display timer utama --}}
                 00:00:00
             </h1>
+            @if($hasLemburHistoryBeforeShift)
+                <div class="text-center text-gray-500 text-md font-semibold -mt-2 sm:-mt-4 mb-2">
+                    <span>
+                        riwayat lembur sebelum shift ditemukan
+                    </span><br>
+                    <span>
+                        Durasi Lembur: {{ $durasiLembur ? gmdate('H:i:s', $durasiLembur) : '00:00:00' }}
+                    </span>
+                </div>
+            @endif
         </div>
 
         <div id="lemburContainer" style="display: {{ $isLemburRunning ? 'block' : 'none' }};">
