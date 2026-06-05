@@ -128,9 +128,8 @@ class GenerateAbsenTimeout extends Command
                         } else {
                             // Lembur setelah shift -> cari jadwal besok
                             $besok = Carbon::parse($jadwal->tanggal_jadwal, $zone)->addDay()->toDateString();
-                            $jadwalBesok = JadwalAbsensi::with('shift')
-                                ->where('user_id', $absen->user_id) // Pastikan tabel absen punya user_id, atau ambil lewat relasi
-                                ->where('tanggal_jadwal', $besok)
+                            $jadwalBesok = JadwalAbsensi::where('tanggal_jadwal', $besok)
+                                ->latest()
                                 ->first();
 
                             if ($jadwalBesok && $jadwalBesok->shift) {
