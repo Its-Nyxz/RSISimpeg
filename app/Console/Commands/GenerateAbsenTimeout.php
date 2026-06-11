@@ -116,15 +116,15 @@ class GenerateAbsenTimeout extends Command
                     }
 
                     // Hitung batas auto-close.
-                    // - absensi biasa: 1 jam setelah jam keluar shift
-                    // - absensi lembur: 1 jam sebelum jam masuk shift yang relevan
+                    // - absensi biasa: 1 jam setelah jam keluar shift (atau sesuai opsi --tolerance)
+                    // - absensi lembur: 10 menit sebelum jam masuk shift yang relevan
                     //   (hari yang sama jika lembur dimulai sebelum shift, atau hari berikutnya jika lembur dimulai setelah shift)
                     $shiftMulai   = $jm->copy();
                     $shiftSelesai = $jk->copy();
                     if ($absen->is_lembur) {
                         if ($actualCheckIn->lt($shiftMulai)) {
                             // Lembur sebelum shift (hari yang sama)
-                            $toleransi = $shiftMulai->copy()->subHours($toleranceHrs);
+                            $toleransi = $shiftMulai->copy()->subMinutes(10);
                         } else {
                             // Lembur setelah shift -> cari jadwal besok
                             $besok = Carbon::parse($jadwal->tanggal_jadwal, $zone)->addDay()->toDateString();
@@ -136,10 +136,10 @@ class GenerateAbsenTimeout extends Command
                                 // Gunakan jam masuk shift besok
                                 $jmBesokRaw = trim((string) $jadwalBesok->shift->jam_masuk);
                                 $shiftMulaiBesok = Carbon::createFromFormat('Y-m-d H:i:s', $besok . ' ' . $jmBesokRaw, $zone);
-                                $toleransi = $shiftMulaiBesok->subHours($toleranceHrs);
+                                $toleransi = $shiftMulaiBesok->subMinutes(10);
                             } else {
                                 // Fallback jika besok tidak ada jadwal (libur), gunakan jam masuk hari ini + 1 hari
-                                $toleransi = $shiftMulai->copy()->addDay()->subHours($toleranceHrs);
+                                $toleransi = $shiftMulai->copy()->addDay()->subMinutes(10);
                             }
                         }
                     } else {
@@ -167,7 +167,7 @@ class GenerateAbsenTimeout extends Command
 
                     // pakai finalTime hasil kalkulasi, bukan absen->time_out (masih null)
                     if ($absen->is_lembur) {
-                        $finalTime = $toleransi; // untuk lembur, final time adalah waktu toleransi (1 jam sebelum shift berikutnya)
+                        $finalTime = $toleransi; // untuk lembur, final time adalah waktu toleransi (10 menit sebelum shift berikutnya)
                     } else {
                         $finalTime = $shiftSelesai->copy()->setTimezone($zone);
                     }
