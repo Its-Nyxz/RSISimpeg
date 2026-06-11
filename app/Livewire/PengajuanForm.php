@@ -429,7 +429,8 @@ class PengajuanForm extends Component
             // ✅ Validasi untuk ijin
             $this->validate([
                 'jenis_izins_id' => 'required|exists:jenis_izins,id',
-                'tanggal_mulai' => 'required|date|after_or_equal:today',
+                // 'tanggal_mulai' => 'required|date|after_or_equal:today',
+                'tanggal_mulai' => 'required|date',
                 'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
                 'keterangan' => 'nullable|string|max:255',
                 'bukti_izin' => 'nullable|image|mimes:jpg,jpeg,png,pdf|max:2048',
