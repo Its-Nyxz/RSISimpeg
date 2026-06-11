@@ -863,17 +863,17 @@ class Timer extends Component
             return true;
         }
 
-        // 1) CEK IP KANTOR DULU (PRIORITAS)
-        // if ($this->cekIpWhitelisted()) {
-        //     $ipUser = request()->ip();
-        //     logger('Valid via IP kantor', ['ip' => $ipUser]);
-        //     return true; // ⬅ langsung lolos tanpa mobile & GPS
-        // }
-
-        // 2) Jika bukan IP kantor → wajib mobile
+        // 1) wajib mobile
         if (!$this->isMobileDevice()) {
             $this->dispatch('alert-error', message: 'Gunakan Smartphone (HP) untuk absensi.');
             return false;
+        }
+        
+        // 2) cek ip
+        if ($this->cekIpWhitelisted() && $this->isMobileDevice()) {
+            $ipUser = request()->ip();
+            logger('Valid via IP kantor', ['ip' => $ipUser]);
+            return true;
         }
 
         // 3) GPS wajib aktif jika bukan IP kantor
