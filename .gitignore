@@ -21,3 +21,45 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# Database & SQLite (Keamanan data lokal)
+*.sql
+*.sqlite
+*.db
+/database/*.sqlite
+
+# Backup & Archive (Mencegah file backup ter-upload dan terunduh publik)
+*.zip
+*.rar
+*.tar.gz
+*.tgz
+*.7z
+*.bak
+*.backup
+
+# Environment & Credentials (Mencegah kebocoran credentials lokal/dev/prod)
+.env
+.env.*
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+._*
+.Spotlight-V100
+.Trashes
+
+# Vim & Editor swap files
+*.swp
+*.swo
+*~
+
+# Testing & Coverage
+/coverage
+/tests/coverage
+
+# Local Docker Overrides
+docker-compose.override.yml
+
+# Vite Inspect (Debug)
+/.vite-inspect
