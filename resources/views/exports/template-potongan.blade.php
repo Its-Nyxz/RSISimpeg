@@ -135,11 +135,11 @@
 
                 {{-- Persentase - Kirim angka dengan desimal titik agar valid secara sistem --}}
                 <td style="border: 1px solid #000000; text-align: center;">
-                    {{ $user->prosentase_tukin }}
+                    {{ $user->prosentase_tukin ?? 0 }}
                 </td>
 
                 <td style="border: 1px solid #000000; text-align: center;">
-                    {{ $user->KPI }}
+                    {{ $user->KPI ?? 0 }}
                 </td>
 
                 {{-- <td style="border: 1px solid #000000; text-align: right; background-color: #e2efda; font-weight: bold;">
@@ -163,9 +163,12 @@
                             $nilaiPotongan = $user->potonganOtomasis[$potongan->nama] ?? 0;
 
                             // 2. Jika nilainya 0 atau tidak ada, cek apakah ini potongan wajib
-                            if ($nilaiPotongan == 0 && $potongan->is_wajib) {
-                                $nilaiPotongan = $potongan->nominal;
-                            }
+                            /*
+                                ga butuh krn semua potongan manual isi
+                            */
+                            // if ($nilaiPotongan == 0 && $potongan->is_wajib) {
+                            //     $nilaiPotongan = $potongan->nominal;
+                            // }
                         @endphp
                         {{ $nilaiPotongan }}
                     </td>

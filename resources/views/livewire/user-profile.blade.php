@@ -138,10 +138,10 @@
                                             <a href="{{ route('users.edit', $user->id) }}" class="p-2 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-600 hover:text-white transition">
                                                 <i class="fa-solid fa-pen"></i>
                                             </a>
-                                            <button onclick="confirmAlert('Reset password jadi 123?', 'Ya!', () => $wire.resetPassword({{ $user->id }}))" class="p-2 bg-yellow-100 text-yellow-700 rounded-md hover:bg-yellow-500 hover:text-white transition">
+                                            <button onclick="confirmAlert('Reset password jadi 123?', 'Ya!', () => @this.call('resetPassword', {{ $user->id }}))" class="p-2 bg-yellow-100 text-yellow-700 rounded-md hover:bg-yellow-500 hover:text-white transition">
                                                 <i class="fa-solid fa-rotate-right"></i>
                                             </button>
-                                            <button onclick="confirmAlert('Hapus user?', 'Ya!', () => $wire.deleteUser({{ $user->id }}))" class="p-2 bg-red-100 text-red-700 rounded-md hover:bg-red-500 hover:text-white transition">
+                                            <button onclick="confirmAlert('Hapus user?', 'Ya!', () => @this.call('deleteUser', {{ $user->id }}))" class="p-2 bg-red-100 text-red-700 rounded-md hover:bg-red-500 hover:text-white transition">
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>
                                         </div>

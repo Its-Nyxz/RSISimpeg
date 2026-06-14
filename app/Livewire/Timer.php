@@ -48,6 +48,8 @@ class Timer extends Component
     public $accuracy;
 
     public $akanKembali = false;
+    public $hasLemburHistoryBeforeShift = false;
+    public $durasiLembur;
 
     protected $rules = [
         'deskripsi_in' => 'required|min:5',
@@ -96,7 +98,7 @@ class Timer extends Component
             }
 
             // ✅ Jika ada lembur, kumpulkan untuk display
-            if ($absensi->count() > 1) {
+            if ($this->hasLemburHistory()) {
 
                 // Kumpulkan data lembur untuk display
                 $this->deskripsiLembur = [];
@@ -122,6 +124,13 @@ class Timer extends Component
             $this->calculateLemburDuration();
         }
 
+        if ($this->hasLemburHistory() && !$this->isLemburRunning && !$this->hasActiveRegularShift()) {
+            $this->timeOut = null;
+            $this->isRunning = false;
+            $this->hasLemburHistoryBeforeShift = true;
+            $this->durasiLembur = $this->getLemburDuration();
+        }
+
         if (session()->pull('auto_start_dinas')) {
 
             // Ambil data absen yang tersimpan saat dinas luar
@@ -139,6 +148,26 @@ class Timer extends Component
 
             return;
         }
+    }
+    private function hasActiveRegularShift(): bool
+    /*
+        false -> belum ada history absen regular, timer utama tetap bisa start
+    */
+    {
+        return Absen::where('jadwal_id', $this->jadwal_id)
+            ->where('user_id', Auth::id())
+            ->where(function ($q) {
+                $q->where('is_lembur', false)
+                    ->orWhereNull('is_lembur');
+            })
+            ->exists();
+    }
+    private function hasLemburHistory(): bool
+    {
+        return Absen::where('jadwal_id', $this->jadwal_id)
+            ->where('user_id', Auth::id())
+            ->where('is_lembur', true)
+            ->exists();
     }
 
     private function checkIfLemburRunning()
@@ -187,6 +216,19 @@ class Timer extends Component
             // Set durasi lembur
             $this->timeElapsedLembur = $durationInSeconds;
         }
+    }
+    private function getLemburDuration() {
+        $history = Absen::where('jadwal_id', $this->jadwal_id)
+            ->where('user_id', Auth::id())
+            ->where('is_lembur', true)
+            ->whereNotNull('time_out')
+            ->first();
+
+        $timein = Carbon::parse($history->time_in);
+        $timeout = Carbon::parse($history->time_out);
+
+        $durasi = $timein->diffInSeconds($timeout);
+        return $durasi;
     }
     public function openStartModal()
     {
@@ -335,9 +377,18 @@ class Timer extends Component
             $selisih = $timeIn->diffInSeconds($timeOut);
             $jamKerja = $selisih / 3600;
 
-            $absensi = Absen::where('jadwal_id', $this->jadwal_id)
-                ->where('user_id', auth()->id())
-                ->first();
+            if ($this->hasLemburHistory() && !$this->isLemburRunning) {
+                $absensi = Absen::where('jadwal_id', $this->jadwal_id)
+                    ->where('user_id', auth()->id())
+                    ->where(function ($query) {
+                        $query->where('is_lembur', false)->orWhereNull('is_lembur');
+                    })
+                    ->first();
+            } else {
+                $absensi = Absen::where('jadwal_id', $this->jadwal_id)
+                    ->where('user_id', auth()->id())
+                    ->first();
+            }
 
             if (!$absensi) {
                 $this->dispatch('alert-error', message: 'Data absensi tidak ditemukan.');
@@ -346,10 +397,16 @@ class Timer extends Component
 
             // ✅ Ambil shift berdasarkan `jadwal_id`
             $jadwal = JadwalAbsensi::find($this->jadwal_id);
-            if (!$jadwal) return;
+            if (!$jadwal) {
+                $this->dispatch('alert-error', message: 'Jadwal tidak ditemukan.');
+                return;
+            }
 
             $shift = Shift::find($jadwal->shift_id);
-            if (!$shift) return;
+            if (!$shift) {
+                $this->dispatch('alert-error', message: 'Shift tidak ditemukan.');
+                return;
+            }
 
             // ✅ Hitung durasi shift dalam jam
             $shiftDuration = Carbon::parse($shift->jam_masuk, 'Asia/Jakarta')->diffInSeconds(Carbon::parse($shift->jam_keluar, 'Asia/Jakarta'));
@@ -377,7 +434,10 @@ class Timer extends Component
     {
         if (!$this->validasiLokasiAtauIp()) return;
 
-        if (!$this->timeOut) return;
+        if (!$this->timeOut) {
+            $this->dispatch('alert-error', message: 'Waktu selesai belum ditetapkan.');
+            return;
+        }
 
         // ✅ PERBAIKAN BUG: Set timezone Asia/Jakarta agar konsisten dengan startTimer()
         $timeIn = Carbon::createFromTimestamp($this->timeIn, 'Asia/Jakarta');
@@ -391,18 +451,36 @@ class Timer extends Component
         $selisih = $timeIn->diffInSeconds($timeOut);
         $jamKerja = $selisih / 3600;
 
-        $absensi = Absen::where('jadwal_id', $this->jadwal_id)
-            ->where('user_id', auth()->id())
-            ->first();
+        if ($this->hasLemburHistory() && !$this->isLemburRunning) {
+            $absensi = Absen::where('jadwal_id', $this->jadwal_id)
+                ->where('user_id', auth()->id())
+                ->where(function ($query) {
+                    $query->where('is_lembur', false)->orWhereNull('is_lembur');
+                })
+                ->first();
+        } else {
+            $absensi = Absen::where('jadwal_id', $this->jadwal_id)
+                ->where('user_id', auth()->id())
+                ->first();
+        }
 
-        if (!$absensi) return;
+        if (!$absensi) {
+            $this->dispatch('alert-error', message: 'Data absensi tidak ditemukan.');
+            return;
+        }
 
         // ✅ Ambil shift berdasarkan `jadwal_id`
         $jadwal = JadwalAbsensi::find($this->jadwal_id);
-        if (!$jadwal) return;
+        if (!$jadwal) {
+            $this->dispatch('alert-error', message: 'Jadwal tidak ditemukan.');
+            return;
+        }
 
         $shift = Shift::find($jadwal->shift_id);
-        if (!$shift) return;
+        if (!$shift) {
+            $this->dispatch('alert-error', message: 'Shift tidak ditemukan.');
+            return;
+        }
 
         // ✅ PERBAIKAN BUG: Hitung durasi shift dengan timezone konsisten
         $tanggalJadwal = Carbon::parse($jadwal->tanggal_jadwal);
@@ -785,17 +863,17 @@ class Timer extends Component
             return true;
         }
 
-        // 1) CEK IP KANTOR DULU (PRIORITAS)
-        if ($this->cekIpWhitelisted()) {
+        // 1) wajib mobile
+        if (!$this->isMobileDevice()) {
+            $this->dispatch('alert-error', message: 'Gunakan Smartphone (HP) untuk absensi.');
+            return false;
+        }
+        
+        // 2) cek ip
+        if ($this->cekIpWhitelisted() && $this->isMobileDevice()) {
             $ipUser = request()->ip();
             logger('Valid via IP kantor', ['ip' => $ipUser]);
-            return true; // ⬅ langsung lolos tanpa mobile & GPS
-        }
-
-        // 2) Jika bukan IP kantor → wajib mobile
-        if (!$this->isMobileDevice()) {
-            $this->dispatch('alert-error', message: 'Di luar jaringan kantor hanya bisa absen dari HP.');
-            return false;
+            return true;
         }
 
         // 3) GPS wajib aktif jika bukan IP kantor

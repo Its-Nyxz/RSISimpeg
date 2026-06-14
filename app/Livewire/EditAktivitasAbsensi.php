@@ -54,19 +54,37 @@ class EditAktivitasAbsensi extends Component
             : '-';
         $this->feedback = $absen->feedback ?? '';
     }
-
-    public function updateFeedback()
+    private function parsetime($time)
     {
-        $this->validate([
-            'feedback' => 'nullable|string|max:255',
-        ]);
+        return Carbon::createFromFormat('H:i:s', $time, 'Asia/Jakarta')->timestamp;
+    }
+    public function saveUpdates()
+    {
+        $absen = Absen::findOrFail($this->absen_id);
+        $updates = [];
+        if (!empty($this->time_in) && $this->time_in !== '-') {
+            $newTimeIn = $this->parsetime($this->time_in);
+            if ($absen->time_in != $newTimeIn) {$updates['time_in'] = $newTimeIn;}
+        }
+        if (!empty($this->time_out) && $this->time_out !== '-') {
+            $newTimeOut = $this->parsetime($this->time_out);
+            if ($absen->time_out != $newTimeOut) {$updates['time_out'] = $newTimeOut;}
+        }
+        if (!empty($this->feedback) && $absen->feedback !== $this->feedback) {
+            $updates['feedback'] = $this->feedback;
+        }
+        if (empty($updates)) {
+            $this->noUpdate();
+        }
 
-        Absen::where('id', $this->absen_id)->update([
-            'feedback' => $this->feedback,
-        ]);
-
-        session()->flash('success', 'Feedback berhasil ditambahkan!');
+        $absen->update($updates);
+        session()->flash('success', 'Data absensi berhasil diperbarui!');
         return redirect()->route('aktivitasabsensi.index');
+    }
+    public function noUpdate()
+    {
+        session()->flash('error', 'Tidak ada data yang dirubah');
+        return redirect()->back();
     }
 
     public function setApproval($status)

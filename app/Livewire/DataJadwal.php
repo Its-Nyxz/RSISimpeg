@@ -120,6 +120,9 @@ class DataJadwal extends Component
             ->when($this->selectedUser, function ($query) {
                 $query->where('user_id', $this->selectedUser);
             })
+            ->whereHas('user', function ($query) {
+                $query->where('status_karyawan', '!=', 0);
+            })
             ->get();
 
         $this->jadwals = $jadwalData->groupBy('user_id')

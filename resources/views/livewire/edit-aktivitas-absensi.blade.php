@@ -7,7 +7,7 @@
         </a>
     </div>
 
-    <form wire:submit.prevent="updateFeedback">
+    <form wire:submit.prevent="saveUpdates">
         <div class="grid grid-cols-2 gap-4 bg-success-100 border border-success-200 rounded-lg shadow-lg p-6">
             <div class="form-group col-span-2">
                 <label class="block text-sm font-medium text-success-900">Nama Pegawai</label>
@@ -20,16 +20,22 @@
                     class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 p-2.5" />
             </div>
 
-            <div class="form-group col-span-1">
+            @push('scripts')
+                <script>
+                    let isMobile = /android|iphone|ipad|mobile/i.test(navigator.userAgent);
+                </script>
+            @endpush
+            <div class="form-group col-span-1" x-data="{ isMobile: /android|iphone|ipad|mobile/i.test(navigator.userAgent) }">
                 <label class="block text-sm font-medium text-success-900">Jam Masuk</label>
-                <input type="text" wire:model="time_in" disabled
-                    class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 p-2.5" />
+                <input :type="isMobile ? 'time' : 'text'" 
+                    x-mask="99:99:99" step="1" placeholder="hh:mm:ss" wire:model="time_in"
+                    class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5" />
             </div>
-
-            <div class="form-group col-span-1">
+            <div class="form-group col-span-1" x-data="{ isMobile: /android|iphone|ipad|mobile/i.test(navigator.userAgent) }">
                 <label class="block text-sm font-medium text-success-900">Jam Keluar</label>
-                <input type="text" wire:model="time_out" disabled
-                    class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 p-2.5" />
+                <input :type="isMobile ? 'time' : 'text'" 
+                    x-mask="99:99:99" step="1" placeholder="hh:mm:ss" wire:model="time_out"
+                    class="form-control mt-1 block w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5" />
             </div>
 
             <div class="form-group col-span-2">
