@@ -56,7 +56,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y lftp
 
-      - name: Tes koneksi FTPS
+     - name: Tes koneksi FTPS
         shell: bash
         run: |
           lftp \
@@ -70,6 +70,8 @@ jobs:
           set ftp:ssl-protect-data yes
           set ftp:passive-mode yes
           set ssl:verify-certificate yes
+          set ssl:check-hostname no
+          set ssl:use-sni yes
 
           cd "$FTP_REMOTE_DIR"
           pwd
@@ -105,6 +107,8 @@ jobs:
           set ftp:ssl-protect-data yes
           set ftp:passive-mode yes
           set ssl:verify-certificate yes
+          set ssl:check-hostname no
+          set ssl:use-sni yes
 
           cd "$FTP_REMOTE_DIR"
 
