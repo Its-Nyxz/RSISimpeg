@@ -1,0 +1,125 @@
+name: Deploy Production via FTPS
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Pilih test dahulu, kemudian deploy"
+        required: true
+        default: test
+        type: choice
+        options:
+          - test
+          - deploy
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rsisimpeg-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      FTP_HOST: ${{ secrets.FTP_HOST }}
+      FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+      FTP_PORT: ${{ secrets.FTP_PORT }}
+      FTP_REMOTE_DIR: ${{ secrets.FTP_REMOTE_DIR }}
+      LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v5
+
+      - name: Validasi secret
+        shell: bash
+        run: |
+          for variable in \
+            FTP_HOST \
+            FTP_USERNAME \
+            FTP_PORT \
+            FTP_REMOTE_DIR \
+            LFTP_PASSWORD
+          do
+            if [ -z "${!variable}" ]; then
+              echo "::error::$variable belum diisi"
+              exit 1
+            fi
+          done
+
+      - name: Install lftp
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lftp
+
+      - name: Tes koneksi FTPS
+        shell: bash
+        run: |
+          lftp \
+            --norc \
+            -p "$FTP_PORT" \
+            --user "$FTP_USERNAME" \
+            --env-password \
+            "ftp://$FTP_HOST" <<LFTP
+          set cmd:fail-exit yes
+          set ftp:ssl-force yes
+          set ftp:ssl-protect-data yes
+          set ftp:passive-mode yes
+          set ssl:verify-certificate yes
+
+          cd "$FTP_REMOTE_DIR"
+          pwd
+          cls -la
+          bye
+          LFTP
+
+      - name: Setup Node.js
+        if: ${{ inputs.mode == 'deploy' }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Build frontend
+        if: ${{ inputs.mode == 'deploy' }}
+        run: |
+          npm ci
+          npm run build
+
+      - name: Upload ke produksi
+        if: ${{ inputs.mode == 'deploy' }}
+        shell: bash
+        run: |
+          lftp \
+            --norc \
+            -p "$FTP_PORT" \
+            --user "$FTP_USERNAME" \
+            --env-password \
+            "ftp://$FTP_HOST" <<LFTP
+          set cmd:fail-exit yes
+          set ftp:ssl-force yes
+          set ftp:ssl-protect-data yes
+          set ftp:passive-mode yes
+          set ssl:verify-certificate yes
+
+          cd "$FTP_REMOTE_DIR"
+
+          mirror --reverse --verbose --parallel=2 \
+            --exclude-glob .git/** \
+            --exclude-glob .github/** \
+            --exclude-glob .env \
+            --exclude-glob storage/** \
+            --exclude-glob vendor/** \
+            --exclude-glob node_modules/** \
+            --exclude-glob bootstrap/cache/** \
+            --exclude-glob public/storage \
+            --exclude-glob tests/** \
+            --exclude-glob deploy.sh \
+            ./ .
+
+          bye
+          LFTP
