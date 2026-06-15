@@ -17,6 +17,7 @@ class GenerateAbsenTimeout extends Command
 
     public function handle()
     {
+        $ms = microtime(true);
         $zone         = 'Asia/Jakarta';
         $toleranceHrs = (int) $this->option('tolerance') ?: 1;
 
@@ -65,6 +66,29 @@ class GenerateAbsenTimeout extends Command
             })
             ->with(['jadwalAbsen:id,tanggal_jadwal,shift_id', 'jadwalAbsen.shift:id,jam_masuk,jam_keluar'])
             ->chunkById(200, function ($chunk) use (&$updated, $zone, $toleranceHrs, $fail, &$fails, &$skippedToleransi) {
+                // --- pre fetch jadwal, fix n+1 ---
+                $tanggalBesok = [];
+                foreach ($chunk as $absen) {
+                    if ($absen->is_lembur && $absen->jadwalAbsen) {
+                        $tanggalBesok[] = Carbon::parse($absen->jadwalAbsen->tanggal_jadwal, $zone)->addDay()->toDateString();
+                    }
+                }
+                $tanggalBesok = array_unique($tanggalBesok);
+
+                $jadwalBesokLookup = [];
+                if (!empty($tanggalBesok)) {
+                    // preload shift
+                    $jadwals = JadwalAbsensi::with('shift') 
+                        ->whereIn('tanggal_jadwal', $tanggalBesok)
+                        ->latest()
+                        ->get();
+
+                    foreach ($jadwals as $j) {
+                        if (!isset($jadwalBesokLookup[$j->tanggal_jadwal])) {
+                            $jadwalBesokLookup[$j->tanggal_jadwal] = $j;
+                        }
+                    }
+                }
 
                 foreach ($chunk as $absen) {
                     $jadwal = $absen->jadwalAbsen;
@@ -116,9 +140,6 @@ class GenerateAbsenTimeout extends Command
                     }
 
                     // Hitung batas auto-close.
-                    // - absensi biasa: 1 jam setelah jam keluar shift (atau sesuai opsi --tolerance)
-                    // - absensi lembur: 10 menit sebelum jam masuk shift yang relevan
-                    //   (hari yang sama jika lembur dimulai sebelum shift, atau hari berikutnya jika lembur dimulai setelah shift)
                     $shiftMulai   = $jm->copy();
                     $shiftSelesai = $jk->copy();
                     if ($absen->is_lembur) {
@@ -128,15 +149,21 @@ class GenerateAbsenTimeout extends Command
                         } else {
                             // Lembur setelah shift -> cari jadwal besok
                             $besok = Carbon::parse($jadwal->tanggal_jadwal, $zone)->addDay()->toDateString();
-                            $jadwalBesok = JadwalAbsensi::where('tanggal_jadwal', $besok)
-                                ->latest()
-                                ->first();
+                            $jadwalBesok = $jadwalBesokLookup[$besok] ?? null;
 
                             if ($jadwalBesok && $jadwalBesok->shift) {
-                                // Gunakan jam masuk shift besok
+                                // Gunakan jam masuk shift besok (terima format H:i atau H:i:s)
                                 $jmBesokRaw = trim((string) $jadwalBesok->shift->jam_masuk);
-                                $shiftMulaiBesok = Carbon::createFromFormat('Y-m-d H:i:s', $besok . ' ' . $jmBesokRaw, $zone);
-                                $toleransi = $shiftMulaiBesok->subMinutes(10);
+                                $jmBesokStr = $besok . ' ' . $jmBesokRaw;
+                                try {
+                                    $shiftMulaiBesok = Carbon::hasFormat($jmBesokStr, 'Y-m-d H:i:s')
+                                        ? Carbon::createFromFormat('Y-m-d H:i:s', $jmBesokStr, $zone)
+                                        : Carbon::createFromFormat('Y-m-d H:i', $jmBesokStr, $zone);
+                                    $toleransi = $shiftMulaiBesok->subMinutes(10);
+                                } catch (\Throwable $e) {
+                                    // jika parsing gagal, fallback ke hari berikutnya menggunakan jam masuk hari ini +1
+                                    $toleransi = $shiftMulai->copy()->addDay()->subMinutes(10);
+                                }
                             } else {
                                 // Fallback jika besok tidak ada jadwal (libur), gunakan jam masuk hari ini + 1 hari
                                 $toleransi = $shiftMulai->copy()->addDay()->subMinutes(10);
@@ -216,6 +243,8 @@ class GenerateAbsenTimeout extends Command
         $this->info("🏁 Selesai. Total diperbarui: {$updated}");
         $this->line("ℹ️  Di-skip karena toleransi: {$skippedToleransi}");
         $this->line("📌 Dilewati karena libur: {$counts['holiday']}");
+        $executionTime = round((microtime(true) - $ms) * 1000, 2);
+        $this->line("Execute time: {$executionTime} ms");
         Log::info("📌 Skip karena libur", ['count' => $counts['holiday']]);
         Log::info("ℹ️ Skip toleransi", ['count' => $skippedToleransi]);
 
