@@ -56,15 +56,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y lftp
 
-     - name: Tes koneksi FTPS
+      - name: Tes koneksi FTPS
         shell: bash
         run: |
-          lftp \
-            --norc \
-            -p "$FTP_PORT" \
-            --user "$FTP_USERNAME" \
-            --env-password \
-            "ftp://$FTP_HOST" <<LFTP
+          lftp --norc <<LFTP
           set cmd:fail-exit yes
           set ftp:ssl-force yes
           set ftp:ssl-protect-data yes
@@ -72,6 +67,9 @@ jobs:
           set ssl:verify-certificate yes
           set ssl:check-hostname no
           set ssl:use-sni yes
+          set net:max-retries 2
+
+          open -p "$FTP_PORT" --user "$FTP_USERNAME" --env-password "ftp://$FTP_HOST"
 
           cd "$FTP_REMOTE_DIR"
           pwd
@@ -96,12 +94,7 @@ jobs:
         if: ${{ inputs.mode == 'deploy' }}
         shell: bash
         run: |
-          lftp \
-            --norc \
-            -p "$FTP_PORT" \
-            --user "$FTP_USERNAME" \
-            --env-password \
-            "ftp://$FTP_HOST" <<LFTP
+          lftp --norc <<LFTP
           set cmd:fail-exit yes
           set ftp:ssl-force yes
           set ftp:ssl-protect-data yes
@@ -109,6 +102,9 @@ jobs:
           set ssl:verify-certificate yes
           set ssl:check-hostname no
           set ssl:use-sni yes
+          set net:max-retries 2
+
+          open -p "$FTP_PORT" --user "$FTP_USERNAME" --env-password "ftp://$FTP_HOST"
 
           cd "$FTP_REMOTE_DIR"
 
