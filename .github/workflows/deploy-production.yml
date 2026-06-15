@@ -21,14 +21,18 @@ concurrency:
 
 jobs:
   deploy:
+    name: Deploy
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
     env:
-      FTP_HOST: ${{ secrets.FTP_HOST }}
+      # Data ini bukan rahasia dan sesuai konfigurasi cPanel.
+      FTP_HOST: ftp.rsibanjanegara.inventa.id
+      FTP_PORT: "21"
+      FTP_REMOTE_DIR: "/"
+
+      # Simpan keduanya di GitHub Actions Secrets.
       FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
-      FTP_PORT: ${{ secrets.FTP_PORT }}
-      FTP_REMOTE_DIR: ${{ secrets.FTP_REMOTE_DIR }}
       LFTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
 
     steps:
@@ -38,42 +42,63 @@ jobs:
       - name: Validasi secret
         shell: bash
         run: |
-          for variable in \
-            FTP_HOST \
-            FTP_USERNAME \
-            FTP_PORT \
-            FTP_REMOTE_DIR \
-            LFTP_PASSWORD
+          set -euo pipefail
+
+          for variable in FTP_USERNAME LFTP_PASSWORD
           do
-            if [ -z "${!variable}" ]; then
-              echo "::error::$variable belum diisi"
+            if [[ -z "${!variable:-}" ]]; then
+              echo "::error::$variable belum diisi di GitHub Actions Secrets"
               exit 1
             fi
           done
 
       - name: Install lftp
+        shell: bash
         run: |
-          sudo apt-get update
-          sudo apt-get install -y lftp
+          set -euo pipefail
+
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            lftp \
+            ca-certificates
+
+          lftp --version
 
       - name: Tes koneksi FTPS
         shell: bash
         run: |
+          set -euo pipefail
+
           lftp --norc <<LFTP
           set cmd:fail-exit yes
+
+          set ftp:ssl-auth TLS
           set ftp:ssl-force yes
           set ftp:ssl-protect-data yes
+          set ftp:ssl-protect-list yes
           set ftp:passive-mode yes
-          set ssl:verify-certificate yes
-          set ssl:check-hostname no
-          set ssl:use-sni yes
-          set net:max-retries 2
 
-          open -p "$FTP_PORT" --user "$FTP_USERNAME" --env-password "ftp://$FTP_HOST"
+          set ssl:use-sni yes
+
+          # Workaround karena sertifikat server tidak cocok
+          # dengan hostname FTP yang diberikan oleh hosting.
+          set ssl:verify-certificate no
+          set ssl:check-hostname no
+
+          set net:max-retries 2
+          set net:timeout 20
+          set net:reconnect-interval-base 5
+
+          open -p "$FTP_PORT" \
+            --user "$FTP_USERNAME" \
+            --env-password \
+            "ftp://$FTP_HOST"
 
           cd "$FTP_REMOTE_DIR"
+
           pwd
           cls -la
+
           bye
           LFTP
 
@@ -86,7 +111,10 @@ jobs:
 
       - name: Build frontend
         if: ${{ inputs.mode == 'deploy' }}
+        shell: bash
         run: |
+          set -euo pipefail
+
           npm ci
           npm run build
 
@@ -94,32 +122,54 @@ jobs:
         if: ${{ inputs.mode == 'deploy' }}
         shell: bash
         run: |
+          set -euo pipefail
+
           lftp --norc <<LFTP
           set cmd:fail-exit yes
+
+          set ftp:ssl-auth TLS
           set ftp:ssl-force yes
           set ftp:ssl-protect-data yes
+          set ftp:ssl-protect-list yes
           set ftp:passive-mode yes
-          set ssl:verify-certificate yes
-          set ssl:check-hostname no
-          set ssl:use-sni yes
-          set net:max-retries 2
 
-          open -p "$FTP_PORT" --user "$FTP_USERNAME" --env-password "ftp://$FTP_HOST"
+          set ssl:use-sni yes
+
+          # Workaround sementara untuk sertifikat hosting.
+          set ssl:verify-certificate no
+          set ssl:check-hostname no
+
+          set net:max-retries 2
+          set net:timeout 30
+          set net:reconnect-interval-base 5
+
+          # Hosting biasanya menolak perubahan permission.
+          set mirror:set-permissions no
+
+          open -p "$FTP_PORT" \
+            --user "$FTP_USERNAME" \
+            --env-password \
+            "ftp://$FTP_HOST"
 
           cd "$FTP_REMOTE_DIR"
+          lcd "$GITHUB_WORKSPACE"
 
           mirror --reverse --verbose --parallel=2 \
-            --exclude-glob .git/** \
-            --exclude-glob .github/** \
-            --exclude-glob .env \
-            --exclude-glob storage/** \
-            --exclude-glob vendor/** \
-            --exclude-glob node_modules/** \
-            --exclude-glob bootstrap/cache/** \
-            --exclude-glob public/storage \
-            --exclude-glob tests/** \
-            --exclude-glob deploy.sh \
-            ./ .
+            --exclude-glob ".git" \
+            --exclude-glob ".git/**" \
+            --exclude-glob ".github" \
+            --exclude-glob ".github/**" \
+            --exclude-glob ".env" \
+            --exclude-glob ".env.*" \
+            --exclude-glob "storage/**" \
+            --exclude-glob "vendor/**" \
+            --exclude-glob "node_modules/**" \
+            --exclude-glob "bootstrap/cache/**" \
+            --exclude-glob "public/storage" \
+            --exclude-glob "public/storage/**" \
+            --exclude-glob "tests/**" \
+            --exclude-glob "deploy.sh" \
+            ./ ./
 
           bye
           LFTP
