@@ -38,6 +38,11 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Restore timestamps
+        uses: chetan/git-restore-mtime-action@v2
 
       - name: Validasi secret
         shell: bash

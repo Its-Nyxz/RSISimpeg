@@ -3,7 +3,7 @@
     <div class="flex flex-col lg:flex-row items-start justify-between mb-6 gap-4">
         <div class="w-full lg:w-2/3">
             <h1 class="text-xl md:text-2xl font-bold text-success-900 mb-4">
-                DASHBOARD {{ auth()->user()->unitKerja->nama ?? ' ' }}
+                DASHBOARD {{ auth()->user()->unitKerja->nama ?? ' ' }} - TEST DEPLOY SUCCESS
             </h1>
 
             {{-- Notifikasi Masa Berlaku SIP/STR --}}
