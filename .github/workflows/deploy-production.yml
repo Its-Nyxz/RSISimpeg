@@ -27,7 +27,7 @@ jobs:
 
     env:
       # Data ini bukan rahasia dan sesuai konfigurasi cPanel.
-      FTP_HOST: ftp.rsibanjanegara.inventa.id
+      FTP_HOST: ftp.rsibanjarnegara.inventa.id
       FTP_PORT: "21"
       FTP_REMOTE_DIR: "/"
 
