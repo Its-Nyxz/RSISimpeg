@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Carbon\Carbon;
 use App\Models\Absen;
 use App\Models\Shift;
+use App\Traits\LogsTimer;
 use Livewire\Component;
 use App\Models\StatusAbsen;
 use App\Models\JadwalAbsensi;
@@ -16,6 +17,7 @@ use Log;
 
 class Timer extends Component
 {
+    use LogsTimer;
     public $jadwal_id;
     public $time = 0;
     public $isRunning = false;
@@ -249,6 +251,11 @@ class Timer extends Component
 
     public function startTimer($bypassLokasi = false, $deskripsiOverride = null)
     {
+        $this->logDebug('startTimer() called', [
+            'bypass_lokasi' => $bypassLokasi,
+            'has_override' => !empty($deskripsiOverride),
+        ]);
+
         if (!$bypassLokasi && !$this->validasiLokasiAtauIp()) {
             return;
         }
@@ -259,7 +266,10 @@ class Timer extends Component
         }
 
         // Cegah double start
-        if ($this->isRunning) return;
+        if ($this->isRunning) {
+            $this->logValidationError('Attempted double start - timer already running');
+            return;
+        }
 
         $this->validateOnly('deskripsi_in');
 
@@ -270,10 +280,8 @@ class Timer extends Component
         // Ambil data jadwal
         $jadwal = JadwalAbsensi::find($this->jadwal_id);
         if (!$jadwal) {
-            logger()->warning('Jadwal tidak ditemukan', [
+            $this->logValidationError('Jadwal tidak ditemukan', [
                 'jadwal_id' => $this->jadwal_id,
-                'user_id' => Auth::id(),
-                'route' => request()->path(),
             ]);
 
             return $this->sendError('Jadwal tidak ditemukan.');
@@ -282,6 +290,7 @@ class Timer extends Component
         // Ambil data shift
         $shift = Shift::find($jadwal->shift_id);
         if (!$shift) {
+            $this->logValidationError('Shift tidak ditemukan');
             return $this->sendError('Shift tidak ditemukan.');
         }
 
@@ -304,6 +313,10 @@ class Timer extends Component
 
         // Cek apakah sudah boleh mulai
         if ($currentTime->lt($startToleransi)) {
+            $this->logValidationError('Start attempt too early', [
+                'current_time' => $currentTime->toDateTimeString(),
+                'start_tolerance' => $startToleransi->toDateTimeString(),
+            ]);
             return $this->sendError('Anda hanya bisa memulai timer 30 menit sebelum waktu shift dimulai.');
         }
 
@@ -325,9 +338,10 @@ class Timer extends Component
                 'present'         => 1,
                 'status_absen_id' => $this->late ? 2 : 1
             ]);
+            $this->logDatabaseOperation('UPDATE', 'Absen', ['absen_id' => $absen2->id, 'is_late' => $this->late]);
         } else {
             // Barulah create jika TERBUKTI belum ada sama sekali
-            Absen::create([
+            $newAbsen = Absen::create([
                 'jadwal_id'      => $this->jadwal_id,
                 'user_id'        => Auth::id(),
                 'time_in'        => $this->timeIn,
@@ -337,8 +351,14 @@ class Timer extends Component
                 'present'        => 1,
                 'status_absen_id' => $this->late ? 2 : 1
             ]);
+            $this->logDatabaseOperation('CREATE', 'Absen', ['absen_id' => $newAbsen->id, 'is_late' => $this->late]);
         }
 
+        $this->logTimerStart([
+            'is_late' => $this->late,
+            'keterangan' => $this->keterangan,
+            'deskripsi' => $this->deskripsi_in,
+        ]);
 
         // Dispatch event & redirect
         $this->dispatch('timer-started', now()->timestamp);
@@ -432,10 +452,14 @@ class Timer extends Component
 
     public function completeWorkReport()
     {
-        if (!$this->validasiLokasiAtauIp()) return;
+        if (!$this->validasiLokasiAtauIp()) {
+            $this->logValidationError('Location validation failed in completeWorkReport');
+            return;
+        }
 
         if (!$this->timeOut) {
             $this->dispatch('alert-error', message: 'Waktu selesai belum ditetapkan.');
+            $this->logValidationError('timeOut not set in completeWorkReport');
             return;
         }
 
@@ -466,6 +490,7 @@ class Timer extends Component
 
         if (!$absensi) {
             $this->dispatch('alert-error', message: 'Data absensi tidak ditemukan.');
+            $this->logValidationError('Data absensi tidak ditemukan dalam completeWorkReport');
             return;
         }
 
@@ -473,12 +498,14 @@ class Timer extends Component
         $jadwal = JadwalAbsensi::find($this->jadwal_id);
         if (!$jadwal) {
             $this->dispatch('alert-error', message: 'Jadwal tidak ditemukan.');
+            $this->logValidationError('Jadwal tidak ditemukan dalam completeWorkReport');
             return;
         }
 
         $shift = Shift::find($jadwal->shift_id);
         if (!$shift) {
             $this->dispatch('alert-error', message: 'Shift tidak ditemukan.');
+            $this->logValidationError('Shift tidak ditemukan dalam completeWorkReport');
             return;
         }
 
@@ -530,6 +557,13 @@ class Timer extends Component
             'status_absen_id' => $statusAbsenId // ✅ Simpan status absen ke database
         ]);
 
+        $this->logTimerStop([
+            'jam_kerja' => $jamKerja,
+            'durasi_detik' => $selisih,
+            'status_absen_id' => $statusAbsenId,
+            'deskripsi_out' => $this->deskripsi_out,
+        ]);
+
         // ✅ Reset modal dan nilai setelah menyimpan
         $this->dispatch('timer-stopped');
         $this->showStopModal = false;
@@ -577,20 +611,23 @@ class Timer extends Component
 
     public function dinasKeluar()
     {
+        $this->logDinasEvent('dinasKeluar() called', ['akan_kembali' => $this->akanKembali]);
+
         $user = auth()->user();
         $jadwal = JadwalAbsensi::find($this->jadwal_id);
         if (!$jadwal) {
-            logger()->warning('Jadwal tidak ditemukan saat dinasKeluar', [
+            $this->logValidationError('Jadwal tidak ditemukan saat dinasKeluar', [
                 'jadwal_id' => $this->jadwal_id,
-                'user_id' => auth()->id(),
-                'route' => request()->path(),
             ]);
 
             return $this->dispatch('alert-error', 'Jadwal tidak ditemukan.');
         }
 
         $shift = Shift::find($jadwal->shift_id);
-        if (!$shift) return $this->dispatch('alert-error', 'Shift tidak ditemukan.');
+        if (!$shift) {
+            $this->logValidationError('Shift tidak ditemukan saat dinasKeluar');
+            return $this->dispatch('alert-error', 'Shift tidak ditemukan.');
+        }
 
         // 🔥 Ambil 1 row saja TANPA create
         $absen = $this->getAbsenUtama();
@@ -606,6 +643,7 @@ class Timer extends Component
                 'is_dinas' => true,
                 'keterangan' => 'Dinas keluar (belum mulai kerja)',
             ]);
+            $this->logDatabaseOperation('CREATE', 'Absen (Dinas)', ['absen_id' => $absen->id]);
         }
 
         // =============================================
@@ -622,6 +660,8 @@ class Timer extends Component
                 'is_dinas' => true,
                 'keterangan' => 'Dinas Keluar Terhitung Hadir',
             ]);
+
+            $this->logDinasEvent('Dinas Tidak Kembali', ['deskripsi' => $this->deskripsi_dinas]);
 
             $this->resetDinasModal();
             return $this->redirectToTimer();
@@ -642,9 +682,12 @@ class Timer extends Component
                 : $deskripsiBaru,
         ]);
 
+        $this->logDinasEvent('Dinas Akan Kembali', ['deskripsi' => $deskripsiBaru]);
+
         // CASE 1 — Belum mulai kerja → auto start nanti
         if (is_null($absen->time_in)) {
             session()->put('auto_start_dinas', true);
+            $this->logDinasEvent('Set auto_start_dinas flag for later start');
         }
 
         $this->resetDinasModal();
@@ -673,8 +716,11 @@ class Timer extends Component
 
     public function startLemburMandiri()
     {
+        $this->logOvertimeEvent('startLemburMandiri() called');
+
         if ($this->isLemburRunning) {
             $this->dispatch('alert-error', message: 'Lembur sudah berjalan.');
+            $this->logValidationError('Overtime already running');
             return;
         }
 
@@ -687,6 +733,7 @@ class Timer extends Component
 
             if (!$unitId) {
                 $this->dispatch('alert-error', message: 'Unit kerja Anda belum terdaftar. Hubungi admin.');
+                $this->logValidationError('Unit ID not found for user');
                 return;
             }
 
@@ -710,6 +757,7 @@ class Timer extends Component
 
             $actualJadwalId = $jadwalLembur->id;
             $this->jadwal_id = $actualJadwalId;
+            $this->logDatabaseOperation('CREATE', 'JadwalAbsensi (Overtime)', ['jadwal_id' => $jadwalLembur->id]);
         }
 
 
@@ -717,7 +765,7 @@ class Timer extends Component
         $this->isLemburRunning = true;
 
         // ✅ Simpan data lembur sebagai record baru
-        Absen::create([
+        $newLembur = Absen::create([
             'jadwal_id' => $actualJadwalId,
             'user_id' => Auth::id(),
             'time_in' => $this->timeInLembur,
@@ -727,6 +775,12 @@ class Timer extends Component
             'status_absen_id' => StatusAbsen::where('nama', 'Lembur')->value('id') ?? null,
             'present' => 1,
             'is_lembur' => true // ✅ Tandai ini sebagai absen lembur
+        ]);
+
+        $this->logOvertimeEvent('Started', [
+            'jadwal_id' => $actualJadwalId,
+            'deskripsi_lembur' => $this->deskripsi_lembur,
+            'absen_id' => $newLembur->id,
         ]);
 
         $this->showLemburModal = false;
@@ -741,8 +795,11 @@ class Timer extends Component
 
     public function stopLemburMandiri()
     {
+        $this->logOvertimeEvent('stopLemburMandiri() called');
+
         if (!$this->isLemburRunning) {
             $this->dispatch('alert-error', message: 'Lembur belum dimulai.');
+            $this->logValidationError('Attempted to stop lembur that was not running');
             return;
         }
 
@@ -760,6 +817,7 @@ class Timer extends Component
 
         if ($durasiLembur <= 0) {
             $this->dispatch('alert-error', message: 'Durasi lembur tidak valid.');
+            $this->logValidationError('Invalid overtime duration', ['durasi' => $durasiLembur]);
             return;
         }
 
@@ -776,6 +834,11 @@ class Timer extends Component
                 'deskripsi_out' => 'Selesai lembur: ' . $waktuSelesaiLembur->format('H:i:s'),
                 'keterangan' => "Total lembur: " . gmdate('H:i:s', $durasiLembur),
                 'status_absen_id' => StatusAbsen::where('nama', 'Lembur')->value('id'),
+            ]);
+
+            $this->logDatabaseOperation('UPDATE', 'Absen (Lembur)', [
+                'absen_id' => $lembur->id,
+                'durasi_detik' => $durasiLembur,
             ]);
         }
 
@@ -796,10 +859,17 @@ class Timer extends Component
             $absenUtama->update([
                 'keterangan' => "Total waktu kerja + lembur: " . gmdate('H:i:s', $totalDurasi),
             ]);
+
+            $this->logDebug('Updated main absen with overtime duration', [
+                'total_durasi_detik' => $totalDurasi,
+                'durasi_kerja_utama' => $durasiKerjaSaatIni,
+            ]);
         }
 
         $this->isLemburRunning = false;
         $this->deskripsi_lembur = null;
+
+        $this->logOvertimeEvent('Stopped', ['durasi_detik' => $durasiLembur]);
 
         $this->dispatch('timer-lembur-stopped');
         $this->dispatch('alert-success', message: 'Lembur berhasil dicatat.');
@@ -859,20 +929,21 @@ class Timer extends Component
     {
         // 0) Bypass untuk testing/dev
         if (app()->environment(['local', 'testing'])) {
-            logger('Bypass lokasi (env dev/testing).');
+            $this->logLocationValidation(true, ['reason' => 'dev/testing environment']);
             return true;
         }
 
         // 1) wajib mobile
         if (!$this->isMobileDevice()) {
             $this->dispatch('alert-error', message: 'Gunakan Smartphone (HP) untuk absensi.');
+            $this->logLocationValidation(false, ['reason' => 'not_mobile_device', 'user_agent' => request()->header('User-Agent')]);
             return false;
         }
         
         // 2) cek ip
         if ($this->cekIpWhitelisted() && $this->isMobileDevice()) {
             $ipUser = request()->ip();
-            logger('Valid via IP kantor', ['ip' => $ipUser]);
+            $this->logLocationValidation(true, ['reason' => 'ip_whitelisted', 'ip' => $ipUser]);
             return true;
         }
 
@@ -884,11 +955,13 @@ class Timer extends Component
 
         if ($lat === null || $lng === null) {
             $this->dispatch('alert-error', message: 'GPS wajib aktif jika tidak menggunakan WiFi kantor.');
+            $this->logLocationValidation(false, ['reason' => 'gps_not_available']);
             return false;
         }
 
         if ($alt === null || $acc >= 1000) {
             $this->dispatch('alert-error', message: "Ganti izin lokasi ke \"Akurat\" atau \"Precise\".");
+            $this->logLocationValidation(false, ['reason' => 'low_accuracy', 'accuracy' => $acc, 'altitude' => $alt]);
             return false;
         }
 
@@ -936,11 +1009,12 @@ class Timer extends Component
             // kecuali setting Fake GPS e di ubah
             if ($acc !== null && $acc <= 10) { 
                 $this->dispatch('alert-error', message: 'Matikan aplikasi Fake GPS atau sejenisnya.');
+                $this->logLocationValidation(false, ['reason' => 'fake_gps_suspected', 'accuracy' => $acc]);
                 $accSus = true;
                 return false;
             }
             if ($this->isPointInPolygonInclusive($lat, $lng, $polygons[$area]) && !$accSus) {
-                logger('Lokasi valid via polygon', ['area' => $area, 'lat' => $lat, 'lng' => $lng]);
+                $this->logLocationValidation(true, ['reason' => 'polygon_match', 'area' => $area, 'latitude' => $lat, 'longitude' => $lng]);
                 return true;
             }
         }
@@ -956,12 +1030,12 @@ class Timer extends Component
             [$clat, $clng] = $centers[$area];
             $jarak = $this->hitungJarakMeter($lat, $lng, $clat, $clng);
             if ($jarak <= $bufferMeters) {
-                logger('Lokasi valid via buffer', ['area' => $area, 'jarak_m' => $jarak]);
+                $this->logLocationValidation(true, ['reason' => 'buffer_radius_match', 'area' => $area, 'distance_m' => $jarak]);
                 return true;
             }
         }
 
-        logger('Lokasi ditolak', ['lat' => $lat, 'lng' => $lng]);
+        $this->logLocationValidation(false, ['reason' => 'outside_all_areas', 'latitude' => $lat, 'longitude' => $lng]);
         $this->dispatch('alert-error', message: 'Anda di luar area absensi yang diizinkan.');
         return false;
     }
