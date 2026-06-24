@@ -21,12 +21,14 @@ use App\Models\SisaCutiTahunan;
 use App\Models\MasterPendidikan;
 use App\Models\Penyesuaian;
 use App\Models\UrutanKeuanganUser;
+use Livewire\WithFileUploads;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB; // sementara
 
 class KaryawanForm extends Component
 {
+    use WithFileUploads;
     public $karyawan;
     public $user;
     public $user_id;
@@ -58,6 +60,8 @@ class KaryawanForm extends Component
     public $jk;
     public $tempat;
     public $tanggal_lahir;
+    public $photo;
+    public $currentPhoto;
     public $alamat;
     public $pendidikans;
     public $no_rek;
@@ -285,6 +289,7 @@ class KaryawanForm extends Component
             $this->alamat = $user->alamat;
             $this->tempat = $user->tempat;
             $this->tanggal_lahir = $user->tanggal_lahir;
+            $this->currentPhoto = $user->photo;
             $this->unit = $user->unitKerja->nama ?? '';
             $this->jabatan = $user->kategorijabatan->nama ?? null;
             $this->jabatanAwal = $this->jabatan; // Simpan nilai awal jabatan
@@ -531,6 +536,7 @@ class KaryawanForm extends Component
             'typeShift' => 'nullable',
             'sisa_cuti' => 'nullable|numeric|min:0',
             'cuti_tambahan' => 'nullable|numeric|min:0',
+            'photo' => 'nullable|image|max:2048'
         ]);
         $unit = UnitKerja::where('nama', $this->unit)->first(); // Cari ID berdasarkan nama unit
         $kategoriJabatan = KategoriJabatan::where('nama', $this->jabatan)->first();
@@ -709,6 +715,10 @@ class KaryawanForm extends Component
         $kategoriFungsional = KategoriJabatan::where('nama', $this->fungsional)->first();
         $kategoriUmum = KategoriJabatan::where('nama', $this->umum)->first();
 
+        if ($this->photo) {
+            $fileName = $this->photo->store('photos', 'public');
+            $user->photo = basename($fileName);
+        }
 
         $user->update([
             'name' => $this->nama ?? null,
