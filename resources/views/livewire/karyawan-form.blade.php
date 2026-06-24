@@ -199,6 +199,27 @@
                                 @enderror
                             </td>
                         </tr>
+                        @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja?->id === 87)
+                        {
+                            <tr>
+                                <td>
+                                    <label for="photo" class="block mb-2 text-sm font-medium text-gray-900">
+                                        Foto Profil
+                                    </label>
+                                </td>
+                                <td>
+                                    <input type="file" id="photo" wire:model.live="photo"
+                                        class="form-control @error('photo') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5">
+                                    @if ($photo)
+                                        <img src="{{ $photo->temporaryUrl() }}" class="mt-2 w-32 h-32 object-cover rounded-lg">
+                                    @elseif ($currentPhoto)
+                                        <img src="{{ asset('storage/photos/' . $currentPhoto) }}"
+                                            class="mt-2 w-32 h-32 object-cover rounded-lg">
+                                    @endif
+                                </td>
+                            </tr>
+                        }
+                        @endif
                         @push('scripts')
                             <!-- Flatpickr CSS -->
                             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
