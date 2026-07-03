@@ -145,18 +145,39 @@
                                         ],
                                     ]
                                     : null,
-                                auth()->user()->can('approval-cuti')
-                                    ? ['title' => 'Approval Cuti', 'href' => '/approvalcuti']
+                                auth()->user()->can('view-kepegawaian')
+                                    ? [
+                                        'title' => 'Approvals',
+                                        'href' => '/#',
+                                        'child' => [
+                                            ['title' => 'Cuti', 'href' => '/approvalcuti'],
+                                            ['title' => 'Izin', 'href' => '/approvalizin'],
+                                            ['title' => 'Tukar Jadwal', 'href' => '/approvaltukar'],
+                                        ],
+                                    ] 
                                     : null,
-                                auth()->user()->can('approval-izin')
-                                    ? ['title' => 'Approval Izin', 'href' => '/approvalizin']
+                                // auth()->user()->can('approval-cuti')
+                                //     ? ['title' => 'Approval Cuti', 'href' => '/approvalcuti']
+                                //     : null,
+                                // auth()->user()->can('approval-izin')
+                                //     ? ['title' => 'Approval Izin', 'href' => '/approvalizin']
+                                //     : null,
+                                // auth()->user()->can('approval-tukar-jadwal')
+                                //     ? ['title' => 'Approval Tukar Jadwal', 'href' => '/approvaltukar']
+                                //     : null,
+                                auth()->user()->can('view-kepegawaian')
+                                    ? [
+                                        'title' => 'Riwayat',
+                                        'href' => '/#',
+                                        'child' => [
+                                            ['title' => 'Cuti Karyawan', 'href' => '/riwayatcuti'],
+                                            ['title' => 'Izin Karyawan', 'href' => '/riwayatizin'],
+                                        ],
+                                    ]
                                     : null,
-                                auth()->user()->can('approval-tukar-jadwal')
-                                    ? ['title' => 'Approval Tukar Jadwal', 'href' => '/approvaltukar']
-                                    : null,
-                                auth()->user()->can('approval-cuti')
-                                    ? ['title' => 'Riwayat Cuti Karyawan', 'href' => '/riwayatcuti']
-                                    : null,
+                                // auth()->user()->can('approval-cuti')
+                                //     ? ['title' => 'Riwayat Cuti Karyawan', 'href' => '/riwayatcuti']
+                                //     : null,
                                 // auth()->user()->can('view-import-gaji') ? ['title' => 'Import Gaji', 'href' => '#'] : null,
                                 // auth()->user()->can('view-poin-peran')
                                 //     ? ['title' => 'Poin Peran Fungsional', 'href' => '/peranfungsional']
