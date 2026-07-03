@@ -200,7 +200,6 @@
                             </td>
                         </tr>
                         @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja?->id === 87)
-                        {
                             <tr>
                                 <td>
                                     <label for="photo" class="block mb-2 text-sm font-medium text-gray-900">
@@ -218,7 +217,6 @@
                                     @endif
                                 </td>
                             </tr>
-                        }
                         @endif
                         @push('scripts')
                             <!-- Flatpickr CSS -->
