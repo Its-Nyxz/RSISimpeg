@@ -576,12 +576,14 @@ class DataCuti extends Component
             $filename = "riwayat_cuti_{$unit}_{$monthName}_{$tahun}.xlsx";
         } elseif ($jenisId && $mode !== 'user') {
             $filename = "riwayat_cuti_{$monthName}_{$tahun}.xlsx";
+        } else {
+            $filename = "riwayat_cuti_{$monthName}_{$tahun}.xlsx";
         }
 
         // dd($param, $filename);
 
         return Excel::download(
-            new ExportRiwayat($bulan, $tahun, $unit, $unitId, $jenisId, $keyword, $mode, $selected),
+            new ExportRiwayat($bulan, $tahun, $unit, $unitId, $jenisId, $keyword, $mode, $selected, 'cuti'),
             $filename
         );
     }
