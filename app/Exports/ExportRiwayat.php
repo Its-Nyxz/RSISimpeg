@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Models\IzinKaryawan;
 use App\Models\User;
 use App\Models\CutiKaryawan;
 use App\Models\UnitKerja;
@@ -23,11 +24,21 @@ class ExportRiwayat implements WithMultipleSheets {
         protected $jenisId = null,
         protected $keyword = null,
         protected string $mode,
-        protected string $selected
+        protected string $selected,
+        protected string $cutiOrIzin
     )
     {}
 
     public function sheets(): array
+    {
+        if ($this->cutiOrIzin === 'cuti') {
+            return $this->sheetsForCuti();
+        } elseif ($this->cutiOrIzin === 'izin') {
+            return $this->sheetsForIzin();
+        }
+
+    }
+    public function sheetsForCuti(): array
     {
         if ($this->selected !== 'none') {
             // Jika mode user dan ada selected user, export hanya untuk user tersebut
@@ -55,6 +66,36 @@ class ExportRiwayat implements WithMultipleSheets {
             new ExportRiwayatCuti($this->bulan, $this->tahun, $this->unit, $this->unitId, 3, $this->keyword, $this->mode, $this->selected, 'Karyawan Kontrak'),
             // Sheet 4: Karyawan Magang (jenis_id = 4)
             new ExportRiwayatCuti($this->bulan, $this->tahun, $this->unit, $this->unitId, 4, $this->keyword, $this->mode, $this->selected, 'Karyawan Magang'),
+        ];
+    }
+    public function sheetsForIzin(): array
+    {
+        if ($this->selected !== 'none') {
+            // Jika mode user dan ada selected user, export hanya untuk user tersebut
+            return [
+                new ExportRiwayatIzin($this->bulan, $this->tahun, $this->unit, $this->unitId, $this->jenisId, $this->keyword, $this->mode, $this->selected, $this->selected),
+            ];
+        }
+
+        if ($this->unitId) {
+            // Jika ada filter unit, export hanya untuk unit tersebut
+            return [
+                new ExportRiwayatIzin($this->bulan, $this->tahun, $this->unit, $this->unitId, 1, $this->keyword, $this->mode, $this->selected, "Unit {$this->unit} Tetap"),
+                new ExportRiwayatIzin($this->bulan, $this->tahun, $this->unit, $this->unitId, 2, $this->keyword, $this->mode, $this->selected, "Unit {$this->unit} Part-Time"),
+                new ExportRiwayatIzin($this->bulan, $this->tahun, $this->unit, $this->unitId, 3, $this->keyword, $this->mode, $this->selected, "Unit {$this->unit} Kontrak"),
+                new ExportRiwayatIzin($this->bulan, $this->tahun, $this->unit, $this->unitId, 4, $this->keyword, $this->mode, $this->selected, "Unit {$this->unit} Magang"),
+            ];
+        }
+
+        return [
+            // Sheet 1: Karyawan Tetap (jenis_id = 1)
+            new ExportRiwayatIzin($this->bulan, $this->tahun, $this->unit, $this->unitId, 1, $this->keyword, $this->mode, $this->selected, 'Karyawan Tetap'),
+            // Sheet 3: Karyawan Part-Time (jenis_id = 2)
+            new ExportRiwayatIzin($this->bulan, $this->tahun, $this->unit, $this->unitId, 2, $this->keyword, $this->mode, $this->selected, 'Karyawan Part-Time'),
+            // Sheet 2: Karyawan Kontrak (jenis_id = 3)
+            new ExportRiwayatIzin($this->bulan, $this->tahun, $this->unit, $this->unitId, 3, $this->keyword, $this->mode, $this->selected, 'Karyawan Kontrak'),
+            // Sheet 4: Karyawan Magang (jenis_id = 4)
+            new ExportRiwayatIzin($this->bulan, $this->tahun, $this->unit, $this->unitId, 4, $this->keyword, $this->mode, $this->selected, 'Karyawan Magang'),
         ];
     }
 }
@@ -162,10 +203,11 @@ class ExportRiwayatCuti implements FromView, WithTitle, ShouldAutoSize, WithEven
             // We find the user first to ensure we have the correct user_id
             $user = User::where('name', str_replace('-', ' ', $this->selected))->first();
             $query->where('user_id', $user?->id);
-            $cutiKaryawans = $query->orderBy('tanggal_mulai', 'asc')->get();
+            $izinKaryawan = $query->orderBy('tanggal_mulai', 'asc')->get();
         }
 
         // dd($cutiKaryawans);
+        // dd($this->bulan, $this->tahun, $this->unit, $this->unitId, $this->jenisId, $this->keyword, $this->mode, $this->selected, $this->title);
 
         return view('exports.riwayat-cuti', [
             'cutiKaryawans' => $cutiKaryawans,
@@ -179,4 +221,150 @@ class ExportRiwayatCuti implements FromView, WithTitle, ShouldAutoSize, WithEven
         ]);
     }
 
+}
+
+class ExportRiwayatIzin implements FromView, WithTitle, ShouldAutoSize, WithEvents, WithColumnFormatting {
+    public function __construct(
+        protected int $bulan,
+        protected int $tahun,
+        protected $unit = null,
+        protected $unitId = null,
+        protected $jenisId = null,
+        protected $keyword = null,
+        protected string $mode,
+        protected string $selected,
+        protected string $title
+    )
+    {}
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                $sheet = $event->sheet->getDelegate();
+                $highestRow = $sheet->getHighestRow();
+                $highestColumn = 'K'; // Fixed 11 columns (A to K)
+
+                // Mengatur tinggi baris untuk semua baris (Header + Data)
+                for ($i = 1; $i <= $highestRow; $i++) {
+                    $sheet->getRowDimension($i)->setRowHeight(30);
+                }
+
+                // Freeze pane
+                $sheet->freezePane('A6');
+
+                // Set the proof link column to Excel default width and prevent overflow
+                $sheet->getColumnDimension('K')->setAutoSize(false)->setWidth(8.43);
+                $sheet->getStyle("K6:K{$highestRow}")
+                    ->getAlignment()
+                    ->setWrapText(true)
+                    ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT);
+
+                // --- EFEK PERATAAN TENGAH ---
+                // Memastikan teks berada di tengah secara vertikal agar padding terlihat seimbang
+                $sheet->getStyle("A1:{$highestColumn}{$highestRow}")
+                    ->getAlignment()
+                    ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER)
+                    ->setWrapText(true);
+
+                // Opsional: Tambahkan sedikit indentasi kiri untuk teks (Padding Left)
+                $sheet->getStyle("A1:{$highestColumn}{$highestRow}")
+                    ->getAlignment()
+                    ->setIndent(1);
+
+                // link
+                $dataStartRow = 6;
+                for ($row = $dataStartRow; $row <= $highestRow; $row += 2) {
+                    $cell = "K{$row}";
+                    $url = $sheet->getCell($cell)->getValue();
+
+                    if ($url && filter_var($url, FILTER_VALIDATE_URL)) {
+                        $sheet->getCell($cell)->getHyperlink()->setUrl($url);
+                        $sheet->getStyle($cell)->applyFromArray([
+                            'font' => [
+                                'color' => ['rgb' => '0563C1'],
+                                'underline' => true,
+                            ],
+                        ]);
+                    }
+                }
+            },
+        ];
+    }
+
+    public function columnFormats(): array
+    {
+        return [];
+    }
+
+    public function title(): string
+    {
+        return $this->title;
+    }
+
+    public function view(): View
+    {
+        $query = IzinKaryawan::with(['user.unitKerja']);
+
+        // Filter by month and year biar sesuai periode bulan / tahun
+        if ($this->bulan && $this->tahun) {
+            $query->whereYear('tanggal_mulai',$this->tahun)
+                    ->whereMonth('tanggal_mulai',$this->bulan);
+        }
+
+        if ($this->mode === 'all') {
+            // Filter by employee type (jenis_id)
+            if ($this->jenisId) {
+                $query->whereHas('user', function ($q) {
+                    $q->where('jenis_id', $this->jenisId)
+                    ->orWhere('jenis_id', [1, 2, 3, 4]);
+                });
+            }
+
+            // Filter by unit
+            if ($this->unitId) {
+                $query->whereHas('user', function ($q) {
+                    $q->where('unit_id', $this->unitId);
+                });
+            }
+
+            // filter bulan selain now
+            if ($this->bulan !== now()->month) {
+                $query->whereHas('user', function ($q) {
+                    $q->whereMonth('tanggal_mulai', $this->bulan);
+                });
+            }
+
+            // filter tahun selain now
+            if ($this->tahun !== now()->year) {
+                $query->whereHas('user', function ($q) {
+                    $q->whereYear('tanggal_mulai', $this->tahun);
+                });
+            }
+
+            $izinKaryawans = $query->orderBy('tanggal_mulai', 'asc')->get();
+        }
+
+        if ($this->mode === 'user') {
+            // $this->selected contains the slugified name or ID passed from the component
+            // We find the user first to ensure we have the correct user_id
+            $user = User::where('name', str_replace('-', ' ', $this->selected))->first();
+            $query->where('user_id', $user?->id);
+            $izinKaryawans = $query->orderBy('tanggal_mulai', 'asc')->get();
+        }
+
+        // dd($izinKaryawans);
+        // dd($this->bulan, $this->tahun, $this->unit, $this->unitId, $this->jenisId, $this->keyword, $this->mode, $this->selected, $this->title);
+
+        return view('exports.riwayat-izin', [
+            'izinKaryawans' => $izinKaryawans,
+            'bulan' => $this->bulan,
+            'tahun' => $this->tahun,
+            'unitId' => $this->unitId,
+            'jenisId' => $this->jenisId,
+            'keyword' => $this->keyword,
+            'title' => $this->title,
+            'selected' => $this->selected,
+        ]);
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\JenisKaryawan;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Absen;
@@ -11,14 +12,33 @@ use App\Models\UnitKerja;
 use App\Models\StatusAbsen;
 use App\Models\IzinKaryawan;
 use Livewire\WithPagination;
+use App\Exports\ExportRiwayat;
 use App\Models\JadwalAbsensi;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Str;
 
 class DataIzin extends Component
 {
     use WithPagination;
     public $isKepegawaian = false;
+    public $isRiwayatIzin = false;
+    // Riwayat (history) state
+    public $selectedRiwayatUserId = null;
+    public $selectedRiwayatUserName = '';
+
+    // Filters
+    public $selectedUserAktif = 1;
+    public $selectedUnit = '';
+    public $search = '';
+    public $units = [];
+    public $bulan;
+    public $tahun;
+    public $tanggalMulaiFilter = '';
+    public $tanggalSelesaiFilter = '';
+    public $jenisKaryawan = [];
+    public $selectedJenisKaryawan = '';
 
     public function mount()
     {
@@ -26,37 +46,179 @@ class DataIzin extends Component
         $unitKepegawaianId = 87;
         $user = auth()->user();
 
-        $this->isKepegawaian = $user->unit_id == $unitKepegawaianId;
+        $this->isKepegawaian = $user->unit_id == $unitKepegawaianId || $user->roles->pluck('id')->first() == 2 || $user->roles->pluck('id')->first() == 14 || $user->hasRole('Super Admin');
+        $this->isRiwayatIzin = request()->routeIs('riwayatizin.*') || request()->is('riwayatizin');
+
+        $this->bulan = now()->month;
+        $this->tahun = now()->year;
+        $this->tanggalMulaiFilter = now()->format('Y-m-d');
+        $this->units = \App\Models\UnitKerja::orderBy('id')->get();
+        $this->jenisKaryawan = JenisKaryawan::orderBy('id')->get();
     }
 
     public function loadData()
     {
         $user = auth()->user();
-        $unitKepegawaianId = 87;
-
-        if ($user->unit_id == $unitKepegawaianId) {
-            // Kalau dari unit KEPEGAWAIAN:
-            return IzinKaryawan::with('user')
-                ->where(function ($query) use ($unitKepegawaianId) {
-                    $query->where('status_izin_id', 4)
-                        ->orWhere(function ($q) use ($unitKepegawaianId) {
-                            $q->where('status_izin_id', 3)
-                                ->whereHas('user', function ($subquery) use ($unitKepegawaianId) {
-                                    $subquery->where('unit_id', $unitKepegawaianId);
-                                });
-                        });
-                })
-                ->orderByDesc('id')
-                ->paginate(10);
-        } else {
-            // Selain KEPEGAWAIAN: hanya tampilkan berdasarkan unit_id user
-            return IzinKaryawan::with('user')
-                ->whereHas('user', function ($query) use ($user) {
-                    $query->where('unit_id', $user->unit_id);
-                })
-                ->orderByDesc('id')
-                ->paginate(10);
+        if (!$user->can('approval-izin')) {
+            return IzinKaryawan::whereNull('id')->paginate(10);
         }
+
+        $query = IzinKaryawan::with(['user.unitKerja', 'jenisIzin', 'statusIzin'])
+            ->whereIn('status_izin_id', [3, 4])
+            ->where('user_id', '!=', $user->id);
+
+        $query = $this->applyFiltersToUserQuery($query);
+
+        if ($this->isKepegawaian) {
+            return $query->orderByDesc('id')->paginate(10);
+        }
+
+        $hasChild = \App\Models\UnitKerja::where('parent_id', $user->unit_id)->exists();
+        $unitIds = $hasChild ? $this->getAllChildUnitIds($user->unit_id) : [$user->unit_id];
+        
+        return $query->whereHas('user', function ($q) use ($unitIds) {
+            $q->whereIn('unit_id', $unitIds);
+        })->orderByDesc('id')->paginate(10);
+
+        // if ($user->unit_id == $unitKepegawaianId) {
+        //     // Kalau dari unit KEPEGAWAIAN:
+        //     return IzinKaryawan::with('user')
+        //         ->where(function ($query) use ($unitKepegawaianId) {
+        //             $query->where('status_izin_id', 4)
+        //                 ->orWhere(function ($q) use ($unitKepegawaianId) {
+        //                     $q->where('status_izin_id', 3)
+        //                         ->whereHas('user', function ($subquery) use ($unitKepegawaianId) {
+        //                             $subquery->where('unit_id', $unitKepegawaianId);
+        //                         });
+        //                 });
+        //         })
+        //         ->orderByDesc('id')
+        //         ->paginate(10);
+        // } else {
+        //     // Selain KEPEGAWAIAN: hanya tampilkan berdasarkan unit_id user
+        //     return IzinKaryawan::with('user')
+        //         ->whereHas('user', function ($query) use ($user) {
+        //             $query->where('unit_id', $user->unit_id);
+        //         })
+        //         ->orderByDesc('id')
+        //         ->paginate(10);
+        // }
+    }
+
+    // --- Helpers for riwayat/history mode ---
+    private function getAllChildUnitIds($unitId)
+    {
+        $unitIds = [$unitId];
+        $childs = \App\Models\UnitKerja::where('parent_id', $unitId)->pluck('id')->toArray();
+        foreach ($childs as $childId) {
+            $unitIds = array_merge($unitIds, $this->getAllChildUnitIds($childId));
+        }
+        return $unitIds;
+    }
+
+    public function updatedSelectedUserAktif() { $this->resetPage('usersPage'); }
+    public function updatedSelectedUnit() { $this->resetPage('usersPage'); }
+    public function updatedSelectedJenisKaryawan() { $this->resetPage('usersPage'); }
+    public function updatedBulan() { $this->tanggalMulaiFilter = ''; $this->tanggalSelesaiFilter = ''; $this->resetPage('usersPage'); }
+    public function updatedTahun() { $this->tanggalMulaiFilter = ''; $this->tanggalSelesaiFilter = ''; $this->resetPage('usersPage'); }
+    public function updatedTanggalMulaiFilter() { $this->resetPage('usersPage'); $this->resetPage('detailsPage'); }
+    public function updatedTanggalSelesaiFilter() { $this->resetPage('usersPage'); $this->resetPage('detailsPage'); }
+
+    public function updateSearch($value)
+    {
+        $this->search = $value;
+        $this->resetPage('usersPage');
+    }
+    private function applyFiltersToUserQuery($query)
+    {
+        $isUserQuery = $query->getModel() instanceof User;
+        if (!empty($this->search)) {
+            if ($isUserQuery) {
+                $query->where('name', 'like', '%' . $this->search . '%');
+            } else {
+                $query->whereHas('user', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'));
+            }
+        }
+        if ($this->selectedUnit) {
+            if ($isUserQuery) {
+                $query->where('unit_id', $this->selectedUnit);
+            } else {
+                $query->whereHas('user', fn($q) => $q->where('unit_id', $this->selectedUnit));
+            }
+        }
+        if ($this->selectedJenisKaryawan) {
+            if ($isUserQuery) {
+                $query->where('jenis_id', $this->selectedJenisKaryawan);
+            } else {
+                $query->whereHas('user', fn($q) => $q->where('jenis_id', $this->selectedJenisKaryawan));
+            }
+        }
+        if (isset($this->selectedUserAktif)) {
+            if ($isUserQuery) {
+                $query->where('status_karyawan', $this->selectedUserAktif);
+            } else {
+                $query->whereHas('user', fn($q) => $q->where('status_karyawan', $this->selectedUserAktif));
+            }
+        }
+        return $query;
+    }
+
+    public function loadUsers()
+    {
+        $user = auth()->user();
+        $query = User::with(['kategorijabatan', 'unitKerja'])
+            ->where('id', '!=', $user->id)
+            // Only users who have izin records matching filters
+            ->whereHas('izinKaryawan', function ($q) {
+                if ($this->tanggalMulaiFilter) {
+                    $q->where('tanggal_mulai', '>=', $this->tanggalMulaiFilter);
+                }
+                if ($this->tanggalSelesaiFilter) {
+                    $q->where('tanggal_selesai', '<=', $this->tanggalSelesaiFilter);
+                }
+                if (empty($this->tanggalMulaiFilter) && empty($this->tanggalSelesaiFilter) && $this->bulan && $this->tahun) {
+                    $q->whereYear('tanggal_mulai', $this->tahun)->whereMonth('tanggal_mulai', $this->bulan);
+                }
+            });
+
+        $query = $this->applyFiltersToUserQuery($query);
+
+        if (!$this->isKepegawaian) {
+            $hasChild = \App\Models\UnitKerja::where('parent_id', $user->unit_id)->exists();
+            $unitIds = $hasChild ? $this->getAllChildUnitIds($user->unit_id) : [$user->unit_id];
+            $query->whereIn('unit_id', $unitIds);
+        }
+
+        return $query->orderBy('name', 'asc')->paginate(5, ['*'], 'usersPage');
+    }
+
+    public function loadIzin()
+    {
+        if (!$this->selectedRiwayatUserId) return null;
+
+        $query = IzinKaryawan::with(['jenisIzin', 'statusIzin'])->where('user_id', $this->selectedRiwayatUserId);
+
+        if ($this->tanggalMulaiFilter) {
+            $query->where('tanggal_mulai', '>=', $this->tanggalMulaiFilter);
+        }
+        if ($this->tanggalSelesaiFilter) {
+            $query->where('tanggal_selesai', '<=', $this->tanggalSelesaiFilter);
+        }
+
+        return $query->orderBy('tanggal_mulai', 'desc')->paginate(10, ['*'], 'detailsPage');
+    }
+
+    public function selectRiwayatUser($userId, $userName)
+    {
+        $this->selectedRiwayatUserId = $userId;
+        $this->selectedRiwayatUserName = $userName;
+        $this->resetPage('detailsPage');
+    }
+
+    public function closeRiwayatUser()
+    {
+        $this->selectedRiwayatUserId = null;
+        $this->selectedRiwayatUserName = '';
     }
 
     public function approveIzin($izinId, $userId)
@@ -69,7 +231,7 @@ class DataIzin extends Component
         $user = auth()->user();
         $targetUser = User::findOrFail($userId);
         if ($izin) {
-            if ($user->unit_id == $unitKepegawaianId) {
+            if ($this->isKepegawaian) {
                 $izin->update(['status_izin_id' => 1]);
                 $shift = Shift::firstOrCreate(
                     ['nama_shift' => 'I'],
@@ -190,12 +352,64 @@ class DataIzin extends Component
         }
     }
 
+    /** ----------------------------------------------------------------
+     *  download
+     *  ---------------------------------------------------------------- */
+    public function export($param)
+    {
+        $bulan = $param['bulan'];
+        $tahun = $param['tahun'];
+        $unitId = $param['unitId'];
+        $unit = $param['unit'];
+        $jenisId = (int) $param['jenis'];
+        $keyword = $param['keyword'];
+        $mode = $param['mode'];
+        $selected = Str::slug($param['selected']);
+
+        $monthName = Carbon::createFromDate($tahun, $bulan, 1)->locale('id')->isoFormat('MMMM');
+        if ($mode === 'user') {
+            $filename = "riwayat_izin_{$selected}_{$monthName}_{$tahun}.xlsx";
+        } elseif ($unitId && $mode !== 'user') {
+            $filename = "riwayat_izin_{$unit}_{$monthName}_{$tahun}.xlsx";
+        } elseif ($jenisId && $mode !== 'user') {
+            $filename = "riwayat_izin_{$monthName}_{$tahun}.xlsx";
+        } else {
+            $filename = "riwayat_izin_{$monthName}_{$tahun}.xlsx";
+        }
+
+        // dd($filename);
+        // dd($bulan, $tahun, $unit, $unitId, $jenisId, $keyword, $mode, $selected, $filename);
+        // dd($this->selectedJenisKaryawan);
+
+        return Excel::download(
+            new ExportRiwayat($bulan, $tahun, $unit, $unitId, $jenisId, $keyword, $mode, $selected, 'izin'),
+            $filename
+        );
+    }
+
     public function render()
     {
-        $users = $this->loadData();
+        if (!$this->isRiwayatIzin) {
+            $users = $this->loadData();
+            return view('livewire.data-izin', [
+                'userIzin' => $users,
+                'isKepegawaian' => $this->isKepegawaian,
+                'isRiwayatIzin' => $this->isRiwayatIzin,
+                'jenisKaryawans' => $this->jenisKaryawan,
+            ]);
+        }
+
+        // Riwayat mode
+        $usersList = $this->loadUsers();
+        $riwayatIzinDetail = $this->loadIzin();
         return view('livewire.data-izin', [
-            'userIzin' => $users,
+            'users' => $usersList,
+            'riwayatIzinDetail' => $riwayatIzinDetail,
+            'jenisKaryawans' => $this->jenisKaryawan,
             'isKepegawaian' => $this->isKepegawaian,
+            'isRiwayatIzin' => $this->isRiwayatIzin,
+            'selectedRiwayatUserId' => $this->selectedRiwayatUserId,
+            'selectedRiwayatUserName' => $this->selectedRiwayatUserName,
         ]);
     }
 }

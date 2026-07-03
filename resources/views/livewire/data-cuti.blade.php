@@ -184,7 +184,6 @@
     @else
     {{-- tampilan route /riwayatcuti --}}
         <div class="mb-2">
-            <h2 class="text-xl font-bold text-success-900 bg-transparent px-4 py-2">Karyawan</h2>
             {{-- data karyawan --}}
             <div class="relative overflow-x-auto shadow-md sm:rounded-lg border border-success-200">
                 <table class="w-full text-sm text-center text-gray-700">
