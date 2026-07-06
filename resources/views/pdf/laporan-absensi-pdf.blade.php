@@ -187,6 +187,61 @@
             @endforelse
         </tbody>
     </table>
+    <div class="header-box mt-4">
+        <h1 class="title">Rekap Absensi</h1>
+    </div>
+    <table>
+        <tr>
+            <td colspan="2" class="text-left font-semibold">Total</td>
+            @php
+                $total = collect($items)->filter(function ($item) {
+                    return !$item['is_holiday'] && !$item['is_dinas'] && $item['id'];
+                })->count();
+            @endphp
+            <td colspan="1" class="text-left">{{ $total }} ({{ (new NumberFormatter('ID', NumberFormatter::SPELLOUT))->format($total) }})</td>
+            <td colspan="2" class="text-left font-semibold">On-Time</td>
+            @php
+                $onTime = collect($items)->filter(function ($item) {
+                    return !$item['is_holiday'] && !$item['is_dinas'] && !$item['late'] && $item['id'];
+                })->count();
+            @endphp
+            <td colspan="1" class="text-left">{{ $onTime }} ({{ (new NumberFormatter('ID', NumberFormatter::SPELLOUT))->format($onTime) }})</td>
+        </tr>
+        <tr>
+            <td colspan="2" class="text-left font-semibold">Shift</td>
+            @php
+                $shift = collect($items)->filter(function ($item) {
+                    return !$item['is_holiday'] && !$item['is_dinas'] && !$item['is_lembur'] && $item['id'];
+                })->count();
+            @endphp
+            <td colspan="1" class="text-left">{{ $shift }} ({{ (new NumberFormatter('ID', NumberFormatter::SPELLOUT))->format($shift) }})</td>
+            <td colspan="2" class="text-left font-semibold">Terlambat</td>
+            @php
+                $terlambat = collect($items)->filter(function ($item) {
+                    return !$item['is_holiday'] && !$item['is_dinas'] && $item['late'] && $item['id'];
+                })->count();
+            @endphp
+            <td colspan="1" class="text-left">{{ $terlambat }} ({{ (new NumberFormatter('ID', NumberFormatter::SPELLOUT))->format($terlambat) }})</td>
+        </tr>
+        <tr>
+            <td colspan="2" class="text-left font-semibold">Lembur</td>
+            @php
+                $lembur = collect($items)->filter(function ($item) {
+                    return !$item['is_holiday'] && !$item['is_dinas'] && $item['is_lembur'] && $item['id'];
+                })->count();
+            @endphp
+            <td colspan="1" class="text-left">{{ $lembur }} ({{ (new NumberFormatter('ID', NumberFormatter::SPELLOUT))->format($lembur) }})</td>
+        </tr>
+        <tr>
+            <td colspan="2" class="text-left font-semibold">Dinas</td>
+            @php
+                $dinas = collect($items)->filter(function ($item) {
+                    return $item['is_dinas'] && $item['id'];
+                })->count();
+            @endphp
+            <td colspan="1" class="text-left">{{ $dinas }} ({{ (new NumberFormatter('ID', NumberFormatter::SPELLOUT))->format($dinas) }})</td>
+        </tr>
+    </table>
 
 </body>
 
