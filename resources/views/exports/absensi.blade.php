@@ -77,5 +77,51 @@
                 <td style="text-align: left; border: 1px solid #d1fae5; color: #6b7280;">{{ $clean($item['feedback']) }}</td>
             </tr>
         @endforeach
+            <tr><td colspan="10"></td></tr> {{-- Spacer --}}
+            <tr>
+                <th colspan="10" style="text-align:left; font-size: 16px; color: #15803d; font-weight: bold;">
+                    Rekap Absensi
+                </th>
+            </tr>
+            <tr>
+                @php
+                    $total = collect($items)->filter(function ($item) {
+                        return !$item['is_holiday'] && !$item['is_dinas'] && $item['id'];
+                    })->count();
+                    $shift = collect($items)->filter(function ($item) {
+                        return !$item['is_holiday'] && !$item['is_dinas'] && !$item['is_lembur'] && $item['id'];
+                    })->count();
+                    $lembur = collect($items)->filter(function ($item) {
+                        return !$item['is_holiday'] && !$item['is_dinas'] && $item['is_lembur'] && $item['id'];
+                    })->count();
+                    $dinas = collect($items)->filter(function ($item) {
+                        return $item['is_dinas'] && $item['id'];
+                    })->count();
+                    $onTime = collect($items)->filter(function ($item) {
+                        return !$item['is_holiday'] && !$item['is_dinas'] && !$item['late'] && $item['id'];
+                    })->count();
+                    $terlambat = collect($items)->filter(function ($item) {
+                        return !$item['is_holiday'] && !$item['is_dinas'] && $item['late'] && $item['id'];
+                    })->count();
+                @endphp
+                <th colspan="2" style="text-align:left;">Total</th>
+                <th colspan="1" style="text-align:left;">{{ $total }} ({{ (new NumberFormatter('ID', NumberFormatter::SPELLOUT))->format($total) }})</th>
+                <th colspan="2" style="text-align:left;">On-Time</th>
+                <th colspan="1" style="text-align:left;">{{ $onTime }} ({{ (new NumberFormatter('ID', NumberFormatter::SPELLOUT))->format($onTime) }})</th>
+            </tr>
+            <tr>
+                <th colspan="2" style="text-align:left;">Shift</th>
+                <th colspan="1" style="text-align:left;">{{ $shift }} ({{ (new NumberFormatter('ID', NumberFormatter::SPELLOUT))->format($shift) }})</th>
+                <th colspan="2" style="text-align:left;">Terlambat</th>
+                <th colspan="1" style="text-align:left;">{{ $terlambat }} ({{ (new NumberFormatter('ID', NumberFormatter::SPELLOUT))->format($terlambat) }})</th>
+            </tr>
+            <tr>
+                <th colspan="2" style="text-align:left;">Lembur</th>
+                <th colspan="1" style="text-align:left;">{{ $lembur }} ({{ (new NumberFormatter('ID', NumberFormatter::SPELLOUT))->format($lembur) }})</th>
+            </tr>
+            <tr>
+                <th colspan="2" style="text-align:left;">Dinas</th>
+                <th colspan="1" style="text-align:left;">{{ $dinas }} ({{ (new NumberFormatter('ID', NumberFormatter::SPELLOUT))->format($dinas) }})</th>
+            </tr>
     </tbody>
 </table>
