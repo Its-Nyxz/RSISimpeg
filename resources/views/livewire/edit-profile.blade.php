@@ -133,7 +133,7 @@
                     <span class="text-sm text-red-500 font-semibold">{{ $message }}</span>
                 @enderror
             </div>
-            <div class="form-group col-span-2 md:col-span-1">
+            <div class="form-group col-span-2">
                 <label for="photo" class="text-sm font-medium text-success-700">Foto Profil</label>
                 <input type="file" id="photo" wire:model="photo"
                     class="form-control @error('photo') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5">
@@ -145,22 +145,6 @@
                     <img src="{{ $photo->temporaryUrl() }}" class="mt-2 w-32 h-32 object-cover rounded-lg">
                 @elseif ($currentPhoto)
                     <img src="{{ asset('storage/photos/' . $currentPhoto) }}"
-                        class="mt-2 w-32 h-32 object-cover rounded-lg">
-                @endif
-            </div>
-
-            <div class="form-group col-span-2 md:col-span-1">
-                <label for="foto_ktp" class="text-sm font-medium text-success-700">Foto KTP</label>
-                <input type="file" id="foto_ktp" wire:model="foto_ktp"
-                    class="form-control @error('foto_ktp') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5">
-                @error('foto_ktp')
-                    <span class="text-danger text-sm">{{ $message }}</span>
-                @enderror
-
-                @if ($foto_ktp)
-                    <img src="{{ $foto_ktp->temporaryUrl() }}" class="mt-2 w-32 h-32 object-cover rounded-lg">
-                @elseif ($currentFotoKtp)
-                    <img src="{{ asset('storage/ktp/' . $currentFotoKtp) }}"
                         class="mt-2 w-32 h-32 object-cover rounded-lg">
                 @endif
             </div>
