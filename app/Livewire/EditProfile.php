@@ -34,14 +34,13 @@ class EditProfile extends Component
         $this->tanggal_lahir = $user->tanggal_lahir;
         $this->currentPhoto = $user->photo;
 
-
         $this->jabatans = KategoriJabatan::all();
         $this->pendidikans = MasterPendidikan::all();
     }
 
     public function updateProfile()
     {
-        $this->validate([
+            $this->validate([
             'name' => 'nullable|string|max:255|unique:users,name,' . $this->user_id,
             'nip' => 'nullable|max:50|unique:users,nip,' . $this->user_id,
             'no_ktp' => 'nullable|string|max:50',
