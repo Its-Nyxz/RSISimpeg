@@ -13,14 +13,14 @@
                     Baru
                 </p>
 
-                <div class="grid grid-cols-2 gap-4 items-center">
-                    <p class="text-success-700 font-medium">Username Lama:</p>
-                    <span class="font-bold text-center"
-                        style="margin-right: 900px; color: #006633;">{{ $old_username ?? '-' }}</span>
-
-                    <label for="username" class="text-sm font-medium text-success-700">Username Baru</label>
-                    <input type="text" id="username" wire:model="username"
-                        class="form-control @error('username') is-invalid @enderror w-full max-w-xs rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5">
+               <div class="grid grid-cols-2 gap-4 items-center"> 
+                    <p class="text-success-700 font-medium">Username Lama:</p> 
+                    <span class="font-bold text-center" 
+                        style="margin-right: 900px; color: #006633;">{{ $old_username ?? '-' }}</span> 
+ 
+                    <label for="username" class="text-sm font-medium text-success-700">Username Baru</label> 
+                    <input type="text" id="username" wire:model="username" readonly
+                        class="form-control @error('username') is-invalid @enderror w-full max-w-xs rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5"> 
                 </div>
                 @error('username')
                     <span class="text-danger text-sm">{{ $message }}</span>

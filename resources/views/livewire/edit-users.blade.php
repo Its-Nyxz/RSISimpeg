@@ -18,7 +18,8 @@
                 <div class="form-group col-span-2">
                     <label for="email" class="text-sm font-medium text-success-700">Email</label>
                     <input type="email" id="email" wire:model="email"
-                        class="form-control @error('email') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5">
+                        class="form-control @error('email') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5"
+                        readonly>
                     @error('email')
                         <span class="text-danger-600 text-sm">{{ $message }}</span>
                     @enderror
@@ -28,7 +29,8 @@
                 <div class="form-group col-span-2">
                     <label for="username" class="text-sm font-medium text-success-700">Username</label>
                     <input type="text" id="username" wire:model="username"
-                        class="form-control @error('username') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5">
+                        class="form-control @error('username') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5"
+                        readonly>
                     @error('username')
                         <span class="text-danger-600 text-sm">{{ $message }}</span>
                     @enderror
@@ -53,7 +55,8 @@
                 <div class="form-group col-span-2">
                     <label for="current_password" class="text-sm font-medium text-success-700">Password Lama</label>
                     <input type="password" id="current_password" wire:model="current_password"
-                        class="form-control @error('current_password') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5">
+                        class="form-control @error('current_password') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5"
+                        readonly>
                     @error('current_password')
                         <span class="text-danger-600 text-sm">{{ $message }}</span>
                     @enderror
@@ -63,7 +66,8 @@
                 <div class="form-group col-span-2">
                     <label for="new_password" class="text-sm font-medium text-success-700">Password Baru</label>
                     <input type="password" id="new_password" wire:model="new_password"
-                        class="form-control @error('new_password') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5">
+                        class="form-control @error('new_password') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5"
+                        readonly>
                     @error('new_password')
                         <span class="text-danger-600 text-sm">{{ $message }}</span>
                     @enderror
