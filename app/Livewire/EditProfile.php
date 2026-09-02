@@ -13,7 +13,7 @@ class EditProfile extends Component
     use WithFileUploads;
 
     public $user_id, $name, $nip, $no_ktp, $no_hp, $no_rek, $kategori_pendidikan, $pendidikan, $institusi, $jenisKelamin, $alamat, $tempat_lahir, $tanggal_lahir;
-    public $photo, $currentPhoto;
+    public $photo, $currentPhoto, $foto_ktp, $currentFotoKtp;
     public $jabatans, $pendidikans;
 
     public function mount()
@@ -33,6 +33,7 @@ class EditProfile extends Component
         $this->tempat_lahir = $user->tempat;
         $this->tanggal_lahir = $user->tanggal_lahir;
         $this->currentPhoto = $user->photo;
+        $this->currentFotoKtp = $user->foto_ktp;
 
 
         $this->jabatans = KategoriJabatan::all();
@@ -54,6 +55,7 @@ class EditProfile extends Component
             'tempat_lahir' => 'nullable|string|max:255',
             'tanggal_lahir' => 'nullable|date',
             'photo' => 'nullable|image|max:2048',
+            'foto_ktp' => 'nullable|image|max:2048',
         ]);
 
         $user = Auth::user();
@@ -61,6 +63,11 @@ class EditProfile extends Component
         if ($this->photo) {
             $fileName = $this->photo->store('photos', 'public');
             $user->photo = basename($fileName);
+        }
+
+        if ($this->foto_ktp) {
+            $ktpName = $this->foto_ktp->store('ktp', 'public');
+            $user->foto_ktp = basename($ktpName);
         }
 
         $user->update([
