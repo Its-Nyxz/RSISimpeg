@@ -10,13 +10,14 @@
                 @error('name')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
-            </div>
+            </div>   
 
             {{-- NIP --}}
             <div class="form-group col-span-2 md:col-span-1">
                 <label for="nip" class="text-sm font-medium text-success-700">NIP (Nomor Induk Pegawai)</label>
                 <input type="text" id="nip" wire:model="nip"
-                    class="form-control @error('nip') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5">
+                    class="form-control @error('nip') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5"
+                    readonly>
                 @error('nip')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
@@ -26,7 +27,8 @@
             <div class="form-group col-span-2 md:col-span-1">
                 <label for="no_ktp" class="text-sm font-medium text-success-700">No KTP</label>
                 <input type="text" id="no_ktp" wire:model="no_ktp"
-                    class="form-control @error('no_ktp') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5">
+                    class="form-control @error('no_ktp') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5"
+                    readonly>
                 @error('no_ktp')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
@@ -36,7 +38,8 @@
             <div class="form-group col-span-2 md:col-span-1">
                 <label for="no_hp" class="text-sm font-medium text-success-700">No. Hp</label>
                 <input type="text" id="no_hp" wire:model="no_hp"
-                    class="form-control @error('no_hp') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5">
+                    class="form-control @error('no_hp') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5"
+                    readonly>
                 @error('no_hp')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
@@ -46,7 +49,8 @@
             <div class="form-group col-span-2 md:col-span-1">
                 <label for="no_rek" class="text-sm font-medium text-success-700">No Rekening</label>
                 <input type="text" id="no_rek" wire:model="no_rek"
-                    class="form-control @error('no_rek') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5">
+                    class="form-control @error('no_rek') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5"
+                    readonly>
                 @error('no_rek')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
@@ -76,7 +80,7 @@
             <div class="form-group col-span-2 md:col-span-1">
                 <label for="kategori_pendidikan" class="text-sm font-medium text-success-700">Kategori
                     Pendidikan</label>
-                <select id="kategori_pendidikan" wire:model="kategori_pendidikan"
+                <select id="kategori_pendidikan" wire:model="kategori_pendidikan" disabled
                     class="form-control @error('kategori_pendidikan') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5">
                     <option value="">-- Pilih Pendidikan --</option>
                     @foreach ($pendidikans as $pendidikan)
@@ -92,7 +96,8 @@
             <div class="form-group col-span-2 md:col-span-1">
                 <label for="pendidikan" class="text-sm font-medium text-success-700">Pendidikan</label>
                 <input type="text" id="pendidikan" wire:model="pendidikan"
-                    class="form-control @error('pendidikan') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5">
+                    class="form-control @error('pendidikan') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5"
+                    readonly>
                 @error('pendidikan')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
@@ -102,7 +107,8 @@
             <div class="form-group col-span-2">
                 <label for="institusi" class="text-sm font-medium text-success-700">Institusi</label>
                 <input type="text" id="institusi" wire:model="institusi"
-                    class="form-control @error('institusi') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5">
+                    class="form-control @error('institusi') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5"
+                    readonly>
                 @error('institusi')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
@@ -113,11 +119,11 @@
                 <label for="jenisKelamin" class="text-sm font-medium text-success-700">Jenis Kelamin</label>
                 <label class="flex items-center gap-4">
                     <input type="radio" name="jenisKelamin" id="laki" wire:model.live="jenisKelamin"
-                        value="1"
+                        value="1" disabled
                         class="form-radio h-4 w-4 text-success-600 border-gray-300 focus:ring-success-500">
                     <span class="ml-1 text-gray-900">Laki-laki</span>
                     <input type="radio" name="jenisKelamin" id="perempuan" wire:model.live="jenisKelamin"
-                        value="0"
+                        value="0" disabled
                         class="form-radio h-4 w-4 text-success-600 border-gray-300 focus:ring-success-500">
                     <span class="ml-1 text-gray-900">Perempuan</span>
                 </label>
