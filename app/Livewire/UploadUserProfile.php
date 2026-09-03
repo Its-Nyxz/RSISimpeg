@@ -8,6 +8,7 @@ use App\Models\JenisFile;
 use App\Models\SourceFile;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class UploadUserProfile extends Component
 {
@@ -79,6 +80,25 @@ class UploadUserProfile extends Component
 
         session()->flash('success', 'File berhasil diupload.');
         $this->reset(['file', 'jenis_file_id', 'mulai', 'selesai', 'isSipStr', 'jumlah_jam']);
+    }
+
+    public function delete($id)
+    {
+        $file = SourceFile::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if ($file) {
+            if ($file->path && Storage::disk('public')->exists($file->path)) {
+                Storage::disk('public')->delete($file->path);
+            }
+
+            $file->delete();
+
+            session()->flash('success', 'Dokumen berhasil dihapus.');
+        } else {
+            session()->flash('error', 'Dokumen tidak ditemukan atau Anda tidak memiliki akses.');
+        }
     }
 
     public function render()
