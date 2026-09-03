@@ -59,6 +59,32 @@ class UploadUserProfile extends Component
             }
         }
 
+        // Validasi pembatasan upload duplikat untuk kategori KTP, Pas Foto, dan KK
+        $jenis = JenisFile::find($this->jenis_file_id);
+        if ($jenis) {
+            $jenisNameLower = strtolower($jenis->name);
+            $restrictedKeywords = ['ktp', 'pas foto', 'kk', 'kartu keluarga'];
+
+            $isRestricted = false;
+            foreach ($restrictedKeywords as $keyword) {
+                if (str_contains($jenisNameLower, $keyword)) {
+                    $isRestricted = true;
+                    break;
+                }
+            }
+
+            if ($isRestricted) {
+                $alreadyExists = SourceFile::where('user_id', Auth::id())
+                    ->where('jenis_file_id', $this->jenis_file_id)
+                    ->exists();
+
+                if ($alreadyExists) {
+                    session()->flash('error', 'Dokumen ' . $jenis->name . ' sudah diupload sebelumnya. Tidak dapat mengupload lebih dari satu.');
+                    return;
+                }
+            }
+        }
+
         $path = $this->file->store('dokumen', 'public');
 
         $userName = Auth::user()->name;
