@@ -53,6 +53,9 @@ class EditProfile extends Component
             'tempat_lahir' => 'nullable|string|max:255',
             'tanggal_lahir' => 'nullable|date',
             'photo' => 'nullable|image|max:2048',
+        ], [
+            'photo.max' => 'Ukuran foto profil tidak boleh lebih dari 2MB.',
+            'photo.image' => 'File foto profil harus berupa gambar.',
         ]);
 
         $user = Auth::user();
