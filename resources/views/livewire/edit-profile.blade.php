@@ -134,11 +134,12 @@
                 @enderror
             </div>
             <div class="form-group col-span-2">
-                <label for="photo" class="text-sm font-medium text-success-700">Foto Profil</label>
-                <input type="file" id="photo" wire:model="photo"
+                <label for="photo" class="text-sm font-medium text-success-700">Foto Profil <span class="text-xs text-gray-500 font-normal">(Maksimal 2MB)</span></label>
+                <input type="file" id="photo" wire:model="photo" accept="image/*"
                     class="form-control @error('photo') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5">
+                <p class="text-xs text-gray-500 mt-1">Format yang didukung: JPG, PNG, WEBP. Maksimal 2MB.</p>
                 @error('photo')
-                    <span class="text-danger text-sm">{{ $message }}</span>
+                    <span class="text-red-500 text-sm font-semibold">{{ $message }}</span>
                 @enderror
 
                 @if ($photo)

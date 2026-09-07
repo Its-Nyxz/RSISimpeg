@@ -8,6 +8,7 @@ use App\Models\JenisFile;
 use App\Models\SourceFile;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class UploadUserProfile extends Component
 {
@@ -58,6 +59,32 @@ class UploadUserProfile extends Component
             }
         }
 
+        // Validasi pembatasan upload duplikat untuk kategori KTP, Pas Foto, dan KK
+        $jenis = JenisFile::find($this->jenis_file_id);
+        if ($jenis) {
+            $jenisNameLower = strtolower($jenis->name);
+            $restrictedKeywords = ['ktp', 'pas foto', 'kk', 'kartu keluarga'];
+
+            $isRestricted = false;
+            foreach ($restrictedKeywords as $keyword) {
+                if (str_contains($jenisNameLower, $keyword)) {
+                    $isRestricted = true;
+                    break;
+                }
+            }
+
+            if ($isRestricted) {
+                $alreadyExists = SourceFile::where('user_id', Auth::id())
+                    ->where('jenis_file_id', $this->jenis_file_id)
+                    ->exists();
+
+                if ($alreadyExists) {
+                    session()->flash('error', 'Dokumen ' . $jenis->name . ' sudah diupload sebelumnya. Tidak dapat mengupload lebih dari satu.');
+                    return;
+                }
+            }
+        }
+
         $path = $this->file->store('dokumen', 'public');
 
         $userName = Auth::user()->name;
@@ -79,6 +106,25 @@ class UploadUserProfile extends Component
 
         session()->flash('success', 'File berhasil diupload.');
         $this->reset(['file', 'jenis_file_id', 'mulai', 'selesai', 'isSipStr', 'jumlah_jam']);
+    }
+
+    public function delete($id)
+    {
+        $file = SourceFile::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if ($file) {
+            if ($file->path && Storage::disk('public')->exists($file->path)) {
+                Storage::disk('public')->delete($file->path);
+            }
+
+            $file->delete();
+
+            session()->flash('success', 'Dokumen berhasil dihapus.');
+        } else {
+            session()->flash('error', 'Dokumen tidak ditemukan atau Anda tidak memiliki akses.');
+        }
     }
 
     public function render()
