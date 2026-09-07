@@ -10,7 +10,7 @@
     @if (session()->has('success'))
         <div class="p-2 bg-success-200 text-success-800 rounded">
             {{ session('success') }}
-        </div>
+        </div>            
     @endif
 
     @if (session()->has('error'))

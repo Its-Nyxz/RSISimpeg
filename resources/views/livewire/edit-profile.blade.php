@@ -10,7 +10,7 @@
                 @error('name')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
-            </div>
+            </div>   
 
             {{-- NIP --}}
             <div class="form-group col-span-2 md:col-span-1">
