@@ -54,7 +54,11 @@ class UploadUserProfile extends Component
         // Pastikan jumlah jam diisi manual jika tidak ada tanggal mulai dan selesai
         if ($this->pelatihan && !$this->mulai && !$this->selesai) {
             if (!$this->jumlah_jam) {
-                session()->flash('error', 'Jumlah jam harus diisi jika tidak ada tanggal mulai dan selesai.');
+                $this->dispatch('swal:alert', [
+                    'icon' => 'error',
+                    'title' => 'Gagal',
+                    'text' => 'Jumlah jam harus diisi jika tidak ada tanggal mulai dan selesai.',
+                ]);
                 return;
             }
         }
@@ -79,7 +83,11 @@ class UploadUserProfile extends Component
                     ->exists();
 
                 if ($alreadyExists) {
-                    session()->flash('error', 'Dokumen ' . $jenis->name . ' sudah diupload sebelumnya. Tidak dapat mengupload lebih dari satu.');
+                    $this->dispatch('swal:alert', [
+                        'icon' => 'error',
+                        'title' => 'Gagal Upload',
+                        'text' => 'Dokumen ' . $jenis->name . ' sudah diupload sebelumnya. Tidak dapat mengupload lebih dari satu.',
+                    ]);
                     return;
                 }
             }
@@ -104,7 +112,11 @@ class UploadUserProfile extends Component
             'jumlah_jam' => $this->jumlah_jam,
         ]);
 
-        session()->flash('success', 'File berhasil diupload.');
+        $this->dispatch('swal:alert', [
+            'icon' => 'success',
+            'title' => 'Berhasil',
+            'text' => 'File berhasil diupload.',
+        ]);
         $this->reset(['file', 'jenis_file_id', 'mulai', 'selesai', 'isSipStr', 'jumlah_jam']);
     }
 
@@ -121,9 +133,17 @@ class UploadUserProfile extends Component
 
             $file->delete();
 
-            session()->flash('success', 'Dokumen berhasil dihapus.');
+            $this->dispatch('swal:alert', [
+                'icon' => 'success',
+                'title' => 'Berhasil',
+                'text' => 'Dokumen berhasil dihapus.',
+            ]);
         } else {
-            session()->flash('error', 'Dokumen tidak ditemukan atau Anda tidak memiliki akses.');
+            $this->dispatch('swal:alert', [
+                'icon' => 'error',
+                'title' => 'Gagal',
+                'text' => 'Dokumen tidak ditemukan atau Anda tidak memiliki akses.',
+            ]);
         }
     }
 

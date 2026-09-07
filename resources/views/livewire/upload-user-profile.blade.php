@@ -7,18 +7,6 @@
         </a>
     </div>
 
-    @if (session()->has('success'))
-        <div class="p-2 bg-success-200 text-success-800 rounded">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if (session()->has('error'))
-        <div class="p-2 bg-red-200 text-red-800 rounded">
-            {{ session('error') }}
-        </div>
-    @endif
-
     <div class="space-y-4">
         <div class="flex flex-col gap-2">
             <label>Jenis Dokumen</label>
@@ -28,11 +16,17 @@
                     <option value="{{ $jenis->id }}">{{ $jenis->name }}</option>
                 @endforeach
             </select>
+            @error('jenis_file_id')
+                <span class="text-xs text-red-500">{{ $message }}</span>
+            @enderror
         </div>
 
         <div class="flex flex-col gap-2">
             <label>Upload File</label>
             <input type="file" wire:model.live="file" class="border rounded p-2" />
+            @error('file')
+                <span class="text-xs text-red-500">{{ $message }}</span>
+            @enderror
         </div>
 
         <!-- Muncul input date kalau SIP atau STR -->
@@ -40,20 +34,35 @@
             <div class="flex flex-col gap-2">
                 <label>Tanggal Mulai</label>
                 <input type="date" wire:model.live="mulai" class="border rounded p-2" />
+                @error('mulai')
+                    <span class="text-xs text-red-500">{{ $message }}</span>
+                @enderror
 
                 <label>Tanggal Selesai</label>
                 <input type="date" wire:model.live="selesai" class="border rounded p-2" />
+                @error('selesai')
+                    <span class="text-xs text-red-500">{{ $message }}</span>
+                @enderror
             </div>
         @elseif($pelatihan)
             <div class="flex flex-col gap-2">
                 <label>Tanggal Mulai</label>
                 <input type="date" wire:model.live="mulai" class="border rounded p-2" />
+                @error('mulai')
+                    <span class="text-xs text-red-500">{{ $message }}</span>
+                @enderror
 
                 <label>Tanggal Selesai</label>
                 <input type="date" wire:model.live="selesai" class="border rounded p-2" />
+                @error('selesai')
+                    <span class="text-xs text-red-500">{{ $message }}</span>
+                @enderror
 
                 <label>Jumlah Jam</label>
                 <input type="number" wire:model.live="jumlah_jam" class="border rounded p-2" />
+                @error('jumlah_jam')
+                    <span class="text-xs text-red-500">{{ $message }}</span>
+                @enderror
             </div>
         @endif
 
@@ -81,8 +90,8 @@
                     <div class="flex items-center gap-3">
                         <a href="{{ asset('storage/' . $file->path) }}" target="_blank"
                             class="text-success-700 hover:underline text-sm font-medium">Download</a>
-                        <button wire:click="delete({{ $file->id }})"
-                            wire:confirm="Apakah Anda yakin ingin menghapus dokumen {{ $file->name }}?"
+                        <button type="button"
+                            onclick="confirmAlert('Apakah Anda yakin ingin menghapus dokumen {{ $file->name }}?', 'Ya, hapus!', () => @this.call('delete', {{ $file->id }}))"
                             class="text-red-600 hover:text-red-800 hover:underline text-sm font-medium">
                             Delete
                         </button>
@@ -94,3 +103,29 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+    <script>
+        document.addEventListener('livewire:initialized', () => {
+            Livewire.on('swal:alert', (data) => {
+                const event = Array.isArray(data) ? data[0] : data;
+                const title = event.title || (event.icon === 'success' ? 'Berhasil' : 'Gagal');
+                const message = event.text || event.message || '';
+                const icon = event.icon || 'info';
+
+                if (typeof feedback === 'function') {
+                    feedback(title, message, icon);
+                } else if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: title,
+                        html: message,
+                        icon: icon,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        showConfirmButton: false,
+                    });
+                }
+            });
+        });
+    </script>
+@endpush
