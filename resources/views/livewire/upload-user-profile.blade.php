@@ -78,16 +78,13 @@
                             <p class="text-xs text-gray-600">Jumlah Jam: {{ $file->jumlah_jam }} jam</p>
                         @endif
                     </div>
-
-                    <div class="flex gap-2">
+                    <div class="flex items-center gap-3">
                         <a href="{{ asset('storage/' . $file->path) }}" target="_blank"
-                            class="text-success-700 hover:underline text-sm">Download</a>
-
-                        <button type="button"
-                            wire:click="deleteFile({{ $file->id }})"
-                            wire:confirm="Apakah kamu yakin ingin menghapus dokumen ini?"
-                            class="text-red-600 hover:underline text-sm">
-                            Hapus
+                            class="text-success-700 hover:underline text-sm font-medium">Download</a>
+                        <button wire:click="delete({{ $file->id }})"
+                            wire:confirm="Apakah Anda yakin ingin menghapus dokumen {{ $file->name }}?"
+                            class="text-red-600 hover:text-red-800 hover:underline text-sm font-medium">
+                            Delete
                         </button>
                     </div>
                 </div>
