@@ -1,91 +1,390 @@
-<div class="mt-6">
+<div class="p-4 space-y-6">
 
-    <h2 class="text-xl font-bold">
-        Daftar Dokumen Saya
-    </h2>
+    <div class="flex justify-between items-center mb-5">
 
+        <h1 class="text-2xl font-bold text-success-700">
+            Upload Dokumen
+        </h1>
 
-    <div class="mt-4 space-y-2">
+        <a href="{{ route('userprofile.index') }}"
+            class="flex items-center bg-success-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-success-800 focus:ring-4 focus:outline-none focus:ring-success-300">
 
-        @forelse ($uploadedFiles as $file)
+            <i class="fa-solid fa-arrow-left mr-2"></i>
+            Kembali
 
-            <div class="flex justify-between items-center p-2 border rounded bg-white">
+        </a>
 
-                <div>
-
-                    <p>
-                        <strong>
-                            {{ $file->jenisFile->name ?? '-' }}
-                        </strong>
-                    </p>
-
-                    <p class="text-sm text-gray-700">
-                        {{ $file->name }}
-                    </p>
+    </div>
 
 
-                    @if ($file->mulai && $file->selesai)
+    @if (session()->has('error'))
 
-                        <p class="text-xs text-gray-600">
-                            Berlaku:
-                            {{ $file->mulai }}
-                            s/d
-                            {{ $file->selesai }}
-                        </p>
+        <div class="p-2 bg-red-200 text-red-800 rounded">
+            {{ session('error') }}
+        </div>
 
-                    @endif
+    @endif
 
 
-                    @if ($file->jumlah_jam)
+    <div class="space-y-4">
 
-                        <p class="text-xs text-gray-600">
-                            Jumlah Jam:
-                            {{ $file->jumlah_jam }}
-                            jam
-                        </p>
+        <div class="flex flex-col gap-2">
 
-                    @endif
+            <label>
+                Jenis Dokumen
+            </label>
 
-                </div>
+            <select
+                wire:model.live="jenis_file_id"
+                class="border rounded p-2">
+
+                <option value="">
+                    -- Pilih Dokumen --
+                </option>
+
+                @foreach ($jenisFiles as $jenis)
+
+                    <option value="{{ $jenis->id }}">
+                        {{ $jenis->name }}
+                    </option>
+
+                @endforeach
+
+            </select>
+
+            @error('jenis_file_id')
+
+                <span class="text-red-600 text-sm">
+                    {{ $message }}
+                </span>
+
+            @enderror
+
+        </div>
 
 
-                <div class="flex gap-2">
+        <div class="flex flex-col gap-2">
 
-                    <a href="{{ asset('storage/' . $file->path) }}"
-                        target="_blank"
-                        class="text-success-700 hover:underline text-sm">
+            <label>
+                Upload File
+            </label>
 
-                        Download
+            <input
+                type="file"
+                wire:model="file"
+                class="border rounded p-2"
+            />
 
-                    </a>
+            <div
+                wire:loading
+                wire:target="file"
+                class="text-blue-600 text-sm">
+
+                File sedang diproses...
+
+            </div>
+
+            @error('file')
+
+                <span class="text-red-600 text-sm">
+                    {{ $message }}
+                </span>
+
+            @enderror
+
+            <small class="text-gray-500">
+                Maksimal ukuran file 2 MB
+            </small>
+
+        </div>
 
 
-                    <button type="button"
-                        onclick="confirmRemove(
-                            'Apakah kamu yakin ingin menghapus dokumen ini?',
-                            () => {
-                                $wire.deleteFile({{ $file->id }})
-                            }
-                        )"
-                        class="text-red-600 hover:underline text-sm">
+        @if ($isSipStr)
 
-                        Hapus
+            <div class="flex flex-col gap-2">
 
-                    </button>
+                <label>
+                    Tanggal Mulai
+                </label>
 
-                </div>
+                <input
+                    type="date"
+                    wire:model.live="mulai"
+                    class="border rounded p-2"
+                />
+
+                @error('mulai')
+
+                    <span class="text-red-600 text-sm">
+                        {{ $message }}
+                    </span>
+
+                @enderror
+
+
+                <label>
+                    Tanggal Selesai
+                </label>
+
+                <input
+                    type="date"
+                    wire:model.live="selesai"
+                    class="border rounded p-2"
+                />
+
+                @error('selesai')
+
+                    <span class="text-red-600 text-sm">
+                        {{ $message }}
+                    </span>
+
+                @enderror
 
             </div>
 
 
-        @empty
+        @elseif ($pelatihan)
 
-            <p class="text-gray-700">
-                Belum ada dokumen yang diupload.
-            </p>
+            <div class="flex flex-col gap-2">
 
-        @endforelse
+                <label>
+                    Tanggal Mulai
+                </label>
+
+                <input
+                    type="date"
+                    wire:model.live="mulai"
+                    class="border rounded p-2"
+                />
+
+                @error('mulai')
+
+                    <span class="text-red-600 text-sm">
+                        {{ $message }}
+                    </span>
+
+                @enderror
+
+
+                <label>
+                    Tanggal Selesai
+                </label>
+
+                <input
+                    type="date"
+                    wire:model.live="selesai"
+                    class="border rounded p-2"
+                />
+
+                @error('selesai')
+
+                    <span class="text-red-600 text-sm">
+                        {{ $message }}
+                    </span>
+
+                @enderror
+
+
+                <label>
+                    Jumlah Jam
+                </label>
+
+                <input
+                    type="number"
+                    wire:model.live="jumlah_jam"
+                    class="border rounded p-2"
+                />
+
+                @error('jumlah_jam')
+
+                    <span class="text-red-600 text-sm">
+                        {{ $message }}
+                    </span>
+
+                @enderror
+
+            </div>
+
+        @endif
+
+
+        <button
+            wire:click="save"
+            wire:loading.attr="disabled"
+            wire:target="save,file"
+            class="bg-success-600 text-white px-4 py-2 rounded hover:bg-success-700 transition mt-4">
+
+            <span
+                wire:loading.remove
+                wire:target="save">
+
+                Upload
+
+            </span>
+
+            <span
+                wire:loading
+                wire:target="save">
+
+                Mengupload...
+
+            </span>
+
+        </button>
+
+    </div>
+
+
+    <div class="mt-6">
+
+        <h2 class="text-xl font-bold">
+            Daftar Dokumen Saya
+        </h2>
+
+
+        <div class="mt-4 space-y-2">
+
+            @forelse ($uploadedFiles as $file)
+
+                <div
+                    class="flex justify-between items-center p-2 border rounded bg-white">
+
+                    <div>
+
+                        <p>
+                            <strong>
+                                {{ $file->jenisFile->name ?? '-' }}
+                            </strong>
+                        </p>
+
+                        <p class="text-sm text-gray-700">
+                            {{ $file->name }}
+                        </p>
+
+                        @if ($file->mulai && $file->selesai)
+
+                            <p class="text-xs text-gray-600">
+                                Berlaku:
+                                {{ $file->mulai }}
+                                s/d
+                                {{ $file->selesai }}
+                            </p>
+
+                        @endif
+
+                        @if ($file->jumlah_jam)
+
+                            <p class="text-xs text-gray-600">
+                                Jumlah Jam:
+                                {{ $file->jumlah_jam }} jam
+                            </p>
+
+                        @endif
+
+                    </div>
+
+
+                    <div class="flex gap-2">
+
+                        <a
+                            href="{{ route('userprofile.download', $file->id) }}"
+                            class="text-success-700 hover:underline text-sm">
+
+                            Download
+
+                        </a>
+
+
+                        <button
+                            type="button"
+                            onclick="confirmDeleteFile({{ $file->id }})"
+                            class="text-red-600 hover:underline text-sm">
+
+                            Hapus
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+            @empty
+
+                <p class="text-gray-700">
+                    Belum ada dokumen yang diupload.
+                </p>
+
+            @endforelse
+
+        </div>
 
     </div>
 
 </div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<script>
+
+    document.addEventListener('livewire:init', () => {
+
+        Livewire.on('upload-success', () => {
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: 'Dokumen berhasil diupload.',
+                showConfirmButton: false,
+                timer: 500,
+                timerProgressBar: false
+            });
+
+        });
+
+
+        Livewire.on('delete-success', () => {
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: 'Dokumen berhasil dihapus.',
+                showConfirmButton: false,
+                timer: 500,
+                timerProgressBar: false
+            });
+
+        });
+
+    });
+
+
+    function confirmDeleteFile(id) {
+
+        Swal.fire({
+            title: 'Apakah kamu yakin?',
+            text: 'Dokumen ini akan dihapus secara permanen.',
+            icon: 'warning',
+            width: '300px',
+            showCancelButton: true,
+            confirmButtonColor: '#15803d',
+            cancelButtonColor: '#dc2626',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal',
+            reverseButtons: true
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                @this.call('deleteFile', id);
+
+            }
+
+        });
+
+    }
+
+</script>
+

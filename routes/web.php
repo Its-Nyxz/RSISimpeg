@@ -3,6 +3,7 @@
 
 use App\Models\Kategoripph;
 use App\Models\MasterFungsi;
+use App\Models\SourceFile;
 use App\Livewire\UserProfile;
 use App\Models\MasterJatahCuti;
 use App\Livewire\UploadUserProfile;
@@ -10,6 +11,7 @@ use GuzzleHttp\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\CutiController;
 use App\Http\Controllers\IzinController;
 use App\Http\Controllers\ShiftController;
@@ -154,6 +156,22 @@ Route::middleware('auth')->group(function () {
     Route::get('/userprofile/editusername', action: [UserProfileController::class, 'editUsername'])->name('userprofile.editusername');
     Route::get('keuangan/{user}/potongan/{bulan}/{tahun}', [KeuanganController::class, 'potongan'])->name('keuangan.potongan')->middleware('permission:view-keuangan');
     Route::get('/userprofile/upload', action: [UserProfileController::class, 'upload'])->name('userprofile.upload');
+
+    // Download dokumen milik user yang sedang login (paksa download, bukan preview)
+    Route::get('/userprofile/download/{id}', function ($id) {
+
+        $file = SourceFile::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        if (!Storage::disk('public')->exists($file->path)) {
+            abort(404, 'File tidak ditemukan.');
+        }
+
+        return Storage::disk('public')->download($file->path, $file->name);
+
+    })->name('userprofile.download');
+
     Route::get('/keuangan/export', [KeuanganController::class, 'export'])->name('keuangan.export')->middleware('permission:view-keuangan');
     Route::get('/keuangan/urutan/user/{jenis}', [KeuanganController::class, 'urutanUser'])->name('keuangan.urutan.user')->middleware('permission:view-keuangan');
     Route::resource('keuangan', KeuanganController::class)->middleware('permission:view-keuangan');
