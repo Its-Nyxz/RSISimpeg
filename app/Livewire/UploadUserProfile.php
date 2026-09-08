@@ -120,6 +120,23 @@ class UploadUserProfile extends Component
         $this->reset(['file', 'jenis_file_id', 'mulai', 'selesai', 'isSipStr', 'jumlah_jam']);
     }
 
+    public function download($id)
+    {
+        $file = SourceFile::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if ($file && $file->path && Storage::disk('public')->exists($file->path)) {
+            return Storage::disk('public')->download($file->path, $file->name);
+        }
+
+        $this->dispatch('swal:alert', [
+            'icon' => 'error',
+            'title' => 'Gagal',
+            'text' => 'Dokumen tidak ditemukan atau file tidak tersedia di server.',
+        ]);
+    }
+
     public function delete($id)
     {
         $file = SourceFile::where('id', $id)

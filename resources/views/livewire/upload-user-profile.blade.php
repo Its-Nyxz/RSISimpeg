@@ -88,8 +88,10 @@
                         @endif
                     </div>
                     <div class="flex items-center gap-3">
-                        <a href="{{ asset('storage/' . $file->path) }}" target="_blank"
-                            class="text-success-700 hover:underline text-sm font-medium">Download</a>
+                        <button type="button" wire:click="download({{ $file->id }})"
+                            class="text-success-700 hover:underline text-sm font-medium">
+                            Download
+                        </button>
                         <button type="button"
                             onclick="confirmAlert('Apakah Anda yakin ingin menghapus dokumen {{ $file->name }}?', 'Ya, hapus!', () => @this.call('delete', {{ $file->id }}))"
                             class="text-red-600 hover:text-red-800 hover:underline text-sm font-medium">
