@@ -1,4 +1,3 @@
-
 <div class="p-4 space-y-6">
 
     <div class="flex justify-between items-center mb-5">
@@ -7,16 +6,23 @@
             Upload Dokumen
         </h1>
 
-        <a href="{{ route('userprofile.index') }}"
-            class="flex items-center bg-success-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-success-800 focus:ring-4 focus:outline-none focus:ring-success-300">
-
+        <a
+            href="{{ route('userprofile.index') }}"
+            class="flex items-center bg-success-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-success-800 focus:ring-4 focus:outline-none focus:ring-success-300"
+        >
             <i class="fa-solid fa-arrow-left mr-2"></i>
             Kembali
-
         </a>
 
     </div>
 
+    @if (session()->has('success'))
+
+        <div class="p-2 bg-success-200 text-success-800 rounded">
+            {{ session('success') }}
+        </div>
+
+    @endif
 
     @if (session()->has('error'))
 
@@ -25,7 +31,6 @@
         </div>
 
     @endif
-
 
     <div class="space-y-4">
 
@@ -37,7 +42,8 @@
 
             <select
                 wire:model.live="jenis_file_id"
-                class="border rounded p-2">
+                class="border rounded p-2"
+            >
 
                 <option value="">
                     -- Pilih Dokumen --
@@ -63,7 +69,6 @@
 
         </div>
 
-
         <div class="flex flex-col gap-2">
 
             <label>
@@ -79,10 +84,9 @@
             <div
                 wire:loading
                 wire:target="file"
-                class="text-blue-600 text-sm">
-
+                class="text-blue-600 text-sm"
+            >
                 File sedang diproses...
-
             </div>
 
             @error('file')
@@ -99,7 +103,7 @@
 
         </div>
 
-
+        {{-- SIP / STR --}}
         @if ($isSipStr)
 
             <div class="flex flex-col gap-2">
@@ -122,7 +126,6 @@
 
                 @enderror
 
-
                 <label>
                     Tanggal Selesai
                 </label>
@@ -143,7 +146,7 @@
 
             </div>
 
-
+        {{-- SERTIFIKAT PELATIHAN --}}
         @elseif ($pelatihan)
 
             <div class="flex flex-col gap-2">
@@ -166,7 +169,6 @@
 
                 @enderror
 
-
                 <label>
                     Tanggal Selesai
                 </label>
@@ -184,7 +186,6 @@
                     </span>
 
                 @enderror
-
 
                 <label>
                     Jumlah Jam
@@ -208,33 +209,31 @@
 
         @endif
 
-
         <button
+            type="button"
             wire:click="save"
             wire:loading.attr="disabled"
             wire:target="save,file"
-            class="bg-success-600 text-white px-4 py-2 rounded hover:bg-success-700 transition mt-4">
+            class="bg-success-600 text-white px-4 py-2 rounded hover:bg-success-700 transition mt-4"
+        >
 
             <span
                 wire:loading.remove
-                wire:target="save">
-
+                wire:target="save"
+            >
                 Upload
-
             </span>
 
             <span
                 wire:loading
-                wire:target="save">
-
+                wire:target="save"
+            >
                 Mengupload...
-
             </span>
 
         </button>
 
     </div>
-
 
     <div class="mt-6">
 
@@ -242,13 +241,14 @@
             Daftar Dokumen Saya
         </h2>
 
-
         <div class="mt-4 space-y-2">
 
             @forelse ($uploadedFiles as $file)
 
                 <div
-                    class="flex justify-between items-center p-2 border rounded bg-white">
+                    wire:key="uploaded-file-{{ $file->id }}"
+                    class="flex justify-between items-center p-2 border rounded bg-white"
+                >
 
                     <div>
 
@@ -284,31 +284,35 @@
 
                     </div>
 
-
                     <div class="flex gap-2">
 
                         <a
-                            href="{{ route('userprofile.download', $file->id) }}"
-                            class="text-success-700 hover:underline text-sm">
-
+                            href="{{ asset('storage/' . $file->path) }}"
+                            target="_blank"
+                            class="text-success-700 hover:underline text-sm"
+                        >
                             Download
-
                         </a>
-
 
                         <button
                             type="button"
-                            onclick="confirmDeleteFile({{ $file->id }})"
-                            class="text-red-600 hover:underline text-sm">
-
+                            onclick="confirmRemove(
+                                'Dokumen ini akan dihapus secara permanen!',
+                                () => {
+                                    Livewire.find('{{ $this->getId() }}').call(
+                                        'deleteFile',
+                                        {{ $file->id }}
+                                    );
+                                }
+                            )"
+                            class="text-red-600 hover:underline text-sm"
+                        >
                             Hapus
-
                         </button>
 
                     </div>
 
                 </div>
-
 
             @empty
 
@@ -323,69 +327,3 @@
     </div>
 
 </div>
-
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-
-<script>
-
-    document.addEventListener('livewire:init', () => {
-
-        Livewire.on('upload-success', () => {
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: 'Dokumen berhasil diupload.',
-                showConfirmButton: false,
-                timer: 500,
-                timerProgressBar: false
-            });
-
-        });
-
-
-        Livewire.on('delete-success', () => {
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: 'Dokumen berhasil dihapus.',
-                showConfirmButton: false,
-                timer: 500,
-                timerProgressBar: false
-            });
-
-        });
-
-    });
-
-
-    function confirmDeleteFile(id) {
-
-        Swal.fire({
-            title: 'Apakah kamu yakin?',
-            text: 'Dokumen ini akan dihapus secara permanen.',
-            icon: 'warning',
-            width: '300px',
-            showCancelButton: true,
-            confirmButtonColor: '#15803d',
-            cancelButtonColor: '#dc2626',
-            confirmButtonText: 'Ya, hapus!',
-            cancelButtonText: 'Batal',
-            reverseButtons: true
-        }).then((result) => {
-
-            if (result.isConfirmed) {
-
-                @this.call('deleteFile', id);
-
-            }
-
-        });
-
-    }
-
-</script>
-
