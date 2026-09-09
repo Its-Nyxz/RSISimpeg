@@ -69,12 +69,6 @@ class UploadUserProfile extends Component
 
         $jenisFile = JenisFile::find($this->jenis_file_id);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Cek Dokumen Duplikat
-        |--------------------------------------------------------------------------
-        */
-
         if ($jenisFile) {
             $namaJenisFile = strtolower(trim($jenisFile->name));
 
@@ -86,14 +80,8 @@ class UploadUserProfile extends Component
             ];
 
             if (in_array($namaJenisFile, $dokumenTerbatas)) {
-                $sudahAda = SourceFile::where(
-                    'user_id',
-                    Auth::id()
-                )
-                    ->where(
-                        'jenis_file_id',
-                        $this->jenis_file_id
-                    )
+                $sudahAda = SourceFile::where('user_id', Auth::id())
+                    ->where('jenis_file_id', $this->jenis_file_id)
                     ->exists();
 
                 if ($sudahAda) {
@@ -110,12 +98,6 @@ class UploadUserProfile extends Component
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Validasi Khusus Sertifikat Pelatihan
-        |--------------------------------------------------------------------------
-        */
-
         if (
             $this->pelatihan &&
             !$this->mulai &&
@@ -131,12 +113,6 @@ class UploadUserProfile extends Component
 
             return;
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Simpan File
-        |--------------------------------------------------------------------------
-        */
 
         $path = $this->file->store(
             'dokumen',
@@ -166,24 +142,12 @@ class UploadUserProfile extends Component
             'jumlah_jam' => $this->jumlah_jam,
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Notifikasi Berhasil
-        |--------------------------------------------------------------------------
-        */
-
         $this->dispatch(
             'feedback',
             title: 'Berhasil',
             message: 'File berhasil diupload.',
             icon: 'success'
         );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Reset Form
-        |--------------------------------------------------------------------------
-        */
 
         $this->reset([
             'file',
@@ -199,23 +163,11 @@ class UploadUserProfile extends Component
         $this->pelatihan = false;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Hapus Dokumen
-    |--------------------------------------------------------------------------
-    */
-
     public function deleteFile($id)
     {
         $file = SourceFile::where('id', $id)
             ->where('user_id', Auth::id())
             ->first();
-
-        /*
-        |--------------------------------------------------------------------------
-        | Jika Dokumen Tidak Ditemukan
-        |--------------------------------------------------------------------------
-        */
 
         if (!$file) {
             $this->dispatch(
@@ -228,12 +180,6 @@ class UploadUserProfile extends Component
             return;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Hapus File Fisik
-        |--------------------------------------------------------------------------
-        */
-
         if ($file->path) {
             $disk = Storage::disk('public');
 
@@ -242,27 +188,9 @@ class UploadUserProfile extends Component
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Hapus Data Dari Database
-        |--------------------------------------------------------------------------
-        */
-
         $file->delete();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Refresh Data Dokumen
-        |--------------------------------------------------------------------------
-        */
-
         $this->resetErrorBag();
-
-        /*
-        |--------------------------------------------------------------------------
-        | Notifikasi Berhasil
-        |--------------------------------------------------------------------------
-        */
 
         $this->dispatch(
             'feedback',

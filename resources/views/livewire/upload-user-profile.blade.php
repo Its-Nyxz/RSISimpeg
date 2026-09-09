@@ -60,11 +60,9 @@
             </select>
 
             @error('jenis_file_id')
-
-                <span class="text-red-600 text-sm">
+                <span class="text-xs text-red-500">
                     {{ $message }}
                 </span>
-
             @enderror
 
         </div>
@@ -77,7 +75,7 @@
 
             <input
                 type="file"
-                wire:model="file"
+                wire:model.live="file"
                 class="border rounded p-2"
             />
 
@@ -90,16 +88,10 @@
             </div>
 
             @error('file')
-
-                <span class="text-red-600 text-sm">
+                <span class="text-xs text-red-500">
                     {{ $message }}
                 </span>
-
             @enderror
-
-            <small class="text-gray-500">
-                Maksimal ukuran file 2 MB
-            </small>
 
         </div>
 
