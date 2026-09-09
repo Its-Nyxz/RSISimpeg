@@ -23,7 +23,10 @@ class UploadUserProfile extends Component
     public $pelatihan;
     public $jumlah_jam;
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> cefe0f4b2c08c95e5d71f44753c3db588313b18d
     public function mount()
     {
         $this->jenisFiles = JenisFile::all();
@@ -32,19 +35,84 @@ class UploadUserProfile extends Component
     public function updatedJenisFileId()
     {
         $jenis = JenisFile::find($this->jenis_file_id);
+<<<<<<< HEAD
+
+=======
+>>>>>>> cefe0f4b2c08c95e5d71f44753c3db588313b18d
         $this->isSipStr = $jenis && (
             str_contains(strtolower($jenis->name), 'sip') ||
             str_contains(strtolower($jenis->name), 'str')
         );
 
+<<<<<<< HEAD
+        $this->pelatihan = $jenis &&
+            str_contains(strtolower($jenis->name), 'sertifikat pelatihan');
+=======
         // Menentukan apakah jenis file adalah Sertifikat Pelatihan
         $this->pelatihan = $jenis && str_contains(strtolower($jenis->name), 'sertifikat pelatihan');
+>>>>>>> cefe0f4b2c08c95e5d71f44753c3db588313b18d
     }
 
     public function save()
     {
         $this->validate([
             'jenis_file_id' => 'required|exists:jenis_files,id',
+<<<<<<< HEAD
+            'file' => 'required|file|max:5120',
+            'mulai' => $this->isSipStr ? 'required|date' : 'nullable',
+            'selesai' => $this->isSipStr
+                ? 'required|date|after_or_equal:mulai'
+                : 'nullable',
+            'jumlah_jam' => $this->pelatihan
+                ? 'required|integer'
+                : 'nullable|integer',
+        ]);
+
+        $jenisFile = JenisFile::find($this->jenis_file_id);
+
+        if ($jenisFile) {
+            $namaJenisFile = strtolower(trim($jenisFile->name));
+
+            $dokumenTerbatas = [
+                'ktp',
+                'pas foto',
+                'kk',
+            ];
+
+            if (in_array($namaJenisFile, $dokumenTerbatas)) {
+
+                $sudahAda = SourceFile::where('user_id', Auth::id())
+                    ->where('jenis_file_id', $this->jenis_file_id)
+                    ->exists();
+
+                if ($sudahAda) {
+
+                    $this->dispatch(
+                        'feedback',
+                        title: 'Upload Gagal',
+                        message: $jenisFile->name .
+                            ' sudah pernah di-upload. Silakan hapus file lama terlebih dahulu jika ingin menggantinya.',
+                        icon: 'error'
+                    );
+
+                    return;
+                }
+            }
+        }
+
+        if ($this->pelatihan && !$this->mulai && !$this->selesai) {
+
+            if (!$this->jumlah_jam) {
+
+                $this->dispatch(
+                    'feedback',
+                    title: 'Upload Gagal',
+                    message: 'Jumlah jam harus diisi jika tidak ada tanggal mulai dan selesai.',
+                    icon: 'error'
+                );
+
+                return;
+=======
             'file' => 'required|file|max:5120', // Max 5MB
             'mulai' => $this->isSipStr ? 'required|date' : 'nullable',
             'selesai' => $this->isSipStr ? 'required|date|after_or_equal:mulai' : 'nullable',
@@ -82,15 +150,28 @@ class UploadUserProfile extends Component
                     session()->flash('error', 'Dokumen ' . $jenis->name . ' sudah diupload sebelumnya. Tidak dapat mengupload lebih dari satu.');
                     return;
                 }
+>>>>>>> cefe0f4b2c08c95e5d71f44753c3db588313b18d
             }
         }
 
         $path = $this->file->store('dokumen', 'public');
 
         $userName = Auth::user()->name;
+<<<<<<< HEAD
+
+        $jenisFileName = JenisFile::find(
+            $this->jenis_file_id
+        )?->name ?? 'Dokumen';
+
+        $newFileName =
+            $userName . ' - ' .
+            $jenisFileName . '.' .
+            $this->file->getClientOriginalExtension();
+=======
         $jenisFileName = JenisFile::find($this->jenis_file_id)?->name ?? 'Dokumen';
 
         $newFileName = $userName . ' - ' . $jenisFileName . '.' . $this->file->getClientOriginalExtension();
+>>>>>>> cefe0f4b2c08c95e5d71f44753c3db588313b18d
 
         SourceFile::create([
             'user_id' => Auth::id(),
@@ -104,16 +185,68 @@ class UploadUserProfile extends Component
             'jumlah_jam' => $this->jumlah_jam,
         ]);
 
+<<<<<<< HEAD
+        $this->dispatch(
+            'feedback',
+            title: 'Berhasil',
+            message: 'File berhasil diupload.',
+            icon: 'success'
+        );
+
+        $this->reset([
+            'file',
+            'jenis_file_id',
+            'mulai',
+            'selesai',
+            'isSipStr',
+            'jumlah_jam'
+        ]);
+    }
+
+    public function deleteFile($id)
+    {
+
+=======
         session()->flash('success', 'File berhasil diupload.');
         $this->reset(['file', 'jenis_file_id', 'mulai', 'selesai', 'isSipStr', 'jumlah_jam']);
     }
 
     public function delete($id)
     {
+>>>>>>> cefe0f4b2c08c95e5d71f44753c3db588313b18d
         $file = SourceFile::where('id', $id)
             ->where('user_id', Auth::id())
             ->first();
 
+<<<<<<< HEAD
+        if (!$file) {
+
+            $this->dispatch(
+                'feedback',
+                title: 'Gagal',
+                message: 'Dokumen tidak ditemukan atau Anda tidak memiliki akses.',
+                icon: 'error'
+            );
+
+            return;
+        }
+
+        if (
+            $file->path &&
+            Storage::disk('public')->exists($file->path)
+        ) {
+            Storage::disk('public')->delete($file->path);
+        }
+
+        $file->delete();
+
+        $this->dispatch(
+            'feedback',
+            title: 'Berhasil',
+            message: 'Dokumen berhasil dihapus.',
+            icon: 'success'
+        );
+=======
         if ($file) {
             if ($file->path && Storage::disk('public')->exists($file->path)) {
                 Storage::disk('public')->delete($file->path);
@@ -125,14 +258,26 @@ class UploadUserProfile extends Component
         } else {
             session()->flash('error', 'Dokumen tidak ditemukan atau Anda tidak memiliki akses.');
         }
+>>>>>>> cefe0f4b2c08c95e5d71f44753c3db588313b18d
     }
 
     public function render()
     {
+<<<<<<< HEAD
+        $uploadedFiles = SourceFile::where(
+            'user_id',
+            Auth::id()
+        )->get();
+=======
         $uploadedFiles = SourceFile::where('user_id', Auth::id())->get();
+>>>>>>> cefe0f4b2c08c95e5d71f44753c3db588313b18d
 
         return view('livewire.upload-user-profile', [
             'uploadedFiles' => $uploadedFiles,
         ]);
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> cefe0f4b2c08c95e5d71f44753c3db588313b18d
