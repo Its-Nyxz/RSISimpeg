@@ -17,7 +17,6 @@ use App\Http\Controllers\IzinController;
 use App\Http\Controllers\ShiftController;
 use App\Http\Controllers\TimerController;
 use App\Http\Controllers\UsersController;
-use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HolidaysController;
 use App\Http\Controllers\KenaikanController;
@@ -48,7 +47,6 @@ use App\Http\Controllers\MasterKhususController;
 use App\Http\Controllers\TukinJabatanController;
 use App\Http\Controllers\DetailJabatanController;
 use App\Http\Controllers\JadwalAbsensiController;
-use App\Http\Controllers\MasterAbsensiController;
 
 use App\Http\Controllers\MasterJabatanController;
 use App\Http\Controllers\DetailKaryawanController;
@@ -103,7 +101,6 @@ Route::middleware('auth')->group(function () {
     Route::get('users/edit/{id}', [UsersController::class, 'edit'])->name('users.edit');
     Route::put('users/resetPassword/{id}', [UserProfile::class, 'resetPassword'])->name('users.resetPassword');
     Route::delete('users/destroy/{id}', [UserProfile::class, 'destroy'])->name('users.destroy');
-    Route::resource('absensi', AbsensiController::class)->middleware('permission:absen');
     Route::resource('shift', ShiftController::class);
     // Route::resource('opsi', OpsiAbsenController::class);
     Route::resource('jabatan', MasterJabatanController::class);
@@ -120,7 +117,6 @@ Route::middleware('auth')->group(function () {
     Route::resource('jabatanperizinan', PerizinanJabatanController::class)->middleware('permission:hak-akses');
     Route::resource('notification', DataNotifikasiController::class);
 
-    Route::resource('absensi', MasterAbsensiController::class)->middleware('permission:absen');
     Route::get('/jadwal/template', [JadwalAbsensiController::class, 'export'])->name('jadwal.template')->middleware('permission:template-jadwal');
     Route::get('jadwal/{tipe}/{id}', [JadwalAbsensiController::class, 'create'])->middleware('permission:tambah-jadwal');
     Route::resource('jadwal', JadwalAbsensiController::class);
@@ -128,7 +124,6 @@ Route::middleware('auth')->group(function () {
     Route::resource('kenaikan', KenaikanController::class)->middleware('permission:view-kenaikan');
     Route::resource('kenaikankontrak', KenaikanKontrakController::class)->middleware('permission:view-kenaikan');
     Route::resource('penilaian', PenilaianPekerjaController::class)->middleware('permission:view-poin-penilaian');
-    Route::resource('jabatanperizinan', PerizinanJabatanController::class)->middleware('permission:hak-akses');
     Route::resource('detail', DetailJabatanController::class);
 
     Route::get('/datakaryawan/export', [DataKaryawanController::class, 'export'])->middleware('permission:view-kepegawaian')
@@ -175,7 +170,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/keuangan/export', [KeuanganController::class, 'export'])->name('keuangan.export')->middleware('permission:view-keuangan');
     Route::get('/keuangan/urutan/user/{jenis}', [KeuanganController::class, 'urutanUser'])->name('keuangan.urutan.user')->middleware('permission:view-keuangan');
     Route::resource('keuangan', KeuanganController::class)->middleware('permission:view-keuangan');
-    Route::resource('userprofile', UserProfileController::class);
+    Route::get('userprofile', [UserProfileController::class, 'index'])->name('userprofile.index');
     Route::resource('proposionalitas', ProposionalitasPointController::class);
     Route::resource('poinperan', PointPeranController::class)->middleware('permission:view-poin-peran');
     Route::resource('tukinjabatan', TukinJabatanController::class);
@@ -214,7 +209,6 @@ Route::middleware('auth')->group(function () {
     Route::get('pengajuan/{tipe}', [PengajuanController::class, 'index'])->name('pengajuan.index');
     Route::get('pph/{tipe}/{pph}', [KategoripphController::class, 'create'])->middleware('permission:kategori-pph');
     Route::resource('pph', KategoripphController::class)->middleware('permission:kategori-pph');
-    Route::get('pph/{id}', [KategoriPphController::class, 'show'])->name('pph.show')->middleware('permission:kategori-pph');
     Route::resource('overridelokasi', OverrideLokasiController::class)->middleware('permission:override-lokasi');
 });
 
