@@ -17,16 +17,6 @@
 
     </div>
 
-
-    @if (session()->has('error'))
-
-        <div class="p-2 bg-red-200 text-red-800 rounded">
-            {{ session('error') }}
-        </div>
-
-    @endif
-
-
     <div class="space-y-4">
 
         <div class="flex flex-col gap-2">
@@ -52,51 +42,18 @@
                 @endforeach
 
             </select>
-
             @error('jenis_file_id')
-
-                <span class="text-red-600 text-sm">
-                    {{ $message }}
-                </span>
-
+                <span class="text-xs text-red-500">{{ $message }}</span>
             @enderror
-
         </div>
 
 
         <div class="flex flex-col gap-2">
-
-            <label>
-                Upload File
-            </label>
-
-            <input
-                type="file"
-                wire:model="file"
-                class="border rounded p-2"
-            />
-
-            <div
-                wire:loading
-                wire:target="file"
-                class="text-blue-600 text-sm">
-
-                File sedang diproses...
-
-            </div>
-
+            <label>Upload File</label>
+            <input type="file" wire:model.live="file" class="border rounded p-2" />
             @error('file')
-
-                <span class="text-red-600 text-sm">
-                    {{ $message }}
-                </span>
-
+                <span class="text-xs text-red-500">{{ $message }}</span>
             @enderror
-
-            <small class="text-gray-500">
-                Maksimal ukuran file 2 MB
-            </small>
-
         </div>
 
 
