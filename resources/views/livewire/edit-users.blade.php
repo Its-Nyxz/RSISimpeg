@@ -7,8 +7,7 @@
                 <div class="form-group col-span-2">
                     <label for="nip" class="text-sm font-medium text-success-700">Nomor Induk Pegawai</label>
                     <input type="text" id="nip" wire:model="nip"
-                        class="form-control @error('nip') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-gray-200 text-gray-600 cursor-not-allowed  p-2.5"
-                        readonly>
+                        class="form-control @error('nip') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-gray-200 text-gray-600 cursor-not-allowed  p-2.5">
                     @error('nip')
                         <span class="text-danger-600 text-sm">{{ $message }}</span>
                     @enderror

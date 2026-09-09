@@ -23,7 +23,6 @@ class UploadUserProfile extends Component
     public $pelatihan;
     public $jumlah_jam;
 
-
     public function mount()
     {
         $this->jenisFiles = JenisFile::all();
@@ -32,6 +31,7 @@ class UploadUserProfile extends Component
     public function updatedJenisFileId()
     {
         $jenis = JenisFile::find($this->jenis_file_id);
+
         $this->isSipStr = $jenis && (
             str_contains(strtolower($jenis->name), 'sip') ||
             str_contains(strtolower($jenis->name), 'str')
@@ -117,6 +117,26 @@ class UploadUserProfile extends Component
             'title' => 'Berhasil',
             'text' => 'File berhasil diupload.',
         ]);
+        $this->dispatch(
+            'feedback',
+            title: 'Berhasil',
+            message: 'File berhasil diupload.',
+            icon: 'success'
+        );
+
+        $this->reset([
+            'file',
+            'jenis_file_id',
+            'mulai',
+            'selesai',
+            'isSipStr',
+            'jumlah_jam'
+        ]);
+    }
+
+    public function deleteFile($id)
+    {
+
         $this->reset(['file', 'jenis_file_id', 'mulai', 'selesai', 'isSipStr', 'jumlah_jam']);
     }
 
@@ -139,6 +159,7 @@ class UploadUserProfile extends Component
 
     public function delete($id)
     {
+
         $file = SourceFile::where('id', $id)
             ->where('user_id', Auth::id())
             ->first();
