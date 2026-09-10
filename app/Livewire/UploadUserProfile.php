@@ -52,7 +52,7 @@ class UploadUserProfile extends Component
     {
         $this->validate([
             'jenis_file_id' => 'required|exists:jenis_files,id',
-            'file' => 'required|file|max:5120',
+            'file' => 'required|file|max:2048',
 
             'mulai' => $this->isSipStr
                 ? 'required|date'
