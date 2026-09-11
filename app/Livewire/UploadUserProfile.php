@@ -8,6 +8,7 @@ use App\Models\SourceFile;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class UploadUserProfile extends Component
 {
@@ -70,19 +71,22 @@ class UploadUserProfile extends Component
         $jenisFile = JenisFile::find($this->jenis_file_id);
 
         if ($jenisFile) {
-            $namaJenisFile = strtolower(trim($jenisFile->name));
-            $dokumenTerbatas = [
-                'ktp',
-                'pas foto',
-                'kk',
-            ];
 
-            if (in_array($namaJenisFile, $dokumenTerbatas)) {
+            $namaJenisFile = strtolower(trim($jenisFile->name));
+
+            $isDokumenTerbatas =
+                str_contains($namaJenisFile, 'id/ktp') ||
+                str_contains($namaJenisFile, 'pas foto') ||
+                str_contains($namaJenisFile, 'kartu keluarga');
+
+            if ($isDokumenTerbatas) {
+
                 $sudahAda = SourceFile::where('user_id', Auth::id())
                     ->where('jenis_file_id', $this->jenis_file_id)
                     ->exists();
 
                 if ($sudahAda) {
+
                     $this->dispatch(
                         'feedback',
                         title: 'Upload Gagal',
@@ -102,6 +106,7 @@ class UploadUserProfile extends Component
             !$this->selesai &&
             !$this->jumlah_jam
         ) {
+
             $this->dispatch(
                 'feedback',
                 title: 'Upload Gagal',
@@ -152,13 +157,52 @@ class UploadUserProfile extends Component
             'jenis_file_id',
             'mulai',
             'selesai',
-            'isSipStr',
-            'pelatihan',
             'jumlah_jam',
         ]);
 
         $this->isSipStr = false;
         $this->pelatihan = false;
+        $this->resetErrorBag();
+    }
+
+    public function downloadFile($id)
+    {
+        $file = SourceFile::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$file || !$file->path) {
+
+            $this->dispatch(
+                'feedback',
+                title: 'Download Gagal',
+                message: 'Dokumen tidak ditemukan atau Anda tidak memiliki akses.',
+                icon: 'error'
+            );
+
+            return;
+        }
+
+        $disk = Storage::disk('public');
+
+        if (!$disk->exists($file->path)) {
+
+            $this->dispatch(
+                'feedback',
+                title: 'Download Gagal',
+                message: 'File tidak ditemukan di penyimpanan.',
+                icon: 'error'
+            );
+
+            return;
+        }
+
+        $fullPath = $disk->path($file->path);
+
+        return response()->download(
+            $fullPath,
+            $file->name
+        );
     }
 
     public function deleteFile($id)
@@ -168,6 +212,7 @@ class UploadUserProfile extends Component
             ->first();
 
         if (!$file) {
+
             $this->dispatch(
                 'feedback',
                 title: 'Gagal',
@@ -179,6 +224,7 @@ class UploadUserProfile extends Component
         }
 
         if ($file->path) {
+
             $disk = Storage::disk('public');
 
             if ($disk->exists($file->path)) {
@@ -188,6 +234,16 @@ class UploadUserProfile extends Component
 
         $file->delete();
 
+        $this->reset([
+            'file',
+            'jenis_file_id',
+            'mulai',
+            'selesai',
+            'jumlah_jam',
+        ]);
+
+        $this->isSipStr = false;
+        $this->pelatihan = false;
         $this->resetErrorBag();
 
         $this->dispatch(
