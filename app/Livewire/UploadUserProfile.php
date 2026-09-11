@@ -8,7 +8,6 @@ use App\Models\SourceFile;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class UploadUserProfile extends Component
 {
@@ -199,9 +198,11 @@ class UploadUserProfile extends Component
 
         $fullPath = $disk->path($file->path);
 
+        $downloadName = str_replace(['/', '\\'], '-', $file->name);
+
         return response()->download(
             $fullPath,
-            $file->name
+            $downloadName
         );
     }
 
