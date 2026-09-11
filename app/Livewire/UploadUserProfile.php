@@ -71,12 +71,10 @@ class UploadUserProfile extends Component
 
         if ($jenisFile) {
             $namaJenisFile = strtolower(trim($jenisFile->name));
-
             $dokumenTerbatas = [
                 'ktp',
                 'pas foto',
                 'kk',
-                'kartu keluarga',
             ];
 
             if (in_array($namaJenisFile, $dokumenTerbatas)) {
