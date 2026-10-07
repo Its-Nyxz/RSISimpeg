@@ -65,6 +65,28 @@
             </div>
         @endif
 
+        {{-- Tombol Isi Form KPI (Warna Kuning & Teks Selalu Tampil) --}}
+        <div class="relative group">
+            <!-- Mobile -->
+            <a href="{{ route('kpi.create', ['userId' => $user->id]) }}"
+                class="sm:hidden w-11 h-11 flex items-center justify-center rounded-lg bg-yellow-100 text-yellow-900 border border-yellow-300 hover:bg-yellow-500 hover:text-white active:bg-yellow-600 active:text-white focus:bg-yellow-100 focus:text-yellow-900 transition shadow-sm"
+                aria-label="Isi Form KPI">
+                <i class="fa-solid fa-file-signature text-lg"></i>
+            </a>
+            <div
+                class="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 text-xs font-medium text-white bg-gray-900 rounded shadow opacity-0 group-hover:opacity-100 transition whitespace-nowrap z-20">
+                Isi Form KPI
+                <div class="tooltip-arrow" data-popper-arrow></div>
+            </div>
+
+            <!-- Desktop -->
+            <a href="{{ route('kpi.create', ['userId' => $user->id]) }}"
+                class="hidden sm:flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-lg bg-yellow-100 text-yellow-900 border border-yellow-300 hover:bg-yellow-500 hover:text-white active:bg-yellow-600 active:text-white focus:bg-yellow-100 focus:text-yellow-900 transition shadow-sm">
+                <i class="fa-solid fa-file-signature text-base"></i>
+                <span class="font-medium">Isi Form KPI</span>
+            </a>
+        </div>
+
         <div class="relative group">
             <!-- Mobile -->
             <a href="{{ route('datakaryawan.index') }}"
@@ -427,6 +449,61 @@
                 </div>
             </form>
         </x-modal>
+
+        {{-- Modal Preview Dokumen Bawaan --}}
+        <x-modal name="modal-preview-dokumen" maxWidth="2xl" :show="false">
+            <div class="flex flex-col max-h-[90vh] font-sans">
+                {{-- Header Modal --}}
+                <div class="px-5 py-3.5 bg-success-400 text-success-950 flex justify-between items-center rounded-t-lg flex-shrink-0">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-file-lines text-lg text-success-950"></i>
+                        <h3 class="font-extrabold text-sm sm:text-base uppercase tracking-tight text-success-950">Pratinjau Dokumen</h3>
+                    </div>
+                    <button type="button" x-on:click="$dispatch('close-modal', 'modal-preview-dokumen')"
+                        class="text-success-950 hover:text-red-700 text-xl font-bold p-1 leading-none transition">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                {{-- Box Info Nama Dokumen (Jelas & Kontras) --}}
+                <div class="bg-success-50 p-4 border-b border-success-200 flex-shrink-0">
+                    <span class="block text-[10px] font-bold text-success-800 uppercase tracking-wider">Nama File / Dokumen</span>
+                    <h4 class="text-base font-extrabold text-gray-900 leading-tight mt-0.5 break-all">{{ $previewName ?? 'Dokumen' }}</h4>
+                </div>
+
+                {{-- Konten Dokumen --}}
+                <div class="p-4 overflow-y-auto flex-1 flex items-center justify-center bg-gray-100 min-h-[350px]">
+                    @if ($previewUrl)
+                        @if (in_array($previewExtension, ['jpg', 'jpeg', 'png', 'webp', 'gif']))
+                            <img src="{{ $previewUrl }}" alt="{{ $previewName }}" class="max-h-[65vh] max-w-full rounded-lg shadow-md object-contain border border-gray-200" />
+                        @elseif ($previewExtension === 'pdf')
+                            <iframe src="{{ $previewUrl }}" class="w-full h-[65vh] rounded-lg border border-gray-300 bg-white"></iframe>
+                        @else
+                            <div class="text-center p-6 space-y-3">
+                                <i class="fa-solid fa-file-arrow-down text-4xl text-gray-400"></i>
+                                <p class="text-sm text-gray-700 font-medium">Dokumen (.{{ $previewExtension }}) tidak dapat ditampilkan langsung.</p>
+                                <a href="{{ $previewUrl }}" download="{{ $previewName }}" 
+                                    class="inline-flex items-center gap-1.5 px-4 py-2 bg-success-600 text-white rounded-lg text-xs font-bold hover:bg-success-700 transition">
+                                    <i class="fa-solid fa-download"></i> Unduh File
+                                </a>
+                            </div>
+                        @endif
+                    @else
+                        <div class="text-center py-10 text-gray-500 font-medium text-sm">
+                            Memuat pratinjau dokumen...
+                        </div>
+                    @endif
+                </div>
+
+                {{-- Footer Modal --}}
+                <div class="px-5 py-3 bg-gray-50 border-t border-gray-200 flex justify-end rounded-b-lg flex-shrink-0">
+                    <button type="button" x-on:click="$dispatch('close-modal', 'modal-preview-dokumen')"
+                        class="px-5 py-2 bg-success-600 hover:bg-success-700 text-white rounded-lg text-xs font-bold shadow-sm transition">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </x-modal>
         @push('scripts')
             <script type="module">
                 Livewire.on('konfirmasi-phk', () => {
@@ -787,6 +864,172 @@
                         </div>
                     </div>
                 @endif
+
+                {{-- Kolom Riwayat Dokumen --}}
+                <div class="w-full">
+                    <div class="text-lg font-semibold mb-2">Riwayat Dokumen</div>
+                    <div class="relative overflow-x-auto max-w-full shadow-md sm:rounded-lg">
+                        <div class="max-h-96 overflow-y-auto">
+                            <table class="w-full text-xs sm:text-sm text-center text-gray-700">
+                                <thead class="uppercase bg-success-400 text-success-900 sticky top-0 z-10">
+                                    <tr>
+                                        <th class="px-2 py-2 sm:px-4">Nama Karyawan</th>
+                                        <th class="px-2 py-2 sm:px-4">Jenis Dokumen</th>
+                                        <th class="px-2 py-2 sm:px-4">Tanggal Mulai</th>
+                                        <th class="px-2 py-2 sm:px-4">Tanggal Selesai</th>
+                                        <th class="px-2 py-2 sm:px-4">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($listRiwayatDokumen as $dokumen)
+                                        <tr
+                                            class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
+                                            <td class="px-2 py-2 sm:px-4 font-medium text-gray-900 text-left sm:text-center">
+                                                <div>{{ $dokumen->user->name ?? $user->name }}</div>
+                                                @if(isset($dokumen->user->unitKerja->nama) || isset($dokumen->user->jabatan->nama) || isset($dokumen->user->kategorijabatan->nama))
+                                                    <div class="text-[11px] text-gray-500 font-normal">
+                                                        {{ $dokumen->user->unitKerja->nama ?? '' }}
+                                                        @if(isset($dokumen->user->unitKerja->nama) && (isset($dokumen->user->jabatan->nama) || isset($dokumen->user->kategorijabatan->nama))) • @endif
+                                                        {{ $dokumen->user->jabatan->nama ?? $dokumen->user->kategorijabatan->nama ?? '' }}
+                                                    </div>
+                                                @endif
+                                            </td>
+                                            <td class="px-2 py-2 sm:px-4">
+                                                <span class="font-semibold">{{ $dokumen->jenisFile->name ?? '-' }}</span>
+                                            </td>
+                                            <td class="px-2 py-2 sm:px-4">
+                                                {{ $dokumen->mulai ? formatDate($dokumen->mulai) : '-' }}
+                                            </td>
+                                            <td class="px-2 py-2 sm:px-4">
+                                                {{ $dokumen->selesai ? formatDate($dokumen->selesai) : '-' }}
+                                            </td>
+                                            <td class="px-2 py-2 sm:px-4">
+                                                <div class="flex items-center justify-center gap-1.5">
+                                                    {{-- Tombol Preview (Pop-up Modal) --}}
+                                                    <button type="button"
+                                                        wire:click="setPreviewDokumen({{ $dokumen->id }})"
+                                                        class="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs transition inline-flex items-center gap-1 cursor-pointer"
+                                                        title="Lihat / Preview Dokumen">
+                                                        <i class="fa-solid fa-eye"></i>
+                                                    </button>
+
+                                                    {{-- Tombol Download --}}
+                                                    <button type="button"
+                                                        wire:click="downloadDokumen({{ $dokumen->id }})"
+                                                        class="px-2 py-1 bg-success-600 hover:bg-success-700 text-white rounded text-xs transition inline-flex items-center gap-1"
+                                                        title="Download Dokumen">
+                                                        <i class="fa-solid fa-download"></i>
+                                                    </button>
+
+                                                    {{-- Tombol Delete --}}
+                                                    <button type="button"
+                                                        onclick="confirmAlert('Apakah Anda yakin ingin menghapus dokumen {{ $dokumen->name }}?', 'Ya, hapus!', () => @this.call('deleteDokumen', {{ $dokumen->id }}))"
+                                                        class="px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs transition inline-flex items-center gap-1"
+                                                        title="Hapus Dokumen">
+                                                        <i class="fa-solid fa-trash-can"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center py-2">Belum ada dokumen yang diupload.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Kolom Riwayat Penilaian KPI --}}
+                <div class="w-full">
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                            Riwayat Penilaian KPI
+                        </div>
+                        <a href="{{ route('kpi.create', ['userId' => $user->id]) }}"
+                            class="px-3 py-1.5 bg-yellow-100 text-yellow-900 border border-yellow-300 hover:bg-yellow-500 hover:text-white active:bg-yellow-600 active:text-white focus:bg-yellow-100 focus:text-yellow-900 rounded-lg text-xs font-semibold transition shadow-sm inline-flex items-center gap-1.5">
+                            <i class="fa-solid fa-file-signature"></i>
+                            <span>Isi Form KPI</span>
+                        </a>
+                    </div>
+                    <div class="relative overflow-x-auto max-w-full shadow-md sm:rounded-lg">
+                        <div class="max-h-96 overflow-y-auto">
+                            <table class="w-full text-xs sm:text-sm text-center text-gray-700">
+                                <thead class="uppercase bg-success-400 text-success-900 sticky top-0 z-10">
+                                    <tr>
+                                        <th class="px-2 py-2 sm:px-4">Periode</th>
+                                        <th class="px-2 py-2 sm:px-4">Tanggal Penilaian</th>
+                                        <th class="px-2 py-2 sm:px-4">Pejabat Penilai</th>
+                                        <th class="px-2 py-2 sm:px-4">Total Skor</th>
+                                        <th class="px-2 py-2 sm:px-4">Tukin Diterima</th>
+                                        <th class="px-2 py-2 sm:px-4">Status</th>
+                                        <th class="px-2 py-2 sm:px-4">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($listRiwayatKpi as $kpi)
+                                        <tr class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300 transition">
+                                            <td class="px-2 py-2 sm:px-4 font-bold text-gray-900">
+                                                {{ $kpi->periode_bulan && $kpi->periode_tahun ? \Carbon\Carbon::createFromDate($kpi->periode_tahun, $kpi->periode_bulan, 1)->translatedFormat('F Y') : '-' }}
+                                            </td>
+                                            <td class="px-2 py-2 sm:px-4">
+                                                {{ $kpi->tanggal_penilaian ? formatDate($kpi->tanggal_penilaian) : '-' }}
+                                            </td>
+                                            <td class="px-2 py-2 sm:px-4 text-left sm:text-center">
+                                                <div class="font-semibold text-gray-900">{{ $kpi->penilai_nama ?? '-' }}</div>
+                                                <div class="text-[11px] text-gray-500">{{ $kpi->penilai_jabatan ?? '' }}</div>
+                                            </td>
+                                            <td class="px-2 py-2 sm:px-4 font-extrabold text-success-900 text-sm">
+                                                {{ $kpi->total_skor }}
+                                            </td>
+                                            <td class="px-2 py-2 sm:px-4 text-left sm:text-center">
+                                                <div class="font-bold text-gray-900">Rp {{ number_format($kpi->tunjangan_diterima, 0, ',', '.') }}</div>
+                                                <div class="text-[11px] text-success-800 font-semibold">({{ $kpi->persentase_tunjangan }}%)</div>
+                                            </td>
+                                            <td class="px-2 py-2 sm:px-4">
+                                                @if ($kpi->status === 'selesai')
+                                                    <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-success-200 text-success-900 border border-success-400">
+                                                        Selesai
+                                                    </span>
+                                                @else
+                                                    <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                                                        Draft
+                                                    </span>
+                                                @endif
+                                            </td>
+                                            <td class="px-2 py-2 sm:px-4">
+                                                <div class="flex items-center justify-center gap-1.5">
+                                                    {{-- Tombol Lihat / Edit --}}
+                                                    <a href="{{ route('kpi.edit', ['userId' => $user->id, 'kpiId' => $kpi->id]) }}"
+                                                        class="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs transition inline-flex items-center gap-1"
+                                                        title="Lihat / Edit Form KPI">
+                                                        <i class="fa-solid fa-pen-to-square"></i>
+                                                    </a>
+
+                                                    {{-- Tombol Hapus --}}
+                                                    <button type="button"
+                                                        onclick="confirmAlert('Apakah Anda yakin ingin menghapus data KPI periode {{ $kpi->periode_bulan }}-{{ $kpi->periode_tahun }}?', 'Ya, hapus!', () => @this.call('deleteKpi', {{ $kpi->id }}))"
+                                                        class="px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs transition inline-flex items-center gap-1"
+                                                        title="Hapus Data KPI">
+                                                        <i class="fa-solid fa-trash-can"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="7" class="text-center py-4 text-gray-500 font-medium">
+                                                Belum ada riwayat formulir KPI untuk karyawan ini.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </x-card-tanpa-title>
