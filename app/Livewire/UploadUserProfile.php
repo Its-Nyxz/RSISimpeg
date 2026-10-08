@@ -31,6 +31,13 @@ class UploadUserProfile extends Component
 
     public $jumlah_jam;
 
+    // Modal Preview Dokumen
+    public $previewUrl;
+
+    public $previewName;
+
+    public $previewExtension;
+
     public function mount()
     {
         $this->jenisFiles = JenisFile::all();
@@ -57,6 +64,27 @@ class UploadUserProfile extends Component
         }
     }
 
+    public function setPreviewDokumen($id)
+    {
+        $file = SourceFile::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if ($file && $file->path && Storage::disk('public')->exists($file->path)) {
+            $this->previewUrl = Storage::url($file->path);
+            $this->previewName = $file->name ?: basename($file->path);
+            $this->previewExtension = strtolower(pathinfo($file->path, PATHINFO_EXTENSION));
+
+            $this->dispatch('open-modal', 'modal-preview-dokumen');
+        } else {
+            $this->dispatch('swal:alert', [
+                'icon' => 'error',
+                'title' => 'Gagal',
+                'text' => 'Dokumen tidak ditemukan atau file tidak tersedia di server.',
+            ]);
+        }
+    }
+
     public function save()
     {
         $this->validate([
@@ -80,21 +108,21 @@ class UploadUserProfile extends Component
             }
         }
 
-        // Validasi pembatasan upload duplikat untuk kategori KTP, Pas Foto, dan KK
-        $jenis = JenisFile::find($this->jenis_file_id);
-        if ($jenis) {
-            $jenisNameLower = strtolower($jenis->name);
-            $restrictedKeywords = ['ktp', 'pas foto', 'kk', 'kartu keluarga'];
+        // Ambil data jenis file yang dipilih untuk validasi dan penamaan file
+        $jenisFile = JenisFile::find($this->jenis_file_id);
+        $jenisFileName = $jenisFile?->name ?? 'Dokumen';
 
-            $isRestricted = false;
-            foreach ($restrictedKeywords as $keyword) {
-                if (str_contains($jenisNameLower, $keyword)) {
-                    $isRestricted = true;
-                    break;
-                }
-            }
+        if ($jenisFile) {
+            $namaJenisFile = strtolower(trim($jenisFile->name));
 
-            if ($isRestricted) {
+            $isDokumenTerbatas =
+                str_contains($namaJenisFile, 'id/ktp') ||
+                str_contains($namaJenisFile, 'ktp') ||
+                str_contains($namaJenisFile, 'pas foto') ||
+                str_contains($namaJenisFile, 'kartu keluarga') ||
+                str_contains($namaJenisFile, 'kk');
+
+            if ($isDokumenTerbatas) {
                 $alreadyExists = SourceFile::where('user_id', Auth::id())
                     ->where('jenis_file_id', $this->jenis_file_id)
                     ->exists();
@@ -103,7 +131,7 @@ class UploadUserProfile extends Component
                     $this->dispatch('swal:alert', [
                         'icon' => 'error',
                         'title' => 'Gagal Upload',
-                        'text' => 'Dokumen '.$jenis->name.' sudah diupload sebelumnya. Tidak dapat mengupload lebih dari satu.',
+                        'text' => 'Dokumen '.$jenisFile->name.' sudah diupload sebelumnya. Tidak dapat mengupload lebih dari satu.',
                     ]);
 
                     return;
@@ -114,7 +142,6 @@ class UploadUserProfile extends Component
         $path = $this->file->store('dokumen', 'public');
 
         $userName = Auth::user()->name;
-        $jenisFileName = JenisFile::find($this->jenis_file_id)?->name ?? 'Dokumen';
 
         // Bersihkan karakter '/' atau '\' agar nama file valid
         $cleanJenisFileName = str_replace(['/', '\\'], '-', $jenisFileName);
@@ -198,9 +225,16 @@ class UploadUserProfile extends Component
         }
     }
 
+    public function deleteFile($id)
+    {
+        return $this->delete($id);
+    }
+
     public function render()
     {
-        $uploadedFiles = SourceFile::where('user_id', Auth::id())->get();
+        $uploadedFiles = SourceFile::with('jenisFile')
+            ->where('user_id', Auth::id())
+            ->get();
 
         return view('livewire.upload-user-profile', [
             'uploadedFiles' => $uploadedFiles,
