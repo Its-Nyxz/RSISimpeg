@@ -198,42 +198,55 @@ class UploadUserProfile extends Component
         ]);
     }
 
-    public function delete($id)
+    public function deleteFile($id)
     {
         $file = SourceFile::where('id', $id)
             ->where('user_id', Auth::id())
             ->first();
 
-        if ($file) {
-            if ($file->path && Storage::disk('public')->exists($file->path)) {
-                Storage::disk('public')->delete($file->path);
-            }
-
-            $file->delete();
-
-            $this->dispatch('swal:alert', [
-                'icon' => 'success',
-                'title' => 'Berhasil',
-                'text' => 'Dokumen berhasil dihapus.',
-            ]);
-        } else {
+        if (!$file) {
             $this->dispatch('swal:alert', [
                 'icon' => 'error',
                 'title' => 'Gagal',
                 'text' => 'Dokumen tidak ditemukan atau Anda tidak memiliki akses.',
             ]);
+
+            return;
         }
+
+        if ($file->path && Storage::disk('public')->exists($file->path)) {
+            Storage::disk('public')->delete($file->path);
+        }
+
+        $file->delete();
+
+        $this->reset([
+            'file',
+            'jenis_file_id',
+            'mulai',
+            'selesai',
+            'jumlah_jam',
+        ]);
+
+        $this->isSipStr = false;
+        $this->pelatihan = false;
+
+        $this->dispatch('swal:alert', [
+            'icon' => 'success',
+            'title' => 'Berhasil',
+            'text' => 'Dokumen berhasil dihapus.',
+        ]);
     }
 
-    public function deleteFile($id)
+    public function delete($id)
     {
-        return $this->delete($id);
+        return $this->deleteFile($id);
     }
 
     public function render()
     {
-        $uploadedFiles = SourceFile::with('jenisFile')
-            ->where('user_id', Auth::id())
+        $uploadedFiles = SourceFile::where('user_id', Auth::id())
+            ->with('jenisFile')
             ->get();
 
         return view('livewire.upload-user-profile', [
