@@ -6,12 +6,12 @@
                 DASHBOARD {{ auth()->user()->unitKerja->nama ?? ' ' }}
             </h1>
 
-            {{-- Notifikasi Masa Berlaku SIP/STR --}}
+            {{-- Notifikasi Masa Berlaku SIP / Pelatihan --}}
             @if (count($masaBerlakuSipStr) > 0 || count($masaBerlakuPelatihan) > 0)
                 <div class="flex items-start bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 px-4 py-3 rounded-lg text-sm shadow-sm max-h-48 overflow-y-auto">
                     <div class="w-full">
                         <p class="font-bold mb-2 flex items-center">
-                            <i class="fa-solid fa-triangle-exclamation mr-2"></i> PERHATIAN: Masa Berlaku SIP/STR/Pelatihan
+                            <i class="fa-solid fa-triangle-exclamation mr-2"></i> PERHATIAN: Masa Berlaku SIP / Pelatihan
                         </p>
                         <ul class="list-disc list-inside space-y-2">
                             @foreach ($masaBerlakuSipStr as $file)

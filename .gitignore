@@ -65,4 +65,4 @@ docker-compose.override.yml
 /.vite-inspect
 
 /RSISimpeg/
-
+/storage/framework/lsp-*

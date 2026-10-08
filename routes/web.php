@@ -163,7 +163,9 @@ Route::middleware('auth')->group(function () {
             abort(404, 'File tidak ditemukan.');
         }
 
-        return Storage::disk('public')->download($file->path, $file->name);
+        $safeFileName = str_replace(['/', '\\'], '-', $file->name);
+
+        return Storage::disk('public')->download($file->path, $safeFileName);
 
     })->name('userprofile.download');
 
@@ -210,6 +212,15 @@ Route::middleware('auth')->group(function () {
     Route::get('pph/{tipe}/{pph}', [KategoripphController::class, 'create'])->middleware('permission:kategori-pph');
     Route::resource('pph', KategoripphController::class)->middleware('permission:kategori-pph');
     Route::resource('overridelokasi', OverrideLokasiController::class)->middleware('permission:override-lokasi');
+
+    // Formulir KPI
+    Route::get('/kpi/create/{userId}', function ($userId) {
+        return view('kpi.create', ['userId' => $userId, 'kpiId' => null]);
+    })->name('kpi.create');
+
+    Route::get('/kpi/edit/{userId}/{kpiId}', function ($userId, $kpiId) {
+        return view('kpi.create', ['userId' => $userId, 'kpiId' => $kpiId]);
+    })->name('kpi.edit');
 });
 
 require __DIR__ . '/auth.php';

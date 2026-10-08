@@ -2,24 +2,33 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
 use App\Models\JenisFile;
 use App\Models\SourceFile;
-use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class UploadUserProfile extends Component
 {
     use WithFileUploads;
 
     public $jenis_file_id;
+
     public $file;
+
     public $mulai;
+
     public $selesai;
+
     public $jenisFiles;
+
+    public $isSip = false;
+
     public $isSipStr = false;
-    public $pelatihan = false;
+
+    public $pelatihan;
+
     public $jumlah_jam;
 
     public function mount()
@@ -31,43 +40,45 @@ class UploadUserProfile extends Component
     {
         $jenis = JenisFile::find($this->jenis_file_id);
 
-        $this->isSipStr = false;
-        $this->pelatihan = false;
+        // Hanya SIP yang memerlukan tanggal mulai dan tanggal selesai (STR berlaku seumur hidup)
+        $this->isSip = $jenis && str_contains(strtolower($jenis->name), 'sip');
+        $this->isSipStr = $this->isSip;
 
-        if (!$jenis) {
-            return;
+        // Menentukan apakah jenis file adalah Sertifikat Pelatihan
+        $this->pelatihan = $jenis && str_contains(strtolower($jenis->name), 'sertifikat pelatihan');
+
+        // Reset field tanggal dan jam jika jenis file tidak membutuhkannya
+        if (! $this->isSip && ! $this->pelatihan) {
+            $this->mulai = null;
+            $this->selesai = null;
+            $this->jumlah_jam = null;
+        } elseif ($this->isSip) {
+            $this->jumlah_jam = null;
         }
-
-        $namaJenis = strtolower(trim($jenis->name));
-
-        $this->isSipStr =
-            str_contains($namaJenis, 'sip') ||
-            str_contains($namaJenis, 'str');
-
-        $this->pelatihan =
-            str_contains($namaJenis, 'sertifikat pelatihan');
     }
 
     public function save()
     {
         $this->validate([
             'jenis_file_id' => 'required|exists:jenis_files,id',
-            'file' => 'required|file|max:2048',
-
-            'mulai' => $this->isSipStr
-                ? 'required|date'
-                : 'nullable',
-
-            'selesai' => $this->isSipStr
-                ? 'required|date|after_or_equal:mulai'
-                : 'nullable',
-
-            'jumlah_jam' => $this->pelatihan
-                ? 'required|integer'
-                : 'nullable|integer',
+            'file' => 'required|file|max:2048', // Max 2MB
+            'mulai' => $this->isSip ? 'required|date' : 'nullable',
+            'selesai' => $this->isSip ? 'required|date|after_or_equal:mulai' : 'nullable',
+            'jumlah_jam' => $this->pelatihan ? 'required|integer' : 'nullable|integer', // Sertifikat Pelatihan butuh jumlah jam
         ]);
 
-        $jenisFile = JenisFile::find($this->jenis_file_id);
+        // Pastikan jumlah jam diisi manual jika tidak ada tanggal mulai dan selesai
+        if ($this->pelatihan && ! $this->mulai && ! $this->selesai) {
+            if (! $this->jumlah_jam) {
+                $this->dispatch('swal:alert', [
+                    'icon' => 'error',
+                    'title' => 'Gagal',
+                    'text' => 'Jumlah jam harus diisi jika tidak ada tanggal mulai dan selesai.',
+                ]);
+
+                return;
+            }
+        }
 
         if ($jenisFile) {
 
@@ -84,15 +95,12 @@ class UploadUserProfile extends Component
                     ->where('jenis_file_id', $this->jenis_file_id)
                     ->exists();
 
-                if ($sudahAda) {
-
-                    $this->dispatch(
-                        'feedback',
-                        title: 'Upload Gagal',
-                        message: $jenisFile->name .
-                            ' sudah pernah di-upload. Silakan hapus file lama terlebih dahulu jika ingin menggantinya.',
-                        icon: 'error'
-                    );
+                if ($alreadyExists) {
+                    $this->dispatch('swal:alert', [
+                        'icon' => 'error',
+                        'title' => 'Gagal Upload',
+                        'text' => 'Dokumen '.$jenis->name.' sudah diupload sebelumnya. Tidak dapat mengupload lebih dari satu.',
+                    ]);
 
                     return;
                 }
@@ -123,14 +131,11 @@ class UploadUserProfile extends Component
 
         $userName = Auth::user()->name;
 
-        $jenisFileName = $jenisFile?->name ?? 'Dokumen';
+        // Bersihkan karakter '/' atau '\' agar nama file valid
+        $cleanJenisFileName = str_replace(['/', '\\'], '-', $jenisFileName);
+        $cleanUserName = str_replace(['/', '\\'], '-', $userName);
 
-        $newFileName =
-            $userName .
-            ' - ' .
-            $jenisFileName .
-            '.' .
-            $this->file->getClientOriginalExtension();
+        $newFileName = $cleanUserName.' - '.$cleanJenisFileName.'.'.$this->file->getClientOriginalExtension();
 
         SourceFile::create([
             'user_id' => Auth::id(),
@@ -139,47 +144,39 @@ class UploadUserProfile extends Component
             'name' => $newFileName,
             'fileable_id' => Auth::id(),
             'fileable_type' => Auth::user()::class,
-            'mulai' => $this->mulai,
-            'selesai' => $this->selesai,
-            'jumlah_jam' => $this->jumlah_jam,
+            'mulai' => ($this->isSip || $this->pelatihan) ? $this->mulai : null,
+            'selesai' => ($this->isSip || $this->pelatihan) ? $this->selesai : null,
+            'jumlah_jam' => $this->pelatihan ? $this->jumlah_jam : null,
         ]);
 
-        $this->dispatch(
-            'feedback',
-            title: 'Berhasil',
-            message: 'File berhasil diupload.',
-            icon: 'success'
-        );
+        $this->dispatch('swal:alert', [
+            'icon' => 'success',
+            'title' => 'Berhasil',
+            'text' => 'File berhasil diupload.',
+        ]);
 
         $this->reset([
             'file',
             'jenis_file_id',
             'mulai',
             'selesai',
+            'isSip',
+            'isSipStr',
+            'pelatihan',
             'jumlah_jam',
         ]);
-
-        $this->isSipStr = false;
-        $this->pelatihan = false;
-        $this->resetErrorBag();
     }
 
-    public function downloadFile($id)
+    public function download($id)
     {
         $file = SourceFile::where('id', $id)
             ->where('user_id', Auth::id())
             ->first();
 
-        if (!$file || !$file->path) {
+        if ($file && $file->path && Storage::disk('public')->exists($file->path)) {
+            $safeFileName = str_replace(['/', '\\'], '-', $file->name);
 
-            $this->dispatch(
-                'feedback',
-                title: 'Download Gagal',
-                message: 'Dokumen tidak ditemukan atau Anda tidak memiliki akses.',
-                icon: 'error'
-            );
-
-            return;
+            return Storage::disk('public')->download($file->path, $safeFileName);
         }
 
         $disk = Storage::disk('public');

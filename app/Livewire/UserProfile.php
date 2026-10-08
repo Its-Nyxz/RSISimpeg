@@ -4,6 +4,7 @@
 
     use Livewire\Component;
     use App\Models\User;
+    use App\Models\JenisFile;
     use Illuminate\Support\Facades\Auth;
     use Illuminate\Support\Facades\Hash;
     use Livewire\WithPagination;
@@ -15,6 +16,10 @@
         public $userprofile;
         public $search = '';
         public $showNip = false;
+        public $showModalMissing = false;
+        public $selectedUserForModal = null;
+        public $missingDataForModal = [];
+
         public function mount()
         {
             // Ambil data user yang sedang login
@@ -37,7 +42,7 @@
 
         public function loadData()
         {
-            return User::with(['kategorijabatan', 'unitKerja', 'roles'])->where('id', '>', 1)
+            return User::with(['kategorijabatan', 'unitKerja', 'roles', 'sourceFiles.jenisFile'])->where('id', '>', 1)
                 ->when($this->search, function ($query) {
                     $query->where(function ($q) {
                         $q->where('id', '>', 1) //memastikan ketika dicari berdasarkan jabatan SuperAdmin tidak ikut tampil
@@ -70,12 +75,33 @@
             }
         }
 
+        public function openMissingModal($userId)
+        {
+            $user = User::with(['sourceFiles.jenisFile', 'kategorijabatan', 'unitKerja'])->find($userId);
+            if ($user) {
+                $allJenisFiles = JenisFile::all();
+                $this->selectedUserForModal = $user;
+                $this->missingDataForModal = $user->getIncompleteData($allJenisFiles);
+                $this->showModalMissing = true;
+            }
+        }
+
+        public function closeMissingModal()
+        {
+            $this->showModalMissing = false;
+            $this->selectedUserForModal = null;
+            $this->missingDataForModal = [];
+        }
+
         public function render()
         {
             $users = $this->loadData();
+            $allJenisFiles = JenisFile::all();
+
             return view('livewire.user-profile', [
                 'userprofile' => $this->userprofile,
                 'users' => $users,
+                'allJenisFiles' => $allJenisFiles,
             ]);
         }
     }

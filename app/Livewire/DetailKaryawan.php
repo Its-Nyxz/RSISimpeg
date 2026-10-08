@@ -21,8 +21,11 @@ use App\Models\MasterPenyesuaian;
 use App\Models\PeringatanKaryawan;
 use App\Models\UrutanKeuanganUser;
 use App\Models\RiwayatApproval;
+use App\Models\SourceFile;
+use App\Models\KpiPenilaian;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 
 
 class DetailKaryawan extends Component
@@ -49,9 +52,14 @@ class DetailKaryawan extends Component
     public $listSP;
     public $listRiwayat;
     public $listRiwayatApproval;
+    public $listRiwayatDokumen;
+    public $listRiwayatKpi;
     public $gapokSebelumnya;
     public $gapokPenyesuaian;
     public $phkDari;
+    public $previewUrl;
+    public $previewName;
+    public $previewExtension;
 
 
     public function mount($user)
@@ -132,6 +140,9 @@ class DetailKaryawan extends Component
                 ->orderBy('approve_at', 'desc')
                 ->get();
         }
+
+        $this->loadRiwayatDokumen();
+        $this->loadRiwayatKpi();
     }
 public function resignKerja()
     {
@@ -448,6 +459,174 @@ public function resignKerja()
 
         return redirect()->route('detailkaryawan.show', $user->id)
             ->with('success', 'Pendidikan Penyesuaian Berhasil Dibatalkan.');
+    }
+
+    public function getSubordinateUserIds()
+    {
+        $targetUser = $this->user;
+
+        // Cek roles dari user yang sedang dilihat
+        $roles = $targetUser->roles->pluck('name')->toArray();
+        $isSuperAdmin = in_array('Super Admin', $roles) || $targetUser->hasRole('Super Admin');
+        $isKepegawaian = $targetUser->unit_id == 87;
+
+        // Jika Super Admin atau Kepegawaian (HRD): dapat melihat seluruh dokumen karyawan
+        if ($isSuperAdmin || $isKepegawaian) {
+            return User::where('id', '!=', $targetUser->id)->pluck('id')->toArray();
+        }
+
+        $isDirektur = in_array('Direktur', $roles) || $targetUser->jabatan_id == 1;
+        $isWadir = in_array('Wadir', $roles) || $targetUser->jabatan_id == 2;
+        $isManager = in_array('Manager', $roles) || $targetUser->jabatan_id == 3;
+
+        if ($isDirektur || $isWadir) {
+            return User::where('id', '!=', $targetUser->id)
+                ->whereNotIn('jabatan_id', [1])
+                ->pluck('id')
+                ->toArray();
+        }
+
+        if ($isManager) {
+            return User::where('id', '!=', $targetUser->id)
+                ->whereNotIn('jabatan_id', [1, 2, 3])
+                ->pluck('id')
+                ->toArray();
+        }
+
+        // Cek apakah atasan tingkat Unit / Instalasi / Ruang / Seksi
+        $isKepala = false;
+        foreach ($roles as $r) {
+            if (stripos($r, 'Kepala') !== false) {
+                $isKepala = true;
+                break;
+            }
+        }
+
+        if ($isKepala && $targetUser->unit_id) {
+            return User::where('unit_id', $targetUser->unit_id)
+                ->where('id', '!=', $targetUser->id)
+                ->whereDoesntHave('roles', function ($q) {
+                    $q->whereIn('name', ['Super Admin', 'Direktur', 'Wadir', 'Manager']);
+                })
+                ->pluck('id')
+                ->toArray();
+        }
+
+        // Jika karyawan yang sedang dilihat adalah staf (bukan atasan),
+        // cek apakah user yang sedang login adalah atasan di unit tersebut
+        $authUser = auth()->user();
+        if ($authUser && $authUser->unit_id && ($authUser->unit_id == $targetUser->unit_id || $authUser->hasRole('Super Admin') || $authUser->unit_id == 87)) {
+            $authIsKepala = $authUser->hasRole('Super Admin') || $authUser->roles()->where('name', 'LIKE', '%Kepala%')->exists() || $authUser->unit_id == 87;
+            if ($authIsKepala && $targetUser->id == $authUser->id) {
+                return User::where('unit_id', $authUser->unit_id)->where('id', '!=', $authUser->id)->pluck('id')->toArray();
+            }
+        }
+
+        // Default jika bukan atasan: tampilkan dokumen milik karyawan ini
+        return [$targetUser->id];
+    }
+
+    public function loadRiwayatDokumen()
+    {
+        $subordinateIds = $this->getSubordinateUserIds();
+
+        $this->listRiwayatDokumen = SourceFile::with(['jenisFile', 'user.unitKerja', 'user.jabatan', 'user.kategorijabatan'])
+            ->whereIn('user_id', $subordinateIds)
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    public function setPreviewDokumen($id)
+    {
+        $file = SourceFile::find($id);
+
+        if ($file && $file->path && Storage::disk('public')->exists($file->path)) {
+            $this->previewUrl = Storage::url($file->path);
+            $this->previewName = $file->name ?: basename($file->path);
+            $this->previewExtension = strtolower(pathinfo($file->path, PATHINFO_EXTENSION));
+
+            $this->dispatch('open-modal', 'modal-preview-dokumen');
+        } else {
+            $this->dispatch('swal:alert', [
+                'icon' => 'error',
+                'title' => 'Gagal',
+                'text' => 'Dokumen tidak ditemukan atau file tidak tersedia di server.',
+            ]);
+        }
+    }
+
+    public function downloadDokumen($id)
+    {
+        $file = SourceFile::find($id);
+
+        if ($file && $file->path && Storage::disk('public')->exists($file->path)) {
+            $safeFileName = str_replace(['/', '\\'], '-', $file->name ?: basename($file->path));
+
+            return Storage::disk('public')->download($file->path, $safeFileName);
+        }
+
+        $this->dispatch('swal:alert', [
+            'icon' => 'error',
+            'title' => 'Gagal',
+            'text' => 'Dokumen tidak ditemukan atau file tidak tersedia di server.',
+        ]);
+    }
+
+    public function deleteDokumen($id)
+    {
+        $file = SourceFile::find($id);
+
+        if ($file) {
+            if ($file->path && Storage::disk('public')->exists($file->path)) {
+                Storage::disk('public')->delete($file->path);
+            }
+
+            $file->delete();
+
+            $this->loadRiwayatDokumen();
+
+            $this->dispatch('swal:alert', [
+                'icon' => 'success',
+                'title' => 'Berhasil',
+                'text' => 'Dokumen berhasil dihapus.',
+            ]);
+        } else {
+            $this->dispatch('swal:alert', [
+                'icon' => 'error',
+                'title' => 'Gagal',
+                'text' => 'Dokumen tidak ditemukan.',
+            ]);
+        }
+    }
+
+    public function loadRiwayatKpi()
+    {
+        $this->listRiwayatKpi = KpiPenilaian::with(['penilai', 'atasanPenilai'])
+            ->where('user_id', $this->user_id)
+            ->orderBy('periode_tahun', 'desc')
+            ->orderBy('periode_bulan', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get();
+    }
+
+    public function deleteKpi($id)
+    {
+        $kpi = KpiPenilaian::find($id);
+        if ($kpi) {
+            $kpi->delete();
+            $this->loadRiwayatKpi();
+            $this->dispatch('swal:alert', [
+                'icon' => 'success',
+                'title' => 'Berhasil',
+                'text' => 'Data Formulir KPI berhasil dihapus.',
+            ]);
+        } else {
+            $this->dispatch('swal:alert', [
+                'icon' => 'error',
+                'title' => 'Gagal',
+                'text' => 'Data KPI tidak ditemukan.',
+            ]);
+        }
     }
 
     public function render()

@@ -15,6 +15,8 @@ use App\Models\JadwalAbsensi;
 use App\Models\MasterJabatan;
 use App\Models\KategoriJabatan;
 use App\Models\MasterPendidikan;
+use App\Models\JenisFile;
+use App\Models\SourceFile;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -224,5 +226,91 @@ class User extends Authenticatable
     public function urutanKeuangan()
     {
         return $this->hasOne(UrutanKeuanganUser::class, 'user_id');
+    }
+
+    public function kpiPenilaians()
+    {
+        return $this->hasMany(KpiPenilaian::class, 'user_id');
+    }
+
+    /**
+     * Mendapatkan daftar data profil dan dokumen yang belum diisi atau diupload.
+     *
+     * @param \Illuminate\Database\Eloquent\Collection|null $allJenisFiles
+     * @return array
+     */
+    public function getIncompleteData($allJenisFiles = null): array
+    {
+        $missing = [];
+
+        $isEmpty = function ($val) {
+            return $val === null || trim((string) $val) === '';
+        };
+
+        // 1. Data Profil / Biodata
+        if ($isEmpty($this->photo)) {
+            $missing[] = ['type' => 'profil', 'label' => 'Foto Profil'];
+        }
+        if ($isEmpty($this->nip)) {
+            $missing[] = ['type' => 'profil', 'label' => 'NIP'];
+        }
+        if ($isEmpty($this->no_ktp)) {
+            $missing[] = ['type' => 'profil', 'label' => 'No. KTP'];
+        }
+        if ($isEmpty($this->no_hp)) {
+            $missing[] = ['type' => 'profil', 'label' => 'No. WhatsApp / HP'];
+        }
+        if ($isEmpty($this->no_rek)) {
+            $missing[] = ['type' => 'profil', 'label' => 'No. Rekening'];
+        }
+        if ($isEmpty($this->tempat)) {
+            $missing[] = ['type' => 'profil', 'label' => 'Tempat Lahir'];
+        }
+        if ($isEmpty($this->tanggal_lahir)) {
+            $missing[] = ['type' => 'profil', 'label' => 'Tanggal Lahir'];
+        }
+        if ($this->jk === null || $this->jk === '') {
+            $missing[] = ['type' => 'profil', 'label' => 'Jenis Kelamin'];
+        }
+        if ($isEmpty($this->alamat)) {
+            $missing[] = ['type' => 'profil', 'label' => 'Alamat'];
+        }
+        if ($isEmpty($this->kategori_pendidikan) && $isEmpty($this->pendidikan)) {
+            $missing[] = ['type' => 'profil', 'label' => 'Pendidikan Terakhir'];
+        }
+        if ($isEmpty($this->institusi)) {
+            $missing[] = ['type' => 'profil', 'label' => 'Institusi Pendidikan'];
+        }
+        if ($isEmpty($this->unit_id)) {
+            $missing[] = ['type' => 'profil', 'label' => 'Unit Kerja'];
+        }
+        if ($isEmpty($this->jabatan_id) && $isEmpty($this->fungsi_id)) {
+            $missing[] = ['type' => 'profil', 'label' => 'Jabatan'];
+        }
+
+        // 2. Dokumen / Berkas Upload
+        if ($allJenisFiles === null) {
+            $allJenisFiles = JenisFile::all();
+        }
+
+        $uploadedJenisIds = $this->relationLoaded('sourceFiles')
+            ? $this->sourceFiles->pluck('jenis_file_id')->filter()->unique()->toArray()
+            : $this->sourceFiles()->pluck('jenis_file_id')->filter()->unique()->toArray();
+
+        foreach ($allJenisFiles as $jenis) {
+            if (!in_array($jenis->id, $uploadedJenisIds)) {
+                $missing[] = [
+                    'type' => 'dokumen',
+                    'label' => 'Berkas ' . $jenis->name,
+                ];
+            }
+        }
+
+        return $missing;
+    }
+
+    public function getIncompleteDataAttribute(): array
+    {
+        return $this->getIncompleteData();
     }
 }
