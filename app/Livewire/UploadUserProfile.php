@@ -31,6 +31,13 @@ class UploadUserProfile extends Component
 
     public $jumlah_jam;
 
+    // Modal Preview Dokumen
+    public $previewUrl;
+
+    public $previewName;
+
+    public $previewExtension;
+
     public function mount()
     {
         $this->jenisFiles = JenisFile::all();
@@ -57,6 +64,27 @@ class UploadUserProfile extends Component
         }
     }
 
+    public function setPreviewDokumen($id)
+    {
+        $file = SourceFile::where('id', $id)
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if ($file && $file->path && Storage::disk('public')->exists($file->path)) {
+            $this->previewUrl = Storage::url($file->path);
+            $this->previewName = $file->name ?: basename($file->path);
+            $this->previewExtension = strtolower(pathinfo($file->path, PATHINFO_EXTENSION));
+
+            $this->dispatch('open-modal', 'modal-preview-dokumen');
+        } else {
+            $this->dispatch('swal:alert', [
+                'icon' => 'error',
+                'title' => 'Gagal',
+                'text' => 'Dokumen tidak ditemukan atau file tidak tersedia di server.',
+            ]);
+        }
+    }
+
     public function save()
     {
         $this->validate([
@@ -80,18 +108,22 @@ class UploadUserProfile extends Component
             }
         }
 
-        if ($jenisFile) {
+        // Ambil data jenis file yang dipilih untuk validasi dan penamaan file
+        $jenisFile = JenisFile::find($this->jenis_file_id);
+        $jenisFileName = $jenisFile?->name ?? 'Dokumen';
 
+        if ($jenisFile) {
             $namaJenisFile = strtolower(trim($jenisFile->name));
 
             $isDokumenTerbatas =
                 str_contains($namaJenisFile, 'id/ktp') ||
+                str_contains($namaJenisFile, 'ktp') ||
                 str_contains($namaJenisFile, 'pas foto') ||
-                str_contains($namaJenisFile, 'kartu keluarga');
+                str_contains($namaJenisFile, 'kartu keluarga') ||
+                str_contains($namaJenisFile, 'kk');
 
             if ($isDokumenTerbatas) {
-
-                $sudahAda = SourceFile::where('user_id', Auth::id())
+                $alreadyExists = SourceFile::where('user_id', Auth::id())
                     ->where('jenis_file_id', $this->jenis_file_id)
                     ->exists();
 
@@ -99,7 +131,7 @@ class UploadUserProfile extends Component
                     $this->dispatch('swal:alert', [
                         'icon' => 'error',
                         'title' => 'Gagal Upload',
-                        'text' => 'Dokumen '.$jenis->name.' sudah diupload sebelumnya. Tidak dapat mengupload lebih dari satu.',
+                        'text' => 'Dokumen '.$jenisFile->name.' sudah diupload sebelumnya. Tidak dapat mengupload lebih dari satu.',
                     ]);
 
                     return;
@@ -107,27 +139,7 @@ class UploadUserProfile extends Component
             }
         }
 
-        if (
-            $this->pelatihan &&
-            !$this->mulai &&
-            !$this->selesai &&
-            !$this->jumlah_jam
-        ) {
-
-            $this->dispatch(
-                'feedback',
-                title: 'Upload Gagal',
-                message: 'Jumlah jam harus diisi jika tidak ada tanggal mulai dan selesai.',
-                icon: 'error'
-            );
-
-            return;
-        }
-
-        $path = $this->file->store(
-            'dokumen',
-            'public'
-        );
+        $path = $this->file->store('dokumen', 'public');
 
         $userName = Auth::user()->name;
 
@@ -179,28 +191,11 @@ class UploadUserProfile extends Component
             return Storage::disk('public')->download($file->path, $safeFileName);
         }
 
-        $disk = Storage::disk('public');
-
-        if (!$disk->exists($file->path)) {
-
-            $this->dispatch(
-                'feedback',
-                title: 'Download Gagal',
-                message: 'File tidak ditemukan di penyimpanan.',
-                icon: 'error'
-            );
-
-            return;
-        }
-
-        $fullPath = $disk->path($file->path);
-
-        $downloadName = str_replace(['/', '\\'], '-', $file->name);
-
-        return response()->download(
-            $fullPath,
-            $downloadName
-        );
+        $this->dispatch('swal:alert', [
+            'icon' => 'error',
+            'title' => 'Gagal',
+            'text' => 'Dokumen tidak ditemukan atau file tidak tersedia di server.',
+        ]);
     }
 
     public function deleteFile($id)
@@ -210,24 +205,17 @@ class UploadUserProfile extends Component
             ->first();
 
         if (!$file) {
-
-            $this->dispatch(
-                'feedback',
-                title: 'Gagal',
-                message: 'Dokumen tidak ditemukan atau Anda tidak memiliki akses.',
-                icon: 'error'
-            );
+            $this->dispatch('swal:alert', [
+                'icon' => 'error',
+                'title' => 'Gagal',
+                'text' => 'Dokumen tidak ditemukan atau Anda tidak memiliki akses.',
+            ]);
 
             return;
         }
 
-        if ($file->path) {
-
-            $disk = Storage::disk('public');
-
-            if ($disk->exists($file->path)) {
-                $disk->delete($file->path);
-            }
+        if ($file->path && Storage::disk('public')->exists($file->path)) {
+            Storage::disk('public')->delete($file->path);
         }
 
         $file->delete();
@@ -242,30 +230,27 @@ class UploadUserProfile extends Component
 
         $this->isSipStr = false;
         $this->pelatihan = false;
-        $this->resetErrorBag();
 
-        $this->dispatch(
-            'feedback',
-            title: 'Berhasil',
-            message: 'Dokumen berhasil dihapus.',
-            icon: 'success'
-        );
+        $this->dispatch('swal:alert', [
+            'icon' => 'success',
+            'title' => 'Berhasil',
+            'text' => 'Dokumen berhasil dihapus.',
+        ]);
+    }
+
+    public function delete($id)
+    {
+        return $this->deleteFile($id);
     }
 
     public function render()
     {
-        $uploadedFiles = SourceFile::where(
-            'user_id',
-            Auth::id()
-        )
+        $uploadedFiles = SourceFile::where('user_id', Auth::id())
             ->with('jenisFile')
             ->get();
 
-        return view(
-            'livewire.upload-user-profile',
-            [
-                'uploadedFiles' => $uploadedFiles,
-            ]
-        );
+        return view('livewire.upload-user-profile', [
+            'uploadedFiles' => $uploadedFiles,
+        ]);
     }
 }
