@@ -10,7 +10,7 @@
                     <tr>
                         <th scope="col" class="px-6 py-3 text-left">No</th>
                         <th scope="col" class="px-6 py-3 text-left">Jenis Cuti</th>
-                        <th scope="col" class="px-6 py-3 text-left">Status</th>
+                           <th scope="col" class="px-6 py-3 text-left">Status</th>
                         <th scope="col" class="px-6 py-3 text-right">Aksi</th>
                     </tr>
                 </thead>
@@ -56,7 +56,7 @@
                             <td colspan="4" class="text-center px-6 py-4">
                                 Belum ada data jenis cuti.
                             </td>
-                        </tr>
+                        </tr>  
                     @endforelse
                 </tbody>
             </table>

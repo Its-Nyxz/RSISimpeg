@@ -6,8 +6,10 @@ use Livewire\Component;
 use App\Models\TukarJadwal;
 use App\Models\CutiKaryawan;
 use App\Models\IzinKaryawan;
+use App\Models\SisaCutiTahunan;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DataPengajuan extends Component
 {
@@ -25,19 +27,54 @@ class DataPengajuan extends Component
     public function delete($id, $tipe)
     {
         if ($tipe === 'cuti') {
-            CutiKaryawan::findOrFail($id)->delete();
+            DB::transaction(function () use ($id) {
+                $cuti = CutiKaryawan::with('jenisCuti')
+                    ->where('user_id', Auth::id())
+                    ->findOrFail($id);
+
+                // Saldo hanya dikembalikan jika cuti sudah disetujui final.
+                if (
+                    $cuti->status_cuti_id == 1 &&
+                    strtolower($cuti->jenisCuti->nama_cuti ?? '') === 'cuti tahunan'
+                ) {
+                    // Mengikuti logika tahun berjalan di DataCuti.php.
+                    $tahun = now('Asia/Jakarta')->year;
+
+                    $sisaCuti = SisaCutiTahunan::where('user_id', $cuti->user_id)
+                        ->where('tahun', $tahun)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if (!$sisaCuti) {
+                        throw new \RuntimeException(
+                            'Data saldo cuti tahunan tidak ditemukan. Pengajuan tidak jadi dihapus.'
+                        );
+                    }
+
+                    $kolomCuti = $cuti->kategori_cuti === 'tambahan'
+                        ? 'cuti_tambahan'
+                        : 'sisa_cuti';
+
+                    $sisaCuti->increment($kolomCuti, $cuti->jumlah_hari);
+                }
+
+                $cuti->delete();
+            });
+
             return redirect()->route('pengajuan.index', 'cuti')
                 ->with('success', 'Pengajuan Cuti berhasil dihapus.');
         }
 
         if ($tipe === 'ijin') {
             IzinKaryawan::findOrFail($id)->delete();
+
             return redirect()->route('pengajuan.index', 'ijin')
                 ->with('success', 'Pengajuan Izin berhasil dihapus.');
         }
 
         if ($tipe === 'tukar_jadwal') {
             TukarJadwal::findOrFail($id)->delete();
+
             return redirect()->route('pengajuan.index', 'tukar_jadwal')
                 ->with('success', 'Pengajuan Tukar Jadwal berhasil dihapus.');
         }

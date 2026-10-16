@@ -9,7 +9,7 @@ use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
-class UploadUserProfile extends Component
+  class UploadUserProfile extends Component
 {
     use WithFileUploads;
 
