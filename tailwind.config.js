@@ -17,15 +17,19 @@ export default {
         "cursor-default",
         {
             pattern:
-                /bg-(primary|secondary|success|danger|warning|info|light|dark|red|green|blue|gray)-(50|100|150|200|250|300|350|400|450|500|550|600|650|700|750|800|850|900|950)/,
+                /bg-(primary|secondary|success|danger|warning|yellow|info|light|dark|red|green|blue|gray)-(50|100|150|200|250|300|350|400|450|500|550|600|650|700|750|800|850|900|950)/,
         },
         {
             pattern:
-                /text-(primary|secondary|success|danger|warning|info|light|dark|red|green|blue|gray)-(50|100|150|200|250|300|350|400|450|500|550|600|650|700|750|800|850|900|950)/,
+                /text-(primary|secondary|success|danger|warning|yellow|info|light|dark|red|green|blue|gray)-(50|100|150|200|250|300|350|400|450|500|550|600|650|700|750|800|850|900|950)/,
         },
         {
             pattern:
-                /ring-(primary|secondary|success|danger|warning|info|light|dark|red|green|blue|gray)-(50|100|150|200|250|300|350|400|450|500|550|600|650|700|750|800|850|900|950)/,
+                /border-(primary|secondary|success|danger|warning|yellow|info|light|dark|red|green|blue|gray)-(50|100|150|200|250|300|350|400|450|500|550|600|650|700|750|800|850|900|950)/,
+        },
+        {
+            pattern:
+                /ring-(primary|secondary|success|danger|warning|yellow|info|light|dark|red|green|blue|gray)-(50|100|150|200|250|300|350|400|450|500|550|600|650|700|750|800|850|900|950)/,
         },
         {
             pattern: /font-(normal|medium|semibold|bold|bolder)/,

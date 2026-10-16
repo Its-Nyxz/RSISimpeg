@@ -131,12 +131,11 @@ class DashboardController extends Controller
         $jadwal_id = $selectedJadwal?->id;
 
 
-        // Menyaring Sertifikat SIP/STR
+        // Menyaring Sertifikat SIP
         if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja?->id === 87) {
-            // Super Admin atau Kepegawaian melihat semua SIP/STR
+            // Super Admin atau Kepegawaian melihat semua SIP
             $masaBerlakuSipStr = SourceFile::whereHas('jenisFile', function ($query) {
-                $query->where('name', 'like', '%sip%')
-                    ->orWhere('name', 'like', '%str%');
+                $query->where('name', 'like', '%sip%');
             })
                 ->whereNotNull('selesai')
                 ->whereDate('selesai', '>=', now()) // Validasi jika selesai setelah tanggal hari ini
@@ -160,11 +159,10 @@ class DashboardController extends Controller
                 ->whereDate('selesai', '>=', now())
                 ->sum('jumlah_jam'); // Menghitung total jumlah jam pelatihan
         } else {
-            // Untuk user biasa, hanya melihat SIP/STR dan Sertifikat Pelatihan milik mereka sendiri
+            // Untuk user biasa, hanya melihat SIP dan Sertifikat Pelatihan milik mereka sendiri
             $masaBerlakuSipStr = SourceFile::where('user_id', auth()->id())
                 ->whereHas('jenisFile', function ($query) {
-                    $query->where('name', 'like', '%sip%')
-                        ->orWhere('name', 'like', '%str%');
+                    $query->where('name', 'like', '%sip%');
                 })
                 ->whereNotNull('selesai')
                 ->whereDate('selesai', '>=', now()) // Validasi jika selesai setelah tanggal hari ini

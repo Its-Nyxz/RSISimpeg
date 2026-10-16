@@ -92,10 +92,11 @@ window.feedback = function (title, message, icon) {
 };
 
 window.addEventListener("feedback", (event) => {
+    const detail = Array.isArray(event.detail) ? event.detail[0] : event.detail;
     window.feedback(
-        event.detail.title,
-        event.detail.message,
-        event.detail.icon,
+        detail?.title || (detail?.icon === "success" ? "Berhasil" : "Gagal"),
+        detail?.message || detail?.text || "",
+        detail?.icon || "info",
     );
 });
 
