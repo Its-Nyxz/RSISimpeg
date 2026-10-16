@@ -1,6 +1,5 @@
 <?php
 
-
 use App\Models\Kategoripph;
 use App\Models\MasterFungsi;
 use App\Models\SourceFile;
@@ -11,7 +10,7 @@ use GuzzleHttp\Middleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Storage;
+
 use App\Http\Controllers\CutiController;
 use App\Http\Controllers\IzinController;
 use App\Http\Controllers\ShiftController;
@@ -71,9 +70,15 @@ use App\Http\Controllers\PeringatanKaryawanController;
 use App\Http\Controllers\ProposionalitasPointController;
 use App\Http\Controllers\RiwayatApprovalController;
 
+// Controller Master Cuti dan Master Izin
+use App\Http\Controllers\MasterCutiController;
+use App\Http\Controllers\MasterIzinController;
+
+
 Route::get('/', function () {
     return redirect()->to('/login');
 });
+
 
 Route::get('/logout', function () {
     Auth::guard('web')->logout();
@@ -84,127 +89,305 @@ Route::get('/logout', function () {
     return redirect()->to('/login');
 });
 
+
 Route::get('dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::get('/profile', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
+
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->name('profile.update');
+
+    Route::delete('/profile', [ProfileController::class, 'destroy'])
+        ->name('profile.destroy');
+
     Route::resource('users', UsersController::class);
-    Route::get('users/create', [UsersController::class, 'create'])->name('users.create');
-    Route::get('users/edit/{id}', [UsersController::class, 'edit'])->name('users.edit');
-    Route::put('users/resetPassword/{id}', [UserProfile::class, 'resetPassword'])->name('users.resetPassword');
-    Route::delete('users/destroy/{id}', [UserProfile::class, 'destroy'])->name('users.destroy');
+
+    Route::get('users/create', [UsersController::class, 'create'])
+        ->name('users.create');
+
+    Route::get('users/edit/{id}', [UsersController::class, 'edit'])
+        ->name('users.edit');
+
+    Route::put('users/resetPassword/{id}', [UserProfile::class, 'resetPassword'])
+        ->name('users.resetPassword');
+
+    Route::delete('users/destroy/{id}', [UserProfile::class, 'destroy'])
+        ->name('users.destroy');
+
     Route::resource('shift', ShiftController::class);
+
     // Route::resource('opsi', OpsiAbsenController::class);
+
     Route::resource('jabatan', MasterJabatanController::class);
+
     Route::resource('umum', MasterUmumController::class);
+
     Route::resource('trans', MasterTransController::class);
-    Route::resource('tunjangan', MasterTunjanganController::class)->middleware('permission:tunjangan');
+
+    Route::resource('tunjangan', MasterTunjanganController::class)
+        ->middleware('permission:tunjangan');
+
     Route::resource('fungsional', MasterFungsiController::class);
+
     Route::resource('khusus', MasterKhususController::class);
-    Route::resource('gapok', MasterGapokController::class)->middleware('permission:gaji-pokok');
-    Route::resource('golongan', MasterGolonganController::class)->middleware('permission:golongan');
-    Route::resource('pendidikan', MasterPendidikanController::class)->middleware('permission:pendidikan');
-    Route::resource('potongan', MasterPotonganController::class)->middleware('permission:potongan');
+
+    Route::resource('gapok', MasterGapokController::class)
+        ->middleware('permission:gaji-pokok');
+
+    Route::resource('golongan', MasterGolonganController::class)
+        ->middleware('permission:golongan');
+
+    Route::resource('pendidikan', MasterPendidikanController::class)
+        ->middleware('permission:pendidikan');
+
+    Route::resource('potongan', MasterPotonganController::class)
+        ->middleware('permission:potongan');
+
     Route::resource('peranfungsional', PeranFungsionalController::class);
-    Route::resource('jabatanperizinan', PerizinanJabatanController::class)->middleware('permission:hak-akses');
+
+    Route::resource('jabatanperizinan', PerizinanJabatanController::class)
+        ->middleware('permission:hak-akses');
+
     Route::resource('notification', DataNotifikasiController::class);
 
-    Route::get('/jadwal/template', [JadwalAbsensiController::class, 'export'])->name('jadwal.template')->middleware('permission:template-jadwal');
-    Route::get('jadwal/{tipe}/{id}', [JadwalAbsensiController::class, 'create'])->middleware('permission:tambah-jadwal');
+
+    Route::get('/jadwal/template', [JadwalAbsensiController::class, 'export'])
+        ->name('jadwal.template')
+        ->middleware('permission:template-jadwal');
+
+    Route::get('jadwal/{tipe}/{id}', [JadwalAbsensiController::class, 'create'])
+        ->middleware('permission:tambah-jadwal');
+
     Route::resource('jadwal', JadwalAbsensiController::class);
+
     // Route::resource('status', StatusAbsenController::class);
-    Route::resource('kenaikan', KenaikanController::class)->middleware('permission:view-kenaikan');
-    Route::resource('kenaikankontrak', KenaikanKontrakController::class)->middleware('permission:view-kenaikan');
-    Route::resource('penilaian', PenilaianPekerjaController::class)->middleware('permission:view-poin-penilaian');
+
+    Route::resource('kenaikan', KenaikanController::class)
+        ->middleware('permission:view-kenaikan');
+
+    Route::resource('kenaikankontrak', KenaikanKontrakController::class)
+        ->middleware('permission:view-kenaikan');
+
+    Route::resource('penilaian', PenilaianPekerjaController::class)
+        ->middleware('permission:view-poin-penilaian');
+
     Route::resource('detail', DetailJabatanController::class);
 
-    Route::get('/datakaryawan/export', [DataKaryawanController::class, 'export'])->middleware('permission:view-kepegawaian')
-        ->name('datakaryawan.export');
-    Route::post('/datakaryawan/import', [DataKaryawanController::class, 'import'])->name('datakaryawan.import')->middleware('permission:view-kepegawaian');
-    Route::resource('datakaryawan', DataKaryawanController::class)->middleware('permission:view-kepegawaian');
-    Route::resource('detailkaryawan', DetailKaryawanController::class)->middleware('permission:detail-data-karyawan');
-    Route::get('editKaryawan/{id}', [DataKaryawanController::class, 'edit'])->name('editKaryawan.edit')->middleware('permission:edit-data-karyawan');
-    Route::get('/detailkeuangan/export/{user}/{bulan}/{tahun}', [DetailKeuanganController::class, 'export'])
-        ->name('detailkeuangan.export')->middleware('permission:view-keuangan');
-    Route::resource('detailkeuangan', DetailKeuanganController::class)->middleware('permission:view-keuangan');
 
-    Route::resource('tukin', TunjanganKinerjaController::class)->middleware('tunjangan-kinerja');
+    Route::get('/datakaryawan/export', [DataKaryawanController::class, 'export'])
+        ->middleware('permission:view-kepegawaian')
+        ->name('datakaryawan.export');
+
+    Route::post('/datakaryawan/import', [DataKaryawanController::class, 'import'])
+        ->name('datakaryawan.import')
+        ->middleware('permission:view-kepegawaian');
+
+    Route::resource('datakaryawan', DataKaryawanController::class)
+        ->middleware('permission:view-kepegawaian');
+
+    Route::resource('detailkaryawan', DetailKaryawanController::class)
+        ->middleware('permission:detail-data-karyawan');
+
+    Route::get('editKaryawan/{id}', [DataKaryawanController::class, 'edit'])
+        ->name('editKaryawan.edit')
+        ->middleware('permission:edit-data-karyawan');
+
+
+    Route::get('/detailkeuangan/export/{user}/{bulan}/{tahun}', [DetailKeuanganController::class, 'export'])
+        ->name('detailkeuangan.export')
+        ->middleware('permission:view-keuangan');
+
+    Route::resource('detailkeuangan', DetailKeuanganController::class)
+        ->middleware('permission:view-keuangan');
+
+
+    Route::resource('tukin', TunjanganKinerjaController::class)
+        ->middleware('tunjangan-kinerja');
+
     Route::resource('masakerja', MasaKerjaController::class);
+
     Route::resource('levelunit', LevelUnitController::class);
 
 
-    Route::resource('unitkerja', UnitKerjaController::class)->middleware('permission:unit-kerja');
+    Route::resource('unitkerja', UnitKerjaController::class)
+        ->middleware('permission:unit-kerja');
+
+
     // Route::resource('userprofile', UserProfileController::class);
     // Route::get('/userprofile', [UserProfileController::class, 'index'])->name('userprofile');
-    Route::get('/userprofile/editnomor', [UserProfileController::class, 'editNomor'])->name('userprofile.editnomor');
-    Route::get('/userprofile/editemail', [UserProfileController::class, 'editEmail'])->name('userprofile.editemail');
-    Route::get('/userprofile/editpassword', [UserProfileController::class, 'editPassword'])->name('userprofile.editpassword');
-    Route::get('/userprofile/editprofile', [UserProfileController::class, 'editProfile'])->name('userprofile.editprofile');
-    Route::get('/userprofile/editusername', action: [UserProfileController::class, 'editUsername'])->name('userprofile.editusername');
-    Route::get('keuangan/{user}/potongan/{bulan}/{tahun}', [KeuanganController::class, 'potongan'])->name('keuangan.potongan')->middleware('permission:view-keuangan');
-    Route::get('/userprofile/upload', action: [UserProfileController::class, 'upload'])->name('userprofile.upload');
 
-    // Download dokumen milik user yang sedang login (paksa download, bukan preview)
+    Route::get('/userprofile/editnomor', [UserProfileController::class, 'editNomor'])
+        ->name('userprofile.editnomor');
+
+    Route::get('/userprofile/editemail', [UserProfileController::class, 'editEmail'])
+        ->name('userprofile.editemail');
+
+    Route::get('/userprofile/editpassword', [UserProfileController::class, 'editPassword'])
+        ->name('userprofile.editpassword');
+
+    Route::get('/userprofile/editprofile', [UserProfileController::class, 'editProfile'])
+        ->name('userprofile.editprofile');
+
+    Route::get('/userprofile/editusername', action: [UserProfileController::class, 'editUsername'])
+        ->name('userprofile.editusername');
+
+    Route::get('keuangan/{user}/potongan/{bulan}/{tahun}', [KeuanganController::class, 'potongan'])
+        ->name('keuangan.potongan')
+        ->middleware('permission:view-keuangan');
+
+    Route::get('/userprofile/upload', action: [UserProfileController::class, 'upload'])
+        ->name('userprofile.upload');
+
+
+    // Download dokumen milik user yang sedang login
     Route::get('/userprofile/download/{id}', function ($id) {
 
         $file = SourceFile::where('id', $id)
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        if (!Storage::disk('public')->exists($file->path)) {
+        $filePath = storage_path('app/public/' . $file->path);
+
+        if (!file_exists($filePath)) {
             abort(404, 'File tidak ditemukan.');
         }
 
-        $safeFileName = str_replace(['/', '\\'], '-', $file->name);
-
-        return Storage::disk('public')->download($file->path, $safeFileName);
+        return response()->download(
+            $filePath,
+            $file->name
+        );
 
     })->name('userprofile.download');
 
-    Route::get('/keuangan/export', [KeuanganController::class, 'export'])->name('keuangan.export')->middleware('permission:view-keuangan');
-    Route::get('/keuangan/urutan/user/{jenis}', [KeuanganController::class, 'urutanUser'])->name('keuangan.urutan.user')->middleware('permission:view-keuangan');
-    Route::resource('keuangan', KeuanganController::class)->middleware('permission:view-keuangan');
-    Route::get('userprofile', [UserProfileController::class, 'index'])->name('userprofile.index');
+
+    Route::get('/keuangan/export', [KeuanganController::class, 'export'])
+        ->name('keuangan.export')
+        ->middleware('permission:view-keuangan');
+
+    Route::get('/keuangan/urutan/user/{jenis}', [KeuanganController::class, 'urutanUser'])
+        ->name('keuangan.urutan.user')
+        ->middleware('permission:view-keuangan');
+
+    Route::resource('keuangan', KeuanganController::class)
+        ->middleware('permission:view-keuangan');
+
+    Route::get('userprofile', [UserProfileController::class, 'index'])
+        ->name('userprofile.index');
+
     Route::resource('proposionalitas', ProposionalitasPointController::class);
-    Route::resource('poinperan', PointPeranController::class)->middleware('permission:view-poin-peran');
+
+    Route::resource('poinperan', PointPeranController::class)
+        ->middleware('permission:view-poin-peran');
+
     Route::resource('tukinjabatan', TukinJabatanController::class);
-    Route::resource('timer', TimerController::class)->middleware('permission:timer');
-    Route::resource('riwayatcuti', CutiController::class)->middleware('permission:approval-cuti');
-    Route::resource('riwayatizin', IzinController::class)->middleware('permission:approval-izin');
+
+    Route::resource('timer', TimerController::class)
+        ->middleware('permission:timer');
+
+    Route::resource('riwayatcuti', CutiController::class)
+        ->middleware('permission:approval-cuti');
+
+    Route::resource('riwayatizin', IzinController::class)
+        ->middleware('permission:approval-izin');
+
     // Route::resource('cuti', CutiController::class);
-    Route::resource('importgaji', ImportGajiController::class)->middleware('permission:view-import-gaji');
-    Route::resource('approvalcuti', CutiController::class)->middleware('permission:approval-cuti');
-    Route::resource('approvalizin', IzinController::class)->middleware('permission:approval-izin');
-    Route::resource('approvaltukar', TukarJadwalController::class)->middleware('permission:approval-tukar-jadwal');
+
+    Route::resource('importgaji', ImportGajiController::class)
+        ->middleware('permission:view-import-gaji');
+
+    Route::resource('approvalcuti', CutiController::class)
+        ->middleware('permission:approval-cuti');
+
+    Route::resource('approvalizin', IzinController::class)
+        ->middleware('permission:approval-izin');
+
+    Route::resource('approvaltukar', TukarJadwalController::class)
+        ->middleware('permission:approval-tukar-jadwal');
+
     Route::resource('riwayatapproval', RiwayatApprovalController::class);
+
     Route::resource('peringatan', PeringatanKaryawanController::class);
+
     Route::resource('slipgaji', GajiNettoController::class);
+
     Route::get('/slip-gaji/download/{id}', [GajiNettoController::class, 'download'])
         ->name('slipgaji.download');
+
+
     // Hapus route 'create' bawaan dari resource
     Route::resource('aktivitasabsensi', AktivitasAbsensiController::class)
         ->except(['create']);
 
-    // Buat route custom untuk create dengan parameter user_id
+    // Route custom untuk create dengan parameter user_id
     Route::get('/aktivitasabsensi/create/{user_id?}', [AktivitasAbsensiController::class, 'create'])
         ->name('aktivitasabsensi.create');
 
-    Route::resource('katjab', KategoriJabatanController::class)->middleware('permission:kategori-jabatan');
+
+    Route::resource('katjab', KategoriJabatanController::class)
+        ->middleware('permission:kategori-jabatan');
+
     Route::get('liburnasional/{tipe}/{holiday}', [HolidaysController::class, 'create']);
+
     Route::resource('liburnasional', HolidaysController::class);
-    Route::get('jatahcuti/{tipe}/{cuti}', [MasterJatahCutiController::class, 'create'])->middleware('permission:jatah-cuti');
-    Route::resource('jatahcuti', MasterJatahCutiController::class)->middleware('permission:jatah-cuti');
-    Route::get('penyesuaian/{tipe}/{penyesuaian}', [MasterPenyesuaianController::class, 'create'])->middleware('permission:penyesuaian');
-    Route::resource('penyesuaian', MasterPenyesuaianController::class)->middleware('permission:penyesuaian');
+
+
+    Route::get('jatahcuti/{tipe}/{cuti}', [MasterJatahCutiController::class, 'create'])
+        ->middleware('permission:jatah-cuti');
+
+    Route::resource('jatahcuti', MasterJatahCutiController::class)
+        ->middleware('permission:jatah-cuti');
+
+
+    // Master Cuti
+    Route::get('/mastercuti', [MasterCutiController::class, 'index'])
+        ->middleware('permission:master-cuti')
+        ->name('mastercuti.index');
+
+    Route::post('/mastercuti', [MasterCutiController::class, 'store'])
+        ->middleware('permission:master-cuti')
+        ->name('mastercuti.store');
+
+    Route::put('/mastercuti/{id}', [MasterCutiController::class, 'update'])
+        ->middleware('permission:master-cuti')
+        ->name('mastercuti.update');
+
+    Route::patch('/mastercuti/{id}/status', [MasterCutiController::class, 'updateStatus'])
+        ->middleware('permission:master-cuti')
+        ->name('mastercuti.status');
+
+
+    // Master Izin
+    Route::get('/masterizin', [MasterIzinController::class, 'index'])
+        ->middleware('permission:master-izin')
+        ->name('masterizin.index');
+
+    Route::post('/masterizin', [MasterIzinController::class, 'store'])
+        ->middleware('permission:master-izin')
+        ->name('masterizin.store');
+
+    Route::put('/masterizin/{id}', [MasterIzinController::class, 'update'])
+        ->middleware('permission:master-izin')
+        ->name('masterizin.update');
+
+    Route::patch('/masterizin/{id}/status', [MasterIzinController::class, 'updateStatus'])
+        ->middleware('permission:master-izin')
+        ->name('masterizin.status');
+
+
+    Route::get('penyesuaian/{tipe}/{penyesuaian}', [MasterPenyesuaianController::class, 'create'])
+        ->middleware('permission:penyesuaian');
+
+    Route::resource('penyesuaian', MasterPenyesuaianController::class)
+        ->middleware('permission:penyesuaian');
+
     Route::get('gapokkontrak/{tipe}/{gapokkontrak}', [GapokKontrakController::class, 'create']);
+
     Route::resource('gapokkontrak', GapokKontrakController::class);
     Route::get('pengajuan/create/{tipe}', [PengajuanController::class, 'create'])->name('pengajuan.create');
     Route::get('pengajuan/create/{tipe}/{userid}', [PengajuanController::class, 'create'])->name('pengajuan.createbyid');
@@ -222,5 +405,6 @@ Route::middleware('auth')->group(function () {
         return view('kpi.create', ['userId' => $userId, 'kpiId' => $kpiId]);
     })->name('kpi.edit');
 });
+
 
 require __DIR__ . '/auth.php';

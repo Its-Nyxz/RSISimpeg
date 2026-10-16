@@ -483,7 +483,7 @@ class KaryawanForm extends Component
         }
 
         // Tambahkan riwayat fungsional jika ada
-        if ($kategoriFungsional) {
+        if ($kategoriFungsional) {  
             RiwayatJabatan::create([
                 'user_id' => $user->id,
                 'kategori_jabatan_id' => $kategoriFungsional->id,
