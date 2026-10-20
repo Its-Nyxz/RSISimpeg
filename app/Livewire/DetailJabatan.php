@@ -26,7 +26,22 @@ class DetailJabatan extends Component
             'tambah-jadwal',
             'edit-jadwal',
         ],
-        'Master Data' => ['master-data', 'tunjangan', 'golongan', 'gaji-pokok', 'pendidikan', 'unit-kerja', 'potongan', 'tunjangan-kinerja', 'kategori-jabatan', 'jatah-cuti', 'penyesuaian', 'kategori-pph'],
+        'Master Data' => [
+            'master-data',
+            'master-cuti',
+            'master-izin',
+            'tunjangan',
+            'golongan',
+            'gaji-pokok',
+            'pendidikan',
+            'unit-kerja',
+            'potongan',
+            'tunjangan-kinerja',
+            'kategori-jabatan',
+            'jatah-cuti',
+            'penyesuaian',
+            'kategori-pph',
+        ],
         'Kepegawaian' => [
             'create-data-karyawan',
             'detail-data-karyawan',
@@ -47,7 +62,6 @@ class DetailJabatan extends Component
         'Pengaturan' => ['hak-akses'],
     ];
 
-
     public function mount($roleId)
     {
         $this->roleId = $roleId;
@@ -57,11 +71,14 @@ class DetailJabatan extends Component
         // Ambil semua permission yang ada di database
         $this->permissions = $this->defaultPermissions;
 
-        // Jika role belum punya permission, kasih semua default permission
         $existingPermissions = $role->permissions->pluck('name')->toArray();
+
         if (empty($existingPermissions)) {
-            $this->selectedPermissions = collect($this->defaultPermissions)->flatten()->toArray();
-            $this->syncPermissionsToRole(); // Simpan langsung ke DB
+            $this->selectedPermissions = collect($this->defaultPermissions)
+                ->flatten()
+                ->toArray();
+
+            $this->syncPermissionsToRole();
         } else {
             $this->selectedPermissions = $existingPermissions;
         }
@@ -76,18 +93,22 @@ class DetailJabatan extends Component
     {
         if (isset($this->permissions[$category])) {
             foreach ($this->permissions[$category] as $key => $value) {
-                $permission = is_array($value) ? $key : $value; // Menyesuaikan format array
+                $permission = is_array($value) ? $key : $value;
+
                 if (!in_array($permission, $this->selectedPermissions)) {
                     $this->selectedPermissions[] = $permission;
                 }
             }
+
             $this->syncPermissionsToRole();
         }
     }
 
     public function resetAllForCategory($category)
     {
-        if (!isset($this->permissions[$category])) return;
+        if (!isset($this->permissions[$category])) {
+            return;
+        }
 
         // Ambil semua permission dari kategori
         $permissionsInCategory = collect($this->permissions[$category])
@@ -97,8 +118,9 @@ class DetailJabatan extends Component
             ->values()
             ->toArray();
 
-        // Hapus semua permission tersebut dari selectedPermissions
-        $this->selectedPermissions = array_values(array_diff($this->selectedPermissions, $permissionsInCategory));
+        $this->selectedPermissions = array_values(
+            array_diff($this->selectedPermissions, $permissionsInCategory)
+        );
 
         $this->syncPermissionsToRole();
     }
@@ -116,7 +138,9 @@ class DetailJabatan extends Component
             ->values()
             ->toArray();
 
-        return empty(array_diff($permissionsInCategory, $this->selectedPermissions));
+        return empty(
+            array_diff($permissionsInCategory, $this->selectedPermissions)
+        );
     }
 
     public function syncPermissionsToRole()
