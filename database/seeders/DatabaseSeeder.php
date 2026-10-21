@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      */
-    
+
     public function run(): void
     {
         // test
@@ -140,6 +140,7 @@ class DatabaseSeeder extends Seeder
             PointJamKerjaSeeder::class,
             UserSeeder::class, // Tambahkan ini
             RolePermissionSeeder::class,
+            MasterCutiIzinPermissionSeeder::class,
             HolidaysSeeder::class,
             JenisCutiSeeder::class,
             StatusCutiSeeder::class,
