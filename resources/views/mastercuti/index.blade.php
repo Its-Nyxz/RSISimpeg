@@ -1,3 +1,4 @@
+
 <x-body>
     <div>
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-2 mb-3">
@@ -10,7 +11,7 @@
                     <tr>
                         <th scope="col" class="px-6 py-3 text-left">No</th>
                         <th scope="col" class="px-6 py-3 text-left">Jenis Cuti</th>
-                           <th scope="col" class="px-6 py-3 text-left">Status</th>
+                        <th scope="col" class="px-6 py-3 text-left">Status</th>
                         <th scope="col" class="px-6 py-3 text-right">Aksi</th>
                     </tr>
                 </thead>
@@ -28,7 +29,7 @@
 
                             <td class="px-6 py-4 text-left">
                                 @if ($cuti->aktif)
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-success-100 text-success-900">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
                                         Aktif
                                     </span>
                                 @else
@@ -45,7 +46,8 @@
                                     @method('PATCH')
 
                                     <button type="submit"
-                                        class="px-3 py-2 rounded-md border border-success-300 text-success-900 hover:bg-slate-300 transition">
+                                        title="{{ $cuti->aktif ? 'Nonaktifkan jenis cuti' : 'Aktifkan jenis cuti' }}"
+                                        class="px-3 py-2 rounded-md border border-red-500 text-red-600 hover:bg-red-500 hover:text-white transition duration-200">
                                         {{ $cuti->aktif ? 'Nonaktifkan' : 'Aktifkan' }}
                                     </button>
                                 </form>
@@ -56,7 +58,7 @@
                             <td colspan="4" class="text-center px-6 py-4">
                                 Belum ada data jenis cuti.
                             </td>
-                        </tr>  
+                        </tr>
                     @endforelse
                 </tbody>
             </table>

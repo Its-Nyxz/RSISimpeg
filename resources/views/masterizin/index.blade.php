@@ -28,7 +28,7 @@
 
                             <td class="px-6 py-4 text-left">
                                 @if ($izin->aktif)
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-success-100 text-success-900">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
                                         Aktif
                                     </span>
                                 @else
@@ -45,7 +45,8 @@
                                     @method('PATCH')
 
                                     <button type="submit"
-                                        class="px-3 py-2 rounded-md border border-success-300 text-success-900 hover:bg-slate-300 transition">
+                                        title="{{ $izin->aktif ? 'Nonaktifkan jenis izin' : 'Aktifkan jenis izin' }}"
+                                        class="px-3 py-2 rounded-md border border-red-500 text-red-600 hover:bg-red-500 hover:text-white transition duration-200">
                                         {{ $izin->aktif ? 'Nonaktifkan' : 'Aktifkan' }}
                                     </button>
                                 </form>
