@@ -68,7 +68,7 @@
                         <ul x-show="open" x-transition class="py-2 space-y-2">
                             @foreach ($item['child'] as $subItem)
                                 @php
-                                    $subPath = trim(parse_url($subItem['href'], PHP_URL_PATH), '/');
+                                   $subPath = trim(parse_url($subItem['href'] ?? '', PHP_URL_PATH) ?? '', '/');
                                     $isActive3 =
                                         $currentPath === $subPath ? 'bg-gray-100 text-success-950' : 'text-white';
                                 @endphp
