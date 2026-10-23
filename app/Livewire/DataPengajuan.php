@@ -7,6 +7,7 @@ use App\Models\TukarJadwal;
 use App\Models\CutiKaryawan;
 use App\Models\IzinKaryawan;
 use App\Models\SisaCutiTahunan;
+use App\Models\MasterJatahCuti;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -41,22 +42,46 @@ class DataPengajuan extends Component
                     // Mengikuti tahun pelaksanaan cuti
                     $tahun = Carbon::parse($cuti->tanggal_mulai)->year;
 
-                    $sisaCuti = SisaCutiTahunan::where('user_id', $cuti->user_id)
-                        ->where('tahun', $tahun)
-                        ->lockForUpdate()
-                        ->first();
+                    if ($cuti->kategori_cuti === 'tambahan') {
+                        $sisaCuti = SisaCutiTahunan::where('user_id', $cuti->user_id)
+                            ->where('tahun', $tahun)
+                            ->lockForUpdate()
+                            ->first();
 
-                    if (!$sisaCuti) {
-                        throw new \RuntimeException(
-                            'Data saldo cuti tahunan tidak ditemukan. Pengajuan tidak jadi dihapus.'
-                        );
+                        if ($sisaCuti) {
+                            $sisaCuti->increment('cuti_tambahan', $cuti->jumlah_hari);
+                        }
+                    } else {
+                        // Cuti Tahunan: Cek apakah ada kuota yang dikasbon dari tahun depan
+                        $tahunDepan = $tahun + 1;
+                        $sisaDepan = SisaCutiTahunan::where('user_id', $cuti->user_id)
+                            ->where('tahun', $tahunDepan)
+                            ->lockForUpdate()
+                            ->first();
+
+                        $jatahDepan = MasterJatahCuti::where('tahun', $tahunDepan)->value('jumlah_cuti') ?? 12;
+                        $jumlahBalik = $cuti->jumlah_hari;
+
+                        // Jika saldo tahun depan berkurang karena kasbon, pulihkan tahun depan terlebih dahulu
+                        if ($sisaDepan && $sisaDepan->sisa_cuti < $jatahDepan) {
+                            $defisit = $jatahDepan - $sisaDepan->sisa_cuti;
+                            $kembaliDepan = min($jumlahBalik, $defisit);
+                            $sisaDepan->increment('sisa_cuti', $kembaliDepan);
+                            $jumlahBalik -= $kembaliDepan;
+                        }
+
+                        // Sisanya dikembalikan ke saldo tahun cuti tersebut
+                        if ($jumlahBalik > 0) {
+                            $sisaCuti = SisaCutiTahunan::where('user_id', $cuti->user_id)
+                                ->where('tahun', $tahun)
+                                ->lockForUpdate()
+                                ->first();
+
+                            if ($sisaCuti) {
+                                $sisaCuti->increment('sisa_cuti', $jumlahBalik);
+                            }
+                        }
                     }
-
-                    $kolomCuti = $cuti->kategori_cuti === 'tambahan'
-                        ? 'cuti_tambahan'
-                        : 'sisa_cuti';
-
-                    $sisaCuti->increment($kolomCuti, $cuti->jumlah_hari);
                 }
 
                 $cuti->delete();

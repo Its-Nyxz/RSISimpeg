@@ -294,6 +294,82 @@ class DataCuti extends Component
     }
 
     /** ----------------------------------------------------------------
+     *  Potong saldo cuti tahunan atau tambahan, termasuk sistem kasbon kuota tahun depan
+     *  jika jatah tahun berjalan sudah habis / kurang.
+     *  ---------------------------------------------------------------- */
+    private function potongSaldoCuti($cuti, $targetUser)
+    {
+        $tahunCuti = Carbon::parse($cuti->tanggal_mulai)->year;
+        $tahunDepan = $tahunCuti + 1;
+
+        // 1. Cek Cuti Tambahan
+        if ($cuti->kategori_cuti == 'tambahan') {
+            $userCuti = SisaCutiTahunan::firstOrCreate(
+                ['user_id' => $cuti->user_id, 'tahun' => $tahunCuti],
+                ['sisa_cuti' => MasterJatahCuti::where('tahun', $tahunCuti)->value('jumlah_cuti') ?? 12]
+            );
+
+            if ($userCuti->cuti_tambahan >= $cuti->jumlah_hari) {
+                $userCuti->decrement('cuti_tambahan', $cuti->jumlah_hari);
+                return ['success' => true, 'pesan' => ''];
+            }
+
+            return [
+                'success' => false,
+                'message' => 'Jatah Cuti Tambahan tidak cukup, pengajuan otomatis ditolak.'
+            ];
+        }
+
+        // 2. Cek Cuti Tahunan (dengan sistem kasbon tahun depan jika kurang/habis)
+        $jatahTahunIni = MasterJatahCuti::where('tahun', $tahunCuti)->value('jumlah_cuti') ?? 12;
+        $userCuti = SisaCutiTahunan::firstOrCreate(
+            ['user_id' => $cuti->user_id, 'tahun' => $tahunCuti],
+            ['sisa_cuti' => $jatahTahunIni]
+        );
+
+        $kebutuhan = $cuti->jumlah_hari;
+        $saldoTahunIni = $userCuti->sisa_cuti;
+
+        // Skenario 1: Saldo tahun berjalan mencukupi
+        if ($saldoTahunIni >= $kebutuhan) {
+            $userCuti->decrement('sisa_cuti', $kebutuhan);
+            return ['success' => true, 'pesan' => ''];
+        }
+
+        // Skenario 2: Saldo tahun berjalan habis (0) atau kurang -> Pinjam / Kasbon jatah tahun depan
+        $dariTahunIni = max(0, $saldoTahunIni);
+        $kekurangan = $kebutuhan - $dariTahunIni;
+
+        $jatahTahunDepan = MasterJatahCuti::where('tahun', $tahunDepan)->value('jumlah_cuti') ?? 12;
+        $userCutiTahunDepan = SisaCutiTahunan::firstOrCreate(
+            ['user_id' => $cuti->user_id, 'tahun' => $tahunDepan],
+            ['sisa_cuti' => $jatahTahunDepan]
+        );
+
+        if ($userCutiTahunDepan->sisa_cuti >= $kekurangan) {
+            if ($dariTahunIni > 0) {
+                $userCuti->decrement('sisa_cuti', $dariTahunIni);
+            }
+            $userCutiTahunDepan->decrement('sisa_cuti', $kekurangan);
+
+            $pesanKasbon = " ({$kekurangan} hari diambil dari kuota cuti tahun depan {$tahunDepan})";
+            return [
+                'success' => true,
+                'pesan' => $pesanKasbon,
+                'kasbon' => true,
+                'hari_kasbon' => $kekurangan,
+                'tahun_depan' => $tahunDepan
+            ];
+        }
+
+        // Skenario 3: Kuota tahun ini + kuota tahun depan tidak cukup
+        return [
+            'success' => false,
+            'message' => "Jatah Cuti Tahunan {$tahunCuti} dan jatah tahun depan ({$tahunDepan}) tidak cukup, pengajuan otomatis ditolak."
+        ];
+    }
+
+    /** ----------------------------------------------------------------
      *  Approve Cuti
      *  ---------------------------------------------------------------- */
     public function approveCuti($cutiId, $userId)
@@ -313,6 +389,8 @@ class DataCuti extends Component
                 ->with('error', 'Pengajuan cuti tidak ditemukan.');
         }
 
+        $pesanTambahan = '';
+
         /** ------------------------------------------------------------
          *  Jika user adalah Wadir/Direktur dan cuti dari Manager → Final
          *  ------------------------------------------------------------ */
@@ -321,38 +399,24 @@ class DataCuti extends Component
 
             // 🔥 Validasi sisa jatah cuti (Tahunan atau Tambahan)
             if ($cuti->jenisCuti && strtolower($cuti->jenisCuti->nama_cuti) == 'cuti tahunan') {
-                $tahunCuti = Carbon::parse($cuti->tanggal_mulai)->year;
-                $jatahCuti = MasterJatahCuti::where('tahun', $tahunCuti)->value('jumlah_cuti') ?? 12;
+                $potong = $this->potongSaldoCuti($cuti, $targetUser);
 
-                $userCuti = SisaCutiTahunan::firstOrCreate(
-                    ['user_id' => $cuti->user_id, 'tahun' => $tahunCuti],
-                    ['sisa_cuti' => $jatahCuti]
-                );
-
-                if ($userCuti) {
-                    $kolomCuti = ($cuti->kategori_cuti == 'tambahan') ? 'cuti_tambahan' : 'sisa_cuti';
-                    $namaKategori = ($cuti->kategori_cuti == 'tambahan') ? 'Tambahan' : 'Tahunan';
-
-                    if ($userCuti->$kolomCuti >= $cuti->jumlah_hari) {
-                        $userCuti->decrement($kolomCuti, $cuti->jumlah_hari);
-                    } else {
-                        $cuti->update(['status_cuti_id' => 2]);
-                        Notification::send($targetUser, new UserNotification(
-                            "Pengajuan cuti ditolak karena jatah Cuti {$namaKategori} tidak cukup.",
-                            "/pengajuan/cuti"
-                        ));
-                        return redirect()->route('approvalcuti.index')
-                            ->with('error', "Jatah Cuti {$namaKategori} tidak cukup, pengajuan otomatis ditolak.");
-                    }
-                } else {
+                if (!$potong['success']) {
+                    $cuti->update(['status_cuti_id' => 2]);
+                    Notification::send($targetUser, new UserNotification(
+                        $potong['message'],
+                        "/pengajuan/cuti"
+                    ));
                     return redirect()->route('approvalcuti.index')
-                        ->with('error', 'Data jatah cuti tidak ditemukan.');
+                        ->with('error', $potong['message']);
                 }
+
+                $pesanTambahan = $potong['pesan'] ?? '';
             }
 
             // ✅ Final approval
             $cuti->update(['status_cuti_id' => $cutiStatus]);
-            $pesan = "Pengajuan cuti Anda telah <span class='text-success-600 font-bold'>Disetujui Final</span> oleh {$user->name} ({$user->jabatan->nama}).";
+            $pesan = "Pengajuan cuti Anda telah <span class='text-success-600 font-bold'>Disetujui Final</span> oleh {$user->name} ({$user->jabatan->nama}){$pesanTambahan}.";
             Notification::send($targetUser, new UserNotification($pesan, "/pengajuan/cuti"));
 
             RiwayatApproval::create([
@@ -364,7 +428,7 @@ class DataCuti extends Component
             ]);
 
             return redirect()->route('approvalcuti.index')
-                ->with('success', 'Cuti Manager telah disetujui final oleh Wadir/Direktur.');
+                ->with('success', "Cuti Manager telah disetujui final oleh Wadir/Direktur.{$pesanTambahan}");
         }
 
         /** ------------------------------------------------------------
@@ -378,80 +442,60 @@ class DataCuti extends Component
 
         $cutiStatus = $isFinalApprover ? 1 : 4; // 1 = Final, 4 = Menunggu Final
 
-            // 🔥 Validasi jatah cuti (Tahunan atau Tambahan) jika final
-            if (
-                $cutiStatus == 1 &&
-                $cuti->jenisCuti &&
-                strtolower($cuti->jenisCuti->nama_cuti) == 'cuti tahunan'
-            ) {
+        // 🔥 Validasi jatah cuti (Tahunan atau Tambahan) jika final
+        if (
+            $cutiStatus == 1 &&
+            $cuti->jenisCuti &&
+            strtolower($cuti->jenisCuti->nama_cuti) == 'cuti tahunan'
+        ) {
 
-                // dd($targetUser->jenis_id != 1);
-                if ($targetUser->jenis_id != 1 || empty($targetUser->jenis_id)) {
-                    // (Logika pengecekan TMT karyawan kontrak tetap sama seperti sebelumnya)
-                    if (empty($targetUser->jenis_id) && empty($targetUser->tmt_masuk) && empty($targetUser->tmt)) {
-                        return redirect()->route('approvalcuti.index')
-                            ->with('error', 'Data jenis Karyawan & TMT belum terisi');
-                    }
-                    if (empty($targetUser->jenis_id)) {
-                        return redirect()->route('approvalcuti.index')
-                            ->with('error', 'Data jenis Karyawan belum terisi');
-                    }
-                    if (empty($targetUser->tmt_masuk)) {
-                        return redirect()->route('approvalcuti.index')
-                            ->with('error', 'Data TMT masuk belum terisi');
-                    }
-                    if (empty($targetUser->tmt)) {
-                        return redirect()->route('approvalcuti.index')
-                            ->with('error', 'Data TMT belum terisi');
-                    }
-
-                    $now = now('Asia/Jakarta');
-                    $tmt = Carbon::parse($targetUser->tmt, 'Asia/Jakarta');
-                    $targetTanggal = $tmt->copy()->addMonths(12);
-
-                    if ($targetUser->jenis_id === 3) {
-                        if (!$now->greaterThanOrEqualTo($targetTanggal)) {
-                            $sisaBulan = ceil($now->floatDiffInMonths($targetTanggal));
-                            return redirect()->route('approvalcuti.index')
-                                ->with('error', "Maaf, karyawan kontrak baru bisa cuti setelah 12 bulan. Sisa masa tunggu: $sisaBulan bulan lagi.");
-                        } else {
-                            $tahunCuti = Carbon::parse($cuti->tanggal_mulai)->year;
-                            $jatahCuti = MasterJatahCuti::where('tahun', $tahunCuti)->value('jumlah_cuti') ?? 12;
-                            SisaCutiTahunan::firstOrCreate(
-                                ['user_id' => $targetUser->id, 'tahun' => $tahunCuti],
-                                ['sisa_cuti' => $jatahCuti]
-                            );
-                        }
-                    }
-                };
-
-                $tahunCuti = Carbon::parse($cuti->tanggal_mulai)->year;
-                $jatahCuti = MasterJatahCuti::where('tahun', $tahunCuti)->value('jumlah_cuti') ?? 12;
-                $userCuti = SisaCutiTahunan::firstOrCreate(
-                    ['user_id' => $userId, 'tahun' => $tahunCuti],
-                    ['sisa_cuti' => $jatahCuti]
-                );
-
-                if ($userCuti) {
-                    $kolomCuti = ($cuti->kategori_cuti == 'tambahan') ? 'cuti_tambahan' : 'sisa_cuti';
-                    $namaKategori = ($cuti->kategori_cuti == 'tambahan') ? 'Tambahan' : 'Tahunan';
-
-                    if ($userCuti->$kolomCuti >= $cuti->jumlah_hari) {
-                        $userCuti->decrement($kolomCuti, $cuti->jumlah_hari);
-                    } else {
-                        $cuti->update(['status_cuti_id' => 2]);
-                        Notification::send($targetUser, new UserNotification(
-                            "Pengajuan cuti ditolak karena jatah Cuti {$namaKategori} tidak cukup.",
-                            "/pengajuan/cuti"
-                        ));
-                        return redirect()->route('approvalcuti.index')
-                            ->with('error', "Jatah Cuti {$namaKategori} tidak cukup, pengajuan otomatis ditolak.");
-                    }
-                } else {
+            // dd($targetUser->jenis_id != 1);
+            if ($targetUser->jenis_id != 1 || empty($targetUser->jenis_id)) {
+                // (Logika pengecekan TMT karyawan kontrak tetap sama seperti sebelumnya)
+                if (empty($targetUser->jenis_id) && empty($targetUser->tmt_masuk) && empty($targetUser->tmt)) {
                     return redirect()->route('approvalcuti.index')
-                        ->with('error', 'Data jatah cuti tidak ditemukan.');
+                        ->with('error', 'Data jenis Karyawan & TMT belum terisi');
                 }
+                if (empty($targetUser->jenis_id)) {
+                    return redirect()->route('approvalcuti.index')
+                        ->with('error', 'Data jenis Karyawan belum terisi');
+                }
+                if (empty($targetUser->tmt_masuk)) {
+                    return redirect()->route('approvalcuti.index')
+                        ->with('error', 'Data TMT masuk belum terisi');
+                }
+                if (empty($targetUser->tmt)) {
+                    return redirect()->route('approvalcuti.index')
+                        ->with('error', 'Data TMT belum terisi');
+                }
+
+                $now = now('Asia/Jakarta');
+                $tmt = Carbon::parse($targetUser->tmt, 'Asia/Jakarta');
+                $targetTanggal = $tmt->copy()->addMonths(12);
+
+                if ($targetUser->jenis_id === 3) {
+                    if (!$now->greaterThanOrEqualTo($targetTanggal)) {
+                        $sisaBulan = ceil($now->floatDiffInMonths($targetTanggal));
+                        return redirect()->route('approvalcuti.index')
+                            ->with('error', "Maaf, karyawan kontrak baru bisa cuti setelah 12 bulan. Sisa masa tunggu: $sisaBulan bulan lagi.");
+                    }
+                }
+            };
+
+            $potong = $this->potongSaldoCuti($cuti, $targetUser);
+
+            if (!$potong['success']) {
+                $cuti->update(['status_cuti_id' => 2]);
+                Notification::send($targetUser, new UserNotification(
+                    $potong['message'],
+                    "/pengajuan/cuti"
+                ));
+                return redirect()->route('approvalcuti.index')
+                    ->with('error', $potong['message']);
             }
+
+            $pesanTambahan = $potong['pesan'] ?? '';
+        }
 
         // 🔹 Update status cuti
         $cuti->update(['status_cuti_id' => $cutiStatus]);
@@ -503,7 +547,7 @@ class DataCuti extends Component
 
         // 🔔 Notifikasi ke pemohon
         $statusText = $isFinalApprover ? 'Disetujui Final' : 'Disetujui (Menunggu Final)';
-        $message = "Pengajuan cuti anda telah <span class='text-success-600 font-bold'>{$statusText}</span> oleh {$user->name}";
+        $message = "Pengajuan cuti anda telah <span class='text-success-600 font-bold'>{$statusText}</span> oleh {$user->name}{$pesanTambahan}";
         Notification::send($targetUser, new UserNotification($message, "/pengajuan/cuti"));
 
         // 🔔 Jika belum final → notifikasi ke Kepegawaian

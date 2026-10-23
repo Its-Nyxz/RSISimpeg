@@ -34,29 +34,33 @@ class GenerateAnnualLeave extends Command
         $currentYear = $today->year;
 
         if (Schema::hasTable('sisa_cuti_tahunans') && Schema::hasTable('master_jatah_cutis')) {
-            $alreadyGenerated = SisaCutiTahunan::where('tahun', $currentYear)->exists();
+            // Ambil hanya user dengan jenis karyawan 'Tetap'
+            $users = User::whereHas('jenis', function ($query) {
+                $query->where('nama', 'Tetap');
+            })->get();
 
-            if (!$alreadyGenerated) {
-                // Ambil hanya user dengan jenis karyawan 'Tetap'
-                $users = User::whereHas('jenis', function ($query) {
-                    $query->where('nama', 'Tetap');
-                })->get();
+            $jatahCuti = MasterJatahCuti::where('tahun', $currentYear)
+                ->value('jumlah_cuti') ?? 12;
 
-                foreach ($users as $user) {
-                    $jatahCuti = MasterJatahCuti::where('tahun', $currentYear)
-                        ->value('jumlah_cuti') ?? 12;
-
-                    SisaCutiTahunan::create([
+            $countNew = 0;
+            foreach ($users as $user) {
+                // firstOrCreate memastikan karyawan yang sudah kasbon (saldo < 12) tidak tertimpa
+                $record = SisaCutiTahunan::firstOrCreate(
+                    [
                         'user_id' => $user->id,
                         'tahun' => $currentYear,
+                    ],
+                    [
                         'sisa_cuti' => $jatahCuti,
-                    ]);
-                }
+                    ]
+                );
 
-                $this->info('Sisa cuti berhasil digenerate untuk karyawan tetap.');
-            } else {
-                $this->info('Data sudah ada untuk tahun ini.');
+                if ($record->wasRecentlyCreated) {
+                    $countNew++;
+                }
             }
+
+            $this->info("Sisa cuti berhasil disinkronisasi untuk karyawan tetap ($countNew data baru dibuat).");
         }
     }
 }
