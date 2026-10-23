@@ -42,9 +42,6 @@
                     <input type="date" wire:model.live="tanggalPenilaian" class="text-sm py-2 px-3 rounded-lg border-gray-300 focus:ring focus:ring-success-200 focus:border-success-400 bg-white font-medium shadow-xs">
                 </div>
             </div>
-            <div class="text-sm text-success-800 font-medium flex items-center">
-                <i class="fa-solid fa-circle-info mr-1.5 text-success-700"></i> Data diisi sesuai bagan struktur organisasi RSI Banjarnegara.
-            </div>
         </div>
 
         {{-- BAGIAN 1: IDENTITAS & PIHAK TERKAIT --}}

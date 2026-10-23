@@ -10,6 +10,7 @@ use App\Models\SisaCutiTahunan;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class DataPengajuan extends Component
 {
@@ -37,8 +38,8 @@ class DataPengajuan extends Component
                     $cuti->status_cuti_id == 1 &&
                     strtolower($cuti->jenisCuti->nama_cuti ?? '') === 'cuti tahunan'
                 ) {
-                    // Mengikuti logika tahun berjalan di DataCuti.php.
-                    $tahun = now('Asia/Jakarta')->year;
+                    // Mengikuti tahun pelaksanaan cuti
+                    $tahun = Carbon::parse($cuti->tanggal_mulai)->year;
 
                     $sisaCuti = SisaCutiTahunan::where('user_id', $cuti->user_id)
                         ->where('tahun', $tahun)

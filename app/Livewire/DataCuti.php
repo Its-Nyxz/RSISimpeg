@@ -321,9 +321,13 @@ class DataCuti extends Component
 
             // 🔥 Validasi sisa jatah cuti (Tahunan atau Tambahan)
             if ($cuti->jenisCuti && strtolower($cuti->jenisCuti->nama_cuti) == 'cuti tahunan') {
-                $userCuti = SisaCutiTahunan::where('user_id', $cuti->user_id)
-                    ->where('tahun', now('Asia/Jakarta')->year)
-                    ->first();
+                $tahunCuti = Carbon::parse($cuti->tanggal_mulai)->year;
+                $jatahCuti = MasterJatahCuti::where('tahun', $tahunCuti)->value('jumlah_cuti') ?? 12;
+
+                $userCuti = SisaCutiTahunan::firstOrCreate(
+                    ['user_id' => $cuti->user_id, 'tahun' => $tahunCuti],
+                    ['sisa_cuti' => $jatahCuti]
+                );
 
                 if ($userCuti) {
                     $kolomCuti = ($cuti->kategori_cuti == 'tambahan') ? 'cuti_tambahan' : 'sisa_cuti';
@@ -411,19 +415,22 @@ class DataCuti extends Component
                             return redirect()->route('approvalcuti.index')
                                 ->with('error', "Maaf, karyawan kontrak baru bisa cuti setelah 12 bulan. Sisa masa tunggu: $sisaBulan bulan lagi.");
                         } else {
-                            $currentYear = now('Asia/Jakarta')->year;
-                            $jatahCuti = MasterJatahCuti::where('tahun', $currentYear)->value('jumlah_cuti') ?? 12;
+                            $tahunCuti = Carbon::parse($cuti->tanggal_mulai)->year;
+                            $jatahCuti = MasterJatahCuti::where('tahun', $tahunCuti)->value('jumlah_cuti') ?? 12;
                             SisaCutiTahunan::firstOrCreate(
-                                ['user_id' => $targetUser->id, 'tahun' => $currentYear],
+                                ['user_id' => $targetUser->id, 'tahun' => $tahunCuti],
                                 ['sisa_cuti' => $jatahCuti]
                             );
                         }
                     }
                 };
 
-                $userCuti = SisaCutiTahunan::where('user_id', $userId)
-                    ->where('tahun', now('Asia/Jakarta')->year)
-                    ->first();
+                $tahunCuti = Carbon::parse($cuti->tanggal_mulai)->year;
+                $jatahCuti = MasterJatahCuti::where('tahun', $tahunCuti)->value('jumlah_cuti') ?? 12;
+                $userCuti = SisaCutiTahunan::firstOrCreate(
+                    ['user_id' => $userId, 'tahun' => $tahunCuti],
+                    ['sisa_cuti' => $jatahCuti]
+                );
 
                 if ($userCuti) {
                     $kolomCuti = ($cuti->kategori_cuti == 'tambahan') ? 'cuti_tambahan' : 'sisa_cuti';

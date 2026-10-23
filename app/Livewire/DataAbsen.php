@@ -2,19 +2,18 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
 use App\Models\Absen;
 use App\Models\User;
-use App\Models\JadwalAbsensi;
-use App\Models\OpsiAbsen;
-use App\Models\Shift;
-use App\Models\StatusAbsen;
+use Livewire\Component;
 
 class DataAbsen extends Component
 {
     public $type;
+
     public $totalHadir = 0;
+
     public $totalPulang = 0;
+
     public $totalKaryawan = 0;
 
     public function mount($type)
