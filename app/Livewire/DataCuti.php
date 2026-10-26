@@ -52,7 +52,7 @@ class DataCuti extends Component
     {
         $user = auth()->user();
         $this->unitKepegawaianId = 87;
-        $this->isKepegawaian = $user->unit_id == $this->unitKepegawaianId || $user->roles->pluck('id')->first() == 2 || $user->roles->pluck('id')->first() == 14 || $user->hasRole('Super Admin');
+        $this->isKepegawaian = $user->unit_id == $this->unitKepegawaianId || $user->can('approval-cuti') || $user->hasRole('Super Admin');
         $this->isRiwayatCuti = request()->routeIs('riwayatcuti.*') || request()->is('riwayatcuti');
         $this->bulan = now()->month;
         $this->tahun = now()->year;

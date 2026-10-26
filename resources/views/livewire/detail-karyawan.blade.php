@@ -603,7 +603,7 @@
                                     @forelse ($listIzin as $izin)
                                         <tr
                                             class="odd:bg-success-50 even:bg-success-100 border-b border-success-300 hover:bg-success-300">
-                                            ., kll; <td class="px-2 py-2 sm:px-4">
+                                            <td class="px-2 py-2 sm:px-4">
                                                 {{ $izin->jenisizin->nama_izin ?? '-' }}
                                             </td>
                                             <td class="px-2 py-2 sm:px-4">

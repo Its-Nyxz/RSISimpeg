@@ -207,8 +207,7 @@ class DataJadwal extends Component
         $namaUnit = $unit ? str_replace(' ', '_', $unit->nama) : 'Semua_Unit';
 
         // 2. Ubah Angka Bulan menjadi Nama Bulan (Bahasa Indonesia)
-        // 'id' untuk Indonesia, pastikan locale sudah diset atau gunakan format manual
-        $monthName = \Carbon\Carbon::createFromFormat('m', $this->bulan)->translatedFormat('F');
+        $monthName = \Carbon\Carbon::createFromDate($this->tahun, (int) $this->bulan, 1)->locale('id')->isoFormat('MMMM');
 
         // 3. Gabungkan menjadi Nama File yang Cantik
         // Format: Jadwal_Shift_NamaUnit_Bulan_Tahun.xlsx
