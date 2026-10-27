@@ -123,9 +123,7 @@
                         <th class="px-6 py-3">Jumlah Hari</th>
                         <th class="px-6 py-3">Jenis Cuti</th>
                         <th class="px-6 py-3">Status</th>
-                        @if ($isKepegawaian)
-                            <th class="px-6 py-3">Aksi</th>
-                        @endif
+                        <th class="px-6 py-3">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
