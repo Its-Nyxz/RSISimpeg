@@ -304,8 +304,7 @@
         <p>Banjarnegara, {{ \Carbon\Carbon::parse($slip->tanggal_transfer)->translatedFormat('d F Y') }}</p>
         <p>Bendahara,</p>
         <br><br><br>
-        <p><strong>{{ $bendahara?->nama_bersih ?? ($bendahara?->name ?? '( .................................... )') }}</strong>
-        </p>
+        <p><strong>( .................................... )</strong></p>
     </div>
     <div class="clear"></div>
 </body>

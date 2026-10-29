@@ -123,7 +123,9 @@
                         <th class="px-6 py-3">Jumlah Hari</th>
                         <th class="px-6 py-3">Jenis Cuti</th>
                         <th class="px-6 py-3">Status</th>
+                        @can('approval-cuti')
                         <th class="px-6 py-3">Aksi</th>
+                        @endcan
                     </tr>
                 </thead>
                 <tbody>
@@ -139,6 +141,7 @@
                             <td class="px-6 py-4 font-extrabold {{ $cuti->status_cuti_id == 1 ? 'text-success-900' : ($cuti->status_cuti_id == 2 ? 'text-red-900' : 'text-gray-900') }}">
                                 {{ $cuti->statusCuti->nama_status ?? '-' }}
                             </td>
+                            @can('approval-cuti')
                             <td class="px-6 py-4 text-center">
                                 <div class="flex justify-center gap-2">
                                     @if ($cuti->status_cuti_id == 3 || ($isKepegawaian && $cuti->status_cuti_id == 4))
@@ -149,6 +152,7 @@
                                     @else - @endif
                                 </div>
                             </td>
+                            @endcan
                         </tr>
                     @empty
                         <tr><td colspan="9" class="text-center px-6 py-4">Tidak ada data Approval Cuti.</td></tr>
