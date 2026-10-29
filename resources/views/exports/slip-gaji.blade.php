@@ -303,9 +303,8 @@
     <div class="signature-area">
         <p>Banjarnegara, {{ \Carbon\Carbon::parse($slip->tanggal_transfer)->translatedFormat('d F Y') }}</p>
         <p>Bendahara,</p>
-        <br><br><br>
-        <p><strong>{{ $bendahara?->nama_bersih ?? ($bendahara?->name ?? '( .................................... )') }}</strong>
-        </p>
+        <br><br><br><br><br>
+        <p><strong>( .................................... )</strong></p>
     </div>
     <div class="clear"></div>
 </body>

@@ -18,7 +18,6 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use App\Notifications\UserNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Validation\Rule;
 
 class PengajuanForm extends Component
 {
@@ -36,6 +35,9 @@ class PengajuanForm extends Component
 
     /** @var TemporaryUploadedFile|null */
     public $bukti_izin;
+
+    /** @var TemporaryUploadedFile|null */
+    public $bukti_cuti;
 
     public $jenis_cuti_id;
     public $jenis_cutis;
@@ -56,9 +58,7 @@ class PengajuanForm extends Component
         if ($tipe === 'cuti') {
             $this->judul = 'Pengajuan Cuti';
             $this->deskripsi = 'Silakan isi form untuk mengajukan cuti.';
-
-            // Hanya mengambil jenis cuti yang aktif
-            $this->jenis_cutis = JenisCuti::where('aktif', 1)->get();
+            $this->jenis_cutis = JenisCuti::all();
 
             if ($this->userid !== null) {
                 $this->karyawans = User::find($this->userid);
@@ -69,9 +69,7 @@ class PengajuanForm extends Component
         } elseif ($tipe === 'ijin') {
             $this->judul = 'Pengajuan Izin';
             $this->deskripsi = 'Silakan isi form untuk mengajukan izin.';
-
-            // Hanya mengambil jenis izin yang aktif
-            $this->jenis_izins = JenisIzin::where('aktif', 1)->get();
+            $this->jenis_izins = JenisIzin::all();
         } elseif ($tipe === 'tukar_jadwal') {
             $this->judul = 'Pengajuan Tukar Jadwal';
             $this->deskripsi = 'Silakan isi form untuk menukar jadwal.';
@@ -91,8 +89,7 @@ class PengajuanForm extends Component
     // Jika jenis cuti dipilih, ambil durasi default dan hitung tanggal selesai
     public function updatedJenisCutiId()
     {
-        $cuti = JenisCuti::where('aktif', 1)
-            ->find($this->jenis_cuti_id);
+        $cuti = JenisCuti::find($this->jenis_cuti_id);
 
         if ($cuti) {
             // Jika cuti tahunan, abaikan durasi default
@@ -103,18 +100,13 @@ class PengajuanForm extends Component
                 $this->durasi_default = $cuti->durasi_default;
                 $this->hitungTanggalSelesai();
             }
-        } else {
-            $this->jenis_cuti_id = null;
-            $this->durasi_default = null;
-            $this->tanggal_selesai = null;
         }
     }
 
     // Jika tanggal mulai diubah, hitung tanggal selesai (kecuali cuti tahunan)
     public function updatedTanggalMulai()
     {
-        $cuti = JenisCuti::where('aktif', 1)
-            ->find($this->jenis_cuti_id);
+        $cuti = JenisCuti::find($this->jenis_cuti_id);
 
         if ($cuti && $cuti->nama_cuti !== 'Cuti Tahunan') {
             $this->hitungTanggalSelesai();
@@ -326,17 +318,14 @@ class PengajuanForm extends Component
 
         if ($this->tipe === 'cuti') {
             $this->validate([
-                'jenis_cuti_id' => [
-                    'required',
-                    Rule::exists('jenis_cutis', 'id')
-                        ->where('aktif', 1),
-                ],
+                'jenis_cuti_id' => 'required|exists:jenis_cutis,id',
                 'kategori_cuti' => 'required|in:tahunan,tambahan',
                 'tanggal_mulai' => $this->userid
                     ? 'required|date'
                     : 'required|date|after_or_equal:today',
                 'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
                 'keterangan' => 'nullable|string|max:255',
+                'bukti_cuti' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             ]);
 
             $user = $this->userid
@@ -487,6 +476,18 @@ class PengajuanForm extends Component
                 $statusCuti = 4;
             }
 
+            // Simpan lampiran cuti jika diunggah
+            $buktiCuti = null;
+
+            if ($this->bukti_cuti instanceof TemporaryUploadedFile) {
+                $fileName = $this->bukti_cuti->store(
+                    'photos/bukti-cuti',
+                    'public'
+                );
+
+                $buktiCuti = basename($fileName);
+            }
+
             // Simpan pengajuan cuti
             $cuti = CutiKaryawan::create([
                 'user_id' => $user->id,
@@ -498,6 +499,12 @@ class PengajuanForm extends Component
                 'jumlah_hari' => $jumlah_hari,
                 'keterangan' => $this->keterangan,
             ]);
+
+            // Simpan nama lampiran ke kolom bukti_cuti
+            if ($buktiCuti !== null) {
+                $cuti->bukti_cuti = $buktiCuti;
+                $cuti->save();
+            }
 
             // Cari approver berdasarkan hierarki
             $approvers = $this->findNextApproversWithSkip($user);
@@ -568,17 +575,11 @@ class PengajuanForm extends Component
         } elseif ($this->tipe === 'ijin') {
             // Validasi pengajuan izin
             $this->validate([
-                'jenis_izins_id' => [
-                    'required',
-                    Rule::exists('jenis_izins', 'id')
-                        ->where('aktif', 1),
-                ],
+                'jenis_izins_id' => 'required|exists:jenis_izins,id',
                 'tanggal_mulai' => 'required|date',
                 'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
                 'keterangan' => 'nullable|string|max:255',
-
-                // Mendukung JPG, JPEG, PNG, dan PDF maksimal 2 MB
-                'bukti_izin' => 'nullable|mimes:jpg,jpeg,png,pdf|max:2048',
+                'bukti_izin' => 'nullable|image|mimes:jpg,jpeg,png,pdf|max:2048',
             ]);
 
             $jumlah_hari = (
@@ -723,6 +724,7 @@ class PengajuanForm extends Component
             'tanggal',
             'keterangan',
             'shift_id',
+            'bukti_cuti',
         ]);
     }
 

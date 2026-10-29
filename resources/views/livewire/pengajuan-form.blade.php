@@ -1,3 +1,4 @@
+
 <div>
     <x-card title="{{ $judul }}">
         <p class="text-gray-600 mb-4">{{ $deskripsi }}</p>
@@ -18,6 +19,7 @@
                     @enderror
                 </div>
             @endif
+
             <!-- Jenis Cuti -->
             <div class="mb-4">
                 <label for="jenis_cuti" class="block text-sm font-medium text-gray-700">Jenis Cuti</label>
@@ -33,7 +35,7 @@
                 @enderror
             </div>
 
-            <!-- ✅ Kategori Cuti (Tahunan / Tambahan) -->
+            <!-- Kategori Cuti -->
             <div class="mb-4">
                 <label for="kategori_cuti" class="block text-sm font-medium text-gray-700">Kategori Cuti</label>
                 <select wire:model.live="kategori_cuti" id="kategori_cuti"
@@ -46,7 +48,7 @@
                 @enderror
             </div>
 
-            <!-- ✅ Tanggal Mulai -->
+            <!-- Tanggal Mulai -->
             <div class="mb-4">
                 <label for="tanggal_mulai" class="block text-sm font-medium text-gray-700">Tanggal Mulai</label>
                 <input type="date" id="tanggal_mulai" wire:model.live="tanggal_mulai"
@@ -56,7 +58,7 @@
                 @enderror
             </div>
 
-            <!-- ✅ Tanggal Selesai -->
+            <!-- Tanggal Selesai -->
             <div class="mb-4">
                 <label for="tanggal_selesai" class="block text-sm font-medium text-gray-700">Tanggal Selesai</label>
                 <input type="date" id="tanggal_selesai" wire:model.live="tanggal_selesai"
@@ -66,7 +68,7 @@
                 @enderror
             </div>
         @elseif($tipe == 'ijin')
-            <!-- ✅ Tanggal (Untuk Ijin dan Tukar Jadwal) -->
+            <!-- Jenis Izin -->
             <div class="mb-4">
                 <label for="jenis_izins" class="block text-sm font-medium text-gray-700">Jenis Izin</label>
                 <select wire:model.live="jenis_izins_id" id="jenis_izins"
@@ -80,7 +82,8 @@
                     <span class="text-red-500 text-sm">{{ $message }}</span>
                 @enderror
             </div>
-            <!-- ✅ Tanggal Mulai -->
+
+            <!-- Tanggal Mulai -->
             <div class="mb-4">
                 <label for="tanggal_mulai" class="block text-sm font-medium text-gray-700">Tanggal Mulai</label>
                 <input type="date" id="tanggal_mulai" wire:model.live="tanggal_mulai"
@@ -90,7 +93,7 @@
                 @enderror
             </div>
 
-            <!-- ✅ Tanggal Selesai -->
+            <!-- Tanggal Selesai -->
             <div class="mb-4">
                 <label for="tanggal_selesai" class="block text-sm font-medium text-gray-700">Tanggal Selesai</label>
                 <input type="date" id="tanggal_selesai" wire:model.live="tanggal_selesai"
@@ -100,6 +103,7 @@
                 @enderror
             </div>
 
+            <!-- Foto Surat Izin (dipertahankan) -->
             <div class="form-group mb-4">
                 <label for="bukti_izin" class="block text-sm font-medium text-gray-700">Foto Surat Izin</label>
                 <input type="file" id="bukti_izin" wire:model="bukti_izin"
@@ -109,7 +113,7 @@
                 @enderror
             </div>
         @else
-            <!-- ✅ Tanggal (Untuk Ijin dan Tukar Jadwal) -->
+            <!-- Tanggal (Untuk Tukar Jadwal) -->
             <div class="mb-4">
                 <label for="tanggal" class="block text-sm font-medium text-gray-700">Tanggal</label>
                 <input type="date" id="tanggal" wire:model.live="tanggal"
@@ -119,7 +123,7 @@
                 @enderror
             </div>
 
-            <!-- ✅ Pilih Shift -->
+            <!-- Pilih Shift -->
             @if ($shifts)
                 <div class="mb-4">
                     <label for="shift" class="block text-sm font-medium text-gray-700">Pilih Shift</label>
@@ -139,6 +143,21 @@
             @endif
         @endif
 
+        @if ($tipe === 'cuti')
+            <div class="form-group mb-4">
+                <label for="bukti_cuti" class="block text-sm font-medium text-gray-700">Foto Surat Cuti</label>
+                <input
+                    type="file"
+                    id="bukti_cuti"
+                    wire:model="bukti_cuti"
+                    accept=".jpg,.jpeg,.png,.pdf"
+                    class="form-control @error('bukti_cuti') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5">
+
+                @error('bukti_cuti')
+                    <span class="text-red-500 text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+        @endif
 
         <!-- Keterangan -->
         <div class="mb-4">
@@ -164,7 +183,6 @@
 
     <script>
         document.addEventListener('livewire:initialized', () => {
-            // ✅ Ubah cara event diterima
             Livewire.on('swal:modal', (data) => {
                 Swal.fire({
                     icon: data.icon,
