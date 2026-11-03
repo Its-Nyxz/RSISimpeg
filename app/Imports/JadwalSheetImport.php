@@ -2,9 +2,12 @@
 
 namespace App\Imports;
 
+use App\Models\Absen;
+use App\Models\CutiKaryawan;
 use App\Models\JadwalAbsensi;
 use App\Models\PJ;
 use App\Models\Shift;
+use App\Models\StatusAbsen;
 use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -58,10 +61,33 @@ class JadwalSheetImport implements ToCollection
                         $cellIndex = 5 + $day;
                         $cellValue = isset($row[$cellIndex]) ? trim((string) $row[$cellIndex]) : '';
                         $shiftCell = preg_replace('/\s*\(-\)/', '', $cellValue);
+                        $upperShift = strtoupper(trim($shiftCell));
+
+                        // 1. Cek apakah user memiliki cuti yang disetujui di tanggal ini
+                        $cutiKaryawan = CutiKaryawan::with('jenisCuti')
+                            ->where('user_id', $user->id)
+                            ->whereIn('status_cuti_id', [1, 4])
+                            ->whereDate('tanggal_mulai', '<=', $tanggal_jadwal)
+                            ->whereDate('tanggal_selesai', '>=', $tanggal_jadwal)
+                            ->first();
+
+                        $isCutiCell = in_array($upperShift, ['C', 'CUTI', 'CT']);
 
                         $shift = null;
 
-                        if ($shiftCell === '' || strtoupper($shiftCell) === 'L') {
+                        if ($cutiKaryawan || $isCutiCell) {
+                            $shift = Shift::firstOrCreate(
+                                [
+                                    'unit_id' => $user->unit_id,
+                                    'nama_shift' => 'C',
+                                ],
+                                [
+                                    'jam_masuk' => null,
+                                    'jam_keluar' => null,
+                                    'keterangan' => 'Cuti',
+                                ]
+                            );
+                        } elseif ($shiftCell === '' || $upperShift === 'L') {
                             $shift = Shift::firstOrCreate(
                                 [
                                     'unit_id' => $user->unit_id,
@@ -88,7 +114,7 @@ class JadwalSheetImport implements ToCollection
                                 }
                             } else {
                                 $shift = Shift::where('unit_id', $user->unit_id)
-                                    ->where('nama_shift', strtoupper($shiftCell))
+                                    ->where('nama_shift', $upperShift)
                                     ->first();
                             }
                         }
@@ -99,16 +125,44 @@ class JadwalSheetImport implements ToCollection
                                 ->first();
 
                             if (! $existing) {
-                                JadwalAbsensi::create([
+                                $jadwal = JadwalAbsensi::create([
                                     'user_id' => $user->id,
                                     'tanggal_jadwal' => $tanggal_jadwal,
                                     'shift_id' => $shift->id,
                                 ]);
                             } else {
-                                // Update kalau berbeda (termasuk ke/dari L)
+                                // Update kalau berbeda (termasuk ke/dari L atau C)
                                 if ($existing->shift_id !== $shift->id) {
                                     $existing->update(['shift_id' => $shift->id]);
                                 }
+                                $jadwal = $existing;
+                            }
+
+                            // Jika shift adalah Cuti, pastikan record Absen dibuat / disinkronkan
+                            if ($shift->nama_shift === 'C' && $jadwal) {
+                                $cutiStatusId = StatusAbsen::where('nama', 'Tepat Waktu')->value('id');
+                                $namaJenisCuti = $cutiKaryawan->jenisCuti->nama_cuti ?? 'Cuti';
+
+                                Absen::updateOrCreate(
+                                    [
+                                        'user_id' => $user->id,
+                                        'jadwal_id' => $jadwal->id,
+                                    ],
+                                    [
+                                        'status_absen_id' => $cutiStatusId,
+                                        'present' => 1,
+                                        'absent' => 0,
+                                        'late' => 0,
+                                        'time_in' => null,
+                                        'time_out' => null,
+                                        'keterangan' => 'Cuti disetujui',
+                                        'deskripsi_in' => $namaJenisCuti,
+                                        'deskripsi_out' => $namaJenisCuti,
+                                        'is_dinas' => false,
+                                        'is_lembur' => false,
+                                        'approved_lembur' => false,
+                                    ]
+                                );
                             }
                         }
 

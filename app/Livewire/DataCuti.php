@@ -456,6 +456,7 @@ class DataCuti extends Component
 
             // ✅ Final approval
             $cuti->update(['status_cuti_id' => $cutiStatus]);
+            $this->applyCutiToJadwal($cuti, $targetUser);
             $pesan = "Pengajuan cuti Anda telah <span class='text-success-600 font-bold'>Disetujui Final</span> oleh {$user->name} ({$user->jabatan->nama}){$pesanTambahan}.";
             Notification::send($targetUser, new UserNotification($pesan, '/pengajuan/cuti'));
 
@@ -544,47 +545,7 @@ class DataCuti extends Component
 
         // 🔹 Jika final → buat jadwal absen otomatis
         if ($cutiStatus == 1) {
-            $shift = Shift::firstOrCreate(
-                ['nama_shift' => 'C'],
-                [
-                    'unit_id' => $targetUser->unit_id,
-                    'jam_masuk' => null,
-                    'jam_keluar' => null,
-                    'keterangan' => 'Cuti',
-                ]
-            );
-
-            $start = Carbon::parse($cuti->tanggal_mulai);
-            $end = Carbon::parse($cuti->tanggal_selesai);
-
-            for ($date = $start; $date->lte($end); $date->addDay()) {
-                $jadwal = JadwalAbsensi::updateOrCreate(
-                    ['user_id' => $userId, 'tanggal_jadwal' => $date->toDateString()],
-                    ['shift_id' => $shift->id]
-                );
-
-                $cutiStatusId = StatusAbsen::where('nama', 'Tepat Waktu')->value('id');
-                Absen::updateOrCreate(
-                    [
-                        'user_id' => $userId,
-                        'jadwal_id' => $jadwal->id,
-                    ],
-                    [
-                        'status_absen_id' => $cutiStatusId,
-                        'present' => 1,
-                        'absent' => 0,
-                        'late' => 0,
-                        'time_in' => null,
-                        'time_out' => null,
-                        'keterangan' => 'Cuti disetujui',
-                        'deskripsi_in' => $cuti->jenisCuti->nama_cuti ?? 'Cuti',
-                        'deskripsi_out' => $cuti->jenisCuti->nama_cuti ?? 'Cuti',
-                        'is_dinas' => false,
-                        'is_lembur' => false,
-                        'approved_lembur' => false,
-                    ]
-                );
-            }
+            $this->applyCutiToJadwal($cuti, $targetUser);
         }
 
         // 🔔 Notifikasi ke pemohon
@@ -824,6 +785,53 @@ class DataCuti extends Component
             new ExportRiwayat($bulan, $tahun, $unit, $unitId, $jenisId, $keyword, $mode, $selected, 'cuti'),
             $filename
         );
+    }
+
+    public function applyCutiToJadwal(CutiKaryawan $cuti, User $targetUser)
+    {
+        $shift = Shift::firstOrCreate(
+            [
+                'unit_id' => $targetUser->unit_id,
+                'nama_shift' => 'C',
+            ],
+            [
+                'jam_masuk' => null,
+                'jam_keluar' => null,
+                'keterangan' => 'Cuti',
+            ]
+        );
+
+        $start = Carbon::parse($cuti->tanggal_mulai);
+        $end = Carbon::parse($cuti->tanggal_selesai);
+
+        for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+            $jadwal = JadwalAbsensi::updateOrCreate(
+                ['user_id' => $targetUser->id, 'tanggal_jadwal' => $date->toDateString()],
+                ['shift_id' => $shift->id]
+            );
+
+            $cutiStatusId = StatusAbsen::where('nama', 'Tepat Waktu')->value('id');
+            Absen::updateOrCreate(
+                [
+                    'user_id' => $targetUser->id,
+                    'jadwal_id' => $jadwal->id,
+                ],
+                [
+                    'status_absen_id' => $cutiStatusId,
+                    'present' => 1,
+                    'absent' => 0,
+                    'late' => 0,
+                    'time_in' => null,
+                    'time_out' => null,
+                    'keterangan' => 'Cuti disetujui',
+                    'deskripsi_in' => $cuti->jenisCuti->nama_cuti ?? 'Cuti',
+                    'deskripsi_out' => $cuti->jenisCuti->nama_cuti ?? 'Cuti',
+                    'is_dinas' => false,
+                    'is_lembur' => false,
+                    'approved_lembur' => false,
+                ]
+            );
+        }
     }
 
     /** ----------------------------------------------------------------

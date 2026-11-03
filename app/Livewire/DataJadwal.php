@@ -274,6 +274,21 @@ class DataJadwal extends Component
     }
 
 
+    public function syncCuti()
+    {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('cuti:sync-jadwal', [
+                '--all' => true,
+            ]);
+
+            $this->loadData();
+            session()->flash('success', 'Sinkronisasi pengajuan cuti ke jadwal berhasil dijalankan.');
+        } catch (\Throwable $e) {
+            Log::error('Sync Cuti Gagal: ' . $e->getMessage());
+            session()->flash('error', 'Gagal melakukan sinkronisasi cuti: ' . $e->getMessage());
+        }
+    }
+
     public function updated($propertyName)
     {
         if (in_array($propertyName, ['bulan', 'tahun'])) {

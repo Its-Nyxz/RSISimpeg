@@ -99,6 +99,11 @@
                         class="w-full sm:w-auto flex items-center justify-center text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-4 py-2 transition shadow-sm">
                         <i class="fas fa-file-excel mr-2"></i> Import
                     </button>
+                    {{-- Tombol Sinkron Cuti --}}
+                    <button type="button" wire:click="syncCuti" wire:loading.attr="disabled"
+                        class="w-full sm:w-auto flex items-center justify-center text-blue-900 bg-blue-100 hover:bg-blue-600 hover:text-white font-medium rounded-lg text-sm px-4 py-2 transition shadow-sm">
+                        <i class="fas fa-sync-alt mr-2" wire:loading.class="fa-spin" wire:target="syncCuti"></i> Sinkron Cuti
+                    </button>
                     {{-- Info file dan progress (Import) --}}
                     @if ($file)
                         <div class="mt-2 flex flex-col gap-2 w-full sm:w-auto">
