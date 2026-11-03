@@ -65,7 +65,9 @@ class DataCuti extends Component
     {
         $user = auth()->user();
         $this->unitKepegawaianId = 87;
-        $this->isKepegawaian = $user->unit_id == $this->unitKepegawaianId || $user->roles->pluck('id')->first() == 2 || $user->roles->pluck('id')->first() == 14 || $user->hasRole('Super Admin');
+        $this->isKepegawaian = $user->can('view-kepegawaian') ||
+            $user->hasAnyRole(['Super Admin', 'Administrator', 'Kepala Seksi Kepegawaian', 'Staf Kepegawaian']) ||
+            $user->unit_id == $this->unitKepegawaianId;
         $this->isRiwayatCuti = request()->routeIs('riwayatcuti.*') || request()->is('riwayatcuti');
         $this->bulan = now()->month;
         $this->tahun = now()->year;
@@ -475,9 +477,9 @@ class DataCuti extends Component
         /** ------------------------------------------------------------
          *  Logika default (Manager, Kepala, Kepegawaian, dst)
          *  ------------------------------------------------------------ */
-        $userRoleId = $user->roles->pluck('id')->first();
         $isFinalApprover = (
-            $userRoleId == 2 ||
+            $user->can('view-kepegawaian') ||
+            $user->hasAnyRole(['Super Admin', 'Administrator', 'Kepala Seksi Kepegawaian']) ||
             $user->unit_id == $this->unitKepegawaianId
         );
 
@@ -555,8 +557,9 @@ class DataCuti extends Component
 
         // 🔔 Jika belum final → notifikasi ke Kepegawaian
         if (! $isFinalApprover) {
-            $finalApprovers = User::where('unit_id', $this->unitKepegawaianId)
-                ->orWhereHas('roles', fn ($q) => $q->where('id', 2))
+            $finalApprovers = User::permission('view-kepegawaian')
+                ->orWhereHas('roles', fn ($q) => $q->where('name', 'Kepala Seksi Kepegawaian'))
+                ->orWhere('unit_id', $this->unitKepegawaianId)
                 ->get();
 
             if ($finalApprovers->count() > 0) {
@@ -616,7 +619,7 @@ class DataCuti extends Component
     {
         $user = auth()->user();
 
-        if (! $user->can('approval-cuti') && ! $user->hasRole('Super Admin')) {
+        if (! $user->can('approval-cuti')) {
             session()->flash('error', 'Anda tidak memiliki izin untuk membatalkan cuti.');
             return;
         }

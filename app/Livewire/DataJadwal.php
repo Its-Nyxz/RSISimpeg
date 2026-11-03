@@ -402,18 +402,7 @@ class DataJadwal extends Component
 
     protected function authorizeEditShift()
     {
-        $allowedRoles = [
-            'Super Admin',
-            2,
-            'Kepala Seksi Keuangan',
-            'Kepala Unit',
-            'Kepala Sub Unit',
-            'Kepala Instalasi',
-            'Kepala Ruang',
-            'Kepala Seksi',
-        ];
-
-        if (!auth()->user()->hasAnyRole($allowedRoles)) {
+        if (!auth()->user()->can('edit-jadwal')) {
             abort(403, 'Anda tidak memiliki izin untuk mengubah atau menghapus shift.');
         }
     }
