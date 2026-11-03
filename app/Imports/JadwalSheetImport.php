@@ -2,19 +2,20 @@
 
 namespace App\Imports;
 
-use Carbon\Carbon;
-use App\Models\User;
-use App\Models\Shift;
-use Illuminate\Support\Str;
 use App\Models\JadwalAbsensi;
+use App\Models\PJ;
+use App\Models\Shift;
+use App\Models\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Concerns\ToCollection;
-use App\Models\PJ; // pastikan sudah di-import
+use Illuminate\Support\Str;
+use Maatwebsite\Excel\Concerns\ToCollection; // pastikan sudah di-import
 
 class JadwalSheetImport implements ToCollection
 {
-    protected $bulan, $tahun;
+    protected $bulan;
+
+    protected $tahun;
 
     public function __construct($bulan, $tahun)
     {
@@ -44,7 +45,7 @@ class JadwalSheetImport implements ToCollection
                 //     continue;
                 // }
 
-                $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $this->bulan, $this->tahun);
+                $daysInMonth = \Carbon\Carbon::create($this->tahun, $this->bulan, 1)->daysInMonth;
 
                 // Kolom PJ setelah Pendidikan (index 3)
                 $pjValue = isset($row[3]) ? strtolower(trim($row[3])) : '';
@@ -55,7 +56,7 @@ class JadwalSheetImport implements ToCollection
                         $tanggal_jadwal = sprintf('%04d-%02d-%02d', $this->tahun, $this->bulan, $day);
                         // 6 kolom tetap: 0..5 → hari ke-1 ada di index 6
                         $cellIndex = 5 + $day;
-                        $cellValue = isset($row[$cellIndex]) ? trim((string)$row[$cellIndex]) : '';
+                        $cellValue = isset($row[$cellIndex]) ? trim((string) $row[$cellIndex]) : '';
                         $shiftCell = preg_replace('/\s*\(-\)/', '', $cellValue);
 
                         $shift = null;
@@ -82,7 +83,7 @@ class JadwalSheetImport implements ToCollection
                                     ->where('jam_keluar', $jamKeluar)
                                     ->first();
 
-                                if (!$shift) {
+                                if (! $shift) {
                                     // Log::warning("Shift tidak ditemukan: $namaShift ($jamMasuk - $jamKeluar) untuk user {$user->name}");
                                 }
                             } else {
@@ -97,11 +98,11 @@ class JadwalSheetImport implements ToCollection
                                 ->where('tanggal_jadwal', $tanggal_jadwal)
                                 ->first();
 
-                            if (!$existing) {
+                            if (! $existing) {
                                 JadwalAbsensi::create([
-                                    'user_id'        => $user->id,
+                                    'user_id' => $user->id,
                                     'tanggal_jadwal' => $tanggal_jadwal,
-                                    'shift_id'       => $shift->id,
+                                    'shift_id' => $shift->id,
                                 ]);
                             } else {
                                 // Update kalau berbeda (termasuk ke/dari L)
@@ -127,7 +128,7 @@ class JadwalSheetImport implements ToCollection
                     }
                 }
             } catch (\Exception $e) {
-                Log::error("Import Gagal: " . $e->getMessage());
+                Log::error('Import Gagal: '.$e->getMessage());
             }
         }
     }

@@ -310,17 +310,20 @@
                                 <th class="px-2 py-3">Status</th>
                                 <th class="px-2 py-3">Lain2</th>
                                 <th class="px-2 py-3">Riwayat Approval</th>
+                                @can('approval-cuti')
+                                <th class="px-2 py-3">Aksi</th>
+                                @endcan
                             </tr>
                         </thead>
                         <tbody>
                             @forelse ($riwayatCutiDetail as $cuti)
-                                <tr class="{{ $cuti->status_cuti_id == 2 ? 'bg-red-50' : 'bg-white' }} border-b hover:bg-gray-50 text-md">
+                                <tr class="{{ $cuti->status_cuti_id == 2 || strtolower($cuti->statusCuti->nama_status ?? '') == 'dibatalkan' ? 'bg-red-50' : 'bg-white' }} border-b hover:bg-gray-50 text-md">
                                     <td class="px-2 py-4 font-medium">{{ $riwayatCutiDetail->firstItem() + $loop->index }}</td>
                                     <td class="px-2 py-4">{{ \Carbon\Carbon::parse($cuti->tanggal_mulai)->locale('id')->translatedFormat('l, d F') ?? '-' }}</td>
                                     <td class="px-2 py-4">{{ \Carbon\Carbon::parse($cuti->tanggal_selesai)->locale('id')->translatedFormat('l, d F') ?? '-' }}</td>
                                     <td class="px-2 py-4">{{ $cuti->jumlah_hari ?? '-' }} Hari</td>
                                     <td class="px-2 py-4">{{ $cuti->jeniscuti->nama_cuti ?? '-' }}</td>
-                                    <td class="px-2 py-4 font-bold {{ $cuti->status_cuti_id == 1 ? 'text-success-600' : ($cuti->status_cuti_id == 2 ? 'text-red-600' : 'text-yellow-600') }}">
+                                    <td class="px-2 py-4 font-bold {{ $cuti->status_cuti_id == 1 ? 'text-success-600' : ($cuti->status_cuti_id == 2 || strtolower($cuti->statusCuti->nama_status ?? '') == 'dibatalkan' ? 'text-red-600' : 'text-yellow-600') }}">
                                         {{ $cuti->statusCuti->nama_status ?? '-' }}
                                     </td>
                                     @php
@@ -341,7 +344,7 @@
                                             <div class="mb-1 last:mb-0 border-b border-gray-500 pb-1 last:border-0">
                                                 <span class="font-bold text-gray-900">{{ $approval->approver->name ?? 'Unknown' }}</span>
                                                 <span class="text-blue-700">( {{ $approval->approver->roles->pluck('name')->first() }} )</span><br>
-                                                <span class="px-2 py-0.5 rounded text-[10px] uppercase font-bold {{ str_contains($approval->status_approval, 'ditolak') ? 'bg-red-700 text-red-200' : (str_contains($approval->status_approval, 'disetujui_intermediate') ? 'bg-yellow-400 text-yellow-800' : 'bg-success-700 text-success-200') }} ">
+                                                <span class="px-2 py-0.5 rounded text-[10px] uppercase font-bold {{ str_contains($approval->status_approval, 'ditolak') || str_contains($approval->status_approval, 'dibatalkan') ? 'bg-red-700 text-red-200' : (str_contains($approval->status_approval, 'disetujui_intermediate') ? 'bg-yellow-400 text-yellow-800' : 'bg-success-700 text-success-200') }} ">
                                                     {{ str_replace('_', ' ', $approval->status_approval) }}
                                                 </span>
                                                 <span class="text-red-600 block">{{ ($approval->catatan) ? 'Catatan: '.$approval->catatan : ''}}</span>
@@ -351,9 +354,24 @@
                                             <span class="text-gray-500 italic">Belum ada riwayat approval.</span>
                                         @endforelse
                                     </td>
+                                    @can('approval-cuti')
+                                    <td class="px-2 py-4 text-center">
+                                        @if ($cuti->status_cuti_id == 1 || $cuti->status_cuti_id == 3 || $cuti->status_cuti_id == 4)
+                                            <button 
+                                                type="button"
+                                                onclick="confirmCancelWithReason('Batalkan cuti atas nama {{ addslashes($selectedRiwayatUserName) }}?', 'Ya, Batalkan!', (reason) => @this.call('batalkanCuti', {{ $cuti->id }}, reason))"
+                                                class="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-2.5 py-1.5 rounded-md inline-flex items-center gap-1 shadow transition"
+                                                title="Batalkan Cuti">
+                                                <i class="fa-solid fa-ban"></i> Batalkan
+                                            </button>
+                                        @else
+                                            <span class="text-gray-400 text-xs italic">-</span>
+                                        @endif
+                                    </td>
+                                    @endcan
                                 </tr>
                             @empty
-                                <tr><td colspan="8" class="text-center bg-gray-50 px-2 py-6 text-gray-500">Tidak ada riwayat cuti untuk <span class="font-bold text-blue-700">{{ $selectedRiwayatUserName }}</span>.</td></tr>
+                                <tr><td colspan="{{ auth()->user()->can('approval-cuti') ? 9 : 8 }}" class="text-center bg-gray-50 px-2 py-6 text-gray-500">Tidak ada riwayat cuti untuk <span class="font-bold text-blue-700">{{ $selectedRiwayatUserName }}</span>.</td></tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -388,4 +406,40 @@
             </div>
         @endif
     @endif
+
+    <script>
+        window.confirmCancelWithReason = function(message, confirmButtonText, callback) {
+            if (typeof Swal === 'undefined') {
+                if (confirm(message || "Apakah Anda yakin ingin membatalkan cuti ini?")) {
+                    let reason = prompt("Masukkan alasan pembatalan cuti:");
+                    if (reason) callback(reason);
+                }
+                return;
+            }
+
+            Swal.fire({
+                title: "Batalkan Pengajuan Cuti?",
+                text: message || "Masukkan alasan pembatalan cuti:",
+                input: "textarea",
+                inputPlaceholder: "Tulis alasan pembatalan di sini (misal: Urgensi pekerjaan)...",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#6b7280",
+                confirmButtonText: confirmButtonText || "Ya, Batalkan Cuti!",
+                cancelButtonText: "Kembali",
+                inputValidator: (value) => {
+                    if (!value || !value.trim()) {
+                        return "Alasan pembatalan wajib diisi!";
+                    }
+                },
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (typeof callback === "function") {
+                        callback(result.value);
+                    }
+                }
+            });
+        };
+    </script>
 </div>

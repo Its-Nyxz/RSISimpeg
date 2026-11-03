@@ -103,7 +103,7 @@ class DataJadwal extends Component
             return;
         }
 
-        $this->tanggalJadwal = collect(range(1, cal_days_in_month(CAL_GREGORIAN, $this->bulan, $this->tahun)))
+        $this->tanggalJadwal = collect(range(1, \Carbon\Carbon::create($this->tahun, $this->bulan, 1)->daysInMonth))
             ->map(fn($day) => sprintf('%04d-%02d-%02d', $this->tahun, $this->bulan, $day))
             ->toArray();
 
