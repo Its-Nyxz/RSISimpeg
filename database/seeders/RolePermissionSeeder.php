@@ -48,6 +48,7 @@ class RolePermissionSeeder extends Seeder
             'absen',
             'template-jadwal',
             'import-jadwal',
+            'sinkron-cuti',
             'tambah-jadwal',
             'edit-jadwal',
             'unit-kerja',

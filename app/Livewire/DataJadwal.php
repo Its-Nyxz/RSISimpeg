@@ -276,6 +276,11 @@ class DataJadwal extends Component
 
     public function syncCuti()
     {
+        if (!auth()->user()->can('sinkron-cuti')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk melakukan sinkronisasi cuti.');
+            return;
+        }
+
         try {
             \Illuminate\Support\Facades\Artisan::call('cuti:sync-jadwal', [
                 '--all' => true,
