@@ -426,7 +426,7 @@
                                                 wire:model.boolean="isUpdateShift"
                                                 value="1"
                                                 class="text-success-600 focus:ring-success-500">
-                                            <span>True - Update shift hari ini</span>
+                                            <span>Ubah shift pada jadwal ini</span>
                                         </label>
 
                                         <label class="flex items-center gap-2 text-sm text-gray-700">
@@ -434,7 +434,7 @@
                                                 wire:model.boolean="isUpdateShift"
                                                 value="0"
                                                 class="text-success-600 focus:ring-success-500">
-                                            <span>False - Add shift</span>
+                                            <span>Tambahkan shift baru tanpa mengubah shift sebelumnya</span>
                                         </label>
                                     </div>
                                 </div>
