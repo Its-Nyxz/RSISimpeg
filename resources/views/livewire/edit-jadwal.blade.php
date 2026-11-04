@@ -1,3 +1,4 @@
+
 <div>
     <div class="flex justify-between items-center mb-5">
         <h1 class="text-2xl font-bold text-success-900">Edit Jadwal Absensi</h1>
@@ -6,9 +7,11 @@
             <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
         </a>
     </div>
+
     <form wire:submit.prevent="updateJadwal">
         <!-- Form Edit Jadwal -->
         <div class="grid grid-cols-1 gap-4 bg-success-100 border border-success-200 rounded-lg shadow-lg p-6">
+
             <!-- Nama (User) -->
             <div class="col-span-2">
                 <label for="nama" class="block text-sm font-medium text-success-900">Nama</label>
@@ -49,6 +52,35 @@
                     </ul>
                 </div>
                 @error('shift_id')
+                    <span class="text-danger text-sm">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <!-- Pilihan Tindakan -->
+            <div class="col-span-2">
+                <label class="block text-sm font-medium text-success-900 mb-2">
+                    Pilihan Tindakan
+                </label>
+
+                <div class="space-y-2">
+                    <label class="flex items-center gap-2">
+                        <input type="radio" wire:model="tindakan" value="ubah"
+                            class="text-success-700 focus:ring-success-500">
+                        <span class="text-sm text-gray-700">
+                            Ubah shift pada jadwal ini
+                        </span>
+                    </label>
+
+                    <label class="flex items-center gap-2">
+                        <input type="radio" wire:model="tindakan" value="tambah"
+                            class="text-success-700 focus:ring-success-500">
+                        <span class="text-sm text-gray-700">
+                            Tambahkan shift baru tanpa mengubah shift sebelumnya
+                        </span>
+                    </label>
+                </div>
+
+                @error('tindakan')
                     <span class="text-danger text-sm">{{ $message }}</span>
                 @enderror
             </div>
@@ -102,7 +134,6 @@
                 @enderror
             </div>
         </div>
-
 
         <!-- Tombol Submit -->
         <div class="flex justify-end mt-4">
