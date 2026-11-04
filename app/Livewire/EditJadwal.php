@@ -1,3 +1,4 @@
+
 <?php
 
 namespace App\Livewire;
@@ -25,6 +26,8 @@ class EditJadwal extends Component
     public $shifts = [];
     public $opsis = [];
 
+    // Pilihan tindakan saat edit
+    public $tindakan = 'ubah';
 
     public function mount($jadwalId)
     {
@@ -55,21 +58,31 @@ class EditJadwal extends Component
             'opsi_id' => 'required|exists:opsi_absens,id',
             'tanggal_jadwal' => 'required|date',
             'keterangan_absen' => 'nullable|in:Cuti,Libur,Tugas,Ijin,Sakit',
+            'tindakan' => 'required|in:ubah,tambah',
         ]);
 
         $jadwal = JadwalAbsensi::findOrFail($this->jadwal_id);
-        $jadwal->update([
-            'user_id' => $this->user_id,
-            'shift_id' => $this->shift_id,
-            'opsi_id' => $this->opsi_id,
-            'tanggal_jadwal' => $this->tanggal_jadwal,
-            'keterangan_absen' => $this->keterangan_absen,
-        ]);
 
-        
+        if ($this->tindakan === 'ubah') {
+            // Mengubah jadwal yang sedang diedit
+            $jadwal->update([
+                'user_id' => $this->user_id,
+                'shift_id' => $this->shift_id,
+                'opsi_id' => $this->opsi_id,
+                'tanggal_jadwal' => $this->tanggal_jadwal,
+                'keterangan_absen' => $this->keterangan_absen,
+            ]);
 
+            session()->flash('success', 'Jadwal absensi berhasil diperbarui!');
+        } else {
+            // Menambahkan shift baru tanpa mengubah jadwal sebelumnya
+            $jadwalBaru = $jadwal->replicate();
+            $jadwalBaru->shift_id = $this->shift_id;
+            $jadwalBaru->save();
 
-        session()->flash('success', 'Jadwal absensi berhasil diperbarui!');
+            session()->flash('success', 'Shift baru berhasil ditambahkan tanpa mengubah shift sebelumnya!');
+        }
+
         return redirect()->route('jadwal.index');
     }
 
