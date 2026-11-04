@@ -2,35 +2,44 @@
 
 namespace App\Livewire;
 
-use App\Models\User;
-use App\Models\Shift;
-use Livewire\Component;
-use App\Models\JenisCuti;
-use App\Models\JenisIzin;
-use App\Models\UnitKerja;
-use App\Models\TukarJadwal;
 use App\Models\CutiKaryawan;
 use App\Models\IzinKaryawan;
+use App\Models\JenisCuti;
+use App\Models\JenisIzin;
 use App\Models\MasterJatahCuti;
+use App\Models\Shift;
 use App\Models\SisaCutiTahunan;
-use Livewire\WithFileUploads;
-use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use App\Models\TukarJadwal;
+use App\Models\UnitKerja;
+use App\Models\User;
 use App\Notifications\UserNotification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Validation\Rule;
+use Livewire\Component;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Livewire\WithFileUploads;
 
 class PengajuanForm extends Component
 {
     use WithFileUploads;
 
     public $id;
+
     public $tipe;
+
     public $judul;
+
     public $deskripsi;
+
     public $kategori_cuti = 'tahunan';
+
     public $tanggal_mulai;
+
     public $tanggal_selesai;
+
     public $tanggal;
+
     public $keterangan;
 
     /** @var TemporaryUploadedFile|null */
@@ -40,13 +49,21 @@ class PengajuanForm extends Component
     public $bukti_cuti;
 
     public $jenis_cuti_id;
+
     public $jenis_cutis;
+
     public $durasi_default;
+
     public $jenis_izins_id;
+
     public $jenis_izins;
+
     public $shift_id;
+
     public $shifts;
+
     public $userid;
+
     public $karyawans = [];
 
     // Untuk menerima tipe dari controller
@@ -79,7 +96,7 @@ class PengajuanForm extends Component
     private function cekMasaKerjaBolehCuti($user)
     {
         // Kalau data masa_kerja kosong/null, default dianggap belum boleh cuti
-        if (!$user->masa_kerja) {
+        if (! $user->masa_kerja) {
             return false;
         }
 
@@ -119,7 +136,7 @@ class PengajuanForm extends Component
             $this->tanggal_selesai = date(
                 'Y-m-d',
                 strtotime(
-                    $this->tanggal_mulai .
+                    $this->tanggal_mulai.
                     " +{$this->durasi_default} days -1"
                 )
             );
@@ -172,7 +189,7 @@ class PengajuanForm extends Component
         ])) {
             return User::whereHas(
                 'roles',
-                fn($q) => $q->where('name', 'Manager')
+                fn ($q) => $q->where('name', 'Manager')
             )->get();
         }
 
@@ -180,7 +197,7 @@ class PengajuanForm extends Component
         if (stripos($targetUserRole, 'Staf Kepegawaian') !== false) {
             return User::whereHas(
                 'roles',
-                fn($q) => $q->where('name', 'Kepala Seksi Kepegawaian')
+                fn ($q) => $q->where('name', 'Kepala Seksi Kepegawaian')
             )->get();
         }
 
@@ -188,7 +205,7 @@ class PengajuanForm extends Component
         if (stripos($targetUserRole, 'Staf Keuangan') !== false) {
             return User::whereHas(
                 'roles',
-                fn($q) => $q->where('name', 'Kepala Seksi Keuangan')
+                fn ($q) => $q->where('name', 'Kepala Seksi Keuangan')
             )->get();
         }
 
@@ -233,7 +250,7 @@ class PengajuanForm extends Component
 
             $users = $query->whereHas(
                 'roles',
-                fn($q) => $q->where('name', $role)
+                fn ($q) => $q->where('name', $role)
             )->get();
 
             if ($targetUserRole === 'Staf' && $role === 'Kepala Ruang') {
@@ -244,7 +261,7 @@ class PengajuanForm extends Component
                     $users = User::where('unit_id', $parentUnitId)
                         ->whereHas(
                             'roles',
-                            fn($q) => $q->where(
+                            fn ($q) => $q->where(
                                 'name',
                                 'Kepala Instalasi'
                             )
@@ -266,7 +283,7 @@ class PengajuanForm extends Component
                     $users = User::where('unit_id', $parentUnitId)
                         ->whereHas(
                             'roles',
-                            fn($q) => $q->where(
+                            fn ($q) => $q->where(
                                 'name',
                                 'Kepala Instalasi'
                             )
@@ -290,7 +307,7 @@ class PengajuanForm extends Component
         if ($nextApprovers->isEmpty()) {
             $nextApprovers = User::whereHas(
                 'roles',
-                fn($q) => $q->where(
+                fn ($q) => $q->where(
                     'name',
                     'Kepala Seksi Kepegawaian'
                 )
@@ -410,7 +427,7 @@ class PengajuanForm extends Component
                     $targetTanggal = $tmt->copy()->addMonths(12);
 
                     if ($user->jenis_id === 3) {
-                        if (!$now->greaterThanOrEqualTo($targetTanggal)) {
+                        if (! $now->greaterThanOrEqualTo($targetTanggal)) {
                             $sisaBulan = ceil(
                                 $now->floatDiffInMonths($targetTanggal)
                             );
@@ -424,19 +441,19 @@ class PengajuanForm extends Component
 
                             return;
                         } else {
-                            $currentYear = now('Asia/Jakarta')->year;
+                            $tahunCuti = Carbon::parse($this->tanggal_mulai)->year;
 
                             // Ambil jatah cuti dari master, default 12
                             $jatahCuti = MasterJatahCuti::where(
                                 'tahun',
-                                $currentYear
+                                $tahunCuti
                             )->value('jumlah_cuti') ?? 12;
 
                             // Buat sisa cuti jika belum ada
                             SisaCutiTahunan::firstOrCreate(
                                 [
                                     'user_id' => $user->id,
-                                    'tahun' => $currentYear,
+                                    'tahun' => $tahunCuti,
                                 ],
                                 [
                                     'sisa_cuti' => $jatahCuti,
@@ -449,7 +466,7 @@ class PengajuanForm extends Component
                 // Validasi masa kerja karyawan kontrak
                 if (
                     $user->jenis_id === 3 &&
-                    !$this->cekMasaKerjaBolehCuti($user)
+                    ! $this->cekMasaKerjaBolehCuti($user)
                 ) {
                     $this->dispatch(
                         'swal:modal',
@@ -460,6 +477,19 @@ class PengajuanForm extends Component
 
                     return;
                 }
+
+                // Inisialisasi saldo cuti jika belum ada untuk tahun pelaksanaan cuti
+                $tahunCuti = Carbon::parse($this->tanggal_mulai)->year;
+                $jatahCuti = MasterJatahCuti::where('tahun', $tahunCuti)->value('jumlah_cuti') ?? 12;
+                SisaCutiTahunan::firstOrCreate(
+                    [
+                        'user_id' => $user->id,
+                        'tahun' => $tahunCuti,
+                    ],
+                    [
+                        'sisa_cuti' => $jatahCuti,
+                    ]
+                );
             }
 
             // Hitung jumlah hari cuti
@@ -518,7 +548,7 @@ class PengajuanForm extends Component
 
                     if (
                         $u->unit_id == $unitKepegawaianId &&
-                        !$u->can('approval-cuti')
+                        ! $u->can('approval-cuti')
                     ) {
                         return false;
                     }
@@ -535,15 +565,14 @@ class PengajuanForm extends Component
                 )
                     ->orWhereHas(
                         'roles',
-                        fn($q) => $q->where(
+                        fn ($q) => $q->where(
                             'name',
                             'Kepala Seksi Kepegawaian'
                         )
                     )
                     ->get()
                     ->filter(
-                        fn(User $u) =>
-                            $u->id != $user->id &&
+                        fn (User $u) => $u->id != $user->id &&
                             $u->can('approval-cuti')
                     );
             }
@@ -551,11 +580,11 @@ class PengajuanForm extends Component
             // Buat pesan notifikasi
             $jenis_cuti = JenisCuti::find($this->jenis_cuti_id);
 
-            $message = 'Pengajuan Cuti <b>' . e($user->name) . '</b> ' .
-                'mulai <b>' . e($this->tanggal_mulai) .
-                '</b> sampai <b>' . e($this->tanggal_selesai) . '</b> ' .
-                '(' . e(optional($jenis_cuti)->nama_cuti ?? '-') . ') ' .
-                'dengan keterangan: "' . e($this->keterangan) .
+            $message = 'Pengajuan Cuti <b>'.e($user->name).'</b> '.
+                'mulai <b>'.e($this->tanggal_mulai).
+                '</b> sampai <b>'.e($this->tanggal_selesai).'</b> '.
+                '('.e(optional($jenis_cuti)->nama_cuti ?? '-').') '.
+                'dengan keterangan: "'.e($this->keterangan).
                 '" membutuhkan persetujuan Anda.';
 
             // Kirim notifikasi ke approver
@@ -618,18 +647,18 @@ class PengajuanForm extends Component
             $nextUser = User::where('unit_id', $user->unit_id)
                 ->whereHas(
                     'roles',
-                    fn($q) => $q->where('name', 'LIKE', '%Kepala%')
+                    fn ($q) => $q->where('name', 'LIKE', '%Kepala%')
                 )
                 ->first();
 
-            $message = 'Pengajuan Izin ' . auth()->user()->name .
-                ' mulai <span class="font-bold">' . $this->tanggal_mulai .
-                ' sampai ' . $this->tanggal_selesai .
-                '</span> ' .
+            $message = 'Pengajuan Izin '.auth()->user()->name.
+                ' mulai <span class="font-bold">'.$this->tanggal_mulai.
+                ' sampai '.$this->tanggal_selesai.
+                '</span> '.
                 ($jenis_izin
                     ? $jenis_izin->nama_izin
-                    : 'Tidak Diketahui') .
-                ' dengan keterangan ' . $this->keterangan .
+                    : 'Tidak Diketahui').
+                ' dengan keterangan '.$this->keterangan.
                 ' membutuhkan persetujuan Anda.';
 
             $url = '/approvalizin';
@@ -671,28 +700,28 @@ class PengajuanForm extends Component
             $nextUser = User::where('unit_id', $user->unit_id)
                 ->whereHas(
                     'roles',
-                    fn($q) => $q->where('name', 'LIKE', '%Kepala%')
+                    fn ($q) => $q->where('name', 'LIKE', '%Kepala%')
                 )
                 ->first();
 
-            $message = 'Pengajuan Tukar Jadwal atau Shift ' .
-                auth()->user()->name .
-                ' <span class="font-bold">' . $this->tanggal .
-                '</span> ke ' .
+            $message = 'Pengajuan Tukar Jadwal atau Shift '.
+                auth()->user()->name.
+                ' <span class="font-bold">'.$this->tanggal.
+                '</span> ke '.
                 ($nama_shift
                     ? $nama_shift->nama_shift
-                    : 'Tidak Diketahui') .
-                ' dengan keterangan ' . $this->keterangan .
+                    : 'Tidak Diketahui').
+                ' dengan keterangan '.$this->keterangan.
                 ' membutuhkan persetujuan Anda.';
 
-            $messageKepegawaian = 'Pengajuan Tukar Jadwal atau Shift ' .
-                auth()->user()->name .
-                ' pada tanggal <span class="font-bold">' .
-                $this->tanggal . '</span> ' .
+            $messageKepegawaian = 'Pengajuan Tukar Jadwal atau Shift '.
+                auth()->user()->name.
+                ' pada tanggal <span class="font-bold">'.
+                $this->tanggal.'</span> '.
                 ($nama_shift
                     ? $nama_shift->nama_shift
-                    : 'Tidak Diketahui') .
-                ' dengan keterangan ' . $this->keterangan .
+                    : 'Tidak Diketahui').
+                ' dengan keterangan '.$this->keterangan.
                 ' memerlukan perhatian Anda.';
 
             $url = '/approvaltukar';

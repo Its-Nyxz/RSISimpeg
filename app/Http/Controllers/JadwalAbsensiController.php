@@ -119,7 +119,7 @@ class JadwalAbsensiController extends Controller
             return back()->with('error', 'Data shift kosong. Silakan tambahkan shift terlebih dahulu.');
         }
 
-        $monthName = Carbon::createFromDate($year, $month, 1)->translatedFormat('F');
+        $monthName = Carbon::createFromDate($year, (int) $month, 1)->locale('id')->isoFormat('MMMM');
         $fileName = 'jadwal_template_' . $unit->nama . '_' . $monthName . '_' . $year . '.xlsx';
 
         return Excel::download(new JadwalTemplateExport($month, $year, $unit->id), $fileName);

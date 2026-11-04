@@ -64,13 +64,15 @@ class UserSeeder extends Seeder
         }
 
         // Super Admin
-        $superAdmin = User::create([
-            'name' => 'Super Admin',
-            'username' => 'superadmin',
-            'email' => 'superadmin@gmail.com',
-            'password' => Hash::make('123'), // Password default
-            'unit_id' => null, // Tidak terkait dengan unit
-        ]);
+        $superAdmin = User::firstOrCreate(
+            ['email' => 'superadmin@gmail.com'],
+            [
+                'name' => 'Super Admin',
+                'username' => 'superadmin',
+                'password' => Hash::make('123'), // Password default
+                'unit_id' => null, // Tidak terkait dengan unit
+            ]
+        );
 
         $superAdmin->assignRole('Super Admin');
 

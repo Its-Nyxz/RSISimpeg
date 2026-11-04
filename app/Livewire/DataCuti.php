@@ -2,50 +2,61 @@
 
 namespace App\Livewire;
 
-use Carbon\Carbon;
-use App\Models\User;
-use App\Models\Absen;
-use App\Models\Shift;
-use Livewire\Component;
-use App\Models\UnitKerja;
-use App\Models\StatusAbsen;
-use App\Models\CutiKaryawan;
-use App\Models\JenisKaryawan;
-use Livewire\WithPagination;
-use App\Models\JadwalAbsensi;
-use App\Models\MasterJatahCuti;
-use App\Models\SisaCutiTahunan;
-use App\Models\RiwayatApproval;
-use App\Notifications\UserNotification;
-use Illuminate\Support\Facades\Notification;
-use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ExportRiwayat;
+use App\Models\Absen;
+use App\Models\CutiKaryawan;
+use App\Models\JadwalAbsensi;
+use App\Models\JenisKaryawan;
+use App\Models\MasterJatahCuti;
+use App\Models\RiwayatApproval;
+use App\Models\Shift;
+use App\Models\SisaCutiTahunan;
+use App\Models\StatusAbsen;
+use App\Models\UnitKerja;
+use App\Models\User;
+use App\Notifications\UserNotification;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
+use Livewire\Component;
+use Livewire\WithPagination;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DataCuti extends Component
 {
     use WithPagination;
 
     public $isKepegawaian = false;
+
     public $unitKepegawaianId;
+
     public $isRiwayatCuti = false;
 
     // State for Riwayat Cuti detail view
     public $selectedRiwayatUserId = null;
+
     public $selectedRiwayatUserName = '';
 
     // Filter properties
     public $selectedUserAktif = 1;
+
     public $selectedUnit = '';
+
     public $selectedJenisKaryawan = '';
+
     public $search = '';
 
     // Options for dropdowns
     public $units = [];
+
     public $jenisKaryawans = [];
+
     public $bulan;
+
     public $tahun;
+
     public $tanggalMulaiFilter = '';
+
     public $tanggalSelesaiFilter = '';
 
     public function mount()
@@ -67,30 +78,49 @@ class DataCuti extends Component
         $this->resetPage('usersPage');
     }
 
-    public function updatedSelectedUserAktif() { $this->resetPage('usersPage'); }
-    public function updatedSelectedUnit() { $this->resetPage('usersPage'); }
-    public function updatedSelectedJenisKaryawan() { $this->resetPage('usersPage'); }
-    
-    public function updatedBulan() { 
+    public function updatedSelectedUserAktif()
+    {
+        $this->resetPage('usersPage');
+    }
+
+    public function updatedSelectedUnit()
+    {
+        $this->resetPage('usersPage');
+    }
+
+    public function updatedSelectedJenisKaryawan()
+    {
+        $this->resetPage('usersPage');
+    }
+
+    public function updatedBulan()
+    {
         $this->tanggalMulaiFilter = '';
         $this->tanggalSelesaiFilter = '';
-        $this->resetPage('usersPage'); 
+        $this->resetPage('usersPage');
     }
-    public function updatedTahun() { 
+
+    public function updatedTahun()
+    {
         $this->tanggalMulaiFilter = '';
         $this->tanggalSelesaiFilter = '';
-        $this->resetPage('usersPage'); 
+        $this->resetPage('usersPage');
     }
-    public function updatedTanggalMulai() { 
+
+    public function updatedTanggalMulai()
+    {
         $this->resetPage();
-        $this->resetPage('usersPage'); 
-        $this->resetPage('detailsPage'); 
+        $this->resetPage('usersPage');
+        $this->resetPage('detailsPage');
     }
-    public function updatedTanggalSelesaiFilter() { 
+
+    public function updatedTanggalSelesaiFilter()
+    {
         $this->resetPage();
-        $this->resetPage('usersPage'); 
-        $this->resetPage('detailsPage'); 
+        $this->resetPage('usersPage');
+        $this->resetPage('detailsPage');
     }
+
     private function getAllChildUnitIds($unitId)
     {
         $unitIds = [$unitId];
@@ -98,6 +128,7 @@ class DataCuti extends Component
         foreach ($childs as $childId) {
             $unitIds = array_merge($unitIds, $this->getAllChildUnitIds($childId));
         }
+
         return $unitIds;
     }
 
@@ -108,7 +139,7 @@ class DataCuti extends Component
     {
         $user = auth()->user();
 
-        if (!$user->can('approval-cuti')) {
+        if (! $user->can('approval-cuti')) {
             return CutiKaryawan::whereNull('id')->paginate(10);
         }
 
@@ -139,7 +170,7 @@ class DataCuti extends Component
         $query = User::with(['kategorijabatan', 'unitKerja'])->where('id', '!=', $user->id);
 
         if ($this->search) {
-            $query->where('name', 'like', '%' . $this->search . '%');
+            $query->where('name', 'like', '%'.$this->search.'%');
         }
         if ($this->selectedUnit) {
             $query->where('unit_id', $this->selectedUnit);
@@ -150,9 +181,9 @@ class DataCuti extends Component
         if (isset($this->selectedUserAktif)) {
             $query->where('status_karyawan', $this->selectedUserAktif);
         }
-        
+
         if ($this->tanggalMulaiFilter || $this->tanggalSelesaiFilter) {
-            $query->whereHas('cutiKaryawan', function($q) {
+            $query->whereHas('cutiKaryawan', function ($q) {
                 if ($this->tanggalMulaiFilter) {
                     $q->where('tanggal_mulai', '>=', $this->tanggalMulaiFilter)
                         ->whereMonth('tanggal_mulai', '=', $this->bulan)
@@ -169,10 +200,10 @@ class DataCuti extends Component
                 }
             });
         } elseif ($this->bulan && $this->tahun) {
-            $query->whereHas('cutiKaryawan', fn($q) => $q->whereYear('tanggal_mulai', $this->tahun)->whereMonth('tanggal_mulai', $this->bulan));
+            $query->whereHas('cutiKaryawan', fn ($q) => $q->whereYear('tanggal_mulai', $this->tahun)->whereMonth('tanggal_mulai', $this->bulan));
         }
 
-        if (!$this->isKepegawaian) {
+        if (! $this->isKepegawaian) {
             $hasChild = UnitKerja::where('parent_id', $user->unit_id)->exists();
             $unitIds = $hasChild ? $this->getAllChildUnitIds($user->unit_id) : [$user->unit_id];
             $query->whereIn('unit_id', $unitIds);
@@ -187,7 +218,9 @@ class DataCuti extends Component
      * ---------------------------------------------------------------- */
     public function loadUserCutiHistory()
     {
-        if (!$this->selectedRiwayatUserId) return null;
+        if (! $this->selectedRiwayatUserId) {
+            return null;
+        }
 
         $query = CutiKaryawan::with(['jenisCuti', 'statusCuti'])
             ->where('user_id', $this->selectedRiwayatUserId);
@@ -208,7 +241,7 @@ class DataCuti extends Component
             $query->where('tanggal_mulai', '>=', $this->tanggalMulaiFilter)
                 ->where('tanggal_selesai', '<=', $this->tanggalSelesaiFilter);
         }
-        
+
         if (empty($this->tanggalMulaiFilter) && empty($this->tanggalSelesaiFilter)) {
             $query->whereYear('tanggal_mulai', '=', $this->tahun)
                 ->whereMonth('tanggal_mulai', '=', $this->bulan)
@@ -224,17 +257,18 @@ class DataCuti extends Component
     private function applyFiltersCuti($query)
     {
         if ($this->search) {
-            $query->whereHas('user', fn($q) => $q->where('name', 'like', '%' . $this->search . '%'));
+            $query->whereHas('user', fn ($q) => $q->where('name', 'like', '%'.$this->search.'%'));
         }
         if ($this->selectedUnit) {
-            $query->whereHas('user', fn($q) => $q->where('unit_id', $this->selectedUnit));
+            $query->whereHas('user', fn ($q) => $q->where('unit_id', $this->selectedUnit));
         }
         if ($this->selectedJenisKaryawan) {
-            $query->whereHas('user', fn($q) => $q->where('jenis_id', $this->selectedJenisKaryawan));
+            $query->whereHas('user', fn ($q) => $q->where('jenis_id', $this->selectedJenisKaryawan));
         }
         if (isset($this->selectedUserAktif)) {
-            $query->whereHas('user', fn($q) => $q->where('status_karyawan', $this->selectedUserAktif));
+            $query->whereHas('user', fn ($q) => $q->where('status_karyawan', $this->selectedUserAktif));
         }
+
         return $query;
     }
 
@@ -261,7 +295,7 @@ class DataCuti extends Component
         // Apply search filter
         if ($this->search) {
             $query->whereHas('user', function ($q) {
-                $q->where('name', 'like', '%' . $this->search . '%');
+                $q->where('name', 'like', '%'.$this->search.'%');
             });
         }
 
@@ -294,13 +328,92 @@ class DataCuti extends Component
     }
 
     /** ----------------------------------------------------------------
+     *  Potong saldo cuti tahunan atau tambahan, termasuk sistem kasbon kuota tahun depan
+     *  jika jatah tahun berjalan sudah habis / kurang.
+     *  ---------------------------------------------------------------- */
+    private function potongSaldoCuti($cuti, $targetUser)
+    {
+        $tahunCuti = Carbon::parse($cuti->tanggal_mulai)->year;
+        $tahunDepan = $tahunCuti + 1;
+
+        // 1. Cek Cuti Tambahan
+        if ($cuti->kategori_cuti == 'tambahan') {
+            $userCuti = SisaCutiTahunan::firstOrCreate(
+                ['user_id' => $cuti->user_id, 'tahun' => $tahunCuti],
+                ['sisa_cuti' => MasterJatahCuti::where('tahun', $tahunCuti)->value('jumlah_cuti') ?? 12]
+            );
+
+            if ($userCuti->cuti_tambahan >= $cuti->jumlah_hari) {
+                $userCuti->decrement('cuti_tambahan', $cuti->jumlah_hari);
+
+                return ['success' => true, 'pesan' => ''];
+            }
+
+            return [
+                'success' => false,
+                'message' => 'Jatah Cuti Tambahan tidak cukup, pengajuan otomatis ditolak.',
+            ];
+        }
+
+        // 2. Cek Cuti Tahunan (dengan sistem kasbon tahun depan jika kurang/habis)
+        $jatahTahunIni = MasterJatahCuti::where('tahun', $tahunCuti)->value('jumlah_cuti') ?? 12;
+        $userCuti = SisaCutiTahunan::firstOrCreate(
+            ['user_id' => $cuti->user_id, 'tahun' => $tahunCuti],
+            ['sisa_cuti' => $jatahTahunIni]
+        );
+
+        $kebutuhan = $cuti->jumlah_hari;
+        $saldoTahunIni = $userCuti->sisa_cuti;
+
+        // Skenario 1: Saldo tahun berjalan mencukupi
+        if ($saldoTahunIni >= $kebutuhan) {
+            $userCuti->decrement('sisa_cuti', $kebutuhan);
+
+            return ['success' => true, 'pesan' => ''];
+        }
+
+        // Skenario 2: Saldo tahun berjalan habis (0) atau kurang -> Pinjam / Kasbon jatah tahun depan
+        $dariTahunIni = max(0, $saldoTahunIni);
+        $kekurangan = $kebutuhan - $dariTahunIni;
+
+        $jatahTahunDepan = MasterJatahCuti::where('tahun', $tahunDepan)->value('jumlah_cuti') ?? 12;
+        $userCutiTahunDepan = SisaCutiTahunan::firstOrCreate(
+            ['user_id' => $cuti->user_id, 'tahun' => $tahunDepan],
+            ['sisa_cuti' => $jatahTahunDepan]
+        );
+
+        if ($userCutiTahunDepan->sisa_cuti >= $kekurangan) {
+            if ($dariTahunIni > 0) {
+                $userCuti->decrement('sisa_cuti', $dariTahunIni);
+            }
+            $userCutiTahunDepan->decrement('sisa_cuti', $kekurangan);
+
+            $pesanKasbon = " ({$kekurangan} hari diambil dari kuota cuti tahun depan {$tahunDepan})";
+
+            return [
+                'success' => true,
+                'pesan' => $pesanKasbon,
+                'kasbon' => true,
+                'hari_kasbon' => $kekurangan,
+                'tahun_depan' => $tahunDepan,
+            ];
+        }
+
+        // Skenario 3: Kuota tahun ini + kuota tahun depan tidak cukup
+        return [
+            'success' => false,
+            'message' => "Jatah Cuti Tahunan {$tahunCuti} dan jatah tahun depan ({$tahunDepan}) tidak cukup, pengajuan otomatis ditolak.",
+        ];
+    }
+
+    /** ----------------------------------------------------------------
      *  Approve Cuti
      *  ---------------------------------------------------------------- */
     public function approveCuti($cutiId, $userId)
     {
         $user = auth()->user();
 
-        if (!$user->can('approval-cuti')) {
+        if (! $user->can('approval-cuti')) {
             return redirect()->route('approvalcuti.index')
                 ->with('error', 'Anda tidak memiliki izin untuk menyetujui cuti.');
         }
@@ -308,10 +421,12 @@ class DataCuti extends Component
         $cuti = CutiKaryawan::find($cutiId);
         $targetUser = User::findOrFail($userId);
 
-        if (!$cuti) {
+        if (! $cuti) {
             return redirect()->route('approvalcuti.index')
                 ->with('error', 'Pengajuan cuti tidak ditemukan.');
         }
+
+        $pesanTambahan = '';
 
         /** ------------------------------------------------------------
          *  Jika user adalah Wadir/Direktur dan cuti dari Manager → Final
@@ -321,35 +436,26 @@ class DataCuti extends Component
 
             // 🔥 Validasi sisa jatah cuti (Tahunan atau Tambahan)
             if ($cuti->jenisCuti && strtolower($cuti->jenisCuti->nama_cuti) == 'cuti tahunan') {
-                $userCuti = SisaCutiTahunan::where('user_id', $cuti->user_id)
-                    ->where('tahun', now('Asia/Jakarta')->year)
-                    ->first();
+                $potong = $this->potongSaldoCuti($cuti, $targetUser);
 
-                if ($userCuti) {
-                    $kolomCuti = ($cuti->kategori_cuti == 'tambahan') ? 'cuti_tambahan' : 'sisa_cuti';
-                    $namaKategori = ($cuti->kategori_cuti == 'tambahan') ? 'Tambahan' : 'Tahunan';
+                if (! $potong['success']) {
+                    $cuti->update(['status_cuti_id' => 2]);
+                    Notification::send($targetUser, new UserNotification(
+                        $potong['message'],
+                        '/pengajuan/cuti'
+                    ));
 
-                    if ($userCuti->$kolomCuti >= $cuti->jumlah_hari) {
-                        $userCuti->decrement($kolomCuti, $cuti->jumlah_hari);
-                    } else {
-                        $cuti->update(['status_cuti_id' => 2]);
-                        Notification::send($targetUser, new UserNotification(
-                            "Pengajuan cuti ditolak karena jatah Cuti {$namaKategori} tidak cukup.",
-                            "/pengajuan/cuti"
-                        ));
-                        return redirect()->route('approvalcuti.index')
-                            ->with('error', "Jatah Cuti {$namaKategori} tidak cukup, pengajuan otomatis ditolak.");
-                    }
-                } else {
                     return redirect()->route('approvalcuti.index')
-                        ->with('error', 'Data jatah cuti tidak ditemukan.');
+                        ->with('error', $potong['message']);
                 }
+
+                $pesanTambahan = $potong['pesan'] ?? '';
             }
 
             // ✅ Final approval
             $cuti->update(['status_cuti_id' => $cutiStatus]);
-            $pesan = "Pengajuan cuti Anda telah <span class='text-success-600 font-bold'>Disetujui Final</span> oleh {$user->name} ({$user->jabatan->nama}).";
-            Notification::send($targetUser, new UserNotification($pesan, "/pengajuan/cuti"));
+            $pesan = "Pengajuan cuti Anda telah <span class='text-success-600 font-bold'>Disetujui Final</span> oleh {$user->name} ({$user->jabatan->nama}){$pesanTambahan}.";
+            Notification::send($targetUser, new UserNotification($pesan, '/pengajuan/cuti'));
 
             RiwayatApproval::create([
                 'cuti_id' => $cutiId,
@@ -360,7 +466,7 @@ class DataCuti extends Component
             ]);
 
             return redirect()->route('approvalcuti.index')
-                ->with('success', 'Cuti Manager telah disetujui final oleh Wadir/Direktur.');
+                ->with('success', "Cuti Manager telah disetujui final oleh Wadir/Direktur.{$pesanTambahan}");
         }
 
         /** ------------------------------------------------------------
@@ -374,77 +480,62 @@ class DataCuti extends Component
 
         $cutiStatus = $isFinalApprover ? 1 : 4; // 1 = Final, 4 = Menunggu Final
 
-            // 🔥 Validasi jatah cuti (Tahunan atau Tambahan) jika final
-            if (
-                $cutiStatus == 1 &&
-                $cuti->jenisCuti &&
-                strtolower($cuti->jenisCuti->nama_cuti) == 'cuti tahunan'
-            ) {
+        // 🔥 Validasi jatah cuti (Tahunan atau Tambahan) jika final
+        if (
+            $cutiStatus == 1 &&
+            $cuti->jenisCuti &&
+            strtolower($cuti->jenisCuti->nama_cuti) == 'cuti tahunan'
+        ) {
 
-                // dd($targetUser->jenis_id != 1);
-                if ($targetUser->jenis_id != 1 || empty($targetUser->jenis_id)) {
-                    // (Logika pengecekan TMT karyawan kontrak tetap sama seperti sebelumnya)
-                    if (empty($targetUser->jenis_id) && empty($targetUser->tmt_masuk) && empty($targetUser->tmt)) {
-                        return redirect()->route('approvalcuti.index')
-                            ->with('error', 'Data jenis Karyawan & TMT belum terisi');
-                    }
-                    if (empty($targetUser->jenis_id)) {
-                        return redirect()->route('approvalcuti.index')
-                            ->with('error', 'Data jenis Karyawan belum terisi');
-                    }
-                    if (empty($targetUser->tmt_masuk)) {
-                        return redirect()->route('approvalcuti.index')
-                            ->with('error', 'Data TMT masuk belum terisi');
-                    }
-                    if (empty($targetUser->tmt)) {
-                        return redirect()->route('approvalcuti.index')
-                            ->with('error', 'Data TMT belum terisi');
-                    }
-
-                    $now = now('Asia/Jakarta');
-                    $tmt = Carbon::parse($targetUser->tmt, 'Asia/Jakarta');
-                    $targetTanggal = $tmt->copy()->addMonths(12);
-
-                    if ($targetUser->jenis_id === 3) {
-                        if (!$now->greaterThanOrEqualTo($targetTanggal)) {
-                            $sisaBulan = ceil($now->floatDiffInMonths($targetTanggal));
-                            return redirect()->route('approvalcuti.index')
-                                ->with('error', "Maaf, karyawan kontrak baru bisa cuti setelah 12 bulan. Sisa masa tunggu: $sisaBulan bulan lagi.");
-                        } else {
-                            $currentYear = now('Asia/Jakarta')->year;
-                            $jatahCuti = MasterJatahCuti::where('tahun', $currentYear)->value('jumlah_cuti') ?? 12;
-                            SisaCutiTahunan::firstOrCreate(
-                                ['user_id' => $targetUser->id, 'tahun' => $currentYear],
-                                ['sisa_cuti' => $jatahCuti]
-                            );
-                        }
-                    }
-                };
-
-                $userCuti = SisaCutiTahunan::where('user_id', $userId)
-                    ->where('tahun', now('Asia/Jakarta')->year)
-                    ->first();
-
-                if ($userCuti) {
-                    $kolomCuti = ($cuti->kategori_cuti == 'tambahan') ? 'cuti_tambahan' : 'sisa_cuti';
-                    $namaKategori = ($cuti->kategori_cuti == 'tambahan') ? 'Tambahan' : 'Tahunan';
-
-                    if ($userCuti->$kolomCuti >= $cuti->jumlah_hari) {
-                        $userCuti->decrement($kolomCuti, $cuti->jumlah_hari);
-                    } else {
-                        $cuti->update(['status_cuti_id' => 2]);
-                        Notification::send($targetUser, new UserNotification(
-                            "Pengajuan cuti ditolak karena jatah Cuti {$namaKategori} tidak cukup.",
-                            "/pengajuan/cuti"
-                        ));
-                        return redirect()->route('approvalcuti.index')
-                            ->with('error', "Jatah Cuti {$namaKategori} tidak cukup, pengajuan otomatis ditolak.");
-                    }
-                } else {
+            // dd($targetUser->jenis_id != 1);
+            if ($targetUser->jenis_id != 1 || empty($targetUser->jenis_id)) {
+                // (Logika pengecekan TMT karyawan kontrak tetap sama seperti sebelumnya)
+                if (empty($targetUser->jenis_id) && empty($targetUser->tmt_masuk) && empty($targetUser->tmt)) {
                     return redirect()->route('approvalcuti.index')
-                        ->with('error', 'Data jatah cuti tidak ditemukan.');
+                        ->with('error', 'Data jenis Karyawan & TMT belum terisi');
+                }
+                if (empty($targetUser->jenis_id)) {
+                    return redirect()->route('approvalcuti.index')
+                        ->with('error', 'Data jenis Karyawan belum terisi');
+                }
+                if (empty($targetUser->tmt_masuk)) {
+                    return redirect()->route('approvalcuti.index')
+                        ->with('error', 'Data TMT masuk belum terisi');
+                }
+                if (empty($targetUser->tmt)) {
+                    return redirect()->route('approvalcuti.index')
+                        ->with('error', 'Data TMT belum terisi');
+                }
+
+                $now = now('Asia/Jakarta');
+                $tmt = Carbon::parse($targetUser->tmt, 'Asia/Jakarta');
+                $targetTanggal = $tmt->copy()->addMonths(12);
+
+                if ($targetUser->jenis_id === 3) {
+                    if (! $now->greaterThanOrEqualTo($targetTanggal)) {
+                        $sisaBulan = ceil($now->floatDiffInMonths($targetTanggal));
+
+                        return redirect()->route('approvalcuti.index')
+                            ->with('error', "Maaf, karyawan kontrak baru bisa cuti setelah 12 bulan. Sisa masa tunggu: $sisaBulan bulan lagi.");
+                    }
                 }
             }
+
+            $potong = $this->potongSaldoCuti($cuti, $targetUser);
+
+            if (! $potong['success']) {
+                $cuti->update(['status_cuti_id' => 2]);
+                Notification::send($targetUser, new UserNotification(
+                    $potong['message'],
+                    '/pengajuan/cuti'
+                ));
+
+                return redirect()->route('approvalcuti.index')
+                    ->with('error', $potong['message']);
+            }
+
+            $pesanTambahan = $potong['pesan'] ?? '';
+        }
 
         // 🔹 Update status cuti
         $cuti->update(['status_cuti_id' => $cutiStatus]);
@@ -496,18 +587,18 @@ class DataCuti extends Component
 
         // 🔔 Notifikasi ke pemohon
         $statusText = $isFinalApprover ? 'Disetujui Final' : 'Disetujui (Menunggu Final)';
-        $message = "Pengajuan cuti anda telah <span class='text-success-600 font-bold'>{$statusText}</span> oleh {$user->name}";
-        Notification::send($targetUser, new UserNotification($message, "/pengajuan/cuti"));
+        $message = "Pengajuan cuti anda telah <span class='text-success-600 font-bold'>{$statusText}</span> oleh {$user->name}{$pesanTambahan}";
+        Notification::send($targetUser, new UserNotification($message, '/pengajuan/cuti'));
 
         // 🔔 Jika belum final → notifikasi ke Kepegawaian
-        if (!$isFinalApprover) {
+        if (! $isFinalApprover) {
             $finalApprovers = User::where('unit_id', $this->unitKepegawaianId)
-                ->orWhereHas('roles', fn($q) => $q->where('id', 2))
+                ->orWhereHas('roles', fn ($q) => $q->where('id', 2))
                 ->get();
 
             if ($finalApprovers->count() > 0) {
                 $msg = "Pengajuan cuti atas nama {$targetUser->name} telah disetujui oleh {$user->name}, menunggu persetujuan final Kepegawaian.";
-                Notification::send($finalApprovers, new UserNotification($msg, "/approvalcuti"));
+                Notification::send($finalApprovers, new UserNotification($msg, '/approvalcuti'));
             }
         }
 
@@ -535,13 +626,13 @@ class DataCuti extends Component
             $cuti->update(['status_cuti_id' => 2]);
             $targetUser = User::find($userId);
 
-            $message = 'Pengajuan Cuti anda (' . $targetUser->name . ') mulai ' .
-                '<span class="font-bold">' . $cuti->tanggal_mulai . ' sampai ' . $cuti->tanggal_selesai .
-                '</span> dengan keterangan "' . $cuti->keterangan .
-                '" telah <span class="text-red-600 font-bold">Ditolak</span> oleh ' . $user->name .
-                '. Alasan: "' . $reason . '"';
+            $message = 'Pengajuan Cuti anda ('.$targetUser->name.') mulai '.
+                '<span class="font-bold">'.$cuti->tanggal_mulai.' sampai '.$cuti->tanggal_selesai.
+                '</span> dengan keterangan "'.$cuti->keterangan.
+                '" telah <span class="text-red-600 font-bold">Ditolak</span> oleh '.$user->name.
+                '. Alasan: "'.$reason.'"';
 
-            Notification::send($targetUser, new UserNotification($message, "/pengajuan/cuti"));
+            Notification::send($targetUser, new UserNotification($message, '/pengajuan/cuti'));
 
             RiwayatApproval::create([
                 'cuti_id' => $cutiId,
@@ -597,7 +688,7 @@ class DataCuti extends Component
         $riwayatUsers = null;
         $riwayatCutiDetail = null;
 
-        if (!$this->isRiwayatCuti) {
+        if (! $this->isRiwayatCuti) {
             $cutiData = $this->loadData();
         } else {
             $riwayatUsers = $this->loadUsers();

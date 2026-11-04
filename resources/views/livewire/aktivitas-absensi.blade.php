@@ -44,7 +44,7 @@
                 class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-success-500 w-full transition duration-150">
                 @foreach (range(1, 12) as $m)
                     <option value="{{ $m }}">
-                        {{ \Carbon\Carbon::create(null, $m)->translatedFormat('F') }}
+                        {{ \Carbon\Carbon::createFromFormat('!m', $m)->locale('id')->translatedFormat('F') }}
                     </option>
                 @endforeach
             </select>

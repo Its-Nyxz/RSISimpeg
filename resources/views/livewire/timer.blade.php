@@ -203,8 +203,9 @@
                         icon: 'error',
                         title: 'Oops...',
                         text: message,
-                        showConfirmButton: false,
-                        timer: 1500
+                        showConfirmButton: true,
+                        confirmButtonText: 'Tutup',
+                        confirmButtonColor: '#d33'
                     });
                 });
 
@@ -421,41 +422,46 @@
         <script>
             let lokasiTerakhir = null;
 
-            function ambilLokasiTerbaru() {
-                if (!navigator.geolocation) {
-                    Swal.fire('Error', 'Browser tidak mendukung Geolocation.', 'error');
-                    return;
-                }
-
-                navigator.geolocation.getCurrentPosition(
-                    function(pos) {
-                        // tambah altitude & accuracy
-                        // altitude ra mungkin null, nek null keno dispatch error neng Livewire
-                        // accuracy soko Fake GPS default 1meter margin tekan 5meter, normal gps +-20meter
-                        // dadi akurasi iso ngge cek Fake GPS, kecuali user e mudeng trus ganti akurasi setting Fake GPS e
-                        lokasiTerakhir = {
-                            lat: pos.coords.latitude,
-                            lng: pos.coords.longitude,
-                            alt: pos.coords.altitude,
-                            acc: pos.coords.accuracy
-                        };
-
-                        console.log("📍 Lokasi:", lokasiTerakhir.lat, lokasiTerakhir.lng);
-                        // @this.call('logLocation', lokasiTerakhir.lat, lokasiTerakhir.lng, lokasiTerakhir.alt, lokasiTerakhir.acc);
-                    },
-                    function() {
-                        Swal.fire('Gagal', 'Izin lokasi dibutuhkan.', 'error');
-                    }, {
-                        enableHighAccuracy: true,
-                        timeout: 8000,
-                        maximumAge: 10000
+            function ambilKoordinatAkurat() {
+                return new Promise((resolve, reject) => {
+                    if (!navigator.geolocation) {
+                        return reject('Browser Anda tidak mendukung Geolocation/GPS.');
                     }
-                );
+
+                    navigator.geolocation.getCurrentPosition(
+                        function(pos) {
+                            const dataLokasi = {
+                                lat: pos.coords.latitude,
+                                lng: pos.coords.longitude,
+                                alt: pos.coords.altitude,
+                                acc: pos.coords.accuracy
+                            };
+                            lokasiTerakhir = dataLokasi;
+                            console.log("📍 Lokasi Terkunci:", dataLokasi.lat, dataLokasi.lng, "Akurasi:", dataLokasi.acc);
+                            resolve(dataLokasi);
+                        },
+                        function(err) {
+                            let pesan = 'Izin lokasi dibutuhkan untuk absensi.';
+                            if (err.code === 1) {
+                                pesan = 'Izin akses lokasi (GPS) ditolak oleh browser. Mohon aktifkan izin lokasi di setelan browser.';
+                            } else if (err.code === 2) {
+                                pesan = 'Sinyal lokasi/GPS tidak terdeteksi. Silakan coba di tempat yang lebih terbuka.';
+                            } else if (err.code === 3) {
+                                pesan = 'Waktu pencarian sinyal GPS habis (Timeout). Mohon coba beberapa saat lagi.';
+                            }
+                            reject(pesan);
+                        },
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 10000,
+                            maximumAge: 0
+                        }
+                    );
+                });
             }
 
             // Fungsi kirim lokasi ke Livewire
-            window.kirimLokasiKeLivewire = function(aksi = 'start') {
-
+            window.kirimLokasiKeLivewire = async function(aksi = 'start') {
                 let isDesktop = !/android|iphone|ipad|mobile/i.test(navigator.userAgent);
                 let isWhitelisted = @json($isIpWhitelisted);
 
@@ -469,44 +475,43 @@
                     return;
                 }
 
-                // Mobile tetap pakai GPS
-                if (!isDesktop) {
-                    ambilLokasiTerbaru();
-                    @this.set('latitude', lokasiTerakhir.lat);
-                    @this.set('longitude', lokasiTerakhir.lng);
-                    @this.set('altitude', lokasiTerakhir.alt);
-                    @this.set('accuracy', lokasiTerakhir.acc);
+                // Mobile di luar WiFi kantor: Wajib kunci GPS akurat
+                Swal.fire({
+                    title: 'Mengunci Titik GPS...',
+                    text: 'Mohon tunggu sebentar, satelit sedang membaca koordinat presisi Anda.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
 
-                    // gor gae2 wedi tok iki, ono loading segala macam kyo ngecek2 ngono
+                try {
+                    const lokasi = await ambilKoordinatAkurat();
+                    Swal.close();
+
+                    if (aksi === 'start') {
+                        @this.call('startTimer', false, null, lokasi);
+                    } else {
+                        @this.call('openWorkReportModal', lokasi);
+                    }
+                } catch (pesanError) {
                     Swal.fire({
-                        title: 'Mencari Lokasi...',
-                        text: 'Mohon tunggu sebentar, sedang mengunci koordinat GPS.',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        },
-                        timer: 3500
-                    }).then(() => {
-                        if (aksi === 'start' && lokasiTerakhir) {
-                            @this.call('startTimer');
-                        } else {
-                            @this.call('openWorkReportModal');
-                        }
+                        icon: 'error',
+                        title: 'Gagal Mengunci Lokasi',
+                        text: pesanError,
+                        showConfirmButton: true,
+                        confirmButtonText: 'Tutup',
+                        confirmButtonColor: '#d33'
                     });
-                    return;
                 }
             };
 
-
             document.addEventListener('DOMContentLoaded', () => {
-                // ambilLokasiTerbaru();
                 let isMobile = /android|iphone|ipad|mobile/i.test(navigator.userAgent);
                 let isWhitelisted = @json($isIpWhitelisted);
-                // Hanya minta izin & ambil GPS jika perangkat adalah mobile DAN bukan di jaringan kantor
+                // Pre-warm GPS saat halaman pertama kali dibuka di perangkat mobile
                 if (isMobile && !isWhitelisted) {
-                    ambilLokasiTerbaru();
-                    // Refresh lokasi tiap 20 detik
-                    setInterval(ambilLokasiTerbaru, 15000);
+                    ambilKoordinatAkurat().catch(() => {});
                 }
             });
         </script>

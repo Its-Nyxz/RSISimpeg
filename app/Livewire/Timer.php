@@ -249,12 +249,19 @@ class Timer extends Component
             ->first();
     }
 
-    public function startTimer($bypassLokasi = false, $deskripsiOverride = null)
+    public function startTimer($bypassLokasi = false, $deskripsiOverride = null, $payloadLokasi = null)
     {
         $this->logDebug('startTimer() called', [
             'bypass_lokasi' => $bypassLokasi,
             'has_override' => !empty($deskripsiOverride),
         ]);
+
+        if ($payloadLokasi) {
+            $this->latitude  = $payloadLokasi['lat'] ?? null;
+            $this->longitude = $payloadLokasi['lng'] ?? null;
+            $this->accuracy  = $payloadLokasi['acc'] ?? null;
+            $this->altitude  = $payloadLokasi['alt'] ?? null;
+        }
 
         if (!$bypassLokasi && !$this->validasiLokasiAtauIp()) {
             return;
@@ -380,8 +387,15 @@ class Timer extends Component
     }
 
 
-    public function openWorkReportModal()
+    public function openWorkReportModal($payloadLokasi = null)
     {
+        if ($payloadLokasi) {
+            $this->latitude  = $payloadLokasi['lat'] ?? null;
+            $this->longitude = $payloadLokasi['lng'] ?? null;
+            $this->accuracy  = $payloadLokasi['acc'] ?? null;
+            $this->altitude  = $payloadLokasi['alt'] ?? null;
+        }
+
         if (!$this->validasiLokasiAtauIp()) return;
 
         $this->validateOnly('deskripsi_out');
@@ -959,9 +973,17 @@ class Timer extends Component
             return false;
         }
 
-        if ($alt === null || $acc >= 1000) {
-            $this->dispatch('alert-error', message: "Ganti izin lokasi ke \"Akurat\" atau \"Precise\".");
+        // Cek jika akurasi GPS terlalu rendah/hancur (> 250m, indikasi sinyal hanya dari BTS seluler)
+        if ($acc !== null && $acc >= 250) {
+            $this->dispatch('alert-error', message: "Sinyal GPS kurang akurat (" . round($acc) . "m). Silakan bergeser ke area terbuka dan coba lagi.");
             $this->logLocationValidation(false, ['reason' => 'low_accuracy', 'accuracy' => $acc, 'altitude' => $alt]);
+            return false;
+        }
+
+        // Deteksi Fake GPS yang tidak realistis (akurasi persis 0 atau 1 meter bulat)
+        if ($acc !== null && ($acc === 0.0 || $acc === 1.0)) {
+            $this->dispatch('alert-error', message: 'Indikasi Fake GPS terdeteksi (akurasi 0/1m tidak wajar). Matikan aplikasi mock location.');
+            $this->logLocationValidation(false, ['reason' => 'fake_gps_suspected', 'accuracy' => $acc]);
             return false;
         }
 
@@ -1004,16 +1026,7 @@ class Timer extends Component
 
         // 6) Coba point-in-polygon (boundary-inclusive)
         foreach ($allowedAreas as $area) {
-            $accSus = false;
-            // iso di ubah2, tpi normal e GPS indo acc >20 meter dadi nek <20 meter curiga Fake GPS
-            // kecuali setting Fake GPS e di ubah
-            if ($acc !== null && $acc <= 10) { 
-                $this->dispatch('alert-error', message: 'Matikan aplikasi Fake GPS atau sejenisnya.');
-                $this->logLocationValidation(false, ['reason' => 'fake_gps_suspected', 'accuracy' => $acc]);
-                $accSus = true;
-                return false;
-            }
-            if ($this->isPointInPolygonInclusive($lat, $lng, $polygons[$area]) && !$accSus) {
+            if ($this->isPointInPolygonInclusive($lat, $lng, $polygons[$area])) {
                 $this->logLocationValidation(true, ['reason' => 'polygon_match', 'area' => $area, 'latitude' => $lat, 'longitude' => $lng]);
                 return true;
             }
@@ -1024,7 +1037,7 @@ class Timer extends Component
             'RSI' => [-7.40233, 109.61562],
             'akunbiz' => [-7.548218, 110.812613],
         ];
-        $bufferMeters = 150; // bisa dinaikkan 150 -> 180/200 sesuai kebutuhan
+        $bufferMeters = 180; // Ditingkatkan menjadi 180m agar mencakup perimeter area parkir secara aman
 
         foreach ($allowedAreas as $area) {
             [$clat, $clng] = $centers[$area];

@@ -130,10 +130,23 @@
         <div class="space-y-6"> 
             <x-card title="Ringkasan Kehadiran"> 
                 <div class="flex flex-col gap-3 p-2"> 
-                    <div class="flex justify-between items-center p-2 bg-gray-50 rounded"> 
-                        <div class="font-medium text-gray-600">Sisa Cuti Tahunan</div> 
-                        <div class="font-bold text-success-700 text-lg">{{ $sisaCutiTahunan }} <span class="text-xs font-normal">Hari</span></div> 
-                    </div> 
+                    @if (isset($sisaCutiTahunDepan) && $sisaCutiTahunDepan !== null)
+                        <div class="grid grid-cols-2 gap-2"> 
+                            <div class="flex flex-col justify-between p-2 bg-gray-50 rounded"> 
+                                <div class="font-medium text-gray-600 text-xs sm:text-sm">Sisa Cuti ({{ $tahunIni }})</div> 
+                                <div class="font-bold text-success-700 text-base sm:text-lg mt-0.5">{{ $sisaCutiTahunan }} <span class="text-xs font-normal">Hari</span></div> 
+                            </div> 
+                            <div class="flex flex-col justify-between p-2 bg-gray-50 rounded"> 
+                                <div class="font-medium text-gray-600 text-xs sm:text-sm">Sisa Cuti ({{ $tahunDepan }})</div> 
+                                <div class="font-bold text-success-700 text-base sm:text-lg mt-0.5">{{ $sisaCutiTahunDepan }} <span class="text-xs font-normal">Hari</span></div> 
+                            </div> 
+                        </div>
+                    @else
+                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded"> 
+                            <div class="font-medium text-gray-600">Sisa Cuti Tahunan</div> 
+                            <div class="font-bold text-success-700 text-lg">{{ $sisaCutiTahunan }} <span class="text-xs font-normal">Hari</span></div> 
+                        </div> 
+                    @endif 
                     <div class="flex justify-between items-center p-2 bg-gray-50 rounded"> 
                         <div class="font-medium text-gray-600">Terlambat (Bulan Ini)</div> 
                         <div class="font-bold text-red-600 text-lg">{{ $jumlahKeterlambatan }} <span class="text-xs font-normal">Kali</span></div> 

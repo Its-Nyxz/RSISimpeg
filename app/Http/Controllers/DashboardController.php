@@ -191,12 +191,25 @@ class DashboardController extends Controller
 
         // Ambil data sisa cuti tahunan user berdasarkan tahun sekarang
         $cutiData = $user->sisaCutiTahunan()
-            ->where('tahun', now()->year)
+            ->where('tahun', $tahunIni)
             ->first();
 
         // Ambil masing-masing jumlah cutinya
         $sisaCutiTahunan = $cutiData ? $cutiData->sisa_cuti : 0;
         $cutiTambahan = $cutiData ? $cutiData->cuti_tambahan : 0;
+
+        // Cek apakah ada cuti tahun depan yang sudah terpakai (kasbon)
+        $tahunDepan = $tahunIni + 1;
+        $cutiDataTahunDepan = $user->sisaCutiTahunan()
+            ->where('tahun', $tahunDepan)
+            ->first();
+
+        $jatahTahunDepan = \App\Models\MasterJatahCuti::where('tahun', $tahunDepan)->value('jumlah_cuti') ?? 12;
+
+        $sisaCutiTahunDepan = null;
+        if ($cutiDataTahunDepan && $cutiDataTahunDepan->sisa_cuti < $jatahTahunDepan) {
+            $sisaCutiTahunDepan = $cutiDataTahunDepan->sisa_cuti;
+        }
 
         $jumlahKeterlambatan = $user->absen()
             ->whereMonth('created_at', $bulanIni)
@@ -220,6 +233,9 @@ class DashboardController extends Controller
             'masaBerlakuPelatihan',
             'totalJumlahJamPelatihan',
             'sisaCutiTahunan',
+            'sisaCutiTahunDepan',
+            'tahunIni',
+            'tahunDepan',
             'cutiTambahan',
             'jumlahKeterlambatan',
             'jumlahIzin',

@@ -398,7 +398,7 @@ class AktivitasAbsensi extends Component
 
     public function exportPdfHistory()
     {
-        $month = Carbon::createFromFormat('m', $this->month)->locale('id')->translatedFormat('F');
+        $month = Carbon::createFromDate($this->year, (int) $this->month, 1)->locale('id')->isoFormat('MMMM');
         $year = $this->year;
         $user = User::where('id', $this->selectedUserId)->first();
         $title = "Bulan " . $month . " Tahun " . $year;
@@ -414,7 +414,7 @@ class AktivitasAbsensi extends Component
 
     public function exportExcelHistory()
     {
-        $month = Carbon::createFromFormat('m', $this->month)->locale('id')->translatedFormat('F');
+        $month = Carbon::createFromDate($this->year, (int) $this->month, 1)->locale('id')->isoFormat('MMMM');
         $year = $this->year;
         $user = User::find($this->selectedUserId);
         $title = "Bulan $month Tahun $year";
@@ -426,6 +426,7 @@ class AktivitasAbsensi extends Component
     public function exportExcelMultiple(array $userIds)
     {
         $users = User::whereIn('id', $userIds)->get();
+        $monthName = Carbon::createFromDate($this->year, (int) $this->month, 1)->locale('id')->isoFormat('MMMM');
 
         return Excel::download(
             new AbsensiMultiUserExport(
@@ -433,7 +434,7 @@ class AktivitasAbsensi extends Component
                 $this->month,
                 $this->year
             ),
-            "Laporan_Absensi_{$this->month}_{$this->year}.xlsx"
+            "Laporan_Absensi_{$monthName}_{$this->year}.xlsx"
         );
     }
 
@@ -569,7 +570,7 @@ class AktivitasAbsensi extends Component
         // $unitName = UnitKerja::find($this->selectedUnitId)?->nama ?? 'Unit';
         $unitIds = $this->getSelectedUnitIds();
         $unitName = UnitKerja::whereIn('id', $unitIds)->pluck('nama')->join(', ') ?: 'Unit';
-        $monthName = Carbon::create()->month((int)$this->month)->locale('id')->translatedFormat('F');
+        $monthName = Carbon::createFromDate($this->year, (int) $this->month, 1)->locale('id')->isoFormat('MMMM');
         $year = $this->year;
 
         return Excel::download(
