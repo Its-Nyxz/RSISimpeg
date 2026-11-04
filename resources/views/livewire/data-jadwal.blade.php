@@ -1,3 +1,4 @@
+
 <div>
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4">
         <div class="w-full lg:w-auto flex flex-col md:flex-row gap-2">
@@ -13,6 +14,7 @@
                 <livewire:searchable-pillbox wire:model.live="selectedUnit" :options="$units" value-key="id"
                     label-key="nama" placeholder="Cari Unit" :single="true" />
             @endif
+
             @if (collect(auth()->user()->roles()->pluck('name'))->filter(function ($name) {
                         return str_starts_with($name, 'Kepala');
                     })->count())
@@ -23,9 +25,9 @@
                         <option value="{{ $item->id }}">{{ $item->name }}</option>
                     @endforeach
                 </select>
-
             @endif
         </div>
+
         <div class="flex justify-end items-center gap-3 w-full lg:w-auto">
             @if ($routeIsDashboard)
                 <div class="flex justify-end w-full lg:w-auto">
@@ -46,7 +48,6 @@
         </div>
     </div>
 
-
     <!-- Filter Bulan & Tahun -->
     <div class="flex flex-col gap-3 mb-4 lg:flex-row lg:items-center lg:justify-between">
         <!-- Filter Kiri -->
@@ -66,7 +67,6 @@
                     <option value="{{ $y }}">{{ $y }}</option>
                 @endforeach
             </select>
-
         </div>
 
         <!-- Tombol-Tombol Kanan -->
@@ -79,7 +79,6 @@
                         $unitId = $canSelectUnit ? $selectedUnit : auth()->user()->unit_id;
                     @endphp
 
-
                     <a href="{{ route('jadwal.template', [
                         'month' => $bulan,
                         'year' => $tahun,
@@ -90,8 +89,6 @@
                     </a>
                 @endcan
 
-
-
                 {{-- Tombol Import Excel --}}
                 @can('import-jadwal')
                     <input type="file" wire:model="file" class="hidden" id="uploadFile">
@@ -99,6 +96,7 @@
                         class="w-full sm:w-auto flex items-center justify-center text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-4 py-2 transition shadow-sm">
                         <i class="fas fa-file-excel mr-2"></i> Import
                     </button>
+
                     {{-- Info file dan progress (Import) --}}
                     @if ($file)
                         <div class="mt-2 flex flex-col gap-2 w-full sm:w-auto">
@@ -130,7 +128,6 @@
                         </div>
                     @endif
                 @endcan
-
 
                 @php
                     $canSelectUnit = auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->id == 87;
@@ -183,17 +180,18 @@
                         class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap border-b border-success-500 hidden md:table-cell">
                         Pendidikan</th>
                     <th class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap text-center border-b border-success-500">PJ
-                    </th> <!-- Pindahkan ke sini -->
+                    </th>
                     <th
                         class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap border-b border-success-500 hidden lg:table-cell">
                         Tanggal Masuk</th>
                     <th
                         class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap border-b border-success-500 hidden md:table-cell">
                         Lama Kerja</th>
+
                     @foreach ($tanggalJadwal as $tanggal)
                         @php
                             $carbonDate = \Carbon\Carbon::parse($tanggal);
-                            $hari = $carbonDate->format('l'); // Nama Hari
+                            $hari = $carbonDate->format('l');
                             $isHoliday = $this->isHoliday($tanggal);
                         @endphp
                         <th
@@ -202,6 +200,7 @@
                             {{ $carbonDate->format('d') }}
                         </th>
                     @endforeach
+
                     @can('edit-jadwal')
                         <th
                             class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap bg-success-400 sticky right-0 z-40 border-l border-b border-success-500 shadow-sm">
@@ -217,6 +216,7 @@
                         <td class="px-2 py-2 sm:px-4 sm:py-3 font-medium text-gray-900 whitespace-nowrap text-center">
                             {{ $loop->iteration }}
                         </td>
+
                         <td
                             class="px-2 py-2 sm:px-4 sm:py-3 font-medium text-gray-900 whitespace-nowrap sticky left-0 z-20 bg-inherit border-r border-gray-200 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] min-w-[120px] sm:min-w-[150px]">
                             <div class="truncate max-w-[120px] sm:max-w-none"
@@ -224,12 +224,13 @@
                                 {{ optional(optional($jadwalUser)->first())->user->name ?? '-' }}
                             </div>
                         </td>
+
                         <td class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap hidden md:table-cell">
                             {{ optional(optional($jadwalUser)->first())->user->pendidikanUser->nama ?? '-' }}
                         </td>
+
                         <td class="px-2 py-2 sm:px-4 sm:py-3 text-center whitespace-nowrap">
                             @php
-                                // Cek PJ untuk bulan berjalan (bisa disesuaikan jika ingin per tanggal)
                                 $user = optional(optional($jadwalUser)->first())->user;
                                 $isPJ = \App\Models\PJ::where('user_id', $user_id)
                                     ->whereMonth('assigned_at', $bulan)
@@ -237,6 +238,7 @@
                                     ->where('is_pj', true)
                                     ->exists();
                             @endphp
+
                             @if ($isPJ)
                                 <span
                                     class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">Iya</span>
@@ -244,9 +246,11 @@
                                 -
                             @endif
                         </td>
+
                         <td class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap hidden lg:table-cell">
                             {{ optional(optional($jadwalUser)->first())->user->tmt ? \Carbon\Carbon::parse(optional(optional($jadwalUser)->first())->user->tmt)->format('d M Y') : '-' }}
                         </td>
+
                         <td class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap hidden md:table-cell">
                             @php
                                 $user = optional(optional($jadwalUser)->first())->user;
@@ -261,8 +265,9 @@
                             @php
                                 $carbonDate = \Carbon\Carbon::parse($tanggal);
                                 $hari = $carbonDate->format('l');
-                                $isHoliday = $this->isHoliday($tanggal); // Hitung ulang di sini
+                                $isHoliday = $this->isHoliday($tanggal);
                                 $shifts = $filteredShifts[$user_id][$tanggal] ?? [];
+
                                 $isSpecialShift = collect($shifts)
                                     ->pluck('nama_shift')
                                     ->contains(function ($val) {
@@ -277,10 +282,11 @@
                                 @if (count($shifts))
                                     @foreach ($shifts as $shift)
                                         <button
-                                            wire:click="showShiftDetail('{{ $shift['nama_shift'] }}', '{{ $shift['jam_masuk'] }}', '{{ $shift['jam_keluar'] }}', `{{ $shift['keterangan'] }}`, '{{ $user_id }}', '{{ $tanggal }}')"
+                                            wire:click="showShiftDetail('{{ $shift['nama_shift'] }}', '{{ $shift['jam_masuk'] }}', '{{ $shift['jam_keluar'] }}', `{{ $shift['keterangan'] }}`, '{{ $user_id }}', '{{ $tanggal }}', '{{ $shift['jadwal_id'] }}')"
                                             class="hover:text-success-700 hover:underline transition duration-150 font-semibold focus:outline-none focus:ring-2 focus:ring-success-500 rounded px-1">
                                             {{ $shift['nama_shift'] }}
                                         </button>
+
                                         @if (!$loop->last)
                                             <span class="text-gray-300">|</span>
                                         @endif
@@ -290,6 +296,7 @@
                                 @endif
                             </td>
                         @endforeach
+
                         @can('edit-jadwal')
                             <td class="px-2 py-2 sm:px-4 sm:py-3 sticky right-0 z-20 bg-inherit border-l border-gray-200">
                                 <a href="{{ route('jadwal.edit', optional(optional($jadwalUser)->first())->user->id) }}"
@@ -297,6 +304,7 @@
                                     data-tooltip-target="tooltip-jadwalUser-{{ optional(optional($jadwalUser)->first())->user->id }}">
                                     <i class="fa-solid fa-pen text-xs sm:text-sm"></i>
                                 </a>
+
                                 <div id="tooltip-jadwalUser-{{ optional(optional($jadwalUser)->first())->user->id }}"
                                     role="tooltip"
                                     class="absolute z-10 invisible inline-block px-3 py-2 text-xs font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
@@ -310,6 +318,7 @@
             </tbody>
         </table>
     </div>
+
     @if ($showModalShift)
         <div
             class="fixed inset-0 bg-gray-900 bg-opacity-75 flex justify-center items-center z-50 p-4 backdrop-blur-sm">
@@ -358,6 +367,7 @@
             </div>
         </div>
     @endif
+
     @if ($showModalDetailShift)
         <div
             class="fixed inset-0 z-50 bg-gray-900 bg-opacity-80 flex items-center justify-center p-4 backdrop-blur-sm">
@@ -378,11 +388,13 @@
                             <span
                                 class="font-bold text-gray-900 text-lg bg-gray-100 px-3 py-1 rounded-full">{{ $shiftNama }}</span>
                         </div>
+
                         <div class="flex justify-between items-center border-b border-gray-100 pb-3">
                             <span class="text-gray-500 text-sm">Jam Operasional</span>
                             <span class="font-medium text-gray-800 font-mono">{{ $shiftJamMasuk }} -
                                 {{ $shiftJamKeluar }}</span>
                         </div>
+
                         <div>
                             <span class="text-gray-500 text-sm block mb-2">Keterangan</span>
                             <div class="bg-gray-50 p-3 rounded-lg text-gray-700 italic text-sm border border-gray-200">
@@ -401,6 +413,32 @@
                             </h3>
 
                             <div class="space-y-4">
+
+                                {{-- Pilihan Update atau Add Shift --}}
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-2">
+                                        Pilihan Tindakan:
+                                    </label>
+
+                                    <div class="flex flex-col gap-2">
+                                        <label class="flex items-center gap-2 text-sm text-gray-700">
+                                            <input type="radio"
+                                                wire:model.boolean="isUpdateShift"
+                                                value="1"
+                                                class="text-success-600 focus:ring-success-500">
+                                            <span>Ubah shift pada jadwal ini</span>
+                                        </label>
+
+                                        <label class="flex items-center gap-2 text-sm text-gray-700">
+                                            <input type="radio"
+                                                wire:model.boolean="isUpdateShift"
+                                                value="0"
+                                                class="text-success-600 focus:ring-success-500">
+                                            <span>Tambahkan shift baru tanpa mengubah shift sebelumnya</span>
+                                        </label>
+                                    </div>
+                                </div>
+
                                 <div>
                                     <label for="selectedShiftId"
                                         class="block text-xs font-medium text-gray-700 mb-1">Ganti dengan Shift:</label>
@@ -424,6 +462,7 @@
                                         class="flex-1 bg-success-600 text-white px-4 py-2.5 rounded-lg shadow hover:bg-success-700 transition duration-150 text-sm font-bold flex justify-center items-center gap-2">
                                         <i class="fa-solid fa-save"></i> Simpan
                                     </button>
+
                                     <button type="button"
                                         class="bg-red-50 text-red-600 px-4 py-2.5 rounded-lg hover:bg-red-100 transition duration-150 border border-red-200 flex justify-center items-center gap-2"
                                         onclick="confirmAlert('Yakin ingin menghapus Jadwal Shift ini?', 'Ya, hapus!', () => @this.call('deleteShiftFromModal'))"
