@@ -46,9 +46,8 @@ class DataJadwal extends Component
     public $currentShiftDate;
     public $currentJadwalId;
 
-    // TRUE = update shift yang dipilih
-    // FALSE = menambahkan shift baru
-    public bool $isUpdateShift = true;
+    // Pilihan tindakan saat edit ('ubah' atau 'tambah')
+    public string $tindakan = 'ubah';
 
     public function mount()
     {
@@ -300,7 +299,7 @@ class DataJadwal extends Component
         $this->currentJadwalId = $jadwalId;
 
         // Default pilihan adalah Update Shift
-        $this->isUpdateShift = true;
+        $this->tindakan = 'ubah';
 
         // Siapkan daftar shift
         $unitId = auth()->user()->unit_id;
@@ -328,7 +327,7 @@ class DataJadwal extends Component
 
         $this->validate([
             'selectedShiftId' => 'required|exists:shifts,id',
-            'isUpdateShift' => 'required|boolean',
+            'tindakan' => 'required|in:ubah,tambah',
         ]);
 
         if (!$this->currentUserId || !$this->currentShiftDate || !$this->currentJadwalId) {
@@ -345,14 +344,14 @@ class DataJadwal extends Component
             return redirect()->route('jadwal.index')->with('error', 'Jadwal Tidak ditemukan.');
         }
 
-        if ($this->isUpdateShift) {
-            // TRUE = Mengubah shift pada jadwal yang dipilih
+        if ($this->tindakan === 'ubah') {
+            // Mengubah shift pada jadwal yang dipilih
             $jadwal->update(['shift_id' => $this->selectedShiftId]);
 
             $pesanSukses = 'Shift Berhasil diubah.';
             $aksiNotifikasi = 'diubah';
         } else {
-            // FALSE = Menambahkan jadwal shift baru tanpa mengubah jadwal lama
+            // Menambahkan jadwal shift baru tanpa mengubah jadwal lama
             $jadwalBaru = $jadwal->replicate();
             $jadwalBaru->shift_id = $this->selectedShiftId;
             $jadwalBaru->save();

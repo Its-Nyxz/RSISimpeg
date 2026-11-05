@@ -421,18 +421,18 @@
                                     </label>
 
                                     <div class="flex flex-col gap-2">
-                                        <label class="flex items-center gap-2 text-sm text-gray-700">
+                                        <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
                                             <input type="radio"
-                                                wire:model.boolean="isUpdateShift"
-                                                value="1"
+                                                wire:model="tindakan"
+                                                value="ubah"
                                                 class="text-success-600 focus:ring-success-500">
                                             <span>Ubah shift pada jadwal ini</span>
                                         </label>
 
-                                        <label class="flex items-center gap-2 text-sm text-gray-700">
+                                        <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
                                             <input type="radio"
-                                                wire:model.boolean="isUpdateShift"
-                                                value="0"
+                                                wire:model="tindakan"
+                                                value="tambah"
                                                 class="text-success-600 focus:ring-success-500">
                                             <span>Tambahkan shift baru tanpa mengubah shift sebelumnya</span>
                                         </label>

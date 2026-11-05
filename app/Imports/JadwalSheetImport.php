@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Shift;
 use Illuminate\Support\Str;
+use App\Models\CutiKaryawan;
 use App\Models\JadwalAbsensi;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -56,11 +57,11 @@ class JadwalSheetImport implements ToCollection
                         // 6 kolom tetap: 0..5 → hari ke-1 ada di index 6
                         $cellIndex = 5 + $day;
                         $cellValue = isset($row[$cellIndex]) ? trim((string)$row[$cellIndex]) : '';
-                        $shiftCell = preg_replace('/\s*\(-\)/', '', $cellValue);
+                        $shiftCell = trim(preg_replace('/\s*\([-]+\)/', '', $cellValue));
 
                         $shift = null;
 
-                        if ($shiftCell === '' || strtoupper($shiftCell) === 'L') {
+                        if ($shiftCell === '' || strtoupper($shiftCell) === 'L' || strtoupper($shiftCell) === 'LIBUR') {
                             $shift = Shift::firstOrCreate(
                                 [
                                     'unit_id' => $user->unit_id,
@@ -70,8 +71,18 @@ class JadwalSheetImport implements ToCollection
                                 ],
                                 ['keterangan' => 'Libur']
                             );
+                        } elseif (strtoupper($shiftCell) === 'C' || strtoupper($shiftCell) === 'CUTI') {
+                            $shift = Shift::firstOrCreate(
+                                [
+                                    'unit_id' => $user->unit_id,
+                                    'nama_shift' => 'C',
+                                    'jam_masuk' => null,
+                                    'jam_keluar' => null,
+                                ],
+                                ['keterangan' => 'Cuti']
+                            );
                         } else {
-                            if (preg_match('/^(.+?)\s*\((\d{2}:\d{2})(?::\d{2})?\s*-\s*(\d{2}:\d{2})(?::\d{2})?\)$/', $shiftCell, $matches)) {
+                            if (preg_match('/^(.+?)\s*\((\d{2}:\d{2})(?::\d{2})?\s*-\s*(\d{2}:\d{2})(?::\d{2})?\)$/', $cellValue, $matches)) {
                                 $namaShift = trim($matches[1]); // Bisa "P", "Pendek", "Shift A", dll.
                                 $jamMasuk = substr($matches[2], 0, 5); // Ambil HH:MM
                                 $jamKeluar = substr($matches[3], 0, 5);
@@ -93,6 +104,28 @@ class JadwalSheetImport implements ToCollection
                         }
 
                         if ($shift) {
+                            // PROTEKSI CUTI RESMI:
+                            // Jika karyawan punya Cuti yang disetujui di CutiKaryawan pada tanggal tersebut,
+                            // dan di Excel bukan ditulis C (misal koordinator pakai Excel lama yang belum ada cutinya),
+                            // tetap pertahankan shift Cuti agar tidak tertimpa dan tidak menjadi Alpha!
+                            $hasApprovedCuti = CutiKaryawan::where('user_id', $user->id)
+                                ->where('status_cuti_id', 1)
+                                ->whereDate('tanggal_mulai', '<=', $tanggal_jadwal)
+                                ->whereDate('tanggal_selesai', '>=', $tanggal_jadwal)
+                                ->exists();
+
+                            if ($hasApprovedCuti && $shift->nama_shift !== 'C') {
+                                $shift = Shift::firstOrCreate(
+                                    [
+                                        'unit_id' => $user->unit_id,
+                                        'nama_shift' => 'C',
+                                        'jam_masuk' => null,
+                                        'jam_keluar' => null,
+                                    ],
+                                    ['keterangan' => 'Cuti']
+                                );
+                            }
+
                             $existing = JadwalAbsensi::where('user_id', $user->id)
                                 ->where('tanggal_jadwal', $tanggal_jadwal)
                                 ->first();

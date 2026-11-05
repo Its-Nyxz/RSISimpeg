@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Shift;
 use App\Models\Holidays;
+use App\Models\CutiKaryawan;
 use App\Models\JadwalAbsensi;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Events\AfterSheet;
@@ -69,19 +70,28 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
                     ->whereDate('tanggal_jadwal', $tanggal)
                     ->first();
 
-                if ($jadwal && $jadwal->shift) {
+                // Cek apakah ada cuti resmi yang disetujui untuk user ini pada tanggal tersebut
+                $hasCuti = CutiKaryawan::where('user_id', $user->id)
+                    ->where('status_cuti_id', 1)
+                    ->whereDate('tanggal_mulai', '<=', $tanggal)
+                    ->whereDate('tanggal_selesai', '>=', $tanggal)
+                    ->exists();
+
+                if ($hasCuti || ($jadwal && $jadwal->shift && $jadwal->shift->nama_shift === 'C')) {
+                    $row[] = 'C (-)';
+                } elseif ($jadwal && $jadwal->shift) {
                     $nama   = $jadwal->shift->nama_shift ?? '-';
                     $masuk  = $fmtTime($jadwal->shift->jam_masuk ?? null);
                     $keluar = $fmtTime($jadwal->shift->jam_keluar ?? null);
 
-                    // Khusus shift L tanpa jam -> tampilkan "L (-)"
-                    if ($nama === 'L' && (is_null($jadwal->shift->jam_masuk) && is_null($jadwal->shift->jam_keluar))) {
-                        $row[] = 'L (-)';
+                    // Khusus shift tanpa jam (seperti L atau libur lain) -> tampilkan "NAMA (-)"
+                    if (is_null($jadwal->shift->jam_masuk) && is_null($jadwal->shift->jam_keluar)) {
+                        $row[] = "{$nama} (-)";
                     } else {
                         $row[] = "{$nama} ({$masuk}-{$keluar})";
                     }
                 } else {
-                    $row[] = null; // atau '' jika mau dibiarkan kosong
+                    $row[] = 'L (-)'; // Default untuk hari kosong / libur
                 }
             }
             $data[] = $row;
@@ -89,6 +99,16 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
         // Tambahkan pemisah sebelum daftar shift
         $data[] = [''];
         $data[] = ['KETERANGAN SHIFT:'];
+
+        // Pastikan shift L dan C ada di database untuk unit ini
+        Shift::firstOrCreate(
+            ['unit_id' => $this->unitId, 'nama_shift' => 'L', 'jam_masuk' => null, 'jam_keluar' => null],
+            ['keterangan' => 'Libur']
+        );
+        Shift::firstOrCreate(
+            ['unit_id' => $this->unitId, 'nama_shift' => 'C', 'jam_masuk' => null, 'jam_keluar' => null],
+            ['keterangan' => 'Cuti']
+        );
 
         // Ambil daftar shift untuk ditampilkan di bagian bawah
         $shifts = Shift::where('unit_id', $this->unitId)->get();
@@ -100,23 +120,6 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
                 'Jam Keluar'   => $shift->jam_keluar ?? '-',
                 'Keterangan'   => $shift->keterangan ?? '-',
             ];
-        }
-
-        // Tambahkan shift "L" (Libur) jika belum ada di database
-        $existingL = Shift::where('unit_id', $this->unitId)
-            ->where('nama_shift', 'L')
-            ->whereNull('jam_masuk')
-            ->whereNull('jam_keluar')
-            ->first();
-
-        if (!$existingL) {
-            Shift::create([
-                'unit_id' => $this->unitId,
-                'nama_shift' => 'L',
-                'jam_masuk' => null,
-                'jam_keluar' => null,
-                'keterangan' => 'Libur',
-            ]);
         }
 
         return $data;
@@ -145,21 +148,25 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
                 $FIRST_DAYCOL = $FIXED_COLS + 1;            // = 7 (G)
                 $daysInMonth  = Carbon::create($this->year, $this->month)->daysInMonth;
 
-                // 1) Pastikan shift L ada
+                // 1) Pastikan shift L dan C ada
                 Shift::firstOrCreate(
                     ['unit_id' => $this->unitId, 'nama_shift' => 'L', 'jam_masuk' => null, 'jam_keluar' => null],
                     ['keterangan' => 'Libur']
                 );
+                Shift::firstOrCreate(
+                    ['unit_id' => $this->unitId, 'nama_shift' => 'C', 'jam_masuk' => null, 'jam_keluar' => null],
+                    ['keterangan' => 'Cuti']
+                );
 
-                // 2) Siapkan list dropdown shift (Nama (in-out)) + "L (-)"
+                // 2) Siapkan list dropdown shift (Nama (in-out)) + "L (-)" + "C (-)"
                 $shiftValues = Shift::where('unit_id', $this->unitId)
                     ->get()
                     ->map(function ($s) {
                         $nama   = $s->nama_shift;
                         $masuk  = $s->jam_masuk ?? '-';
                         $keluar = $s->jam_keluar ?? '-';
-                        if ($nama === 'L' && is_null($s->jam_masuk) && is_null($s->jam_keluar)) {
-                            return 'L (-)';
+                        if (is_null($s->jam_masuk) && is_null($s->jam_keluar)) {
+                            return "{$nama} (-)";
                         }
                         return "{$nama} ({$masuk}-{$keluar})";
                     })
