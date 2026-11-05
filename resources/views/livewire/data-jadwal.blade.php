@@ -84,8 +84,9 @@
                         'year' => $tahun,
                         'unit_id' => $unitId,
                     ]) }}"
+                        title="Unduh template jadwal bulanan untuk diedit dan diimpor ulang"
                         class="w-full sm:w-auto flex items-center justify-center text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-4 py-2 transition shadow-sm">
-                        <i class="fas fa-download mr-2"></i> <span>Template</span>
+                        <i class="fas fa-download mr-2"></i> <span>Download Template</span>
                     </a>
                 @endcan
 
@@ -136,6 +137,7 @@
 
                 @if ($canSelectUnit)
                     <button wire:click="export" wire:loading.attr="disabled"
+                        title="Unduh laporan jadwal visual untuk arsip atau cetak"
                         class="w-full sm:w-auto flex items-center justify-center text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-4 py-2 transition shadow-sm">
                         <i class="fas fa-file-export mr-2" wire:loading.remove wire:target="export"></i>
                         <svg wire:loading wire:target="export" class="animate-spin h-4 w-4 mr-2 text-current"
@@ -146,7 +148,7 @@
                                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                             </path>
                         </svg>
-                        <span>Export</span>
+                        <span>Export Laporan</span>
                     </button>
                 @endif
 

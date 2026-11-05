@@ -260,8 +260,15 @@ class DataJadwal extends Component
 
         $expectedFileName = 'jadwal_template_' . $unitNama . '_' . $monthName . '_' . $this->tahun . '.xlsx';
 
+        // Normalisasi nama file upload (toleran terhadap akhiran copy browser seperti " (1)", spasi, dan huruf besar/kecil)
+        $cleanUploaded = preg_replace('/\s*\(\d+\)$/', '', pathinfo($uploadedFileName, PATHINFO_FILENAME));
+        $cleanExpected = pathinfo($expectedFileName, PATHINFO_FILENAME);
+
+        $slugUploaded = Str::slug($cleanUploaded, '_');
+        $slugExpected = Str::slug($cleanExpected, '_');
+
         // Validasi nama file
-        if ($uploadedFileName !== $expectedFileName) {
+        if ($slugUploaded !== $slugExpected) {
             return redirect()->route('jadwal.index')->with('error', "Nama file tidak sesuai. Harus: {$expectedFileName}");
         }
 
@@ -397,7 +404,7 @@ class DataJadwal extends Component
             return;
         }
 
-        $jadwalTarget = $jadwal->firstWhere('shift.nama_shift', $this->shiftNama);
+        $jadwalTarget = $jadwal->firstWhere('id', $this->currentJadwalId);
 
         if ($jadwalTarget) {
             $jadwalTarget->delete();

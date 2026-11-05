@@ -40,19 +40,42 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
             ->orderBy('name', 'asc')
             ->get();
         $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
-        // di atas loop users (opsional, helper kecil)
+
         $fmtTime = function ($t) {
             if (empty($t)) return '-';
-            // ambil HH:MM saja
             return substr($t, 0, 5);
         };
+
+        $userIds = $users->pluck('id')->toArray();
+        $startDate = sprintf('%04d-%02d-01', $this->year, $this->month);
+        $endDate   = sprintf('%04d-%02d-%02d', $this->year, $this->month, $daysInMonth);
+
+        // Preload jadwal sebulan penuh untuk semua user sekaligus (menghilangkan N+1 query)
+        $allJadwals = JadwalAbsensi::with('shift')
+            ->whereIn('user_id', $userIds)
+            ->whereBetween('tanggal_jadwal', [$startDate, $endDate])
+            ->get()
+            ->groupBy(fn($j) => $j->user_id . '_' . $j->tanggal_jadwal);
+
+        // Preload semua cuti yang disetujui dalam bulan ini (menghilangkan N+1 query)
+        $allCutis = CutiKaryawan::whereIn('user_id', $userIds)
+            ->where('status_cuti_id', 1)
+            ->where('tanggal_mulai', '<=', $endDate)
+            ->where('tanggal_selesai', '>=', $startDate)
+            ->get()
+            ->groupBy('user_id');
+
+        // Preload data PJ
+        $pjUserIds = PJ::whereIn('user_id', $userIds)
+            ->whereMonth('assigned_at', $this->month)
+            ->whereYear('assigned_at', $this->year)
+            ->where('is_pj', true)
+            ->pluck('user_id')
+            ->flip();
+
         foreach ($users as $index => $user) {
-            // Cek apakah user ini PJ pada bulan & tahun ini
-            $isPJ = PJ::where('user_id', $user->id)
-                ->whereMonth('assigned_at', $this->month)
-                ->whereYear('assigned_at', $this->year)
-                ->where('is_pj', true)
-                ->exists();
+            $isPJ = isset($pjUserIds[$user->id]);
+            $userCutis = $allCutis->get($user->id, collect());
 
             $row = [
                 $index + 1,
@@ -64,32 +87,33 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
             ];
 
             for ($day = 1; $day <= $daysInMonth; $day++) {
-                $tanggal = Carbon::create($this->year, $this->month, $day)->format('Y-m-d');
-                $jadwal = JadwalAbsensi::with('shift')
-                    ->where('user_id', $user->id)
-                    ->whereDate('tanggal_jadwal', $tanggal)
-                    ->first();
+                $tanggal = sprintf('%04d-%02d-%02d', $this->year, $this->month, $day);
+                $key = $user->id . '_' . $tanggal;
 
-                // Cek apakah ada cuti resmi yang disetujui untuk user ini pada tanggal tersebut
-                $hasCuti = CutiKaryawan::where('user_id', $user->id)
-                    ->where('status_cuti_id', 1)
-                    ->whereDate('tanggal_mulai', '<=', $tanggal)
-                    ->whereDate('tanggal_selesai', '>=', $tanggal)
-                    ->exists();
+                // Cek cuti dari memori collection (0 query)
+                $hasCuti = $userCutis->contains(function ($c) use ($tanggal) {
+                    return $c->tanggal_mulai <= $tanggal && $c->tanggal_selesai >= $tanggal;
+                });
 
-                if ($hasCuti || ($jadwal && $jadwal->shift && $jadwal->shift->nama_shift === 'C')) {
+                $jadwalsOnDay = $allJadwals->get($key, collect());
+
+                if ($hasCuti || $jadwalsOnDay->pluck('shift.nama_shift')->contains('C')) {
                     $row[] = 'C (-)';
-                } elseif ($jadwal && $jadwal->shift) {
-                    $nama   = $jadwal->shift->nama_shift ?? '-';
-                    $masuk  = $fmtTime($jadwal->shift->jam_masuk ?? null);
-                    $keluar = $fmtTime($jadwal->shift->jam_keluar ?? null);
+                } elseif ($jadwalsOnDay->isNotEmpty()) {
+                    $shiftTexts = [];
+                    foreach ($jadwalsOnDay as $jadwal) {
+                        if (!$jadwal->shift) continue;
+                        $nama   = $jadwal->shift->nama_shift ?? '-';
+                        $masuk  = $fmtTime($jadwal->shift->jam_masuk ?? null);
+                        $keluar = $fmtTime($jadwal->shift->jam_keluar ?? null);
 
-                    // Khusus shift tanpa jam (seperti L atau libur lain) -> tampilkan "NAMA (-)"
-                    if (is_null($jadwal->shift->jam_masuk) && is_null($jadwal->shift->jam_keluar)) {
-                        $row[] = "{$nama} (-)";
-                    } else {
-                        $row[] = "{$nama} ({$masuk}-{$keluar})";
+                        if (is_null($jadwal->shift->jam_masuk) && is_null($jadwal->shift->jam_keluar)) {
+                            $shiftTexts[] = "{$nama} (-)";
+                        } else {
+                            $shiftTexts[] = "{$nama} ({$masuk}-{$keluar})";
+                        }
                     }
+                    $row[] = !empty($shiftTexts) ? implode(' | ', $shiftTexts) : 'L (-)';
                 } else {
                     $row[] = 'L (-)'; // Default untuk hari kosong / libur
                 }
