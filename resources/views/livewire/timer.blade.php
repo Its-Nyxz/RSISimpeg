@@ -460,18 +460,50 @@
                 });
             }
 
+            function apakahPerangkatMobile() {
+                // 1. Cek User Agent standar
+                let uaMobile = /android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini/i.test(navigator.userAgent);
+                if (uaMobile) return true;
+
+                // 2. Deteksi iPad / iPhone yang menyamar sebagai Mac di Safari (Desktop Mode)
+                // Spesifikasi resmi WebKit Apple: platform MacIntel + maxTouchPoints > 1
+                let isAppleTouch = (navigator.platform === 'MacIntel' || (navigator.userAgent && navigator.userAgent.includes('Macintosh'))) && (navigator.maxTouchPoints > 1);
+                if (isAppleTouch) return true;
+
+                // 3. Deteksi fisik layar sentuh smartphone (touch device dengan lebar layar <= 768px)
+                let isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+                let isSmallScreen = (window.innerWidth <= 768) || (window.screen.width <= 768);
+                if (isTouch && isSmallScreen) return true;
+
+                return false;
+            }
+
             // Fungsi kirim lokasi ke Livewire
             window.kirimLokasiKeLivewire = async function(aksi = 'start') {
-                let isDesktop = !/android|iphone|ipad|mobile/i.test(navigator.userAgent);
+                let isMobile = apakahPerangkatMobile();
                 let isWhitelisted = @json($isIpWhitelisted);
 
-                // Jika desktop ATAU terhubung ke IP Kantor → kirim langsung tanpa GPS
-                if (isDesktop || isWhitelisted) {
+                // Jika terhubung ke IP/WiFi Kantor: Loloskan langsung
+                if (isWhitelisted) {
+                    let payload = { is_mobile: isMobile };
                     if (aksi === 'start') {
-                        @this.call('startTimer');
+                        @this.call('startTimer', false, null, payload);
                     } else {
-                        @this.call('openWorkReportModal');
+                        @this.call('openWorkReportModal', payload);
                     }
+                    return;
+                }
+
+                // Jika bukan di WiFi kantor DAN bukan perangkat mobile (misal: Laptop/PC di rumah): Blokir
+                if (!isMobile) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'Gunakan Smartphone (HP) untuk absensi.',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Tutup',
+                        confirmButtonColor: '#d33'
+                    });
                     return;
                 }
 
@@ -487,6 +519,7 @@
 
                 try {
                     const lokasi = await ambilKoordinatAkurat();
+                    lokasi.is_mobile = true;
                     Swal.close();
 
                     if (aksi === 'start') {
@@ -507,7 +540,7 @@
             };
 
             document.addEventListener('DOMContentLoaded', () => {
-                let isMobile = /android|iphone|ipad|mobile/i.test(navigator.userAgent);
+                let isMobile = apakahPerangkatMobile();
                 let isWhitelisted = @json($isIpWhitelisted);
                 // Pre-warm GPS saat halaman pertama kali dibuka di perangkat mobile
                 if (isMobile && !isWhitelisted) {
