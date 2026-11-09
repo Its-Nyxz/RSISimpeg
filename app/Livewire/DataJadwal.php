@@ -17,6 +17,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Str;
 
 class DataJadwal extends Component
 {
