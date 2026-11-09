@@ -48,6 +48,7 @@ class Timer extends Component
     public $longitude;
     public $altitude;
     public $accuracy;
+    public $isClientMobile = false;
 
     public $akanKembali = false;
     public $hasLemburHistoryBeforeShift = false;
@@ -261,6 +262,9 @@ class Timer extends Component
             $this->longitude = $payloadLokasi['lng'] ?? null;
             $this->accuracy  = $payloadLokasi['acc'] ?? null;
             $this->altitude  = $payloadLokasi['alt'] ?? null;
+            if (!empty($payloadLokasi['is_mobile'])) {
+                $this->isClientMobile = true;
+            }
         }
 
         if (!$bypassLokasi && !$this->validasiLokasiAtauIp()) {
@@ -394,6 +398,9 @@ class Timer extends Component
             $this->longitude = $payloadLokasi['lng'] ?? null;
             $this->accuracy  = $payloadLokasi['acc'] ?? null;
             $this->altitude  = $payloadLokasi['alt'] ?? null;
+            if (!empty($payloadLokasi['is_mobile'])) {
+                $this->isClientMobile = true;
+            }
         }
 
         if (!$this->validasiLokasiAtauIp()) return;
@@ -894,9 +901,14 @@ class Timer extends Component
 
     private function isMobileDevice(): bool
     {
-        $agent = strtolower(request()->header('User-Agent'));
+        if ($this->isClientMobile) {
+            return true;
+        }
 
-        return preg_match('/android|iphone|ipad|ipod|mobile|blackberry|windows phone/i', $agent);
+        $agent = strtolower(request()->header('User-Agent') ?? '');
+
+        return (bool) preg_match('/android|iphone|ipad|ipod|mobile|blackberry|windows phone|iemobile|opera mini/i', $agent)
+            || request()->header('Sec-CH-UA-Mobile') === '?1';
     }
 
     private function ipDiWhitelist($ip, $whitelist): bool

@@ -8,6 +8,9 @@ use App\Models\CutiKaryawan;
 use App\Models\IzinKaryawan;
 use App\Models\SisaCutiTahunan;
 use App\Models\MasterJatahCuti;
+use App\Models\Shift;
+use App\Models\JadwalAbsensi;
+use App\Models\Absen;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -81,6 +84,38 @@ class DataPengajuan extends Component
                                 $sisaCuti->increment('sisa_cuti', $jumlahBalik);
                             }
                         }
+                    }
+                }
+
+                // Jika cuti yang pernah disetujui (status_cuti_id == 1) dibatalkan/dihapus:
+                if ($cuti->status_cuti_id == 1) {
+                    $shiftCutiIds = Shift::where('nama_shift', 'C')->pluck('id');
+
+                    // Ambil jadwal absensi di rentang tanggal cuti yang shift-nya C
+                    $jadwalCutis = JadwalAbsensi::where('user_id', $cuti->user_id)
+                        ->whereBetween('tanggal_jadwal', [$cuti->tanggal_mulai, $cuti->tanggal_selesai])
+                        ->whereIn('shift_id', $shiftCutiIds)
+                        ->get();
+
+                    $userUnitId = $cuti->user->unit_id ?? Auth::user()->unit_id;
+                    $shiftLibur = Shift::firstOrCreate(
+                        [
+                            'unit_id' => $userUnitId,
+                            'nama_shift' => 'L',
+                            'jam_masuk' => null,
+                            'jam_keluar' => null,
+                        ],
+                        ['keterangan' => 'Libur']
+                    );
+
+                    foreach ($jadwalCutis as $j) {
+                        // Hapus presensi otomatis yang dibuat saat cuti disetujui
+                        Absen::where('jadwal_id', $j->id)
+                            ->where('user_id', $cuti->user_id)
+                            ->delete();
+
+                        // Kembalikan shift ke Libur (L) agar status C langsung hilang
+                        $j->update(['shift_id' => $shiftLibur->id]);
                     }
                 }
 

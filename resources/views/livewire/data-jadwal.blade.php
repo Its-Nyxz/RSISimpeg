@@ -1,4 +1,5 @@
-<div>
+
+<div x-data="{ showPanduan: false }">
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4">
         <div class="w-full lg:w-auto flex flex-col md:flex-row gap-2">
             @if (auth()->user()->can('view-kepegawaian') || auth()->user()->hasRole('Super Admin') || (auth()->user()->unitKerja && auth()->user()->unitKerja->id == 87))
@@ -13,6 +14,7 @@
                 <livewire:searchable-pillbox wire:model.live="selectedUnit" :options="$units" value-key="id"
                     label-key="nama" placeholder="Cari Unit" :single="true" />
             @endif
+
             @if (collect(auth()->user()->roles()->pluck('name'))->filter(function ($name) {
                         return str_starts_with($name, 'Kepala');
                     })->count())
@@ -23,9 +25,9 @@
                         <option value="{{ $item->id }}">{{ $item->name }}</option>
                     @endforeach
                 </select>
-
             @endif
         </div>
+
         <div class="flex justify-end items-center gap-3 w-full lg:w-auto">
             @if ($routeIsDashboard)
                 <div class="flex justify-end w-full lg:w-auto">
@@ -46,7 +48,6 @@
         </div>
     </div>
 
-
     <!-- Filter Bulan & Tahun -->
     <div class="flex flex-col gap-3 mb-4 lg:flex-row lg:items-center lg:justify-between">
         <!-- Filter Kiri -->
@@ -66,12 +67,18 @@
                     <option value="{{ $y }}">{{ $y }}</option>
                 @endforeach
             </select>
-
         </div>
 
         <!-- Tombol-Tombol Kanan -->
         @if (!$routeIsDashboard)
-            <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto mt-2 lg:mt-0">
+            <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto mt-2 lg:mt-0 items-center">
+                {{-- Tombol Info / Panduan Step by Step --}}
+                <button type="button" @click="showPanduan = true"
+                    title="Petunjuk & Panduan Step by Step Import / Export Jadwal"
+                    class="w-full sm:w-auto flex items-center justify-center text-blue-700 bg-blue-50 hover:bg-blue-600 hover:text-white font-medium rounded-lg text-sm px-3.5 py-2 transition shadow-sm border border-blue-200">
+                    <i class="fas fa-info-circle mr-1.5 text-base text-blue-500"></i> <span>Panduan</span>
+                </button>
+
                 {{-- Tombol Download Template --}}
                 @can('template-jadwal')
                     @php
@@ -79,18 +86,16 @@
                         $unitId = $canSelectUnit ? $selectedUnit : auth()->user()->unit_id;
                     @endphp
 
-
                     <a href="{{ route('jadwal.template', [
                         'month' => $bulan,
                         'year' => $tahun,
                         'unit_id' => $unitId,
                     ]) }}"
+                        title="Unduh template jadwal bulanan untuk diedit dan diimpor ulang"
                         class="w-full sm:w-auto flex items-center justify-center text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-4 py-2 transition shadow-sm">
-                        <i class="fas fa-download mr-2"></i> <span>Template</span>
+                        <i class="fas fa-download mr-2"></i> <span>Download Template</span>
                     </a>
                 @endcan
-
-
 
                 {{-- Tombol Import Excel --}}
                 @can('import-jadwal')
@@ -99,6 +104,7 @@
                         class="w-full sm:w-auto flex items-center justify-center text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-4 py-2 transition shadow-sm">
                         <i class="fas fa-file-excel mr-2"></i> Import
                     </button>
+
                     {{-- Info file dan progress (Import) --}}
                     @if ($file)
                         <div class="mt-2 flex flex-col gap-2 w-full sm:w-auto">
@@ -138,8 +144,6 @@
                         <i class="fas fa-sync-alt mr-2" wire:loading.class="fa-spin" wire:target="syncCuti"></i> Sinkron Cuti
                     </button>
                 @endcan
-
-
                 @php
                     $canSelectUnit = auth()->user()->can('view-kepegawaian') || auth()->user()->hasRole('Super Admin') || (auth()->user()->unitKerja && auth()->user()->unitKerja->id == 87);
                     $unitId = $canSelectUnit ? $selectedUnit : auth()->user()->unit_id;
@@ -147,6 +151,7 @@
 
                 @if ($canSelectUnit)
                     <button wire:click="export" wire:loading.attr="disabled"
+                        title="Unduh laporan jadwal visual untuk arsip atau cetak"
                         class="w-full sm:w-auto flex items-center justify-center text-success-900 bg-success-100 hover:bg-success-600 hover:text-white font-medium rounded-lg text-sm px-4 py-2 transition shadow-sm">
                         <i class="fas fa-file-export mr-2" wire:loading.remove wire:target="export"></i>
                         <svg wire:loading wire:target="export" class="animate-spin h-4 w-4 mr-2 text-current"
@@ -157,7 +162,7 @@
                                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                             </path>
                         </svg>
-                        <span>Export</span>
+                        <span>Export Laporan</span>
                     </button>
                 @endif
 
@@ -191,17 +196,18 @@
                         class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap border-b border-success-500 hidden md:table-cell">
                         Pendidikan</th>
                     <th class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap text-center border-b border-success-500">PJ
-                    </th> <!-- Pindahkan ke sini -->
+                    </th>
                     <th
                         class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap border-b border-success-500 hidden lg:table-cell">
                         Tanggal Masuk</th>
                     <th
                         class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap border-b border-success-500 hidden md:table-cell">
                         Lama Kerja</th>
+
                     @foreach ($tanggalJadwal as $tanggal)
                         @php
                             $carbonDate = \Carbon\Carbon::parse($tanggal);
-                            $hari = $carbonDate->format('l'); // Nama Hari
+                            $hari = $carbonDate->format('l');
                             $isHoliday = $this->isHoliday($tanggal);
                         @endphp
                         <th
@@ -210,6 +216,7 @@
                             {{ $carbonDate->format('d') }}
                         </th>
                     @endforeach
+
                     @can('edit-jadwal')
                         <th
                             class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap bg-success-400 sticky right-0 z-40 border-l border-b border-success-500 shadow-sm">
@@ -225,6 +232,7 @@
                         <td class="px-2 py-2 sm:px-4 sm:py-3 font-medium text-gray-900 whitespace-nowrap text-center">
                             {{ $loop->iteration }}
                         </td>
+
                         <td
                             class="px-2 py-2 sm:px-4 sm:py-3 font-medium text-gray-900 whitespace-nowrap sticky left-0 z-20 bg-inherit border-r border-gray-200 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] min-w-[120px] sm:min-w-[150px]">
                             <div class="truncate max-w-[120px] sm:max-w-none"
@@ -232,12 +240,13 @@
                                 {{ optional(optional($jadwalUser)->first())->user->name ?? '-' }}
                             </div>
                         </td>
+
                         <td class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap hidden md:table-cell">
                             {{ optional(optional($jadwalUser)->first())->user->pendidikanUser->nama ?? '-' }}
                         </td>
+
                         <td class="px-2 py-2 sm:px-4 sm:py-3 text-center whitespace-nowrap">
                             @php
-                                // Cek PJ untuk bulan berjalan (bisa disesuaikan jika ingin per tanggal)
                                 $user = optional(optional($jadwalUser)->first())->user;
                                 $isPJ = \App\Models\PJ::where('user_id', $user_id)
                                     ->whereMonth('assigned_at', $bulan)
@@ -245,6 +254,7 @@
                                     ->where('is_pj', true)
                                     ->exists();
                             @endphp
+
                             @if ($isPJ)
                                 <span
                                     class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">Iya</span>
@@ -252,9 +262,11 @@
                                 -
                             @endif
                         </td>
+
                         <td class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap hidden lg:table-cell">
                             {{ optional(optional($jadwalUser)->first())->user->tmt ? \Carbon\Carbon::parse(optional(optional($jadwalUser)->first())->user->tmt)->format('d M Y') : '-' }}
                         </td>
+
                         <td class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap hidden md:table-cell">
                             @php
                                 $user = optional(optional($jadwalUser)->first())->user;
@@ -269,8 +281,9 @@
                             @php
                                 $carbonDate = \Carbon\Carbon::parse($tanggal);
                                 $hari = $carbonDate->format('l');
-                                $isHoliday = $this->isHoliday($tanggal); // Hitung ulang di sini
+                                $isHoliday = $this->isHoliday($tanggal);
                                 $shifts = $filteredShifts[$user_id][$tanggal] ?? [];
+
                                 $isSpecialShift = collect($shifts)
                                     ->pluck('nama_shift')
                                     ->contains(function ($val) {
@@ -285,10 +298,11 @@
                                 @if (count($shifts))
                                     @foreach ($shifts as $shift)
                                         <button
-                                            wire:click="showShiftDetail('{{ $shift['nama_shift'] }}', '{{ $shift['jam_masuk'] }}', '{{ $shift['jam_keluar'] }}', `{{ $shift['keterangan'] }}`, '{{ $user_id }}', '{{ $tanggal }}')"
+                                            wire:click="showShiftDetail('{{ $shift['nama_shift'] }}', '{{ $shift['jam_masuk'] }}', '{{ $shift['jam_keluar'] }}', `{{ $shift['keterangan'] }}`, '{{ $user_id }}', '{{ $tanggal }}', '{{ $shift['jadwal_id'] }}')"
                                             class="hover:text-success-700 hover:underline transition duration-150 font-semibold focus:outline-none focus:ring-2 focus:ring-success-500 rounded px-1">
                                             {{ $shift['nama_shift'] }}
                                         </button>
+
                                         @if (!$loop->last)
                                             <span class="text-gray-300">|</span>
                                         @endif
@@ -298,6 +312,7 @@
                                 @endif
                             </td>
                         @endforeach
+
                         @can('edit-jadwal')
                             <td class="px-2 py-2 sm:px-4 sm:py-3 sticky right-0 z-20 bg-inherit border-l border-gray-200">
                                 <a href="{{ route('jadwal.edit', optional(optional($jadwalUser)->first())->user->id) }}"
@@ -305,6 +320,7 @@
                                     data-tooltip-target="tooltip-jadwalUser-{{ optional(optional($jadwalUser)->first())->user->id }}">
                                     <i class="fa-solid fa-pen text-xs sm:text-sm"></i>
                                 </a>
+
                                 <div id="tooltip-jadwalUser-{{ optional(optional($jadwalUser)->first())->user->id }}"
                                     role="tooltip"
                                     class="absolute z-10 invisible inline-block px-3 py-2 text-xs font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip">
@@ -318,6 +334,7 @@
             </tbody>
         </table>
     </div>
+
     @if ($showModalShift)
         <div
             class="fixed inset-0 bg-gray-900 bg-opacity-75 flex justify-center items-center z-50 p-4 backdrop-blur-sm">
@@ -366,6 +383,7 @@
             </div>
         </div>
     @endif
+
     @if ($showModalDetailShift)
         <div
             class="fixed inset-0 z-50 bg-gray-900 bg-opacity-80 flex items-center justify-center p-4 backdrop-blur-sm">
@@ -386,11 +404,13 @@
                             <span
                                 class="font-bold text-gray-900 text-lg bg-gray-100 px-3 py-1 rounded-full">{{ $shiftNama }}</span>
                         </div>
+
                         <div class="flex justify-between items-center border-b border-gray-100 pb-3">
                             <span class="text-gray-500 text-sm">Jam Operasional</span>
                             <span class="font-medium text-gray-800 font-mono">{{ $shiftJamMasuk }} -
                                 {{ $shiftJamKeluar }}</span>
                         </div>
+
                         <div>
                             <span class="text-gray-500 text-sm block mb-2">Keterangan</span>
                             <div class="bg-gray-50 p-3 rounded-lg text-gray-700 italic text-sm border border-gray-200">
@@ -409,6 +429,32 @@
                             </h3>
 
                             <div class="space-y-4">
+
+                                {{-- Pilihan Update atau Add Shift --}}
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-2">
+                                        Pilihan Tindakan:
+                                    </label>
+
+                                    <div class="flex flex-col gap-2">
+                                        <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                            <input type="radio"
+                                                wire:model="tindakan"
+                                                value="ubah"
+                                                class="text-success-600 focus:ring-success-500">
+                                            <span>Ubah shift pada jadwal ini</span>
+                                        </label>
+
+                                        <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                            <input type="radio"
+                                                wire:model="tindakan"
+                                                value="tambah"
+                                                class="text-success-600 focus:ring-success-500">
+                                            <span>Tambahkan shift baru tanpa mengubah shift sebelumnya</span>
+                                        </label>
+                                    </div>
+                                </div>
+
                                 <div>
                                     <label for="selectedShiftId"
                                         class="block text-xs font-medium text-gray-700 mb-1">Ganti dengan Shift:</label>
@@ -432,6 +478,7 @@
                                         class="flex-1 bg-success-600 text-white px-4 py-2.5 rounded-lg shadow hover:bg-success-700 transition duration-150 text-sm font-bold flex justify-center items-center gap-2">
                                         <i class="fa-solid fa-save"></i> Simpan
                                     </button>
+
                                     <button type="button"
                                         class="bg-red-50 text-red-600 px-4 py-2.5 rounded-lg hover:bg-red-100 transition duration-150 border border-red-200 flex justify-center items-center gap-2"
                                         onclick="confirmAlert('Yakin ingin menghapus Jadwal Shift ini?', 'Ya, hapus!', () => @this.call('deleteShiftFromModal'))"
@@ -455,4 +502,118 @@
             </div>
         </div>
     @endif
+
+    <!-- Modal Panduan Step-by-Step Import & Export Jadwal -->
+    <div x-show="showPanduan" 
+        x-transition:enter="ease-out duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        @keydown.escape.window="showPanduan = false"
+        class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4"
+        style="display: none;">
+
+        <div @click.outside="showPanduan = false"
+            class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            
+            <!-- Header Modal -->
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4 text-white flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-lg">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold">Panduan Import & Export Jadwal</h3>
+                        <p class="text-blue-100 text-xs">Tata cara pengelolaan jadwal shift via Excel</p>
+                    </div>
+                </div>
+                <button type="button" @click="showPanduan = false" class="text-white/80 hover:text-white text-xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Konten Modal (Scrollable) -->
+            <div class="p-6 overflow-y-auto space-y-6 text-sm text-gray-700">
+
+                <!-- Step 1 -->
+                <div class="flex gap-4">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold flex items-center justify-center text-sm shadow-sm border border-blue-200">
+                        1
+                    </div>
+                    <div class="flex-1 space-y-1.5">
+                        <h4 class="font-bold text-gray-900 text-base flex items-center gap-2">
+                            <span>Unduh Template Excel</span>
+                            <span class="text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">Tombol: Download Template</span>
+                        </h4>
+                        <p class="text-gray-600 text-xs leading-relaxed">
+                            Pilih bulan, tahun, dan unit (jika admin) yang ingin dijadwalkan, lalu klik tombol <strong>Download Template</strong>. File Excel yang terunduh sudah otomatis memuat data karyawan dan jadwal berjalan yang ada di sistem.
+                        </p>
+                        <div class="p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-xs flex items-start gap-2">
+                            <i class="fas fa-exclamation-triangle text-amber-600 mt-0.5"></i>
+                            <span><strong>PENTING:</strong> Jangan mengubah nama file yang terunduh! Sistem mewajibkan nama file berformat resmi (contoh: <code>jadwal_template_NamaUnit_Bulan_Tahun.xlsx</code>).</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="flex gap-4">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold flex items-center justify-center text-sm shadow-sm border border-blue-200">
+                        2
+                    </div>
+                    <div class="flex-1 space-y-1.5">
+                        <h4 class="font-bold text-gray-900 text-base">Edit Jadwal pada Kolom Tanggal</h4>
+                        <p class="text-gray-600 text-xs leading-relaxed">
+                            Buka file Excel tersebut. Isi shift kerja karyawan pada kolom tanggal (kolom 1 s/d hari terakhir bulan):
+                        </p>
+                        <ul class="list-disc list-inside text-xs space-y-1 text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                            <li><strong>Shift Biasa:</strong> Tulis kode shift, contoh: <code>P</code> (Pagi), <code>S</code> (Siang), <code>M</code> (Malam), atau format lengkap <code>P (07:00-14:00)</code>.</li>
+                            <li><strong>Hari Libur:</strong> Tulis <code>L</code> atau biarkan sel kosong.</li>
+                            <li><strong>Double Shift (2 Shift Sehari):</strong> Gunakan tanda pembatas garis lurus <code>|</code>, contoh: <code>P | M</code> atau <code>P (07:00-14:00) | M (21:00-07:00)</code>.</li>
+                            <li><strong>Cuti Karyawan:</strong> Cuti resmi yang disetujui di SIMPEG otomatis dilindungi sistem agar tidak tertimpa menjadi alpa/mangkir.</li>
+                            <li><strong>Data Karyawan:</strong> Jangan mengubah atau menghapus urutan kolom nama & data diri karyawan di kolom kiri (A - F).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="flex gap-4">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold flex items-center justify-center text-sm shadow-sm border border-blue-200">
+                        3
+                    </div>
+                    <div class="flex-1 space-y-1.5">
+                        <h4 class="font-bold text-gray-900 text-base flex items-center gap-2">
+                            <span>Upload Kembali File</span>
+                            <span class="text-xs font-semibold px-2 py-0.5 rounded bg-success-50 text-success-700 border border-success-200">Tombol: Import</span>
+                        </h4>
+                        <p class="text-gray-600 text-xs leading-relaxed">
+                            Kembali ke halaman Jadwal SIMPEG, klik tombol <strong>Import</strong> -> pilih file Excel yang sudah diedit -> klik <strong>Submit</strong>. Tunggu beberapa detik hingga proses selesai dan notifikasi sukses muncul.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Tips Tambahan -->
+                <div class="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl space-y-1">
+                    <h5 class="font-bold text-emerald-900 text-xs flex items-center gap-1.5">
+                        <i class="fas fa-lightbulb text-emerald-600"></i>
+                        <span>Tips Cepat: Ubah Shift Langsung di Web (Tanpa Excel)</span>
+                    </h5>
+                    <p class="text-emerald-800 text-xs leading-relaxed">
+                        Jika hanya ingin mengubah shift 1 atau beberapa orang (misalnya ganti shift teman, tukar jaga, atau karyawan batal cuti), Anda <strong>tidak perlu repot download dan upload Excel</strong>. Cukup <strong>klik langsung kotak jadwal</strong> karyawan tersebut di tabel web ini, pilih shift baru, lalu klik <strong>Simpan</strong>.
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- Footer Modal -->
+            <div class="p-4 bg-gray-50 border-t border-gray-200 flex justify-end">
+                <button type="button" @click="showPanduan = false"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium text-sm transition shadow-sm">
+                    Mengerti & Tutup
+                </button>
+            </div>
+
+        </div>
+    </div>
 </div>

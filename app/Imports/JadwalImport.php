@@ -29,7 +29,7 @@ class JadwalImport implements WithMultipleSheets
     public function sheets(): array
     {
         return [
-            'Worksheet' => new JadwalSheetImport($this->bulan, $this->tahun),
+            0 => new JadwalSheetImport($this->bulan, $this->tahun),
         ];
     }
 }
