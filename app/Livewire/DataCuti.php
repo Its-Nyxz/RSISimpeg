@@ -12,10 +12,12 @@ use App\Models\RiwayatApproval;
 use App\Models\Shift;
 use App\Models\SisaCutiTahunan;
 use App\Models\StatusAbsen;
+use App\Models\StatusCuti;
 use App\Models\UnitKerja;
 use App\Models\User;
 use App\Notifications\UserNotification;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -63,7 +65,9 @@ class DataCuti extends Component
     {
         $user = auth()->user();
         $this->unitKepegawaianId = 87;
-        $this->isKepegawaian = $user->unit_id == $this->unitKepegawaianId || $user->roles->pluck('id')->first() == 2 || $user->roles->pluck('id')->first() == 14 || $user->hasRole('Super Admin');
+        $this->isKepegawaian = $user->can('view-kepegawaian') ||
+            $user->hasAnyRole(['Super Admin', 'Administrator', 'Kepala Seksi Kepegawaian', 'Staf Kepegawaian']) ||
+            $user->unit_id == $this->unitKepegawaianId;
         $this->isRiwayatCuti = request()->routeIs('riwayatcuti.*') || request()->is('riwayatcuti');
         $this->bulan = now()->month;
         $this->tahun = now()->year;
@@ -454,6 +458,7 @@ class DataCuti extends Component
 
             // ✅ Final approval
             $cuti->update(['status_cuti_id' => $cutiStatus]);
+            $this->applyCutiToJadwal($cuti, $targetUser);
             $pesan = "Pengajuan cuti Anda telah <span class='text-success-600 font-bold'>Disetujui Final</span> oleh {$user->name} ({$user->jabatan->nama}){$pesanTambahan}.";
             Notification::send($targetUser, new UserNotification($pesan, '/pengajuan/cuti'));
 
@@ -472,9 +477,9 @@ class DataCuti extends Component
         /** ------------------------------------------------------------
          *  Logika default (Manager, Kepala, Kepegawaian, dst)
          *  ------------------------------------------------------------ */
-        $userRoleId = $user->roles->pluck('id')->first();
         $isFinalApprover = (
-            $userRoleId == 2 ||
+            $user->can('view-kepegawaian') ||
+            $user->hasAnyRole(['Super Admin', 'Administrator', 'Kepala Seksi Kepegawaian']) ||
             $user->unit_id == $this->unitKepegawaianId
         );
 
@@ -542,47 +547,7 @@ class DataCuti extends Component
 
         // 🔹 Jika final → buat jadwal absen otomatis
         if ($cutiStatus == 1) {
-            $shift = Shift::firstOrCreate(
-                ['nama_shift' => 'C'],
-                [
-                    'unit_id' => $targetUser->unit_id,
-                    'jam_masuk' => null,
-                    'jam_keluar' => null,
-                    'keterangan' => 'Cuti',
-                ]
-            );
-
-            $start = Carbon::parse($cuti->tanggal_mulai);
-            $end = Carbon::parse($cuti->tanggal_selesai);
-
-            for ($date = $start; $date->lte($end); $date->addDay()) {
-                $jadwal = JadwalAbsensi::updateOrCreate(
-                    ['user_id' => $userId, 'tanggal_jadwal' => $date->toDateString()],
-                    ['shift_id' => $shift->id]
-                );
-
-                $cutiStatusId = StatusAbsen::where('nama', 'Tepat Waktu')->value('id');
-                Absen::updateOrCreate(
-                    [
-                        'user_id' => $userId,
-                        'jadwal_id' => $jadwal->id,
-                    ],
-                    [
-                        'status_absen_id' => $cutiStatusId,
-                        'present' => 1,
-                        'absent' => 0,
-                        'late' => 0,
-                        'time_in' => null,
-                        'time_out' => null,
-                        'keterangan' => 'Cuti disetujui',
-                        'deskripsi_in' => $cuti->jenisCuti->nama_cuti ?? 'Cuti',
-                        'deskripsi_out' => $cuti->jenisCuti->nama_cuti ?? 'Cuti',
-                        'is_dinas' => false,
-                        'is_lembur' => false,
-                        'approved_lembur' => false,
-                    ]
-                );
-            }
+            $this->applyCutiToJadwal($cuti, $targetUser);
         }
 
         // 🔔 Notifikasi ke pemohon
@@ -592,8 +557,9 @@ class DataCuti extends Component
 
         // 🔔 Jika belum final → notifikasi ke Kepegawaian
         if (! $isFinalApprover) {
-            $finalApprovers = User::where('unit_id', $this->unitKepegawaianId)
-                ->orWhereHas('roles', fn ($q) => $q->where('id', 2))
+            $finalApprovers = User::permission('view-kepegawaian')
+                ->orWhereHas('roles', fn ($q) => $q->where('name', 'Kepala Seksi Kepegawaian'))
+                ->orWhere('unit_id', $this->unitKepegawaianId)
                 ->get();
 
             if ($finalApprovers->count() > 0) {
@@ -647,6 +613,151 @@ class DataCuti extends Component
     }
 
     /** ----------------------------------------------------------------
+     *  Batalkan Cuti (Bisa dilakukan oleh Super Admin / Atasan walau sudah disetujui)
+     *  ---------------------------------------------------------------- */
+    public function batalkanCuti($cutiId, $reason = null)
+    {
+        $user = auth()->user();
+
+        if (! $user->can('approval-cuti')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk membatalkan cuti.');
+            return;
+        }
+
+        $cuti = CutiKaryawan::with(['jenisCuti', 'user'])->find($cutiId);
+        if (! $cuti) {
+            session()->flash('error', 'Pengajuan cuti tidak ditemukan.');
+            return;
+        }
+
+        $targetUser = $cuti->user;
+        if (! $targetUser) {
+            session()->flash('error', 'Data karyawan pemilik cuti tidak ditemukan.');
+            return;
+        }
+
+        // Cek unit bawahan jika bukan Kepegawaian / Super Admin
+        if (! $this->isKepegawaian) {
+            $hasChild = UnitKerja::where('parent_id', $user->unit_id)->exists();
+            $unitIds = $hasChild ? $this->getAllChildUnitIds($user->unit_id) : [$user->unit_id];
+            if (! in_array($targetUser->unit_id, $unitIds)) {
+                session()->flash('error', 'Anda hanya memiliki izin membatalkan cuti karyawan pada unit kerja Anda.');
+                return;
+            }
+        }
+
+        try {
+            DB::transaction(function () use ($cuti, $targetUser, $user, $reason) {
+                $statusBatal = StatusCuti::firstOrCreate(['nama_status' => 'Dibatalkan']);
+                $sudahDisetujui = ($cuti->status_cuti_id == 1);
+
+                // 1. Pulihkan saldo kuota cuti jika sebelumnya berstatus Disetujui
+                if ($sudahDisetujui && $cuti->jenisCuti && strtolower($cuti->jenisCuti->nama_cuti) == 'cuti tahunan') {
+                    $tahun = Carbon::parse($cuti->tanggal_mulai)->year;
+
+                    if ($cuti->kategori_cuti === 'tambahan') {
+                        $sisaCuti = SisaCutiTahunan::where('user_id', $cuti->user_id)
+                            ->where('tahun', $tahun)
+                            ->lockForUpdate()
+                            ->first();
+
+                        if ($sisaCuti) {
+                            $sisaCuti->increment('cuti_tambahan', $cuti->jumlah_hari);
+                        }
+                    } else {
+                        // Cuti Tahunan: Cek apakah ada kasbon kuota dari tahun depan
+                        $tahunDepan = $tahun + 1;
+                        $sisaDepan = SisaCutiTahunan::where('user_id', $cuti->user_id)
+                            ->where('tahun', $tahunDepan)
+                            ->lockForUpdate()
+                            ->first();
+
+                        $jatahDepan = MasterJatahCuti::where('tahun', $tahunDepan)->value('jumlah_cuti') ?? 12;
+                        $jumlahBalik = $cuti->jumlah_hari;
+
+                        if ($sisaDepan && $sisaDepan->sisa_cuti < $jatahDepan) {
+                            $defisit = $jatahDepan - $sisaDepan->sisa_cuti;
+                            $kembaliDepan = min($jumlahBalik, $defisit);
+                            $sisaDepan->increment('sisa_cuti', $kembaliDepan);
+                            $jumlahBalik -= $kembaliDepan;
+                        }
+
+                        if ($jumlahBalik > 0) {
+                            $sisaCuti = SisaCutiTahunan::where('user_id', $cuti->user_id)
+                                ->where('tahun', $tahun)
+                                ->lockForUpdate()
+                                ->first();
+
+                            if ($sisaCuti) {
+                                $sisaCuti->increment('sisa_cuti', $jumlahBalik);
+                            }
+                        }
+                    }
+                }
+
+                // 2. Bersihkan Jadwal Absensi dan Absen cuti jika sebelumnya sudah disetujui
+                if ($sudahDisetujui) {
+                    $start = Carbon::parse($cuti->tanggal_mulai);
+                    $end = Carbon::parse($cuti->tanggal_selesai);
+
+                    $shiftCutiIds = Shift::where(function ($q) {
+                        $q->where('nama_shift', 'C')->orWhere('nama_shift', 'Cuti');
+                    })->pluck('id')->toArray();
+
+                    for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+                        $tglStr = $date->toDateString();
+
+                        $jadwal = JadwalAbsensi::where('user_id', $targetUser->id)
+                            ->where('tanggal_jadwal', $tglStr)
+                            ->first();
+
+                        if ($jadwal) {
+                            // Hapus absen cuti
+                            Absen::where('user_id', $targetUser->id)
+                                ->where('jadwal_id', $jadwal->id)
+                                ->where(function ($q) {
+                                    $q->where('keterangan', 'like', '%cuti%')
+                                        ->orWhere('deskripsi_in', 'like', '%cuti%');
+                                })
+                                ->delete();
+
+                            // Hapus jadwal shift cuti agar bisa dibuat jadwal baru
+                            if (in_array($jadwal->shift_id, $shiftCutiIds)) {
+                                $jadwal->delete();
+                            }
+                        }
+                    }
+                }
+
+                // 3. Update status cuti ke Dibatalkan
+                $cuti->update(['status_cuti_id' => $statusBatal->id]);
+
+                // 4. Catat ke Riwayat Approval
+                $alasanText = $reason ? trim($reason) : 'Dibatalkan karena ada urgensi pekerjaan';
+                RiwayatApproval::create([
+                    'cuti_id' => $cuti->id,
+                    'approver_id' => $user->id,
+                    'status_approval' => 'dibatalkan',
+                    'catatan' => $alasanText,
+                    'approve_at' => now(),
+                ]);
+
+                // 5. Kirim notifikasi ke karyawan pemohon
+                $message = "Pengajuan cuti Anda ({$cuti->tanggal_mulai} s.d. {$cuti->tanggal_selesai}) telah <span class='text-red-600 font-bold'>DIBATALKAN</span> oleh {$user->name}. Alasan: \"{$alasanText}\". Kuota cuti telah dikembalikan dan jadwal shift telah direset.";
+                Notification::send($targetUser, new UserNotification($message, '/pengajuan/cuti'));
+            });
+
+            $redirectRoute = $this->isRiwayatCuti ? 'riwayatcuti.index' : 'approvalcuti.index';
+            return redirect()->route($redirectRoute)
+                ->with('success', 'Pengajuan cuti berhasil dibatalkan. Kuota cuti telah dikembalikan dan jadwal cuti telah direset.');
+        } catch (\Throwable $th) {
+            $redirectRoute = $this->isRiwayatCuti ? 'riwayatcuti.index' : 'approvalcuti.index';
+            return redirect()->route($redirectRoute)
+                ->with('error', 'Terjadi kesalahan saat membatalkan cuti: ' . $th->getMessage());
+        }
+    }
+
+    /** ----------------------------------------------------------------
      *  download
      *  ---------------------------------------------------------------- */
     public function export($param)
@@ -677,6 +788,53 @@ class DataCuti extends Component
             new ExportRiwayat($bulan, $tahun, $unit, $unitId, $jenisId, $keyword, $mode, $selected, 'cuti'),
             $filename
         );
+    }
+
+    public function applyCutiToJadwal(CutiKaryawan $cuti, User $targetUser)
+    {
+        $shift = Shift::firstOrCreate(
+            [
+                'unit_id' => $targetUser->unit_id,
+                'nama_shift' => 'C',
+            ],
+            [
+                'jam_masuk' => null,
+                'jam_keluar' => null,
+                'keterangan' => 'Cuti',
+            ]
+        );
+
+        $start = Carbon::parse($cuti->tanggal_mulai);
+        $end = Carbon::parse($cuti->tanggal_selesai);
+
+        for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+            $jadwal = JadwalAbsensi::updateOrCreate(
+                ['user_id' => $targetUser->id, 'tanggal_jadwal' => $date->toDateString()],
+                ['shift_id' => $shift->id]
+            );
+
+            $cutiStatusId = StatusAbsen::where('nama', 'Tepat Waktu')->value('id');
+            Absen::updateOrCreate(
+                [
+                    'user_id' => $targetUser->id,
+                    'jadwal_id' => $jadwal->id,
+                ],
+                [
+                    'status_absen_id' => $cutiStatusId,
+                    'present' => 1,
+                    'absent' => 0,
+                    'late' => 0,
+                    'time_in' => null,
+                    'time_out' => null,
+                    'keterangan' => 'Cuti disetujui',
+                    'deskripsi_in' => $cuti->jenisCuti->nama_cuti ?? 'Cuti',
+                    'deskripsi_out' => $cuti->jenisCuti->nama_cuti ?? 'Cuti',
+                    'is_dinas' => false,
+                    'is_lembur' => false,
+                    'approved_lembur' => false,
+                ]
+            );
+        }
     }
 
     /** ----------------------------------------------------------------

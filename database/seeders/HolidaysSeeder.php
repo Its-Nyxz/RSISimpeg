@@ -13,14 +13,14 @@ class HolidaysSeeder extends Seeder
      */
     public function run(): void
     {
-        Holidays::create([
-            'date' => '2025-01-01',
-            'description' => 'Tahun Baru',
-        ]);
+        Holidays::firstOrCreate(
+            ['date' => '2025-01-01'],
+            ['description' => 'Tahun Baru']
+        );
 
-        Holidays::create([
-            'date' => '2025-12-25',
-            'description' => 'Natal',
-        ]);
+        Holidays::firstOrCreate(
+            ['date' => '2025-12-25'],
+            ['description' => 'Natal']
+        );
     }
 }

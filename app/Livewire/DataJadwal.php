@@ -110,7 +110,7 @@ class DataJadwal extends Component
             return;
         }
 
-        $this->tanggalJadwal = collect(range(1, cal_days_in_month(CAL_GREGORIAN, $this->bulan, $this->tahun)))
+        $this->tanggalJadwal = collect(range(1, \Carbon\Carbon::create($this->tahun, $this->bulan, 1)->daysInMonth))
             ->map(fn($day) => sprintf('%04d-%02d-%02d', $this->tahun, $this->bulan, $day))
             ->toArray();
 
@@ -289,6 +289,25 @@ class DataJadwal extends Component
         }
     }
 
+    public function syncCuti()
+    {
+        if (!auth()->user()->can('sinkron-cuti')) {
+            session()->flash('error', 'Anda tidak memiliki izin untuk melakukan sinkronisasi cuti.');
+            return;
+        }
+
+        try {
+            \Illuminate\Support\Facades\Artisan::call('cuti:sync-jadwal', [
+                '--all' => true,
+            ]);
+
+            $this->loadData();
+            session()->flash('success', 'Sinkronisasi pengajuan cuti ke jadwal berhasil dijalankan.');
+        } catch (\Throwable $e) {
+            Log::error('Sync Cuti Gagal: ' . $e->getMessage());
+            session()->flash('error', 'Gagal melakukan sinkronisasi cuti: ' . $e->getMessage());
+        }
+    }
     public function updated($propertyName)
     {
         if (in_array($propertyName, ['bulan', 'tahun'])) {
@@ -320,7 +339,8 @@ class DataJadwal extends Component
     {
         $allowedRoles = [
             'Super Admin',
-            2,
+            'Administrator',
+            'Kepala Seksi Kepegawaian',
             'Kepala Seksi Keuangan',
             'Kepala Unit',
             'Kepala Sub Unit',
@@ -329,7 +349,7 @@ class DataJadwal extends Component
             'Kepala Seksi',
         ];
 
-        if (!auth()->user()->hasAnyRole($allowedRoles)) {
+        if (!auth()->user()->can('edit-jadwal') && !auth()->user()->hasAnyRole($allowedRoles)) {
             abort(403, 'Tidak memiliki akses untuk mengubah shift.');
         }
 
@@ -419,18 +439,7 @@ class DataJadwal extends Component
 
     protected function authorizeEditShift()
     {
-        $allowedRoles = [
-            'Super Admin',
-            2,
-            'Kepala Seksi Keuangan',
-            'Kepala Unit',
-            'Kepala Sub Unit',
-            'Kepala Instalasi',
-            'Kepala Ruang',
-            'Kepala Seksi',
-        ];
-
-        if (!auth()->user()->hasAnyRole($allowedRoles)) {
+        if (!auth()->user()->can('edit-jadwal')) {
             abort(403, 'Anda tidak memiliki izin untuk mengubah atau menghapus shift.');
         }
     }

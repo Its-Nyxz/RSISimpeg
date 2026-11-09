@@ -141,6 +141,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class, // Tambahkan ini
             RolePermissionSeeder::class,
             MasterCutiIzinPermissionSeeder::class,
+            SinkronCutiPermissionSeeder::class,
             HolidaysSeeder::class,
             JenisCutiSeeder::class,
             StatusCutiSeeder::class,
