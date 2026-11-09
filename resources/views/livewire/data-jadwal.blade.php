@@ -1,5 +1,5 @@
 
-<div>
+<div x-data="{ showPanduan: false }">
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-4">
         <div class="w-full lg:w-auto flex flex-col md:flex-row gap-2">
             @if (auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->id == 87)
@@ -71,7 +71,14 @@
 
         <!-- Tombol-Tombol Kanan -->
         @if (!$routeIsDashboard)
-            <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto mt-2 lg:mt-0">
+            <div class="flex flex-col sm:flex-row gap-2 w-full lg:w-auto mt-2 lg:mt-0 items-center">
+                {{-- Tombol Info / Panduan Step by Step --}}
+                <button type="button" @click="showPanduan = true"
+                    title="Petunjuk & Panduan Step by Step Import / Export Jadwal"
+                    class="w-full sm:w-auto flex items-center justify-center text-blue-700 bg-blue-50 hover:bg-blue-600 hover:text-white font-medium rounded-lg text-sm px-3.5 py-2 transition shadow-sm border border-blue-200">
+                    <i class="fas fa-info-circle mr-1.5 text-base text-blue-500"></i> <span>Panduan</span>
+                </button>
+
                 {{-- Tombol Download Template --}}
                 @can('template-jadwal')
                     @php
@@ -488,4 +495,118 @@
             </div>
         </div>
     @endif
+
+    <!-- Modal Panduan Step-by-Step Import & Export Jadwal -->
+    <div x-show="showPanduan" 
+        x-transition:enter="ease-out duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        @keydown.escape.window="showPanduan = false"
+        class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4"
+        style="display: none;">
+
+        <div @click.outside="showPanduan = false"
+            class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            
+            <!-- Header Modal -->
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4 text-white flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-lg">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold">Panduan Import & Export Jadwal</h3>
+                        <p class="text-blue-100 text-xs">Tata cara pengelolaan jadwal shift via Excel</p>
+                    </div>
+                </div>
+                <button type="button" @click="showPanduan = false" class="text-white/80 hover:text-white text-xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Konten Modal (Scrollable) -->
+            <div class="p-6 overflow-y-auto space-y-6 text-sm text-gray-700">
+
+                <!-- Step 1 -->
+                <div class="flex gap-4">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold flex items-center justify-center text-sm shadow-sm border border-blue-200">
+                        1
+                    </div>
+                    <div class="flex-1 space-y-1.5">
+                        <h4 class="font-bold text-gray-900 text-base flex items-center gap-2">
+                            <span>Unduh Template Excel</span>
+                            <span class="text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">Tombol: Download Template</span>
+                        </h4>
+                        <p class="text-gray-600 text-xs leading-relaxed">
+                            Pilih bulan, tahun, dan unit (jika admin) yang ingin dijadwalkan, lalu klik tombol <strong>Download Template</strong>. File Excel yang terunduh sudah otomatis memuat data karyawan dan jadwal berjalan yang ada di sistem.
+                        </p>
+                        <div class="p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-xs flex items-start gap-2">
+                            <i class="fas fa-exclamation-triangle text-amber-600 mt-0.5"></i>
+                            <span><strong>PENTING:</strong> Jangan mengubah nama file yang terunduh! Sistem mewajibkan nama file berformat resmi (contoh: <code>jadwal_template_NamaUnit_Bulan_Tahun.xlsx</code>).</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="flex gap-4">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold flex items-center justify-center text-sm shadow-sm border border-blue-200">
+                        2
+                    </div>
+                    <div class="flex-1 space-y-1.5">
+                        <h4 class="font-bold text-gray-900 text-base">Edit Jadwal pada Kolom Tanggal</h4>
+                        <p class="text-gray-600 text-xs leading-relaxed">
+                            Buka file Excel tersebut. Isi shift kerja karyawan pada kolom tanggal (kolom 1 s/d hari terakhir bulan):
+                        </p>
+                        <ul class="list-disc list-inside text-xs space-y-1 text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                            <li><strong>Shift Biasa:</strong> Tulis kode shift, contoh: <code>P</code> (Pagi), <code>S</code> (Siang), <code>M</code> (Malam), atau format lengkap <code>P (07:00-14:00)</code>.</li>
+                            <li><strong>Hari Libur:</strong> Tulis <code>L</code> atau biarkan sel kosong.</li>
+                            <li><strong>Double Shift (2 Shift Sehari):</strong> Gunakan tanda pembatas garis lurus <code>|</code>, contoh: <code>P | M</code> atau <code>P (07:00-14:00) | M (21:00-07:00)</code>.</li>
+                            <li><strong>Cuti Karyawan:</strong> Cuti resmi yang disetujui di SIMPEG otomatis dilindungi sistem agar tidak tertimpa menjadi alpa/mangkir.</li>
+                            <li><strong>Data Karyawan:</strong> Jangan mengubah atau menghapus urutan kolom nama & data diri karyawan di kolom kiri (A - F).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="flex gap-4">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold flex items-center justify-center text-sm shadow-sm border border-blue-200">
+                        3
+                    </div>
+                    <div class="flex-1 space-y-1.5">
+                        <h4 class="font-bold text-gray-900 text-base flex items-center gap-2">
+                            <span>Upload Kembali File</span>
+                            <span class="text-xs font-semibold px-2 py-0.5 rounded bg-success-50 text-success-700 border border-success-200">Tombol: Import</span>
+                        </h4>
+                        <p class="text-gray-600 text-xs leading-relaxed">
+                            Kembali ke halaman Jadwal SIMPEG, klik tombol <strong>Import</strong> -> pilih file Excel yang sudah diedit -> klik <strong>Submit</strong>. Tunggu beberapa detik hingga proses selesai dan notifikasi sukses muncul.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Tips Tambahan -->
+                <div class="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl space-y-1">
+                    <h5 class="font-bold text-emerald-900 text-xs flex items-center gap-1.5">
+                        <i class="fas fa-lightbulb text-emerald-600"></i>
+                        <span>Tips Cepat: Ubah Shift Langsung di Web (Tanpa Excel)</span>
+                    </h5>
+                    <p class="text-emerald-800 text-xs leading-relaxed">
+                        Jika hanya ingin mengubah shift 1 atau beberapa orang (misalnya ganti shift teman, tukar jaga, atau karyawan batal cuti), Anda <strong>tidak perlu repot download dan upload Excel</strong>. Cukup <strong>klik langsung kotak jadwal</strong> karyawan tersebut di tabel web ini, pilih shift baru, lalu klik <strong>Simpan</strong>.
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- Footer Modal -->
+            <div class="p-4 bg-gray-50 border-t border-gray-200 flex justify-end">
+                <button type="button" @click="showPanduan = false"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium text-sm transition shadow-sm">
+                    Mengerti & Tutup
+                </button>
+            </div>
+
+        </div>
+    </div>
 </div>

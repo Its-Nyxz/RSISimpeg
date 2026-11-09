@@ -97,23 +97,28 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
 
                 $jadwalsOnDay = $allJadwals->get($key, collect());
 
-                if ($hasCuti || $jadwalsOnDay->pluck('shift.nama_shift')->contains('C')) {
+                if ($hasCuti) {
                     $row[] = 'C (-)';
                 } elseif ($jadwalsOnDay->isNotEmpty()) {
-                    $shiftTexts = [];
-                    foreach ($jadwalsOnDay as $jadwal) {
-                        if (!$jadwal->shift) continue;
-                        $nama   = $jadwal->shift->nama_shift ?? '-';
-                        $masuk  = $fmtTime($jadwal->shift->jam_masuk ?? null);
-                        $keluar = $fmtTime($jadwal->shift->jam_keluar ?? null);
+                    $validJadwals = $jadwalsOnDay->reject(fn($j) => ($j->shift->nama_shift ?? '') === 'C');
+                    if ($validJadwals->isNotEmpty()) {
+                        $shiftTexts = [];
+                        foreach ($validJadwals as $jadwal) {
+                            if (!$jadwal->shift) continue;
+                            $nama   = $jadwal->shift->nama_shift ?? '-';
+                            $masuk  = $fmtTime($jadwal->shift->jam_masuk ?? null);
+                            $keluar = $fmtTime($jadwal->shift->jam_keluar ?? null);
 
-                        if (is_null($jadwal->shift->jam_masuk) && is_null($jadwal->shift->jam_keluar)) {
-                            $shiftTexts[] = "{$nama} (-)";
-                        } else {
-                            $shiftTexts[] = "{$nama} ({$masuk}-{$keluar})";
+                            if (is_null($jadwal->shift->jam_masuk) && is_null($jadwal->shift->jam_keluar)) {
+                                $shiftTexts[] = "{$nama} (-)";
+                            } else {
+                                $shiftTexts[] = "{$nama} ({$masuk}-{$keluar})";
+                            }
                         }
+                        $row[] = !empty($shiftTexts) ? implode(' | ', $shiftTexts) : 'L (-)';
+                    } else {
+                        $row[] = 'L (-)';
                     }
-                    $row[] = !empty($shiftTexts) ? implode(' | ', $shiftTexts) : 'L (-)';
                 } else {
                     $row[] = 'L (-)'; // Default untuk hari kosong / libur
                 }
