@@ -101,6 +101,18 @@ class DashboardController extends Controller
                 }
             }
         }
+
+        // Proteksi: Jika user sudah memiliki absensi aktif/tercatat pada jadwal hari ini, prioritaskan hari ini
+        $adaAbsenHariIni = $user->jadwalabsensi()
+            ->whereDate('tanggal_jadwal', $today->toDateString())
+            ->whereHas('absensi', function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+            })
+            ->exists();
+
+        if ($adaAbsenHariIni) {
+            $tampilkanKemarin = false;
+        }
         // 3. Penentuan Output $jadwals
         if ($tampilkanKemarin) {
             // Ambil data dari hari kemarin

@@ -374,6 +374,7 @@ class Timer extends Component
         // Dispatch event & redirect
         $this->dispatch('timer-started', now()->timestamp);
         $this->showStartModal = false;
+        session()->flash('success', 'Presensi masuk berhasil dicatat! Selamat bekerja.');
 
         return $this->routeIsDashboard
             ? redirect()->route('dashboard')
@@ -591,6 +592,7 @@ class Timer extends Component
         $this->showOvertimeModal = false;
         $this->deskripsi_out = null;
         // $this->deskripsi_lembur = null;
+        session()->flash('success', 'Presensi kepulangan berhasil dicatat! Terima kasih.');
 
         // ✅ Redirect ke halaman utama
         return $this->routeIsDashboard
@@ -625,6 +627,7 @@ class Timer extends Component
         $this->showOvertimeModal = false;
 
         $this->dispatch('timer-stopped');
+        session()->flash('success', 'Data lembur berhasil disimpan.');
         return $this->routeIsDashboard
             ? redirect()->route('dashboard') // Jika diakses dari dashboard
             : redirect()->to('/timer'); // Jika diakses dari route lain

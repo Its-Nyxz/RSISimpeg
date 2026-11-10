@@ -271,21 +271,28 @@
                 }
             }
 
+            let activeStartTimestamp = null;
+            let activeLemburTimestamp = null;
+
             // Fungsi untuk memulai timer
             function startTimer(startTimestamp) {
+                activeStartTimestamp = startTimestamp ? parseInt(startTimestamp) : null;
                 if (!isRunning) {
                     isRunning = true;
                     isStopped = false;
-                    // Jika startTimestamp kosong → mulai dari 0
-                    timeElapsed = startTimestamp ?
-                        // Math.floor(Date.now() / 1000) - startTimestamp :
-                        getRealTime() - startTimestamp :
+                    timeElapsed = activeStartTimestamp ?
+                        Math.max(0, getRealTime() - activeStartTimestamp) :
                         0;
 
                     updateTimerDisplay();
 
+                    if (timer) clearInterval(timer);
                     timer = setInterval(() => {
-                        timeElapsed++;
+                        if (activeStartTimestamp) {
+                            timeElapsed = Math.max(0, getRealTime() - activeStartTimestamp);
+                        } else {
+                            timeElapsed++;
+                        }
                         updateTimerDisplay();
                     }, 1000);
                 }
@@ -335,20 +342,25 @@
 
 
             function startLemburTimer(startTimestamp) {
+                activeLemburTimestamp = startTimestamp ? parseInt(startTimestamp) : null;
                 if (!isLemburRunning) {
                     isLemburRunning = true;
 
                     // ✅ Hitung selisih waktu lembur dari `startTimestamp`
-                    timeElapsedLembur = startTimestamp ?
-                        // Math.floor(Date.now() / 1000) - startTimestamp :
-                        getRealTime() - startTimestamp :
+                    timeElapsedLembur = activeLemburTimestamp ?
+                        Math.max(0, getRealTime() - activeLemburTimestamp) :
                         0;
 
                     updateLemburDisplay();
 
-                    // ✅ Jalankan timer lembur setiap detik
+                    if (timerLembur) clearInterval(timerLembur);
+                    // ✅ Jalankan timer lembur setiap detik dengan real time
                     timerLembur = setInterval(() => {
-                        timeElapsedLembur++;
+                        if (activeLemburTimestamp) {
+                            timeElapsedLembur = Math.max(0, getRealTime() - activeLemburTimestamp);
+                        } else {
+                            timeElapsedLembur++;
+                        }
                         updateLemburDisplay();
                     }, 1000);
                 }
@@ -356,33 +368,52 @@
 
             // Update timer lembur berdasarkan data `timeInLembur` dari backend
             if (@json($isLemburRunning) && @json($timeInLembur)) {
-                const lemburStart = new Date(@json($timeInLembur) * 1000); // Convert from seconds to milliseconds
-                const currentTime = new Date();
-                const lemburDuration = Math.floor((currentTime - lemburStart) / 1000); // Calculate elapsed time
-
-                timeElapsedLembur = lemburDuration;
-                updateLemburDisplay();
+                startLemburTimer(@json($timeInLembur));
             }
 
 
             function stopLemburTimer() {
                 isLemburRunning = false;
+                if (timerLembur) clearInterval(timerLembur);
             }
 
-            // Tangkap event dari Livewire untuk memulai timer
+            // Tangkap event dari Livewire untuk memulai timer & perbarui UI tombol seketika
             window.addEventListener('timer-started', (event) => {
-                // const startTimestamp = event.detail;
                 const startTimestamp = Array.isArray(event.detail) ? event.detail[0] : event.detail;
 
-                if (!isRunning) {
-                    // timeElapsed = Math.floor(Date.now() / 1000) - startTimestamp;
-                    timeElapsed = getRealTime() - startTimestamp;
-                    updateTimerDisplay();
-                    timer = setInterval(() => {
-                        timeElapsed++;
-                        updateTimerDisplay();
-                    }, 1000);
+                // Jalankan timer
+                startTimer(startTimestamp);
+
+                // Secara reaktif langsung sembunyikan tombol Mulai dan munculkan Selesai
+                const startBtn = document.getElementById('startButton');
+                const stopBtn = document.getElementById('stopButton');
+                const dinasBtn = document.getElementById('dinasKeluarButton');
+                if (startBtn) startBtn.style.display = 'none';
+                if (dinasBtn) dinasBtn.style.display = 'none';
+                if (stopBtn) {
+                    stopBtn.style.display = 'inline-block';
+                    stopBtn.disabled = false;
+                    stopBtn.classList.remove('bg-gray-600', 'cursor-not-allowed');
+                    stopBtn.classList.add('bg-red-600', 'hover:bg-red-700', 'text-white');
                 }
+            });
+
+            // Tangkap event dari Livewire untuk menghentikan timer
+            window.addEventListener('timer-stopped', () => {
+                isRunning = false;
+                isStopped = true;
+                if (timer) clearInterval(timer);
+                updateTimerDisplay();
+
+                const startBtn = document.getElementById('startButton');
+                const stopBtn = document.getElementById('stopButton');
+                if (startBtn) {
+                    startBtn.style.display = 'inline-block';
+                    startBtn.disabled = true;
+                    startBtn.classList.remove('bg-success-600', 'hover:bg-success-700', 'text-white');
+                    startBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                }
+                if (stopBtn) stopBtn.style.display = 'none';
             });
 
             // Event untuk memulai timer lembur dari Livewire
@@ -394,15 +425,31 @@
                 stopLemburTimer();
             });
 
+            // Sinkronisasi otomatis saat HP bangun dari mode tidur/lock screen
+            const sinkronkanWaktuSetelahBangun = () => {
+                if (isRunning && activeStartTimestamp) {
+                    timeElapsed = Math.max(0, getRealTime() - activeStartTimestamp);
+                    updateTimerDisplay();
+                }
+                if (isLemburRunning && activeLemburTimestamp) {
+                    timeElapsedLembur = Math.max(0, getRealTime() - activeLemburTimestamp);
+                    updateLemburDisplay();
+                }
+            };
+
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) sinkronkanWaktuSetelahBangun();
+            });
+            window.addEventListener('pageshow', sinkronkanWaktuSetelahBangun);
+            window.addEventListener('focus', sinkronkanWaktuSetelahBangun);
+
             // Jika sudah ada `timeIn` dan status berjalan → Mulai otomatis
             if (@json($isRunning) && @json($timeIn)) {
-                // console.log('Timer Resumed:', @json($timeIn));
                 startTimer(@json($timeIn));
             }
 
             // ✅ Jika timer lembur sudah berjalan → Mulai otomatis
             if (@json($isLemburRunning) && @json($timeInLembur)) {
-                console.log(@json($timeInLembur));
                 startLemburTimer(@json($timeInLembur));
             }
         </script>
@@ -483,8 +530,26 @@
                 let isMobile = apakahPerangkatMobile();
                 let isWhitelisted = @json($isIpWhitelisted);
 
+                const showSavingLoading = (aksiName) => {
+                    Swal.fire({
+                        title: aksiName === 'start' ? 'Menyimpan Presensi Masuk...' : 'Menyimpan Presensi Pulang...',
+                        html: '<div class="py-2 text-center">' +
+                              '<p class="text-sm text-gray-600 mb-3">Mohon tunggu sebentar, data sedang diverifikasi & dicatat ke server.</p>' +
+                              '<div class="p-3 bg-amber-50 border border-amber-300 rounded-lg text-amber-900 text-xs font-semibold leading-relaxed shadow-sm">' +
+                              '⚠️ <strong>PENTING:</strong> Mohon JANGAN mengunci layar HP atau menutup browser sebelum proses selesai.' +
+                              '</div></div>',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                };
+
                 // Jika terhubung ke IP/WiFi Kantor: Loloskan langsung
                 if (isWhitelisted) {
+                    showSavingLoading(aksi);
                     let payload = { is_mobile: isMobile };
                     if (aksi === 'start') {
                         @this.call('startTimer', false, null, payload);
@@ -512,6 +577,8 @@
                     title: 'Mengunci Titik GPS...',
                     text: 'Mohon tunggu sebentar, satelit sedang membaca koordinat presisi Anda.',
                     allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
                     didOpen: () => {
                         Swal.showLoading();
                     }
@@ -520,7 +587,7 @@
                 try {
                     const lokasi = await ambilKoordinatAkurat();
                     lokasi.is_mobile = true;
-                    Swal.close();
+                    showSavingLoading(aksi);
 
                     if (aksi === 'start') {
                         @this.call('startTimer', false, null, lokasi);
