@@ -1,3 +1,4 @@
+
 <div x-data="{ open: false }" class="relative mb-6">
     <div class="flex justify-between py-2 mb-3">
         <h1 class="text-2xl font-bold text-success-900">
@@ -57,6 +58,20 @@
                             </td>
                             <td class="px-6 py-4 text-center">
                                 <div class="flex justify-center gap-2">
+                                    @if (($izin->jenisIzin->nama_izin ?? '') == 'Izin Sakit')
+                                        @if ($izin->bukti_izin)
+                                            <a href="{{ asset('storage/photos/bukti-izin/' . $izin->bukti_izin) }}"
+                                                target="_blank"
+                                                class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg flex items-center gap-2">
+                                                <i class="fa-solid fa-image"></i> Lihat Gambar
+                                            </a>
+                                        @else
+                                            <span class="text-red-600 font-semibold text-sm">
+                                                Surat sakit belum diunggah
+                                            </span>
+                                        @endif
+                                    @endif
+
                                     @if ($izin->status_izin_id == 3 || ($isKepegawaian && $izin->status_izin_id == 4))
                                         <button
                                             onclick="confirmAlert('Ingin menyetujui izin ini?', 'Ya, Setujui!', () => @this.call('approveIzin', {{ $izin->id }}, {{ $izin->user->id }}))"

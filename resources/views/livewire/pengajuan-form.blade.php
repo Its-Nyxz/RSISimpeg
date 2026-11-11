@@ -103,14 +103,52 @@
                 @enderror
             </div>
 
-            <!-- Foto Surat Izin (dipertahankan) -->
-            <div class="form-group mb-4">
-                <label for="bukti_izin" class="block text-sm font-medium text-gray-700">Foto Surat Izin</label>
-                <input type="file" id="bukti_izin" wire:model="bukti_izin"
-                    class="form-control @error('bukti_izin') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5">
+            <!-- Foto Surat Izin -->
+            <div class="form-group mb-4" x-data="{ previewOpen: false }">
+                <label for="bukti_izin" class="block text-sm font-medium text-gray-700">
+                    Foto Surat Izin
+                </label>
+
+                <div class="flex items-center gap-3">
+                    <input type="file" id="bukti_izin" wire:model="bukti_izin"
+                        accept="image/*"
+                        class="form-control @error('bukti_izin') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5">
+
+                    @if ($bukti_izin)
+                        <button type="button" @click="previewOpen = true"
+                            class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold whitespace-nowrap">
+                            Preview
+                        </button>
+                    @endif
+                </div>
+
                 @error('bukti_izin')
                     <span class="text-red-500 text-sm">{{ $message }}</span>
                 @enderror
+
+                @if ($bukti_izin)
+                    <div x-show="previewOpen" x-cloak
+                        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4"
+                        @click.self="previewOpen = false"
+                        @keydown.escape.window="previewOpen = false">
+
+                        <div class="bg-white rounded-lg p-4 max-w-3xl w-full">
+                            <div class="flex justify-between items-center mb-3">
+                                <h3 class="font-semibold text-gray-800">Preview Foto Surat Izin</h3>
+                                <button type="button" @click="previewOpen = false"
+                                    class="text-gray-500 hover:text-red-600 text-xl font-bold">
+                                    &times;
+                                </button>
+                            </div>
+
+                            <div class="flex justify-center">
+                                <img src="{{ $bukti_izin->temporaryUrl() }}"
+                                    alt="Preview Foto Surat Izin"
+                                    class="max-h-[70vh] max-w-full object-contain rounded">
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
         @else
             <!-- Tanggal (Untuk Tukar Jadwal) -->
