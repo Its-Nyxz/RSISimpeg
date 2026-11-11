@@ -17,6 +17,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Str;
 
 class DataJadwal extends Component
 {
@@ -270,10 +271,10 @@ class DataJadwal extends Component
         // Validasi nama file
         if ($slugUploaded !== $slugExpected) {
             return redirect()->route('jadwal.index')->with('error', "Nama file tidak sesuai. Harus: {$expectedFileName}");
-        }
+        }  
 
         try {
-            // Jalankan proses import
+            // Jalankan proses import                   
             Excel::import(new JadwalImport($this->bulan, $this->tahun), $this->file->getRealPath());
 
             $this->reset('file');
@@ -326,7 +327,7 @@ class DataJadwal extends Component
             'Kepala Instalasi',
             'Kepala Ruang',
             'Kepala Seksi',
-        ];
+        ]; 
 
         if (!auth()->user()->hasAnyRole($allowedRoles)) {
             abort(403, 'Tidak memiliki akses untuk mengubah shift.');
