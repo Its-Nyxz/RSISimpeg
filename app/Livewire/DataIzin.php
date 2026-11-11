@@ -42,11 +42,9 @@ class DataIzin extends Component
 
     public function mount()
     {
-        $this->loadData();
-        $unitKepegawaianId = 87;
         $user = auth()->user();
 
-        $this->isKepegawaian = $user->unit_id == $unitKepegawaianId || $user->roles->pluck('id')->first() == 2 || $user->roles->pluck('id')->first() == 14 || $user->hasRole('Super Admin');
+        $this->isKepegawaian = $user->isKepegawaian();
         $this->isRiwayatIzin = request()->routeIs('riwayatizin.*') || request()->is('riwayatizin');
 
         $this->bulan = now()->month;
@@ -54,6 +52,8 @@ class DataIzin extends Component
         $this->tanggalMulaiFilter = now()->format('Y-m-d');
         $this->units = \App\Models\UnitKerja::orderBy('id')->get();
         $this->jenisKaryawan = JenisKaryawan::orderBy('id')->get();
+
+        $this->loadData();
     }
 
     public function loadData()
@@ -63,8 +63,10 @@ class DataIzin extends Component
             return IzinKaryawan::whereNull('id')->paginate(10);
         }
 
+        $statusIds = $this->isKepegawaian ? [3, 4] : [3];
+
         $query = IzinKaryawan::with(['user.unitKerja', 'jenisIzin', 'statusIzin'])
-            ->whereIn('status_izin_id', [3, 4])
+            ->whereIn('status_izin_id', $statusIds)
             ->where('user_id', '!=', $user->id);
 
         $query = $this->applyFiltersToUserQuery($query);
@@ -223,10 +225,7 @@ class DataIzin extends Component
 
     public function approveIzin($izinId, $userId)
     {
-        $unitKepegawaianId = 87;
-        $kepegawaianUsers = User::where('unit_id', $unitKepegawaianId)
-            ->permission('approval-izin') // ✅ Spatie helper method
-            ->get();
+        $kepegawaianUsers = User::getKepegawaianUsers();
         $izin = IzinKaryawan::find($izinId);
         $user = auth()->user();
         $targetUser = User::findOrFail($userId);

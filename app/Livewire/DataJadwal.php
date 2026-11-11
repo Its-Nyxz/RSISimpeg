@@ -248,8 +248,8 @@ class DataJadwal extends Component
         $uploadedFileName = $this->file->getClientOriginalName();
         $monthName = Carbon::createFromDate($this->tahun, $this->bulan, 1)->translatedFormat('F');
 
-        // Dapatkan nama unit berdasarkan role
-        $canSelectUnit = auth()->user()->hasRole('Super Admin') || auth()->user()->unitKerja->id === 87;
+        // Dapatkan nama unit berdasarkan role (Kepegawaian / Super Admin bisa pilih unit)
+        $canSelectUnit = auth()->user()->isKepegawaian();
 
         $unitNama = $canSelectUnit
             ? UnitKerja::find($this->selectedUnit)?->nama
@@ -265,8 +265,8 @@ class DataJadwal extends Component
         $cleanUploaded = preg_replace('/\s*\(\d+\)$/', '', pathinfo($uploadedFileName, PATHINFO_FILENAME));
         $cleanExpected = pathinfo($expectedFileName, PATHINFO_FILENAME);
 
-        $slugUploaded = Str::slug($cleanUploaded, '_');
-        $slugExpected = Str::slug($cleanExpected, '_');
+        $slugUploaded = \Illuminate\Support\Str::slug($cleanUploaded, '_');
+        $slugExpected = \Illuminate\Support\Str::slug($cleanExpected, '_');
 
         // Validasi nama file
         if ($slugUploaded !== $slugExpected) {

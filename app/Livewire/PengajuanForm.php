@@ -559,18 +559,7 @@ class PengajuanForm extends Component
 
             // Fallback ke Kepegawaian jika approver kosong
             if ($approvers->isEmpty()) {
-                $approvers = User::where(
-                    'unit_id',
-                    $unitKepegawaianId
-                )
-                    ->orWhereHas(
-                        'roles',
-                        fn ($q) => $q->where(
-                            'name',
-                            'Kepala Seksi Kepegawaian'
-                        )
-                    )
-                    ->get()
+                $approvers = User::getKepegawaianUsers()
                     ->filter(
                         fn (User $u) => $u->id != $user->id &&
                             $u->can('approval-cuti')

@@ -65,9 +65,8 @@ class DataCuti extends Component
     {
         $user = auth()->user();
         $this->unitKepegawaianId = 87;
-        $this->isKepegawaian = $user->can('view-kepegawaian') ||
-            $user->hasAnyRole(['Super Admin', 'Administrator', 'Kepala Seksi Kepegawaian', 'Staf Kepegawaian']) ||
-            $user->unit_id == $this->unitKepegawaianId;
+
+        $this->isKepegawaian = $user->isKepegawaian();
         $this->isRiwayatCuti = request()->routeIs('riwayatcuti.*') || request()->is('riwayatcuti');
         $this->bulan = now()->month;
         $this->tahun = now()->year;
@@ -147,8 +146,12 @@ class DataCuti extends Component
             return CutiKaryawan::whereNull('id')->paginate(10);
         }
 
+        // Kepegawaian memproses status 4 (menunggu persetujuan final) & status 3 (staf langsung kepegawaian)
+        // Atasan Langsung (Kepala Ruang/Instalasi) hanya memproses status 3 (menunggu persetujuan atasan)
+        $statusIds = $this->isKepegawaian ? [3, 4] : [3];
+
         $query = CutiKaryawan::with(['user.unitkerja', 'jenisCuti', 'statusCuti'])
-            ->whereIn('status_cuti_id', [3, 4])
+            ->whereIn('status_cuti_id', $statusIds)
             ->where('user_id', '!=', $user->id);
 
         $query = $this->applyFiltersCuti($query);
@@ -477,11 +480,7 @@ class DataCuti extends Component
         /** ------------------------------------------------------------
          *  Logika default (Manager, Kepala, Kepegawaian, dst)
          *  ------------------------------------------------------------ */
-        $isFinalApprover = (
-            $user->can('view-kepegawaian') ||
-            $user->hasAnyRole(['Super Admin', 'Administrator', 'Kepala Seksi Kepegawaian']) ||
-            $user->unit_id == $this->unitKepegawaianId
-        );
+        $isFinalApprover = $user->isKepegawaian();
 
         $cutiStatus = $isFinalApprover ? 1 : 4; // 1 = Final, 4 = Menunggu Final
 
@@ -557,10 +556,7 @@ class DataCuti extends Component
 
         // 🔔 Jika belum final → notifikasi ke Kepegawaian
         if (! $isFinalApprover) {
-            $finalApprovers = User::permission('view-kepegawaian')
-                ->orWhereHas('roles', fn ($q) => $q->where('name', 'Kepala Seksi Kepegawaian'))
-                ->orWhere('unit_id', $this->unitKepegawaianId)
-                ->get();
+            $finalApprovers = User::getKepegawaianUsers();
 
             if ($finalApprovers->count() > 0) {
                 $msg = "Pengajuan cuti atas nama {$targetUser->name} telah disetujui oleh {$user->name}, menunggu persetujuan final Kepegawaian.";

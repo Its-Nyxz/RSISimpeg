@@ -82,7 +82,7 @@
                 {{-- Tombol Download Template --}}
                 @can('template-jadwal')
                     @php
-                        $canSelectUnit = auth()->user()->can('view-kepegawaian') || auth()->user()->hasRole('Super Admin') || (auth()->user()->unitKerja && auth()->user()->unitKerja->id == 87);
+                        $canSelectUnit = auth()->user()->isKepegawaian();
                         $unitId = $canSelectUnit ? $selectedUnit : auth()->user()->unit_id;
                     @endphp
 
@@ -145,7 +145,7 @@
                     </button>
                 @endcan
                 @php
-                    $canSelectUnit = auth()->user()->can('view-kepegawaian') || auth()->user()->hasRole('Super Admin') || (auth()->user()->unitKerja && auth()->user()->unitKerja->id == 87);
+                    $canSelectUnit = auth()->user()->isKepegawaian();
                     $unitId = $canSelectUnit ? $selectedUnit : auth()->user()->unit_id;
                 @endphp
 

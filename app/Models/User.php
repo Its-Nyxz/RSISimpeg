@@ -313,4 +313,73 @@ class User extends Authenticatable
     {
         return $this->getIncompleteData();
     }
+
+    /**
+     * Memeriksa apakah user adalah bagian dari tim Kepegawaian (HRD/SDM/Super Admin)
+     * Menggunakan multi-layer check (Role ID permanen, nama role fleksibel, kode & nama Unit Kerja)
+     * sehingga tetap aman dan tidak error meskipun nama role atau nama unit diubah di database.
+     */
+    public function isKepegawaian(): bool
+    {
+        // 0. Permission eksplisit (Standar Spatie: jika permission ini diberikan ke suatu role)
+        if ($this->can('approval-cuti-final') || $this->can('approval-kepegawaian')) {
+            return true;
+        }
+
+        // 1. Super Admin selalu punya hak penuh
+        if ($this->hasRole('Super Admin') || $this->roles->pluck('id')->contains(1)) {
+            return true;
+        }
+
+        // 2. Cek Role ID permanen (Role 2 = PJ / Kasie Kepegawaian, Role 14 = Staf Kepegawaian)
+        // ID 1-15 adalah system roles yang primary key-nya permanen di database
+        if ($this->roles->pluck('id')->intersect([2, 14])->isNotEmpty()) {
+            return true;
+        }
+
+        // 3. Cek nama Role (fleksibel terhadap nama seperti 'PJ Adm Kepegawaian', 'Staf Adm Kepegawaian', 'SDM', 'HRD')
+        foreach ($this->roles as $role) {
+            $rName = strtolower($role->name);
+            if (str_contains($rName, 'kepeg') || str_contains($rName, 'sdm') || str_contains($rName, 'hrd')) {
+                return true;
+            }
+        }
+
+        // 4. Cek Unit Kerja user (kode 'AK' / 'PGW', ID 87 / 36, atau nama unit mengandung 'kepeg'/'sdm'/'hrd')
+        $unit = $this->unitKerja;
+        if ($unit) {
+            $unitKode = strtoupper($unit->kode ?? '');
+            if (in_array($unitKode, ['AK', 'PGW']) || in_array($unit->id, [36, 87])) {
+                return true;
+            }
+            $uNama = strtolower($unit->nama ?? '');
+            if (str_contains($uNama, 'kepeg') || str_contains($uNama, 'sdm') || str_contains($uNama, 'hrd')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Mengambil seluruh user tim Kepegawaian (untuk notifikasi atau fallback approver)
+     */
+    public static function getKepegawaianUsers()
+    {
+        return static::whereHas('roles', function ($q) {
+                $q->whereIn('id', [1, 2, 14])
+                  ->orWhere('name', 'like', '%kepeg%')
+                  ->orWhere('name', 'like', '%sdm%')
+                  ->orWhere('name', 'like', '%hrd%');
+            })
+            ->orWhereHas('unitKerja', function ($q) {
+                $q->whereIn('kode', ['AK', 'PGW'])
+                  ->orWhereIn('id', [36, 87])
+                  ->orWhere('nama', 'like', '%kepeg%')
+                  ->orWhere('nama', 'like', '%sdm%')
+                  ->orWhere('nama', 'like', '%hrd%');
+            })
+            ->get()
+            ->unique('id');
+    }
 }
