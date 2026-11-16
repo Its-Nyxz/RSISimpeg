@@ -988,17 +988,10 @@ class Timer extends Component
             return false;
         }
 
-        // Cek jika akurasi GPS terlalu rendah/hancur (> 250m, indikasi sinyal hanya dari BTS seluler)
-        if ($acc !== null && $acc >= 250) {
+        // Cek jika akurasi GPS terlalu rendah/hancur (> 600m, indikasi sinyal hanya dari BTS seluler sangat jauh)
+        if ($acc !== null && $acc >= 600) {
             $this->dispatch('alert-error', message: "Sinyal GPS kurang akurat (" . round($acc) . "m). Silakan bergeser ke area terbuka dan coba lagi.");
             $this->logLocationValidation(false, ['reason' => 'low_accuracy', 'accuracy' => $acc, 'altitude' => $alt]);
-            return false;
-        }
-
-        // Deteksi Fake GPS yang tidak realistis (akurasi persis 0 atau 1 meter bulat)
-        if ($acc !== null && ($acc === 0.0 || $acc === 1.0)) {
-            $this->dispatch('alert-error', message: 'Indikasi Fake GPS terdeteksi (akurasi 0/1m tidak wajar). Matikan aplikasi mock location.');
-            $this->logLocationValidation(false, ['reason' => 'fake_gps_suspected', 'accuracy' => $acc]);
             return false;
         }
 
@@ -1052,7 +1045,7 @@ class Timer extends Component
             'RSI' => [-7.40233, 109.61562],
             'akunbiz' => [-7.548218, 110.812613],
         ];
-        $bufferMeters = 180; // Ditingkatkan menjadi 180m agar mencakup perimeter area parkir secara aman
+        $bufferMeters = 250; // Ditingkatkan menjadi 250m agar mencakup seluruh kompleks gedung dan perimeter RSI Banjarnegara
 
         foreach ($allowedAreas as $area) {
             [$clat, $clng] = $centers[$area];

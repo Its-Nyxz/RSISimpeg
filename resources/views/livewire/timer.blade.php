@@ -500,8 +500,8 @@
                         },
                         {
                             enableHighAccuracy: true,
-                            timeout: 10000,
-                            maximumAge: 0
+                            timeout: 20000,
+                            maximumAge: 60000
                         }
                     );
                 });
@@ -527,6 +527,33 @@
 
             // Fungsi kirim lokasi ke Livewire
             window.kirimLokasiKeLivewire = async function(aksi = 'start') {
+                // Validasi input awal di browser agar tidak stuck pada popup loading jika deskripsi belum lengkap
+                let deskripsiElem = aksi === 'start'
+                    ? document.querySelector('textarea[wire\\:model\\.defer="deskripsi_in"], textarea[wire\\:model="deskripsi_in"]')
+                    : document.querySelector('textarea[wire\\:model\\.defer="deskripsi_out"], textarea[wire\\:model="deskripsi_out"]');
+
+                if (deskripsiElem) {
+                    let val = deskripsiElem.value ? deskripsiElem.value.trim() : '';
+                    if (aksi === 'start' && val.length < 5) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Deskripsi Kurang Lengkap',
+                            text: 'Mohon isi deskripsi pekerjaan minimal 5 karakter sebelum memulai.',
+                            confirmButtonColor: '#16a34a'
+                        });
+                        return;
+                    }
+                    if (aksi === 'stop' && val.length < 1) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Laporan Pekerjaan Kosong',
+                            text: 'Mohon isi hasil pekerjaan sebelum menyelesaikan absensi.',
+                            confirmButtonColor: '#dc2626'
+                        });
+                        return;
+                    }
+                }
+
                 let isMobile = apakahPerangkatMobile();
                 let isWhitelisted = @json($isIpWhitelisted);
 
@@ -590,9 +617,9 @@
                     showSavingLoading(aksi);
 
                     if (aksi === 'start') {
-                        @this.call('startTimer', false, null, lokasi);
+                        @this.call('startTimer', false, null, lokasi).catch(() => { Swal.close(); });
                     } else {
-                        @this.call('openWorkReportModal', lokasi);
+                        @this.call('openWorkReportModal', lokasi).catch(() => { Swal.close(); });
                     }
                 } catch (pesanError) {
                     Swal.fire({

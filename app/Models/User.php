@@ -315,45 +315,40 @@ class User extends Authenticatable
     }
 
     /**
-     * Memeriksa apakah user adalah bagian dari tim Kepegawaian (HRD/SDM/Super Admin)
-     * Menggunakan multi-layer check (Role ID permanen, nama role fleksibel, kode & nama Unit Kerja)
-     * sehingga tetap aman dan tidak error meskipun nama role atau nama unit diubah di database.
+     * Memeriksa apakah user adalah bagian dari tim Kepegawaian (HRD/Super Admin) untuk Final Approval.
+     * Tidak menggunakan ID statis agar kebal terhadap perbedaan ID database server vs lokal.
+     * Kepala Ruang / Kepala Unit di luar Kepegawaian selalu bernilai FALSE sehingga hanya
+     * dapat menyetujui staf bawahannya sendiri (approval tingkat 1).
      */
     public function isKepegawaian(): bool
     {
-        // 0. Permission eksplisit (Standar Spatie: jika permission ini diberikan ke suatu role)
+        // 0. Permission eksplisit (Standar Spatie: jika ada role yang diberi permission khusus ini)
         if ($this->can('approval-cuti-final') || $this->can('approval-kepegawaian')) {
             return true;
         }
 
-        // 1. Super Admin selalu punya hak penuh
-        if ($this->hasRole('Super Admin') || $this->roles->pluck('id')->contains(1)) {
+        // 1. Super Admin selalu punya hak approval final
+        if ($this->hasRole('Super Admin') || $this->roles->pluck('name')->contains('Super Admin')) {
             return true;
         }
 
-        // 2. Cek Role ID permanen (Role 2 = PJ / Kasie Kepegawaian, Role 14 = Staf Kepegawaian)
-        // ID 1-15 adalah system roles yang primary key-nya permanen di database
-        if ($this->roles->pluck('id')->intersect([2, 14])->isNotEmpty()) {
-            return true;
-        }
-
-        // 3. Cek nama Role (fleksibel terhadap nama seperti 'PJ Adm Kepegawaian', 'Staf Adm Kepegawaian', 'SDM', 'HRD')
+        // 2. Cek nama Role khusus Kepegawaian (misal: 'PJ Adm Kepegawaian', 'Staf Adm Kepegawaian', 'Kepala Seksi Kepegawaian')
         foreach ($this->roles as $role) {
-            $rName = strtolower($role->name);
-            if (str_contains($rName, 'kepeg') || str_contains($rName, 'sdm') || str_contains($rName, 'hrd')) {
+            $rName = strtolower($role->name ?? '');
+            if (str_contains($rName, 'kepegawaian')) {
                 return true;
             }
         }
 
-        // 4. Cek Unit Kerja user (kode 'AK' / 'PGW', ID 87 / 36, atau nama unit mengandung 'kepeg'/'sdm'/'hrd')
+        // 3. Cek Unit Kerja user (Kode 'AK' / 'PGW', atau nama unit 'ADM KEPEGAWAIAN' / 'KEPEGAWAIAN')
         $unit = $this->unitKerja;
         if ($unit) {
             $unitKode = strtoupper($unit->kode ?? '');
-            if (in_array($unitKode, ['AK', 'PGW']) || in_array($unit->id, [36, 87])) {
+            if (in_array($unitKode, ['AK', 'PGW'])) {
                 return true;
             }
             $uNama = strtolower($unit->nama ?? '');
-            if (str_contains($uNama, 'kepeg') || str_contains($uNama, 'sdm') || str_contains($uNama, 'hrd')) {
+            if (str_contains($uNama, 'kepegawaian')) {
                 return true;
             }
         }
@@ -362,22 +357,17 @@ class User extends Authenticatable
     }
 
     /**
-     * Mengambil seluruh user tim Kepegawaian (untuk notifikasi atau fallback approver)
+     * Mengambil seluruh user tim Kepegawaian (untuk notifikasi verifikator final atau fallback approver)
      */
     public static function getKepegawaianUsers()
     {
         return static::whereHas('roles', function ($q) {
-                $q->whereIn('id', [1, 2, 14])
-                  ->orWhere('name', 'like', '%kepeg%')
-                  ->orWhere('name', 'like', '%sdm%')
-                  ->orWhere('name', 'like', '%hrd%');
+                $q->where('name', 'Super Admin')
+                  ->orWhere('name', 'like', '%kepegawaian%');
             })
             ->orWhereHas('unitKerja', function ($q) {
                 $q->whereIn('kode', ['AK', 'PGW'])
-                  ->orWhereIn('id', [36, 87])
-                  ->orWhere('nama', 'like', '%kepeg%')
-                  ->orWhere('nama', 'like', '%sdm%')
-                  ->orWhere('nama', 'like', '%hrd%');
+                  ->orWhere('nama', 'like', '%kepegawaian%');
             })
             ->get()
             ->unique('id');
