@@ -941,14 +941,14 @@ class Timer extends Component
 
         return $this->ipDiWhitelist($ipUser, $ipWhitelist);
     }
-    /* 
+    /*
         artisan log, dev
     */
     // public function logLocation($lat, $lng, $alt, $acc)
     // {
     //     Log::info("📍 Lokasi dari Client:", [
-    //         'lat' => $lat, 
-    //         'lng' => $lng, 
+    //         'lat' => $lat,
+    //         'lng' => $lng,
     //         'alt' => $alt,
     //         'acc' => $acc,
     //     ]);
@@ -968,7 +968,7 @@ class Timer extends Component
             $this->logLocationValidation(false, ['reason' => 'not_mobile_device', 'user_agent' => request()->header('User-Agent')]);
             return false;
         }
-        
+
         // 2) cek ip
         if ($this->cekIpWhitelisted() && $this->isMobileDevice()) {
             $ipUser = request()->ip();
@@ -1192,7 +1192,7 @@ class Timer extends Component
     //     //     $this->dispatch('alert-error', message: 'Anda tidak berada di lokasi atau jaringan RSI Banjarnegara.');
     //     //     // $this->dispatch('alert-error', message: 'Anda tidak berada di lokasi RSI Banjarnegara.');
     //     //     return false;
-    //     // }  
+    //     // }
     //     $polygon = [
     //         [-7.401462324660784, 109.61574443318705],
     //         [-7.40206468637885, 109.61591235565817],
