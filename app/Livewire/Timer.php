@@ -279,10 +279,17 @@ class Timer extends Component
         // Cegah double start
         if ($this->isRunning) {
             $this->logValidationError('Attempted double start - timer already running');
+            $this->dispatch('alert-error', message: 'Timer presensi Anda sudah berjalan.');
             return;
         }
 
-        $this->validateOnly('deskripsi_in');
+        try {
+            $this->validateOnly('deskripsi_in');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $msg = collect($e->validator->errors()->all())->first() ?? 'Deskripsi pekerjaan harus diisi minimal 5 karakter.';
+            $this->dispatch('alert-error', message: $msg);
+            return;
+        }
 
         $this->isRunning = true;
         $currentTime = now()->setTimezone('Asia/Jakarta');
@@ -376,9 +383,15 @@ class Timer extends Component
         $this->showStartModal = false;
         session()->flash('success', 'Presensi masuk berhasil dicatat! Selamat bekerja.');
 
-        return $this->routeIsDashboard
-            ? redirect()->route('dashboard')
-            : redirect()->to('/timer');
+        if ($this->routeIsDashboard) {
+            return redirect()->route('dashboard');
+        }
+
+        if (str_contains(request()->headers->get('referer') ?? '', 'dashboard')) {
+            return redirect()->route('dashboard');
+        }
+
+        return redirect()->to('/timer');
     }
 
     /**
@@ -392,7 +405,7 @@ class Timer extends Component
     }
 
 
-    public function openWorkReportModal($payloadLokasi = null)
+    public function openWorkReportModal($payloadLokasi = null, $deskripsiOverride = null)
     {
         if ($payloadLokasi) {
             $this->latitude  = $payloadLokasi['lat'] ?? null;
@@ -406,7 +419,17 @@ class Timer extends Component
 
         if (!$this->validasiLokasiAtauIp()) return;
 
-        $this->validateOnly('deskripsi_out');
+        if ($deskripsiOverride) {
+            $this->deskripsi_out = $deskripsiOverride;
+        }
+
+        try {
+            $this->validateOnly('deskripsi_out');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $msg = collect($e->validator->errors()->all())->first() ?? 'Hasil pekerjaan harus diisi minimal 5 karakter.';
+            $this->dispatch('alert-error', message: $msg);
+            return;
+        }
 
         if ($this->isRunning) {
             $this->timeOut = now()->timestamp;
@@ -595,9 +618,15 @@ class Timer extends Component
         session()->flash('success', 'Presensi kepulangan berhasil dicatat! Terima kasih.');
 
         // ✅ Redirect ke halaman utama
-        return $this->routeIsDashboard
-            ? redirect()->route('dashboard') // Jika diakses dari dashboard
-            : redirect()->to('/timer'); // Jika diakses dari route lain
+        if ($this->routeIsDashboard) {
+            return redirect()->route('dashboard');
+        }
+
+        if (str_contains(request()->headers->get('referer') ?? '', 'dashboard')) {
+            return redirect()->route('dashboard');
+        }
+
+        return redirect()->to('/timer');
     }
 
 

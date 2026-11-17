@@ -41,9 +41,8 @@ class KenaikanGolongan extends Component
         $this->tahun = $now->format('Y');
 
         $this->units = UnitKerja::all();
-        $unitKepegawaianId = 87;
         $user = auth()->user();
-        $this->isKepegawaian = $user->unit_id == $unitKepegawaianId;
+        $this->isKepegawaian = $user ? $user->isKepegawaian() : false;
     }
 
     public function updateSearch($value)

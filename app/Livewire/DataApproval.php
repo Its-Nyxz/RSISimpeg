@@ -40,13 +40,8 @@ class DataApproval extends Component
 
         $this->units = UnitKerja::all();
 
-
-        $unitKepegawaianId = 87;
         $user = auth()->user();
-
-        $this->isKepegawaian = $user->unit_id == $unitKepegawaianId;
-        // $this->selectedUnit = $this->isKepegawaian ? null : $user->unitkerja?->id;
-        // dd($this->selectedUnit);
+        $this->isKepegawaian = $user ? $user->isKepegawaian() : false;
     }
 
     public function loadData()
@@ -74,7 +69,7 @@ class DataApproval extends Component
 
 
         $user = auth()->user();
-        if (!$user->hasRole('Super Admin')) {
+        if ($user && !$user->hasRole('Super Admin') && !$user->isKepegawaian()) {
             $query->whereHas('approver', function ($q) use ($user) {
                 $q->where('unit_id', $user->unit_id);
             });

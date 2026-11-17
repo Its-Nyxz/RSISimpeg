@@ -332,15 +332,15 @@ class User extends Authenticatable
             return true;
         }
 
-        // 2. Cek nama Role khusus Kepegawaian (misal: 'PJ Adm Kepegawaian', 'Staf Adm Kepegawaian', 'Kepala Seksi Kepegawaian')
+        // 2. Cek nama Role khusus Kepegawaian (misal: 'PJ Adm Kepegawaian', 'Staf Adm Kepegawaian', 'Adm Kepeg')
         foreach ($this->roles as $role) {
             $rName = strtolower($role->name ?? '');
-            if (str_contains($rName, 'kepegawaian')) {
+            if (str_contains($rName, 'kepeg')) {
                 return true;
             }
         }
 
-        // 3. Cek Unit Kerja user (Kode 'AK' / 'PGW', atau nama unit 'ADM KEPEGAWAIAN' / 'KEPEGAWAIAN')
+        // 3. Cek Unit Kerja user (Kode 'AK' / 'PGW', atau nama unit mengandung 'kepeg' seperti 'ADM KEPEGAWAIAN')
         $unit = $this->unitKerja;
         if ($unit) {
             $unitKode = strtoupper($unit->kode ?? '');
@@ -348,7 +348,7 @@ class User extends Authenticatable
                 return true;
             }
             $uNama = strtolower($unit->nama ?? '');
-            if (str_contains($uNama, 'kepegawaian')) {
+            if (str_contains($uNama, 'kepeg')) {
                 return true;
             }
         }
@@ -363,11 +363,11 @@ class User extends Authenticatable
     {
         return static::whereHas('roles', function ($q) {
                 $q->where('name', 'Super Admin')
-                  ->orWhere('name', 'like', '%kepegawaian%');
+                  ->orWhere('name', 'like', '%kepeg%');
             })
             ->orWhereHas('unitKerja', function ($q) {
                 $q->whereIn('kode', ['AK', 'PGW'])
-                  ->orWhere('nama', 'like', '%kepegawaian%');
+                  ->orWhere('nama', 'like', '%kepeg%');
             })
             ->get()
             ->unique('id');

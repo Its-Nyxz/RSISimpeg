@@ -84,7 +84,7 @@
             <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                 <div class="bg-white p-6 rounded-md w-96">
                     <h2 class="text-xl font-bold mb-4">Mulai Timer</h2>
-                    <textarea wire:model.defer="deskripsi_in" class="w-full p-2 border rounded-md"
+                    <textarea id="deskripsi_in" wire:model="deskripsi_in" class="w-full p-2 border rounded-md"
                         placeholder="Masukkan deskripsi pekerjaan..." required></textarea>
                     @error('deskripsi_in')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -92,8 +92,6 @@
                     <div class="mt-4 flex justify-end gap-2">
                         <button wire:click="$set('showStartModal', false)"
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
-                        {{-- <button wire:click="startTimer"
-                            class="px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700">Mulai</button> --}}
                         <button onclick="kirimLokasiKeLivewire('start')"
                             class="px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700">
                             Mulai
@@ -108,7 +106,7 @@
             <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                 <div class="bg-white p-6 rounded-md w-96">
                     <h2 class="text-xl font-bold mb-4">Selesai Timer</h2>
-                    <textarea wire:model.defer="deskripsi_out" class="w-full p-2 border rounded-md"
+                    <textarea id="deskripsi_out" wire:model="deskripsi_out" class="w-full p-2 border rounded-md"
                         placeholder="Masukkan hasil pekerjaan..." required></textarea>
                     @error('deskripsi_out')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -116,8 +114,6 @@
                     <div class="mt-4 flex justify-end gap-2">
                         <button wire:click="$set('showStopModal', false)"
                             class="px-4 py-2 bg-gray-400 text-white rounded-md hover:bg-gray-500">Batal</button>
-                        {{-- <button wire:click="openWorkReportModal"
-                            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Selesai</button> --}}
                         <button onclick="kirimLokasiKeLivewire('stop')"
                             class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
                             Selesai
@@ -194,10 +190,11 @@
         @push('scripts')
             <script type="module">
                 window.addEventListener('alert-error', event => {
-
-                    // Ambil langsung dari event.detail.message
-                    // const message = event.detail.message;
-                    const message = event.detail[0]?.message || event.detail?.message || event.detail || 'Terjadi kesalahan';
+                    const message = event.detail?.[0]?.message 
+                        || event.detail?.message 
+                        || (typeof event.detail === 'string' ? event.detail : null) 
+                        || (Array.isArray(event.detail) && typeof event.detail[0] === 'string' ? event.detail[0] : null) 
+                        || 'Terjadi kesalahan pada presensi.';
 
                     Swal.fire({
                         icon: 'error',
@@ -527,49 +524,87 @@
 
             // Fungsi kirim lokasi ke Livewire
             window.kirimLokasiKeLivewire = async function(aksi = 'start') {
-                // Validasi input awal di browser agar tidak stuck pada popup loading jika deskripsi belum lengkap
-                let deskripsiElem = aksi === 'start'
-                    ? document.querySelector('textarea[wire\\:model\\.defer="deskripsi_in"], textarea[wire\\:model="deskripsi_in"]')
-                    : document.querySelector('textarea[wire\\:model\\.defer="deskripsi_out"], textarea[wire\\:model="deskripsi_out"]');
+                // Ambil elemen deskripsi dari modal
+                let inputEl = aksi === 'start'
+                    ? (document.getElementById('deskripsi_in') || document.querySelector('textarea[wire\\:model*="deskripsi_in"]'))
+                    : (document.getElementById('deskripsi_out') || document.querySelector('textarea[wire\\:model*="deskripsi_out"]'));
 
-                if (deskripsiElem) {
-                    let val = deskripsiElem.value ? deskripsiElem.value.trim() : '';
-                    if (aksi === 'start' && val.length < 5) {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Deskripsi Kurang Lengkap',
-                            text: 'Mohon isi deskripsi pekerjaan minimal 5 karakter sebelum memulai.',
-                            confirmButtonColor: '#16a34a'
-                        });
-                        return;
-                    }
-                    if (aksi === 'stop' && val.length < 1) {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Laporan Pekerjaan Kosong',
-                            text: 'Mohon isi hasil pekerjaan sebelum menyelesaikan absensi.',
-                            confirmButtonColor: '#dc2626'
-                        });
-                        return;
-                    }
+                let deskripsi = inputEl && inputEl.value ? inputEl.value.trim() : '';
+
+                if (aksi === 'start' && deskripsi.length < 5) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Deskripsi Kurang Lengkap',
+                        text: 'Mohon isi deskripsi pekerjaan minimal 5 karakter sebelum memulai.',
+                        confirmButtonColor: '#16a34a'
+                    });
+                    return;
+                }
+                if (aksi === 'stop' && deskripsi.length < 5) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Laporan Pekerjaan Kurang Lengkap',
+                        text: 'Mohon isi laporan hasil pekerjaan minimal 5 karakter sebelum menyelesaikan absensi.',
+                        confirmButtonColor: '#dc2626'
+                    });
+                    return;
                 }
 
                 let isMobile = apakahPerangkatMobile();
                 let isWhitelisted = @json($isIpWhitelisted);
 
+                const handleLivewireResponse = () => {
+                    // Jika halaman tidak berpindah (misal ditolak server atau ada error validasi),
+                    // pastikan loading modal tertutup otomatis agar user tidak stuck
+                    setTimeout(() => {
+                        if (Swal.isVisible() && Swal.isLoading()) {
+                            Swal.close();
+                        }
+                    }, 1200);
+                };
+
                 const showSavingLoading = (aksiName) => {
+                    let timerInterval;
                     Swal.fire({
                         title: aksiName === 'start' ? 'Menyimpan Presensi Masuk...' : 'Menyimpan Presensi Pulang...',
                         html: '<div class="py-2 text-center">' +
                               '<p class="text-sm text-gray-600 mb-3">Mohon tunggu sebentar, data sedang diverifikasi & dicatat ke server.</p>' +
                               '<div class="p-3 bg-amber-50 border border-amber-300 rounded-lg text-amber-900 text-xs font-semibold leading-relaxed shadow-sm">' +
                               '⚠️ <strong>PENTING:</strong> Mohon JANGAN mengunci layar HP atau menutup browser sebelum proses selesai.' +
-                              '</div></div>',
+                              '</div>' +
+                              '<div class="mt-3 text-xs text-gray-500 font-medium">Batas verifikasi: <span id="swal-timeout-counter" class="font-bold text-gray-800">15</span> detik</div>' +
+                              '</div>',
                         allowOutsideClick: false,
                         allowEscapeKey: false,
                         showConfirmButton: false,
+                        timer: 15000,
+                        timerProgressBar: true,
                         didOpen: () => {
                             Swal.showLoading();
+                            const counter = document.getElementById('swal-timeout-counter');
+                            if (counter) {
+                                timerInterval = setInterval(() => {
+                                    const left = Swal.getTimerLeft();
+                                    if (left !== null && left !== undefined) {
+                                        counter.textContent = Math.max(0, Math.ceil(left / 1000));
+                                    }
+                                }, 1000);
+                            }
+                        },
+                        willClose: () => {
+                            if (timerInterval) clearInterval(timerInterval);
+                        }
+                    }).then((result) => {
+                        if (result.dismiss === Swal.DismissReason.timer) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Waktu Proses Habis',
+                                text: 'Koneksi internet lambat atau respon server membutuhkan waktu lebih lama. Silakan muat ulang halaman untuk mengecek status presensi Anda.',
+                                confirmButtonColor: '#16a34a',
+                                confirmButtonText: 'Periksa / Muat Ulang'
+                            }).then(() => {
+                                window.location.reload();
+                            });
                         }
                     });
                 };
@@ -579,9 +614,13 @@
                     showSavingLoading(aksi);
                     let payload = { is_mobile: isMobile };
                     if (aksi === 'start') {
-                        @this.call('startTimer', false, null, payload);
+                        @this.call('startTimer', false, deskripsi, payload)
+                            .then(() => handleLivewireResponse())
+                            .catch(() => { Swal.close(); });
                     } else {
-                        @this.call('openWorkReportModal', payload);
+                        @this.call('openWorkReportModal', payload, deskripsi)
+                            .then(() => handleLivewireResponse())
+                            .catch(() => { Swal.close(); });
                     }
                     return;
                 }
@@ -606,6 +645,8 @@
                     allowOutsideClick: false,
                     allowEscapeKey: false,
                     showConfirmButton: false,
+                    timer: 20000,
+                    timerProgressBar: true,
                     didOpen: () => {
                         Swal.showLoading();
                     }
@@ -617,9 +658,13 @@
                     showSavingLoading(aksi);
 
                     if (aksi === 'start') {
-                        @this.call('startTimer', false, null, lokasi).catch(() => { Swal.close(); });
+                        @this.call('startTimer', false, deskripsi, lokasi)
+                            .then(() => handleLivewireResponse())
+                            .catch(() => { Swal.close(); });
                     } else {
-                        @this.call('openWorkReportModal', lokasi).catch(() => { Swal.close(); });
+                        @this.call('openWorkReportModal', lokasi, deskripsi)
+                            .then(() => handleLivewireResponse())
+                            .catch(() => { Swal.close(); });
                     }
                 } catch (pesanError) {
                     Swal.fire({
