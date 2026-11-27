@@ -100,7 +100,7 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
                 if ($hasCuti) {
                     $row[] = 'C (-)';
                 } elseif ($jadwalsOnDay->isNotEmpty()) {
-                    $validJadwals = $jadwalsOnDay->reject(fn($j) => ($j->shift->nama_shift ?? '') === 'C');
+                    $validJadwals = $jadwalsOnDay->reject(fn($j) => in_array(strtoupper($j->shift->nama_shift ?? ''), ['C', 'L', 'LIBUR']));
                     if ($validJadwals->isNotEmpty()) {
                         $shiftTexts = [];
                         foreach ($validJadwals as $jadwal) {
@@ -115,12 +115,12 @@ class JadwalTemplateExport implements FromArray, WithHeadings, WithEvents
                                 $shiftTexts[] = "{$nama} ({$masuk}-{$keluar})";
                             }
                         }
-                        $row[] = !empty($shiftTexts) ? implode(' | ', $shiftTexts) : 'L (-)';
+                        $row[] = !empty($shiftTexts) ? implode(' | ', $shiftTexts) : '';
                     } else {
-                        $row[] = 'L (-)';
+                        $row[] = '';
                     }
                 } else {
-                    $row[] = 'L (-)'; // Default untuk hari kosong / libur
+                    $row[] = ''; // Default untuk hari kosong / libur dibiarkan blank
                 }
             }
             $data[] = $row;
