@@ -111,7 +111,7 @@
 
                 <div class="flex items-center gap-3">
                     <input type="file" id="bukti_izin" wire:model="bukti_izin"
-                        accept="image/*"
+                        accept=".jpg,.jpeg,.png,.pdf"
                         class="form-control @error('bukti_izin') is-invalid @enderror w-full rounded-lg border border-gray-300 bg-white focus:ring-success-500 focus:border-success-500 p-2.5">
 
                     @if ($bukti_izin)
@@ -142,9 +142,17 @@
                             </div>
 
                             <div class="flex justify-center">
-                                <img src="{{ $bukti_izin->temporaryUrl() }}"
-                                    alt="Preview Foto Surat Izin"
-                                    class="max-h-[70vh] max-w-full object-contain rounded">
+                                @if (strtolower($bukti_izin->getClientOriginalExtension()) === 'pdf')
+                                    <iframe
+                                        src="{{ $bukti_izin->temporaryUrl() }}"
+                                        class="w-full h-[70vh] rounded border"
+                                        title="Preview Surat Izin PDF">
+                                    </iframe>
+                                @else
+                                    <img src="{{ $bukti_izin->temporaryUrl() }}"
+                                        alt="Preview Foto Surat Izin"
+                                        class="max-h-[70vh] max-w-full object-contain rounded">
+                                @endif
                             </div>
                         </div>
                     </div>
