@@ -608,7 +608,7 @@ class PengajuanForm extends Component
                 'tanggal_mulai' => 'required|date',
                 'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
                 'keterangan' => 'nullable|string|max:255',
-                'bukti_izin' => 'nullable|image|mimes:jpg,jpeg,png,pdf|max:2048',
+                'bukti_izin' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
             ]);
 
             $jumlah_hari = (
